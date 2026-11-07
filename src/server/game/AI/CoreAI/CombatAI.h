@@ -65,23 +65,10 @@ class TC_GAME_API CasterAI : public CombatAI
         float _attackDistance;
 };
 
-struct TC_GAME_API ArcherAI : public CreatureAI
-{
-    public:
-        explicit ArcherAI(Creature* creature, uint32 scriptId = {});
-        void AttackStart(Unit* who) override;
-        void UpdateAI(uint32 diff) override;
-
-        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
-
-    protected:
-        float _minimumRange;
-};
-
 struct TC_GAME_API TurretAI : public CreatureAI
 {
     public:
-        explicit TurretAI(Creature* creature, uint32 scriptId = {});
+        explicit TurretAI(Creature* creature, uint32 scriptId = {}) noexcept;
         bool CanAIAttack(Unit const* who) const override;
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
@@ -98,7 +85,7 @@ struct TC_GAME_API TurretAI : public CreatureAI
 struct TC_GAME_API VehicleAI : public CreatureAI
 {
     public:
-        explicit VehicleAI(Creature* creature, uint32 scriptId = {});
+        explicit VehicleAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         void UpdateAI(uint32 diff) override;
         void MoveInLineOfSight(Unit*) override { }

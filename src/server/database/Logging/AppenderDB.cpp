@@ -20,10 +20,10 @@
 #include "LogMessage.h"
 #include "PreparedStatement.h"
 
-AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags /*flags*/, std::vector<std::string_view> const& /*args*/)
-    : Appender(id, name, level), realmId(0), enabled(false) { }
+AppenderDB::AppenderDB(uint8 id, std::string name, LogLevel level, AppenderFlags /*flags*/, std::vector<std::string_view> const& /*args*/)
+    : Appender(id, std::move(name), level), realmId(0), enabled(false) { }
 
-AppenderDB::~AppenderDB() { }
+AppenderDB::~AppenderDB() = default;
 
 void AppenderDB::_write(LogMessage const* message)
 {

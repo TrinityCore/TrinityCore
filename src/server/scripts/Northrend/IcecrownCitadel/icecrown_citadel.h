@@ -555,8 +555,6 @@ uint32 const MaxHeroicAttempts = 50;
 
 class spell_trigger_spell_from_caster : public SpellScript
 {
-    PrepareSpellScript(spell_trigger_spell_from_caster);
-
 public:
     spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK);
 

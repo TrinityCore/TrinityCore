@@ -72,6 +72,12 @@ extern "C" {
   #endif
 #endif
 
+#if defined(CASCLIB_DETECT_UNICODE_MISMATCHES)
+#if defined(_UNICODE) != defined(CASCLIB_UNICODE)
+#error CascLib was not built with the same UNICODE setting as your project
+#endif
+#endif
+
 //-----------------------------------------------------------------------------
 // Defines
 
@@ -88,6 +94,8 @@ extern "C" {
 #define CASC_OPEN_FLAGS_MASK        0xFFFFFFF0  // The mask which gets open type from the dwFlags
 #define CASC_STRICT_DATA_CHECK      0x00000010  // Verify all data read from a file
 #define CASC_OVERCOME_ENCRYPTED     0x00000020  // When CascReadFile encounters a block encrypted with a key that is missing, the block is filled with zeros and returned as success
+#define CASC_OPEN_CKEY_ONCE         0x00000040  // Only opens a file with given CKey once, regardless on how many file names does it have. Used by CascLib test program
+                                                // If the file was already open before, CascOpenFile returns false and ERROR_FILE_ALREADY_OPENED
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
 #define CASC_LOCALE_ALL_WOW         0x0001F3F6  // All except enCN and enTW
@@ -129,6 +137,11 @@ extern "C" {
 #ifndef MD5_HASH_SIZE
 #define MD5_HASH_SIZE                     0x10
 #define MD5_STRING_SIZE                   0x20
+#endif
+
+#ifndef SHA1_HASH_SIZE
+#define SHA1_HASH_SIZE                    0x14
+#define SHA1_STRING_SIZE                  0x28
 #endif
 
 // Invalid values of all kind
@@ -311,12 +324,21 @@ typedef struct _CASC_FILE_SPAN_INFO
 //-----------------------------------------------------------------------------
 // Extended version of CascOpenStorage
 
+typedef enum _CASC_PROGRESS_MSG
+{
+    CascProgressLoadingFile,                    // "Loading file: %s"
+    CascProgressLoadingManifest,                // "Loading manifest: %s"
+    CascProgressDownloadingFile,                // "Downloading file: %s"
+    CascProgressLoadingIndexes,                 // "Loading index files"
+    CascProgressDownloadingArchiveIndexes,      // "Downloading archive indexes"
+} CASC_PROGRESS_MSG, *PCASC_PROGRESS_MSG;
+
 // Some operations (e.g. opening an online storage) may take long time.
 // This callback allows an application to be notified about loading progress
 // and even cancel the storage loading process
 typedef bool (WINAPI * PFNPROGRESSCALLBACK)(    // Return 'true' to cancel the loading process
     void * PtrUserParam,                        // User-specific parameter passed to the callback
-    LPCSTR szWork,                              // Text for the current activity (example: "Loading "ENCODING" file")
+    CASC_PROGRESS_MSG ProgressMsg,              // Text for the current activity. The target callback needs to translate it into language-specific message
     LPCSTR szObject,                            // (optional) name of the object tied to the activity (example: index file name)
     DWORD CurrentValue,                         // (optional) current object being processed
     DWORD TotalValue                            // (optional) If non-zero, this is the total number of objects to process

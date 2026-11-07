@@ -238,8 +238,6 @@ class npc_harbinger_of_flame : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -299,7 +297,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 // Our passenger is another vehicle (boardable by players)
                 DoCast(passenger, SPELL_SHARE_HEALTH, true);
                 passenger->SetFaction(35);
-                passenger->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                passenger->SetUninteractible(false);
 
                 // Hack to relocate vehicle on vehicle so exiting players are not moved under map
                 Movement::MoveSplineInit init(passenger);
@@ -482,8 +480,6 @@ class npc_egg_pile : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -504,8 +500,6 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
 
         class spell_alysrazor_cosmetic_egg_xplosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_cosmetic_egg_xplosion_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sCreatureDisplayInfoStore.LookupEntry(MODEL_INVISIBLE_STALKER))
@@ -540,8 +534,6 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
 
         class spell_alysrazor_turn_monstrosity_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_turn_monstrosity_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -626,8 +618,6 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
 
         class spell_alysrazor_aggro_closest_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_aggro_closest_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -666,8 +656,6 @@ class spell_alysrazor_fieroblast : public SpellScriptLoader
 
         class spell_alysrazor_fieroblast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alysrazor_fieroblast_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_FIRE_IT_UP });

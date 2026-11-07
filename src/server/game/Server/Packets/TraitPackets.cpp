@@ -16,6 +16,7 @@
  */
 
 #include "TraitPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Traits
 {
@@ -30,7 +31,7 @@ WorldPacket const* TraitConfigCommitFailed::Write()
 {
     _worldPacket << int32(ConfigID);
     _worldPacket << int32(SpellID);
-    _worldPacket.WriteBits(Reason, 4);
+    _worldPacket << Bits<4>(Reason);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -44,8 +45,9 @@ void ClassTalentsRequestNewConfig::Read()
 void ClassTalentsRenameConfig::Read()
 {
     _worldPacket >> ConfigID;
-    uint32 nameLength = _worldPacket.ReadBits(9);
-    Name = _worldPacket.ReadString(nameLength, false);
+    _worldPacket >> SizedString::BitsSize<9>(Name);
+
+    _worldPacket >> SizedString::Data<Strings::DontValidateUtf8>(Name);
 }
 
 void ClassTalentsDeleteConfig::Read()
@@ -56,13 +58,13 @@ void ClassTalentsDeleteConfig::Read()
 void ClassTalentsSetStarterBuildActive::Read()
 {
     _worldPacket >> ConfigID;
-    Active = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Active);
 }
 
 void ClassTalentsSetUsesSharedActionBars::Read()
 {
     _worldPacket >> ConfigID;
-    UsesShared = _worldPacket.ReadBit();
-    IsLastSelectedSavedConfig = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(UsesShared);
+    _worldPacket >> Bits<1>(IsLastSelectedSavedConfig);
 }
 }

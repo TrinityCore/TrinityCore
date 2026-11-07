@@ -26,6 +26,7 @@
 #include <set>
 #include <vector>
 
+class Player;
 class WorldPacket;
 
 enum CalendarMailAnswers
@@ -142,16 +143,10 @@ enum CalendarLimits
 struct TC_GAME_API CalendarInvite
 {
     public:
-        CalendarInvite(CalendarInvite const& calendarInvite, uint64 inviteId, uint64 eventId)
+        CalendarInvite(CalendarInvite const& calendarInvite, uint64 inviteId, uint64 eventId) : _inviteId(inviteId), _eventId(eventId),
+            _invitee(calendarInvite.GetInviteeGUID()), _senderGUID(calendarInvite.GetSenderGUID()), _responseTime(calendarInvite.GetResponseTime()),
+            _status(calendarInvite.GetStatus()), _rank(calendarInvite.GetRank()), _note(calendarInvite.GetNote())
         {
-            _inviteId = inviteId;
-            _eventId = eventId;
-            _invitee = calendarInvite.GetInviteeGUID();
-            _senderGUID = calendarInvite.GetSenderGUID();
-            _responseTime = calendarInvite.GetResponseTime();
-            _status = calendarInvite.GetStatus();
-            _rank = calendarInvite.GetRank();
-            _note = calendarInvite.GetNote();
         }
 
         CalendarInvite();
@@ -159,7 +154,13 @@ struct TC_GAME_API CalendarInvite
         CalendarInvite(uint64 inviteId, uint64 eventId, ObjectGuid invitee, ObjectGuid senderGUID, time_t responseTime,
             CalendarInviteStatus status, CalendarModerationRank rank, std::string note) :
             _inviteId(inviteId), _eventId(eventId), _invitee(invitee), _senderGUID(senderGUID), _responseTime(responseTime),
-            _status(status), _rank(rank), _note(note) { }
+            _status(status), _rank(rank), _note(std::move(note)) { }
+
+        CalendarInvite(CalendarInvite const&) = delete;
+        CalendarInvite(CalendarInvite&&) = delete;
+
+        CalendarInvite& operator=(CalendarInvite const&) = delete;
+        CalendarInvite& operator=(CalendarInvite&&) = delete;
 
         ~CalendarInvite();
 
@@ -201,27 +202,24 @@ struct TC_GAME_API CalendarInvite
 struct TC_GAME_API CalendarEvent
 {
     public:
-        CalendarEvent(CalendarEvent const& calendarEvent, uint64 eventId)
-        {
-            _eventId = eventId;
-            _ownerGUID = calendarEvent.GetOwnerGUID();
-            _eventGuildId = calendarEvent.GetGuildId();
-            _eventType = calendarEvent.GetType();
-            _textureId = calendarEvent.GetTextureId();
-            _date = calendarEvent.GetDate();
-            _flags = calendarEvent.GetFlags();
-            _title = calendarEvent.GetTitle();
-            _description = calendarEvent.GetDescription();
-            _lockDate = calendarEvent.GetLockDate();
-        }
+        CalendarEvent(CalendarEvent const& calendarEvent, uint64 eventId) : _eventId(eventId), _ownerGUID(calendarEvent.GetOwnerGUID()),
+            _eventGuildId(calendarEvent.GetGuildId()), _eventType(calendarEvent.GetType()), _textureId(calendarEvent.GetTextureId()),
+            _date(calendarEvent.GetDate()), _flags(calendarEvent.GetFlags()), _title(calendarEvent.GetTitle()), _description(calendarEvent.GetDescription()),
+            _lockDate(calendarEvent.GetLockDate()) { }
 
         CalendarEvent(uint64 eventId, ObjectGuid ownerGUID, ObjectGuid::LowType guildId, CalendarEventType type, int32 textureId,
             time_t date, uint32 flags, std::string title, std::string description, time_t lockDate) :
             _eventId(eventId), _ownerGUID(ownerGUID), _eventGuildId(guildId), _eventType(type), _textureId(textureId),
-            _date(date), _flags(flags), _title(title), _description(description), _lockDate(lockDate) { }
+            _date(date), _flags(flags), _title(std::move(title)), _description(std::move(description)), _lockDate(lockDate) { }
 
         CalendarEvent() : _eventId(1), _ownerGUID(), _eventGuildId(UI64LIT(0)), _eventType(CALENDAR_TYPE_OTHER), _textureId(-1), _date(0),
-            _flags(0), _title(""), _description(""), _lockDate(0) { }
+            _flags(0), _title(), _description(), _lockDate(0) { }
+
+        CalendarEvent(CalendarEvent const&) = delete;
+        CalendarEvent(CalendarEvent&&) = delete;
+
+        CalendarEvent& operator=(CalendarEvent const&) = delete;
+        CalendarEvent& operator=(CalendarEvent&&) = delete;
 
         ~CalendarEvent();
 
@@ -263,7 +261,7 @@ struct TC_GAME_API CalendarEvent
         static bool IsGuildAnnouncement(uint32 flags) { return (flags & CALENDAR_FLAG_WITHOUT_INVITES) != 0; }
 
         std::string BuildCalendarMailSubject(ObjectGuid remover) const;
-        std::string BuildCalendarMailBody() const;
+        std::string BuildCalendarMailBody(Player const* invitee) const;
 
     private:
         uint64 _eventId;
@@ -296,20 +294,26 @@ class TC_GAME_API CalendarMgr
         uint64 _maxInviteId;
 
     public:
+        CalendarMgr(CalendarMgr const&) = delete;
+        CalendarMgr(CalendarMgr&&) = delete;
+
+        CalendarMgr& operator=(CalendarMgr const&) = delete;
+        CalendarMgr& operator=(CalendarMgr&&) = delete;
+
         static CalendarMgr* instance();
 
         void LoadFromDB();
 
         CalendarEvent* GetEvent(uint64 eventId) const;
         CalendarEventStore const& GetEvents() const { return _events; }
-        CalendarEventStore GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false);
-        CalendarEventStore GetPlayerEvents(ObjectGuid guid);
-        CalendarEventStore GetGuildEvents(ObjectGuid::LowType guildId);
+        CalendarEventStore GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false) const;
+        CalendarEventStore GetPlayerEvents(ObjectGuid guid) const;
+        CalendarEventStore GetGuildEvents(ObjectGuid::LowType guildId) const;
 
         CalendarInvite* GetInvite(uint64 inviteId) const;
         CalendarEventInviteStore const& GetInvites() const { return _invites; }
-        CalendarInviteStore const& GetEventInvites(uint64 eventId);
-        CalendarInviteStore GetPlayerInvites(ObjectGuid guid);
+        CalendarInviteStore GetEventInvites(uint64 eventId) const;
+        CalendarInviteStore GetPlayerInvites(ObjectGuid guid) const;
 
         void FreeEventId(uint64 id);
         uint64 GetFreeEventId();
@@ -332,19 +336,20 @@ class TC_GAME_API CalendarMgr
         void RemoveAllPlayerEventsAndInvites(ObjectGuid guid);
         void RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ObjectGuid::LowType guildId);
 
-        void SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarSendEventType sendType);
-        void SendCalendarEventInvite(CalendarInvite const& invite);
-        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventInviteRemove(CalendarEvent const& calendarEvent, CalendarInvite const& invite, uint32 flags);
-        void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status);
-        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, time_t originalDate);
-        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
-        void SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarClearPendingAction(ObjectGuid guid);
-        void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param = nullptr);
+        void SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarSendEventType sendType) const;
+        void SendCalendarEventInvite(CalendarInvite const& invite) const;
+        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite) const;
+        void SendCalendarEventInviteRemove(CalendarEvent const& calendarEvent, CalendarInvite const& invite, uint32 flags) const;
+        void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status) const;
+        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, time_t originalDate) const;
+        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite) const;
+        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent) const;
+        void SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite) const;
+        void SendCalendarClearPendingAction(ObjectGuid guid) const;
+        void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param = nullptr) const;
 
-        void SendPacketToAllEventRelatives(WorldPacket const* packet, CalendarEvent const& calendarEvent);
+        void SendPacketToAllEventRelatives(WorldPacket const* packet, CalendarEvent const& calendarEvent) const;
+        std::vector<Player*> GetAllEventRelatives(CalendarEvent const& calendarEvent) const;
 };
 
 #define sCalendarMgr CalendarMgr::instance()

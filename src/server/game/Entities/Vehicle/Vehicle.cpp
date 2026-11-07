@@ -17,6 +17,7 @@
 
 #include "Vehicle.h"
 #include "Battleground.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -32,6 +33,18 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include <sstream>
+
+class VehicleJoinEvent : public BasicEvent
+{
+public:
+    VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
+    bool Execute(uint64, uint32) override;
+    void Abort(uint64) override;
+
+    Vehicle* Target;
+    Unit* Passenger;
+    SeatMap::iterator Seat;
+};
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE)
@@ -51,7 +64,7 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
     // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
     if (UsableSeatNum)
         _me->SetNpcFlag((_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
-    else
+    else if (!unit->m_unitData->InteractSpellID)
         _me->RemoveNpcFlag((_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     InitMovementInfoForBase();
@@ -92,7 +105,7 @@ void Vehicle::InstallAllAccessories(bool evading)
 
     for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
         if (!evading || itr->IsMinion)  // only install minions on evade mode
-            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime);
+            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime, itr->RideSpellID);
 }
 
 /**
@@ -246,11 +259,11 @@ void Vehicle::RemoveAllPassengers()
     // We don't need to iterate over Seats
     _me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
-    // Following the above logic, this assertion should NEVER fail.
-    // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
-    // SeatMap::const_iterator itr;
-    // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
-    //    ASSERT(!itr->second.passenger);
+    // Aura script might cause the vehicle to be despawned in the middle of handling SPELL_AURA_CONTROL_VEHICLE removal
+    // In that case, aura effect has already been unregistered but passenger may still be found in Seats
+    for (auto const& [_, seat] : Seats)
+        if (Unit* passenger = ObjectAccessor::GetUnit(*_me, seat.Passenger.Guid))
+            passenger->_ExitVehicle();
 }
 
 /**
@@ -332,7 +345,10 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
         // Make sure we don't loop indefinetly
         if (seat->first == seatId)
-            return Seats.end();
+        {
+            seat = Seats.end();
+            break;
+        }
     }
 
     return seat;
@@ -377,7 +393,7 @@ VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* pass
  * @param summonTime Time after which the minion is despawned in case of a timed despawn @type specified.
  */
 
-void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime)
+void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime, Optional<uint32> rideSpellId /*= {}*/)
 {
     /// @Prevent adding accessories when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING)
@@ -395,9 +411,15 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     ASSERT(accessory);
 
     if (minion)
+    {
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
+        accessory->GetThreatManager().Initialize(); // reinitialize CanHaveThreatList cached value
+    }
 
-    _me->HandleSpellClick(accessory, seatId);
+    if (rideSpellId)
+        _me->HandleSpellClick(accessory, seatId, *rideSpellId);
+    else
+        _me->HandleSpellClick(accessory, seatId);
 
     /// If for some reason adding accessory to vehicle fails it will unsummon in
     /// @VehicleJoinEvent::Abort
@@ -512,7 +534,7 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // Remove UNIT_FLAG_UNINTERACTIBLE if passenger did not have it before entering vehicle
     if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUninteractible)
-        unit->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        unit->SetUninteractible(false);
 
     seat->second.Passenger.Reset();
 
@@ -529,7 +551,11 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // only for flyable vehicles
     if (unit->IsFlying())
-        _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    {
+        VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this);
+        if (!vehicleTemplate || !vehicleTemplate->CustomFlags.HasFlag(VehicleCustomFlags::DontForceParachuteOnExit))
+            _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    }
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
@@ -564,16 +590,12 @@ void Vehicle::RelocatePassengers()
         {
             ASSERT(passenger->IsInWorld());
 
-            float px, py, pz, po;
-            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
-
-            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
+            seatRelocation.emplace_back(passenger, _me->GetPositionWithOffset(passenger->m_movementInfo.transport.pos));
         }
     }
 
     for (auto const& [passenger, position] : seatRelocation)
-        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+        UpdatePassengerPosition(_me->GetMap(), passenger, position, false);
 }
 
 /**
@@ -619,15 +641,17 @@ void Vehicle::InitMovementInfoForBase()
     uint32 vehicleFlags = GetVehicleInfo()->Flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE);
     if (vehicleFlags & VEHICLE_FLAG_NO_JUMPING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_NO_JUMPING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_TURNING);
     if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_PITCHING);
+
+    _me->m_movementInfo.pitch = GetPitch();
 }
 
 /**
@@ -667,8 +691,7 @@ VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) cons
 
 SeatMap::iterator Vehicle::GetSeatIteratorForPassenger(Unit* passenger)
 {
-    SeatMap::iterator itr;
-    for (itr = Seats.begin(); itr != Seats.end(); ++itr)
+    for (SeatMap::iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
         if (itr->second.Passenger.Guid == passenger->GetGUID())
             return itr;
 
@@ -819,7 +842,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Passenger->SetVehicle(Target);
     Seat->second.Passenger.Guid = Passenger->GetGUID();
-    Seat->second.Passenger.IsUninteractible = Passenger->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    Seat->second.Passenger.IsUninteractible = Passenger->IsUninteractible();
     Seat->second.Passenger.IsGravityDisabled = Passenger->HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
     if (Seat->second.SeatInfo->CanEnterOrExit())
     {
@@ -834,7 +857,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         }
     }
 
-    Passenger->InterruptNonMeleeSpells(false);
+    Passenger->InterruptSpell(CURRENT_GENERIC_SPELL);
+    Passenger->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+    Passenger->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Mount);
     Passenger->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
@@ -843,15 +868,14 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Player* player = Passenger->ToPlayer();
     if (player)
     {
-        // drop flag
-        if (Battleground* bg = player->GetBattleground())
-            bg->EventPlayerDroppedFlag(player);
-
         player->StopCastingCharm();
         player->StopCastingBindSight();
         player->SendOnCancelExpectedVehicleRideAura();
         if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
+
+        // This is not perfectly mirroring official behavior (aura removal is delayed, most likely on heartbeat)
+        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Standing);
     }
 
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY))
@@ -894,7 +918,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
     for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
-        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), threatRef->GetThreat(), nullptr, true, true);
+        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), 0.0f, nullptr, true, true);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
@@ -964,6 +988,15 @@ Milliseconds Vehicle::GetDespawnDelay()
     return 1ms;
 }
 
+float Vehicle::GetPitch()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        if (vehicleTemplate->Pitch)
+            return *vehicleTemplate->Pitch;
+
+    return std::clamp(0.0f, _vehicleInfo->PitchMin, _vehicleInfo->PitchMax);
+}
+
 std::string Vehicle::GetDebugInfo() const
 {
     std::stringstream sstr;
@@ -989,4 +1022,9 @@ std::string Vehicle::GetDebugInfo() const
     }
 
     return sstr.str();
+}
+
+Trinity::unique_weak_ptr<Vehicle> Vehicle::GetWeakPtr() const
+{
+    return _me->GetVehicleKitWeakPtr();
 }

@@ -1,0 +1,9 @@
+-- Update positions
+UPDATE `creature` SET `position_x` = -2972.39990234375, `position_y` = 54.2985992431640625, `position_z` = 189.977325439453125, `orientation` = 0.122173048555850982, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295961;
+UPDATE `creature` SET `position_x` = -3020.60009765625, `position_y` = -7.09721994400024414, `position_z` = 191.2463226318359375, `orientation` = 0.122173048555850982, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295956;
+UPDATE `creature` SET `position_x` = -2971.01000976562, `position_y` = 86.19969940185546875, `position_z` = 190.8663330078125, `orientation` = 0.122173048555850982, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295962;
+UPDATE `creature` SET `position_x` = -2972.94995117187, `position_y` = -49.4287986755371093, `position_z` = 191.3873291015625, `orientation` = 0.122173048555850982, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295967;
+UPDATE `creature` SET `position_x` = -2990.42993164062, `position_y` = 21.63540077209472656, `position_z` = 190.607330322265625, `orientation` = 0.122173048555850982, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295968;
+UPDATE `creature` SET `position_x` = -2968.64990234375, `position_y` = -9.58333015441894531, `position_z` = 190.767333984375, `orientation` = 1.312179207801818847, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295969;
+UPDATE `creature` SET `position_x` = -2938.78002929687, `position_y` = 67.81079864501953125, `position_z` = 190.65032958984375, `orientation` = 0.927707791328430175, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295970;
+UPDATE `creature` SET `position_x` = -2983.82006835937, `position_y` = -17.3957996368408203, `position_z` = 192.8213348388671875, `orientation` = 4.483953475952148437, `wander_distance` = 10, `MovementType` = 1 WHERE `guid` = 295973;

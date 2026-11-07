@@ -75,17 +75,17 @@ bool AuctionBotSeller::Initialize()
 
     TC_LOG_DEBUG("ahbot", "Loading loot items for filter..");
     QueryResult result = WorldDatabase.PQuery(
-        "SELECT `item` FROM `creature_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `disenchant_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `fishing_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `gameobject_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `item_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `milling_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `pickpocketing_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `prospecting_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `reference_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `skinning_loot_template` WHERE `Reference` = 0 UNION "
-        "SELECT `item` FROM `spell_loot_template` WHERE `Reference` = 0");
+        "SELECT `item` FROM `creature_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `disenchant_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `fishing_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `gameobject_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `item_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `milling_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `pickpocketing_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `prospecting_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `reference_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `skinning_loot_template` WHERE `ItemType` = 0 UNION "
+        "SELECT `item` FROM `spell_loot_template` WHERE `ItemType` = 0");
 
     if (result)
     {
@@ -357,10 +357,10 @@ bool AuctionBotSeller::Initialize()
     {
         sLog->OutMessage("ahbot", LOG_LEVEL_DEBUG, "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
         for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
-            sLog->OutMessage("ahbot", LOG_LEVEL_DEBUG, "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
-            (uint32)_itemPool[0][i].size(), (uint32)_itemPool[1][i].size(), (uint32)_itemPool[2][i].size(),
-                (uint32)_itemPool[3][i].size(), (uint32)_itemPool[4][i].size(), (uint32)_itemPool[5][i].size(),
-                (uint32)_itemPool[6][i].size());
+            sLog->OutMessage("ahbot", LOG_LEVEL_DEBUG, "\t\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+            _itemPool[0][i].size(), _itemPool[1][i].size(), _itemPool[2][i].size(),
+                _itemPool[3][i].size(), _itemPool[4][i].size(), _itemPool[5][i].size(),
+                _itemPool[6][i].size());
     }
 
     TC_LOG_DEBUG("ahbot", "AHBot seller configuration data loaded and initialized");

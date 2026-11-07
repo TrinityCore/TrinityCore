@@ -97,8 +97,6 @@ class boss_karsh_steelbender : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

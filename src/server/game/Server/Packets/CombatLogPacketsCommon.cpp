@@ -17,15 +17,15 @@
 
 #include "CombatLogPacketsCommon.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "Map.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "Unit.h"
 
-namespace WorldPackets
-{
-namespace Spells
+namespace WorldPackets::Spells
 {
 void SpellCastLogData::Initialize(Unit const* unit)
 {
@@ -33,6 +33,11 @@ void SpellCastLogData::Initialize(Unit const* unit)
     AttackPower = unit->GetTotalAttackPowerValue(unit->GetClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
     SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
     Armor = unit->GetArmor();
+    if (Player const* player = unit->ToPlayer())
+    {
+        Versatility = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) * 100.0f;
+        Avoidance = player->GetRatingBonusValue(CR_AVOIDANCE) * 100.0f;
+    }
     PowerData.emplace_back(int32(unit->GetPowerType()), unit->GetPower(unit->GetPowerType()), int32(0));
 }
 
@@ -44,17 +49,22 @@ void SpellCastLogData::Initialize(Spell const* spell)
         AttackPower = unitCaster->GetTotalAttackPowerValue(unitCaster->GetClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
         SpellPower = unitCaster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
         Armor = unitCaster->GetArmor();
+        if (Player const* player = unitCaster->ToPlayer())
+        {
+            Versatility = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) * 100.0f;
+            Avoidance = player->GetRatingBonusValue(CR_AVOIDANCE) * 100.0f;
+        }
         Powers primaryPowerType = unitCaster->GetPowerType();
         bool primaryPowerAdded = false;
         for (SpellPowerCost const& cost : spell->GetPowerCost())
         {
-            PowerData.emplace_back(int32(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
+            PowerData.emplace_back(int8(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
             if (cost.Power == primaryPowerType)
                 primaryPowerAdded = true;
         }
 
         if (!primaryPowerAdded)
-            PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0));
+            PowerData.emplace(PowerData.begin(), int8(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0);
     }
 }
 
@@ -74,11 +84,15 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = target->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(attacker->m_unitData->ContentTuningID))
+    {
+        ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
+        TargetContentTuningID = contentTuning->ID;
+    }
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -92,11 +106,15 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = attacker->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(target->m_unitData->ContentTuningID))
+    {
+        ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
+        TargetContentTuningID = contentTuning->ID;
+    }
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -113,31 +131,31 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
+    TargetContentTuningID = accessor->m_unitData->ContentTuningID;
     return true;
 }
 
 template<>
 bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
-    if (Player* playerAttacker = attacker->ToPlayer())
+    if (Player* playerAttacker = Object::ToPlayer(attacker))
     {
-        if (Player* playerTarget = target->ToPlayer())
+        if (Player* playerTarget = Object::ToPlayer(target))
             return GenerateDataForUnits(playerAttacker, playerTarget);
-        else if (Creature* creatureTarget = target->ToCreature())
+        else if (Creature* creatureTarget = Object::ToCreature(target))
         {
             if (creatureTarget->HasScalableLevels())
                 return GenerateDataForUnits(playerAttacker, creatureTarget);
         }
     }
-    else if (Creature* creatureAttacker = attacker->ToCreature())
+    else if (Creature* creatureAttacker = Object::ToCreature(attacker))
     {
-        if (Player* playerTarget = target->ToPlayer())
+        if (Player* playerTarget = Object::ToPlayer(target))
         {
             if (creatureAttacker->HasScalableLevels())
                 return GenerateDataForUnits(creatureAttacker, playerTarget);
         }
-        else if (Creature* creatureTarget = target->ToCreature())
+        else if (Creature* creatureTarget = Object::ToCreature(target))
         {
             if (creatureAttacker->HasScalableLevels() || creatureTarget->HasScalableLevels())
                 return GenerateDataForUnits(creatureAttacker, creatureTarget);
@@ -153,12 +171,15 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
-    data.WriteBits(spellCastLogData.PowerData.size(), 9);
+    data << int32(spellCastLogData.Versatility);
+    data << int32(spellCastLogData.Avoidance);
+    data << Bits<1>(spellCastLogData.HideFromCombatLog);
+    data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
-    for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
+    for (SpellLogPowerData const& powerData : spellCastLogData.PowerData)
     {
-        data << int32(powerData.PowerType);
+        data << int8(powerData.PowerType);
         data << int32(powerData.Amount);
         data << int32(powerData.Cost);
     }
@@ -171,16 +192,20 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << float(contentTuningParams.PlayerItemLevel);
     data << float(contentTuningParams.TargetItemLevel);
     data << int16(contentTuningParams.PlayerLevelDelta);
-    data << uint32(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << int32(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << int32(contentTuningParams.Unused1117);
+    data << int32(contentTuningParams.ScalingHealthPrimaryStatCurveID);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
     data << uint32(contentTuningParams.Flags);
     data << int32(contentTuningParams.PlayerContentTuningID);
     data << int32(contentTuningParams.TargetContentTuningID);
-    data << int32(contentTuningParams.Unused927);
-    data.WriteBits(contentTuningParams.Type, 4);
+    data << int32(contentTuningParams.TargetHealingContentTuningID);
+    data << float(contentTuningParams.PlayerPrimaryStatToExpectedRatio);
+    data << Bits<4>(contentTuningParams.Type);
     data.FlushBits();
+
     return data;
 }
 
@@ -202,17 +227,19 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
 {
-    data << supportInfo.CasterGUID;
-    data << int32(supportInfo.SpellID);
-    data << int32(supportInfo.Amount);
-    data << float(supportInfo.Percentage);
+    data << supportInfo.Supporter;
+    data << int32(supportInfo.SupportSpellID);
+    data << int32(supportInfo.AmountRaw);
+    data << float(supportInfo.AmountPortion);
 
     return data;
 }
 }
-}
 
-ByteBuffer& WorldPackets::CombatLog::CombatLogServerPacket::WriteLogData()
+namespace WorldPackets::CombatLog
+{
+ByteBuffer& CombatLogServerPacket::WriteLogData()
 {
     return _fullLogPacket << LogData;
+}
 }

@@ -107,7 +107,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_EQUIP_RATING                            = 81, // You don't have the personal, team, or battleground rating required to buy that item
     EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM                 = 82,
     EQUIP_ERR_NOT_SAME_ACCOUNT                             = 83, // Account-bound items can only be given to your own characters.
-    EQUIP_NONE_3                                           = 84,
+    EQUIP_ERR_NONE                                         = 84,
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS    = 85, // You can only carry %d %s
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS = 86, // You can only equip %d |4item:items in the %s category
     EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED             = 87, // Your level is too high to use that item
@@ -141,6 +141,22 @@ enum InventoryResult : uint8
     EQUIP_ERR_REAGENTBAG_WRONG_SLOT                        = 115,// Reagent Bags can only be placed in the reagent bag slot.
     EQUIP_ERR_SLOT_ONLY_REAGENTBAG                         = 116,// Only Reagent Bags can be placed in the reagent bag slot.
     EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
+    EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND              = 118,// Items that can be refunded can't be bulk sold.
+    EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK            = 119,// Soulbound items cannot be stored in the Warband Bank.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3                     = 120,// You can't do that right now.
+    EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK                    = 121,// Your character cannot complete this action.
+    EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS                   = 122,// You have already purchased the maximum amount of tabs.
+    EQUIP_ERR_NO_ACCOUNT_BANK_HERE                         = 123,// You are too far away from a Warband Bank.
+    EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK           = 124,// Refundable items cannot be stored in the Warband Bank.
+    EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK       = 125,// You cannot place that in the Warband Bank.
+    EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK  = 126,// You cannot open this while it is in the Warband Bank.
+    EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK                  = 127,// Items must be moved out of the Warband Bank to be deleted.
+    EQUIP_ERR_BANK_NOT_ACCESSIBLE                          = 128,// This character does not have access to this bank.
+    EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM                      = 129,// You can't trade an item from the Warband bank.
+    EQUIP_ERR_ACCOUNT_MONEY_LOCKED                         = 130,// You cannot withdraw or deposit gold from the warband bank currently; please try again later.
+    EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE                = 131,// This character does not have access to this bank.
+    EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED                 = 132,// Your character's bank has not been converted. Please try again later.
+    EQUIP_ERR_NO_SALVAGED_ITEMS_IN_ACCOUNT_BANK            = 133,// You cannot place that in the Warband Bank.
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -166,7 +182,10 @@ enum SellResult
     SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // DESCRIPTION You don't own that item.
     SELL_ERR_UNK                                 = 5,       // DESCRIPTION nothing appears...
     SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // DESCRIPTION You can only do that with empty bags.
-    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // DESCRIPTION You cannot sell items to this merchant.
+    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7,       // DESCRIPTION You cannot sell items to this merchant.
+    SELL_ERR_MUST_REPAIR_DURABILITY              = 8,       // DESCRIPTION You must repair that item's durability to use it.
+    SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE    = 9,       // DESCRIPTION The merchant doesn't want that item. Bring it to the Scrapper to extract Titan Residuum.
+    SELL_ERR_INTERNAL_BAG_ERROR                  = 10,      // DESCRIPTION Internal Bag Error
 };
 
 // -1 from client enchantment slot number
@@ -262,6 +281,13 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_12                  = 55,
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_13                  = 56,
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_14                  = 57,
+    ITEM_MODIFIER_REFORGE                                   = 58,
+    ITEM_MODIFIER_DBID_HIGH                                 = 59,
+    ITEM_MODIFIER_DBID_LOW                                  = 60,
+    ITEM_MODIFIER_CURRENCY_WALLET_ID                        = 61,
+    ITEM_MODIFIER_CURRENCY_WALLET_QUANTITY                  = 62,
+    ITEM_MODIFIER_CURRENCY_WALLET_VERSION                   = 63,
+    ITEM_MODIFIER_REDIRECTED_BASE_STATS                     = 64,
 
     MAX_ITEM_MODIFIERS
 };
@@ -280,6 +306,13 @@ enum class AzeriteEssenceActivateResult : uint32
     NotAtForge          = 10,
     HeartLevelTooLow    = 11,   // Arg: RequiredLevel
     NotEquipped         = 12
+};
+
+enum class BankType : int8
+{
+    Character   = 0,
+    Guild       = 1,
+    Account     = 2
 };
 
 #endif // ItemDefines_h__

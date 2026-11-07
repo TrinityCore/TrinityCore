@@ -23,7 +23,7 @@
 
 // converts string value returned from query to type specified in column metadata
 template<typename DatabaseType>
-class FromStringToDatabaseTypeConverter : public BaseDatabaseResultValueConverter
+class FromStringToDatabaseTypeConverter
 {
 public:
     static DatabaseType GetDatabaseValue(char const* data, uint32 size)
@@ -39,7 +39,7 @@ public:
 
 // converts binary value returned from query to type specified in column metadata
 template<typename DatabaseType>
-class FromBinaryToDatabaseTypeConverter : public BaseDatabaseResultValueConverter
+class FromBinaryToDatabaseTypeConverter
 {
 public:
     static DatabaseType GetDatabaseValue(char const* data, uint32 /*size*/)
@@ -54,7 +54,7 @@ public:
 };
 
 // converts column value from type specified in column metadata to type requested by Field::Get* function
-template<typename DatabaseType, template<typename...> typename ToDatabaseTypeConverter>
+template<typename DatabaseType, template<typename> typename ToDatabaseTypeConverter>
 class PrimitiveResultValueConverter : public BaseDatabaseResultValueConverter
 {
 public:
@@ -81,6 +81,7 @@ public:
     int64 GetInt64(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const override { return GetNumericValue<int64>(data, size, meta, "Field::GetInt64"); }
     float GetFloat(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const override { return GetNumericValue<float>(data, size, meta, "Field::GetFloat"); }
     double GetDouble(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const override { return GetNumericValue<double>(data, size, meta, "Field::GetDouble"); }
+    SystemTimePoint GetDate(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDate", meta); return SystemTimePoint::min(); }
     char const* GetCString(char const* data, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override
     {
         char const* result = ToDatabaseTypeConverter<DatabaseType>::GetStringValue(data);
@@ -91,7 +92,7 @@ public:
 };
 
 template<>
-class PrimitiveResultValueConverter<char const*, std::void_t> : public BaseDatabaseResultValueConverter
+class PrimitiveResultValueConverter<char const*, std::type_identity_t> : public BaseDatabaseResultValueConverter
 {
 public:
     uint8 GetUInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt8", meta); return 0; }
@@ -104,9 +105,27 @@ public:
     int64 GetInt64(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt64", meta); return 0; }
     float GetFloat(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetFloat", meta); return 0.0f; }
     double GetDouble(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDouble", meta); return 0.0; }
+    SystemTimePoint GetDate(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDate", meta); return SystemTimePoint::min(); }
     char const* GetCString(char const* data, uint32 /*size*/, QueryResultFieldMetadata const* /*meta*/) const override { return data; }
 };
 
-using StringResultValueConverter = PrimitiveResultValueConverter<char const*, std::void_t>;
+using StringResultValueConverter = PrimitiveResultValueConverter<char const*, std::type_identity_t>;
+
+class NotImplementedResultValueConverter : public BaseDatabaseResultValueConverter
+{
+public:
+    uint8 GetUInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt8", meta); return 0; }
+    int8 GetInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt8", meta); return 0; }
+    uint16 GetUInt16(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt16", meta); return 0; }
+    int16 GetInt16(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt16", meta); return 0; }
+    uint32 GetUInt32(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt32", meta); return 0; }
+    int32 GetInt32(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt32", meta); return 0; }
+    uint64 GetUInt64(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt64", meta); return 0; }
+    int64 GetInt64(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt64", meta); return 0; }
+    float GetFloat(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetFloat", meta); return 0.0f; }
+    double GetDouble(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDouble", meta); return 0.0; }
+    SystemTimePoint GetDate(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDate", meta); return SystemTimePoint::min(); }
+    char const* GetCString(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetCString", meta); return nullptr; }
+};
 
 #endif // TRINITY_FIELD_VALUE_CONVERTERS_H

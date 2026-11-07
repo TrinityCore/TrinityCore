@@ -39,7 +39,9 @@ EndScriptData */
 #include "Util.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+using namespace Trinity::ChatCommands;
+
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -48,9 +50,9 @@ class modify_commandscript : public CommandScript
 public:
     modify_commandscript() : CommandScript("modify_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> modifyspeedCommandTable =
+        static ChatCommandTable modifyspeedCommandTable =
         {
             { "all",      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,      false, &HandleModifyASpeedCommand, "" },
             { "backwalk", rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, false, &HandleModifyBWalkCommand,  "" },
@@ -59,7 +61,7 @@ public:
             { "swim",     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,     false, &HandleModifySwimCommand,   "" },
             { "",         rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,          false, &HandleModifyASpeedCommand, "" },
         };
-        static std::vector<ChatCommand> modifyCommandTable =
+        static ChatCommandTable modifyCommandTable =
         {
             { "currency",     rbac::RBAC_PERM_COMMAND_MODIFY_CURRENCY,     false, &HandleModifyCurrencyCommand,      "" },
             { "drunk",        rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,        false, &HandleModifyDrunkCommand,         "" },
@@ -83,7 +85,7 @@ public:
             { "xp",           rbac::RBAC_PERM_COMMAND_MODIFY_XP,           false, &HandleModifyXPCommand,            "" },
             { "power",        rbac::RBAC_PERM_COMMAND_MODIFY_POWER,        false, &HandleModifyPowerCommand,         "" },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "morph",   rbac::RBAC_PERM_COMMAND_MORPH,   false, &HandleModifyMorphCommand,          "" },
             { "demorph", rbac::RBAC_PERM_COMMAND_DEMORPH, false, &HandleDeMorphCommand,              "" },
@@ -225,14 +227,14 @@ public:
             flag = target->m_unitData->Flags;
 
         if (!npcflag)
-            memcpy(&npcflag.emplace(), target->m_unitData->NpcFlags.begin(), sizeof(uint64));
+            npcflag = (uint64(target->GetNpcFlags2()) << 32) | target->GetNpcFlags();
 
         if (!dyflag)
             dyflag = target->m_objectData->DynamicFlags;
 
         if (!factionid)
         {
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), *factionid, *flag, std::to_string(*npcflag).c_str(), *dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), target->GetFaction(), *flag, std::to_string(*npcflag).c_str(), *dyflag);
             return true;
         }
 
@@ -923,12 +925,9 @@ public:
         return true;
     }
 
-    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyCurrencyCommand(ChatHandler* handler, CurrencyTypesEntry const* currency, int32 amount)
     {
-        if (!*args)
-            return false;
-
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -936,16 +935,7 @@ public:
             return false;
         }
 
-        uint32 currencyId = atoi(strtok((char*)args, " "));
-        const CurrencyTypesEntry* currencyType =  sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!currencyType)
-            return false;
-
-        uint32 amount = atoi(strtok(nullptr, " "));
-        if (!amount)
-            return false;
-
-        target->ModifyCurrency(currencyId, amount, CurrencyGainSource::Cheat, CurrencyDestroyReason::Cheat);
+        target->ModifyCurrency(currency->ID, amount, CurrencyGainSource::Cheat, CurrencyDestroyReason::Cheat);
 
         return true;
     }
@@ -1003,7 +993,7 @@ public:
             return false;
         }
 
-        if (target->GetPowerIndex(Powers(powerType->PowerTypeEnum)) == MAX_POWERS)
+        if (target->GetPowerIndex(Powers(powerType->PowerTypeEnum)) >= MAX_POWERS_PER_CLASS)
         {
             handler->SendSysMessage(LANG_INVALID_POWER_NAME);
             handler->SetSentErrorMessage(true);

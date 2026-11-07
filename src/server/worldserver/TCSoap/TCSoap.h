@@ -21,9 +21,10 @@
 #include "Define.h"
 #include <future>
 #include <string>
+#include <thread>
 
 void process_message(struct soap* soap_message);
-void TCSoapThread(const std::string& host, uint16 port);
+std::thread* CreateSoapThread(const std::string& host, uint16 port);
 
 class SOAPCommand
 {

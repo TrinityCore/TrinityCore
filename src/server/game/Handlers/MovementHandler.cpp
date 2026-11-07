@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "Corpse.h"
 #include "DB2Stores.h"
@@ -28,22 +29,160 @@
 #include "Map.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
+#include "MoveSpline.h"
+#include "MovementGenerator.h"
 #include "MovementPackets.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"
-#include "MotionMaster.h"
-#include "MovementGenerator.h"
-#include "MoveSpline.h"
+#include "SpellMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "SpellMgr.h"
+#include <boost/accumulators/framework/accumulator_set.hpp>
+#include <boost/accumulators/framework/features.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics.hpp>
 #include <boost/circular_buffer.hpp>
+
+bool WorldSession::ValidateMovementInfo(Unit const* mover, MovementInfo* mi) const
+{
+    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
+    //! Might be subject to latency, so just remove improper flags.
+    #ifdef TRINITY_DEBUG
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) do \
+    { \
+        if (check) \
+        { \
+            TC_LOG_DEBUG("entities.unit", "Player::ValidateMovementInfo: Violation of MovementFlags found ({}). " \
+                "MovementFlags: {} for player {}. Mask {} will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), GetPlayer()->GetGUID(), maskToRemove); \
+            mi->RemoveMovementFlag((maskToRemove)); \
+        } \
+    } while (0)
+    #else
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) do \
+    { \
+        if (check) \
+            mi->RemoveMovementFlag((maskToRemove)); \
+    } while (0)
+    #endif
+
+    if (!mover)
+        return false;
+
+    if (!mi->pos.IsPositionValid())
+        return false;
+
+    if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
+
+    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
+        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
+        It will freeze clients that receive this player's movement info.
+    */
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_MASK_MOVING),
+        MOVEMENTFLAG_MASK_MOVING);
+
+    //! Cannot hover without SPELL_AURA_HOVER
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !mover->HasAuraType(SPELL_AURA_HOVER),
+        MOVEMENTFLAG_HOVER);
+
+    //! Cannot ascend and descend at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
+        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+
+    //! Cannot move left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+
+    //! Cannot strafe left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
+        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+
+    //! Cannot pitch up and down at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
+        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+
+    //! Cannot move forwards and backwards at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
+        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+
+    //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
+        !mover->HasAuraType(SPELL_AURA_WATER_WALK) &&
+        !mover->HasAuraType(SPELL_AURA_GHOST),
+        MOVEMENTFLAG_WATERWALKING);
+
+    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !mover->HasAuraType(SPELL_AURA_FEATHER_FALL),
+        MOVEMENTFLAG_FALLING_SLOW);
+
+    /*! Cannot fly if no fly auras present. Exception is being a GM.
+        Note that we check for account level instead of Player::IsGameMaster() because in some
+        situations it may be feasable to use .gm fly on as a GM without having .gm on,
+        e.g. aerial combat.
+    */
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
+        !mover->HasAuraType(SPELL_AURA_FLY) &&
+        !mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) &&
+        !mover->HasAuraType(SPELL_AURA_ADV_FLYING),
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
+        MOVEMENTFLAG_FALLING);
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) && G3D::fuzzyEq(mi->stepUpStartElevation, 0.0f), MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    // Client first checks if spline elevation != 0, then verifies flag presence
+    if (G3D::fuzzyNe(mi->stepUpStartElevation, 0.0f))
+        mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    #undef REMOVE_VIOLATING_FLAGS
+
+    return true;
+}
+
+Unit* WorldSession::ValidateAndGetUnitBeingMoved(ObjectGuid guid, OpcodeClient opcode, bool forStatusAck) const
+{
+    // the client is attempting to tamper movement data
+    // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
+    Unit* activelyMovedUnit = _player->GetUnitBeingMoved();
+    if (!forStatusAck && (!activelyMovedUnit || activelyMovedUnit->GetGUID() != guid))
+    {
+        TC_LOG_DEBUG("entities.unit", "{} Attempted tampering movement data in {}, requesting not allowed mover {} but expected {}",
+            GetPlayerInfo(), GetOpcodeNameForLogging(opcode), guid, Object::GetGUID(activelyMovedUnit));
+        return nullptr;
+    }
+
+    if (activelyMovedUnit && activelyMovedUnit->GetGUID() == guid)
+        return activelyMovedUnit;
+
+    if (_player->GetGUID() == guid)
+        return _player;
+
+    return ObjectAccessor::GetUnit(*_player, guid);
+}
+
+uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
+{
+    int64 movementTime = int64(time) + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > SI64LIT(0xFFFFFFFF))
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        return GameTime::GetGameTimeMS();
+    }
+    else
+        return uint32(movementTime);
+}
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
+    if (_player->GetTeleportState() != TeleportState::WaitingForWorldPortAck)
+        return;
+
     HandleMoveWorldportAck();
 }
 
@@ -51,41 +190,37 @@ void WorldSession::HandleMoveWorldportAck()
 {
     Player* player = GetPlayer();
     // ignore unexpected far teleports
-    if (!player->IsBeingTeleportedFar())
-        return;
-
-    bool seamlessTeleport = player->IsBeingTeleportedSeamlessly();
-    player->SetSemaphoreTeleportFar(false);
+    bool seamlessTeleport = player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS);
+    player->SetTeleportState(TeleportState::NotTeleporting);
 
     // get the teleport destination
-    WorldLocation const& loc = player->GetTeleportDest();
+    TeleportLocation const& loc = player->GetTeleportDest();
 
     // possible errors in the coordinate validity check
-    if (!MapManager::IsValidMapCoord(loc))
+    if (!MapManager::IsValidMapCoord(loc.Location))
     {
         LogoutPlayer(false);
         return;
     }
 
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
-    MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
+    MapEntry const* mEntry = sMapStore.LookupEntry(loc.Location.GetMapId());
 
     // reset instance validity, except if going to an instance inside an instance
     if (player->m_InstanceValid == false && !mEntry->IsDungeon())
         player->m_InstanceValid = true;
 
     Map* oldMap = player->GetMap();
-    Map* newMap = GetPlayer()->GetTeleportDestInstanceId() ?
-        sMapMgr->FindMap(loc.GetMapId(), *GetPlayer()->GetTeleportDestInstanceId()) :
-        sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
+    Map* newMap = loc.InstanceId ?
+        sMapMgr->FindMap(loc.Location.GetMapId(), *loc.InstanceId) :
+        sMapMgr->CreateMap(loc.Location.GetMapId(), GetPlayer(), loc.LfgDungeonsId);
 
-    MovementInfo::TransportInfo transportInfo = player->m_movementInfo.transport;
     if (TransportBase* transport = player->GetTransport())
         transport->RemovePassenger(player);
 
     if (player->IsInWorld())
     {
-        TC_LOG_ERROR("network", "{} {} is still in world when teleported from map {} ({}) to new map {} ({})", player->GetGUID().ToString(), player->GetName(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
+        TC_LOG_ERROR("network", "{} {} is still in world when teleported from map {} ({}) to new map {} ({})", player->GetGUID().ToString(), player->GetName(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.Location.GetMapId());
         oldMap->RemovePlayerFromMap(player, false);
     }
 
@@ -94,17 +229,18 @@ void WorldSession::HandleMoveWorldportAck()
     // while the player is in transit, for example the map may get full
     if (!newMap || newMap->CannotEnter(player))
     {
-        TC_LOG_ERROR("network", "Map {} ({}) could not be created for player {} ({}), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", player->GetGUID().ToString(), player->GetName());
+        TC_LOG_ERROR("network", "Map {} ({}) could not be created for player {} ({}), porting player to homebind", loc.Location.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", player->GetGUID().ToString(), player->GetName());
         player->TeleportTo(player->m_homebind);
         return;
     }
 
-    float z = loc.GetPositionZ() + player->GetHoverOffset();
-    player->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
+    float z = loc.Location.GetPositionZ() + player->GetHoverOffset();
+    player->Relocate(loc.Location.GetPositionX(), loc.Location.GetPositionY(), z, loc.Location.GetOrientation());
     player->SetFallInformation(0, player->GetPositionZ());
 
     player->ResetMap();
     player->SetMap(newMap);
+    player->UpdatePositionData();
 
     WorldPackets::Movement::ResumeToken resumeToken;
     resumeToken.SequenceIndex = player->m_movementCounter;
@@ -114,17 +250,24 @@ void WorldSession::HandleMoveWorldportAck()
     if (!seamlessTeleport)
         player->SendInitialPacketsBeforeAddToMap();
 
-    // move player between transport copies on each map
-    if (Transport* newTransport = newMap->GetTransport(transportInfo.guid))
+    if (player->m_teleport_dest.TransportGuid)
     {
-        player->m_movementInfo.transport = transportInfo;
-        newTransport->AddPassenger(player);
+        if (GameObject* go = newMap->GetTransport(*player->m_teleport_dest.TransportGuid))
+        {
+            if (TransportBase* newTransport = go->ToTransportBase())
+            {
+                newTransport->AddPassenger(player, loc.Location);
+                player->Relocate(newTransport->GetPositionWithOffset(loc.Location));
+            }
+        }
     }
+    else if (TransportBase* transport = player->GetTransport())
+        transport->RemovePassenger(player);
 
     if (!player->GetMap()->AddPlayerToMap(player, !seamlessTeleport))
     {
         TC_LOG_ERROR("network", "WORLD: failed to teleport player {} {} to map {} ({}) because of unknown reason!",
-            player->GetName(), player->GetGUID().ToString(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
+            player->GetName(), player->GetGUID().ToString(), loc.Location.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
         player->ResetMap();
         player->SetMap(oldMap);
         player->TeleportTo(player->m_homebind);
@@ -139,15 +282,15 @@ void WorldSession::HandleMoveWorldportAck()
         if (!mEntry->IsBattlegroundOrArena())
         {
             // We're not in BG
-            player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
+            player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE, BATTLEGROUND_QUEUE_NONE);
             // reset destination bg team
-            player->SetBGTeam(0);
+            player->SetBGTeam(TEAM_OTHER);
         }
         // join to bg case
         else if (Battleground* bg = player->GetBattleground())
         {
             if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId()))
-                bg->AddPlayer(player);
+                bg->AddPlayer(player, player->m_bgData.queueId);
         }
     }
 
@@ -178,7 +321,7 @@ void WorldSession::HandleMoveWorldportAck()
         player->FinishTaxiFlight();
     }
 
-    if (!player->IsAlive() && player->GetTeleportOptions() & TELE_REVIVE_AT_TELEPORT)
+    if (!player->IsAlive() && player->GetTeleportOptions().HasFlag(TELE_REVIVE_AT_TELEPORT))
         player->ResurrectPlayer(0.5f);
 
     // resurrect character at enter into instance where his corpse exist after add to map
@@ -234,6 +377,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     // resummon pet
     player->ResummonPetTemporaryUnSummonedIfAny();
+    player->ResummonBattlePetTemporaryUnSummonedIfAny();
 
     //lets process all delayed operations on successful teleport
     player->ProcessDelayedOperations();
@@ -241,25 +385,28 @@ void WorldSession::HandleMoveWorldportAck()
 
 void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& /*suspendTokenResponse*/)
 {
-    if (!_player->IsBeingTeleportedFar())
+    if (_player->GetTeleportState() != TeleportState::WaitingForSuspendTokenResponse)
         return;
 
-    WorldLocation const& loc = GetPlayer()->GetTeleportDest();
+    TeleportLocation const& loc = GetPlayer()->GetTeleportDest();
 
-    if (sMapStore.AssertEntry(loc.GetMapId())->IsDungeon())
+    if (sMapStore.AssertEntry(loc.Location.GetMapId())->IsDungeon())
     {
         WorldPackets::Instance::UpdateLastInstance updateLastInstance;
-        updateLastInstance.MapID = loc.GetMapId();
+        updateLastInstance.MapID = loc.Location.GetMapId();
         SendPacket(updateLastInstance.Write());
     }
 
     WorldPackets::Movement::NewWorld packet;
-    packet.MapID = loc.GetMapId();
-    packet.Loc.Pos = loc;
-    packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    packet.MapID = loc.Location.GetMapId();
+    packet.Loc.Pos = loc.Location;
+    packet.Reason = !_player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS) ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    packet.Counter = _player->GetNewWorldCounter();
     SendPacket(packet.Write());
 
-    if (_player->IsBeingTeleportedSeamlessly())
+    _player->SetTeleportState(TeleportState::WaitingForWorldPortAck);
+
+    if (_player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS))
         HandleMoveWorldportAck();
 }
 
@@ -267,21 +414,35 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: {}, Sequence: {}, Time: {}", packet.MoverGUID.ToString(), packet.AckIndex, packet.MoveTime);
 
-    Player* plMover = _player->GetUnitBeingMoved()->ToPlayer();
-
-    if (!plMover || !plMover->IsBeingTeleportedNear())
+    Unit* mover = ValidateAndGetUnitBeingMoved(packet.MoverGUID, packet.GetOpcode(), false);
+    if (!mover)
         return;
 
-    if (packet.MoverGUID != plMover->GetGUID())
+    Player* plMover = mover->ToPlayer();
+
+    if (!plMover || plMover->GetTeleportState() != TeleportState::WaitingForTeleportAck)
         return;
 
-    plMover->SetSemaphoreTeleportNear(false);
+    plMover->SetTeleportState(TeleportState::NotTeleporting);
 
     uint32 old_zone = plMover->GetZoneId();
 
-    WorldLocation const& dest = plMover->GetTeleportDest();
+    TeleportLocation const& dest = plMover->GetTeleportDest();
+    WorldLocation destLocation = dest.Location;
 
-    plMover->UpdatePosition(dest, true);
+    if (dest.TransportGuid)
+    {
+        if (GameObject* go = plMover->GetMap()->GetGameObject(*dest.TransportGuid))
+        {
+            if (TransportBase* transport = go->ToTransportBase())
+            {
+                transport->AddPassenger(plMover, destLocation);
+                destLocation.Relocate(transport->GetPositionWithOffset(plMover->m_movementInfo.transport.pos));
+            }
+        }
+    }
+
+    plMover->UpdatePosition(destLocation, true);
     plMover->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
     uint32 newzone, newarea;
@@ -314,30 +475,18 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
 void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo)
 {
-    Unit* mover = _player->GetUnitBeingMoved();
-
-    ASSERT(mover != nullptr);                      // there must always be a mover
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementInfo.guid, opcode, false);
+    if (!ValidateMovementInfo(mover, &movementInfo))
+        return;
 
     Player* plrMover = mover->ToPlayer();
 
-    TC_LOG_TRACE("opcodes.movement", "HandleMovementOpcode Name {}: opcode {} {} Flags {} Flags2 {} Pos {}",
+    TC_LOG_TRACE("opcodes.movement", "HandleMovementOpcode Name {}: opcode {} {} Flags {} Pos {}",
         mover->GetName(), opcode, GetOpcodeNameForLogging(opcode),
-        movementInfo.flags, movementInfo.flags2, movementInfo.pos.ToString());
+        movementInfo.flags, movementInfo.pos);
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
-        return;
-
-    GetPlayer()->ValidateMovementInfo(&movementInfo);
-
-    // prevent tampered movement data
-    if (movementInfo.guid != mover->GetGUID())
-    {
-        TC_LOG_ERROR("network", "HandleMovementOpcodes: guid error");
-        return;
-    }
-
-    if (!movementInfo.pos.IsPositionValid())
         return;
 
     if (!mover->movespline->Finalized())
@@ -370,7 +519,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
             {
                 if (GameObject* go = plrMover->GetMap()->GetGameObject(movementInfo.transport.guid))
                     if (TransportBase* transport = go->ToTransportBase())
-                        transport->AddPassenger(plrMover);
+                        transport->AddPassenger(plrMover, movementInfo.transport.pos);
             }
             else if (plrMover->GetTransport()->GetTransportGUID() != movementInfo.transport.guid)
             {
@@ -378,7 +527,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
                 if (GameObject* go = plrMover->GetMap()->GetGameObject(movementInfo.transport.guid))
                 {
                     if (TransportBase* transport = go->ToTransportBase())
-                        transport->AddPassenger(plrMover);
+                        transport->AddPassenger(plrMover, movementInfo.transport.pos);
                     else
                         movementInfo.ResetTransport();
                 }
@@ -392,14 +541,6 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
         plrMover->GetTransport()->RemovePassenger(plrMover);
-
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == CMSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
-        plrMover->HandleFall(movementInfo);
-
-    // interrupt parachutes upon falling or landing in water
-    if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_FLY)
-        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
 
     /* process position-change */
     movementInfo.guid = mover->GetGUID();
@@ -428,6 +569,20 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     WorldPackets::Movement::MoveUpdate moveUpdate;
     moveUpdate.Status = &mover->m_movementInfo;
     mover->SendMessageToSet(moveUpdate.Write(), _player);
+
+    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
+    if (opcode == CMSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
+        plrMover->HandleFall();
+
+    // interrupt parachutes upon falling or landing in water
+    if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM)
+        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
+
+    if (opcode == CMSG_MOVE_SET_FLY || opcode == CMSG_MOVE_SET_ADV_FLY)
+    {
+        _player->UnsummonPetTemporaryIfAny(); // always do the pet removal on current client activeplayer only
+        _player->UnsummonBattlePetTemporaryIfAny(true);
+    }
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
@@ -464,16 +619,35 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
             plrMover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Jump);
             Unit::ProcSkillsAndAuras(plrMover, nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
         }
+
+        // Whenever a player stops a movement action, several position based checks and updates are being performed
+        switch (opcode)
+        {
+            case CMSG_MOVE_SET_FLY:
+            case CMSG_MOVE_FALL_LAND:
+            case CMSG_MOVE_STOP:
+            case CMSG_MOVE_STOP_STRAFE:
+            case CMSG_MOVE_STOP_TURN:
+            case CMSG_MOVE_STOP_SWIM:
+            case CMSG_MOVE_STOP_PITCH:
+            case CMSG_MOVE_STOP_ASCEND:
+                plrMover->UpdateZoneAndAreaId();
+                plrMover->UpdateIndoorsOutdoorsAuras();
+                plrMover->UpdateTavernRestingState();
+                break;
+            default:
+                break;
+        }
     }
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
+    Unit* mover = ValidateAndGetUnitBeingMoved(packet.Ack.Status.guid, packet.GetOpcode(), true);
+    if (!mover)
+        return;
 
-    GetPlayer()->ValidateMovementInfo(&packet.Ack.Status);
-
-    // now can skip not our packet
-    if (_player->GetGUID() != packet.Ack.Status.guid)
+    if (!ValidateMovementInfo(mover, &packet.Ack.Status))
         return;
 
     /*----------------*/
@@ -540,6 +714,24 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
     }
 }
 
+void WorldSession::HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSpeedAck& speedAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(speedAck.Ack.Status.guid, speedAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &speedAck.Ack.Status);
+}
+
+void WorldSession::HandleSetAdvFlyingSpeedRangeAck(WorldPackets::Movement::MovementSpeedRangeAck& speedRangeAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(speedRangeAck.Ack.Status.guid, speedRangeAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &speedRangeAck.Ack.Status);
+}
+
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     if (GetPlayer()->IsInWorld())
@@ -549,22 +741,28 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveM
 
 void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck)
 {
-    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.Status);
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, movementAck.GetOpcode(), true);
+    if (!mover)
+        return;
 
-    if (_player->m_unitMovedByMe->GetGUID() != movementAck.Ack.Status.guid)
+    if (!ValidateMovementInfo(mover, &movementAck.Ack.Status))
         return;
 
     movementAck.Ack.Status.time = AdjustClientMovementTime(movementAck.Ack.Status.time);
-    _player->m_movementInfo = movementAck.Ack.Status;
+    mover->m_movementInfo = movementAck.Ack.Status;
 
     WorldPackets::Movement::MoveUpdateKnockBack updateKnockBack;
-    updateKnockBack.Status = &_player->m_movementInfo;
-    _player->SendMessageToSet(updateKnockBack.Write(), false);
+    updateKnockBack.Status = &mover->m_movementInfo;
+    mover->SendMessageToSet(updateKnockBack.Write(), false);
 }
 
 void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
-    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.Status);
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, movementAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &movementAck.Ack.Status);
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet)
@@ -577,22 +775,21 @@ void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResp
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.Status);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setCollisionHeightAck.Data.Status.guid, setCollisionHeightAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &setCollisionHeightAck.Data.Status);
 }
 
 void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck)
 {
-    Unit* mover = _player->m_unitMovedByMe;
-    ASSERT(mover != nullptr);
-    _player->ValidateMovementInfo(&moveApplyMovementForceAck.Ack.Status);
-
-    // prevent tampered movement data
-    if (moveApplyMovementForceAck.Ack.Status.guid != mover->GetGUID())
-    {
-        TC_LOG_ERROR("network", "HandleMoveApplyMovementForceAck: guid error, expected {}, got {}",
-            mover->GetGUID().ToString(), moveApplyMovementForceAck.Ack.Status.guid.ToString());
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyMovementForceAck.Ack.Status.guid, moveApplyMovementForceAck.GetOpcode(), true);
+    if (!mover)
         return;
-    }
+
+    if (!ValidateMovementInfo(mover, &moveApplyMovementForceAck.Ack.Status))
+        return;
 
     moveApplyMovementForceAck.Ack.Status.time = AdjustClientMovementTime(moveApplyMovementForceAck.Ack.Status.time);
 
@@ -604,17 +801,12 @@ void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveA
 
 void WorldSession::HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck)
 {
-    Unit* mover = _player->m_unitMovedByMe;
-    ASSERT(mover != nullptr);
-    _player->ValidateMovementInfo(&moveRemoveMovementForceAck.Ack.Status);
-
-    // prevent tampered movement data
-    if (moveRemoveMovementForceAck.Ack.Status.guid != mover->GetGUID())
-    {
-        TC_LOG_ERROR("network", "HandleMoveRemoveMovementForceAck: guid error, expected {}, got {}",
-            mover->GetGUID().ToString(), moveRemoveMovementForceAck.Ack.Status.guid.ToString());
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveRemoveMovementForceAck.Ack.Status.guid, moveRemoveMovementForceAck.GetOpcode(), true);
+    if (!mover)
         return;
-    }
+
+    if (!ValidateMovementInfo(mover, &moveRemoveMovementForceAck.Ack.Status))
+        return;
 
     moveRemoveMovementForceAck.Ack.Status.time = AdjustClientMovementTime(moveRemoveMovementForceAck.Ack.Status.time);
 
@@ -626,17 +818,12 @@ void WorldSession::HandleMoveRemoveMovementForceAck(WorldPackets::Movement::Move
 
 void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck)
 {
-    Unit* mover = _player->m_unitMovedByMe;
-    ASSERT(mover != nullptr);                      // there must always be a mover
-    _player->ValidateMovementInfo(&setModMovementForceMagnitudeAck.Ack.Status);
-
-    // prevent tampered movement data
-    if (setModMovementForceMagnitudeAck.Ack.Status.guid != mover->GetGUID())
-    {
-        TC_LOG_ERROR("network", "HandleSetModMovementForceMagnitudeAck: guid error, expected {}, got {}",
-            mover->GetGUID().ToString(), setModMovementForceMagnitudeAck.Ack.Status.guid.ToString());
+    Unit* mover = ValidateAndGetUnitBeingMoved(setModMovementForceMagnitudeAck.Ack.Status.guid, setModMovementForceMagnitudeAck.GetOpcode(), true);
+    if (!mover)
         return;
-    }
+
+    if (!ValidateMovementInfo(mover, &setModMovementForceMagnitudeAck.Ack.Status))
+        return;
 
     // skip all except last
     if (_player->m_movementForceModMagnitudeChanges > 0)
@@ -666,10 +853,70 @@ void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movem
     mover->SendMessageToSet(updateModMovementForceMagnitude.Write(), false);
 }
 
+void WorldSession::HandleMoveApplyInertiaAck(WorldPackets::Movement::MoveApplyInertiaAck& moveApplyInertiaAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyInertiaAck.Ack.Status.guid, moveApplyInertiaAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveApplyInertiaAck.Ack.Status))
+        return;
+
+    moveApplyInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveApplyInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveApplyInertiaAck.Ack.Status;
+
+    WorldPackets::Movement::MoveUpdateApplyInertia updateApplyInertia;
+    updateApplyInertia.Status = &mover->m_movementInfo;
+    updateApplyInertia.InertiaID = moveApplyInertiaAck.InertiaID;
+    updateApplyInertia.LifetimeMs = moveApplyInertiaAck.LifetimeMs;
+    mover->SendMessageToSet(updateApplyInertia.Write(), false);
+}
+
+void WorldSession::HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemoveInertiaAck& moveRemoveInertiaAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveRemoveInertiaAck.Ack.Status.guid, moveRemoveInertiaAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveRemoveInertiaAck.Ack.Status))
+        return;
+
+    moveRemoveInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveRemoveInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveRemoveInertiaAck.Ack.Status;
+
+    WorldPackets::Movement::MoveUpdateRemoveInertia updateRemoveInertia;
+    updateRemoveInertia.Status = &mover->m_movementInfo;
+    updateRemoveInertia.InertiaID = moveRemoveInertiaAck.InertiaID;
+    mover->SendMessageToSet(updateRemoveInertia.Write(), false);
+}
+
+void WorldSession::HandleMoveForceGravityModifierChangeAck(WorldPackets::Movement::MoveForceGravityModifierChangeAck& moveForceGravityModifierChangeAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveForceGravityModifierChangeAck.Ack.Status.guid, moveForceGravityModifierChangeAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveForceGravityModifierChangeAck.Ack.Status))
+        return;
+
+    moveForceGravityModifierChangeAck.Ack.Status.time = AdjustClientMovementTime(moveForceGravityModifierChangeAck.Ack.Status.time);
+    mover->m_movementInfo = moveForceGravityModifierChangeAck.Ack.Status;
+    mover->m_movementInfo.gravityModifier = moveForceGravityModifierChangeAck.Ack.Status.gravityModifier;
+
+    WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+    updateSetGravityModifier.Status = &mover->m_movementInfo;
+    updateSetGravityModifier.GravityModifier = moveForceGravityModifierChangeAck.GravityModifier;
+    mover->SendMessageToSet(updateSetGravityModifier.Write(), false);
+}
+
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
-    MovementInfo movementInfo = moveSplineDone.Status;
-    _player->ValidateMovementInfo(&movementInfo);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveSplineDone.Status.guid, moveSplineDone.GetOpcode(), false);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveSplineDone.Status))
+        return;
 
     // in taxi flight packet received in 2 case:
     // 1) end taxi path in far (multi-node) flight
@@ -682,16 +929,26 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+        if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
         {
             if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
             {
-                // short preparations to continue flight
-                flight->SetCurrentNodeAfterTeleport();
-                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
-                flight->SkipCurrentNode();
+                bool shouldTeleport = curDestNode && curDestNode->ContinentID != GetPlayer()->GetMapId();
+                if (!shouldTeleport)
+                {
+                    TaxiPathNodeEntry const* currentNode = flight->GetPath()[flight->GetCurrentNode()];
+                    shouldTeleport = currentNode->Flags & TAXI_PATH_NODE_FLAG_TELEPORT;
+                }
 
-                GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+                if (shouldTeleport)
+                {
+                    // short preparations to continue flight
+                    flight->SetCurrentNodeAfterTeleport();
+                    TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                    flight->SkipCurrentNode();
+
+                    GetPlayer()->TeleportTo(curDestNode->ContinentID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+                }
             }
         }
 
@@ -710,19 +967,9 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped)
 {
-    Unit* mover = GetPlayer()->m_unitMovedByMe;
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveTimeSkipped.MoverGUID, moveTimeSkipped.GetOpcode(), false);
     if (!mover)
-    {
-        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by {}", GetPlayer()->GetGUID().ToString());
         return;
-    }
-
-    // prevent tampered movement data
-    if (moveTimeSkipped.MoverGUID != mover->GetGUID())
-    {
-        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong guid from the unit moved by {}", GetPlayer()->GetGUID().ToString());
-        return;
-    }
 
     mover->m_movementInfo.time += moveTimeSkipped.TimeSkipped;
 
@@ -732,20 +979,18 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeS
     mover->SendMessageToSet(moveSkipTime.Write(), _player);
 }
 
-void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& timeSyncResponse)
+void WorldSession::HandleTimeSync(uint32 counter, int64 clientTime, TimePoint responseReceiveTime)
 {
-    if (_pendingTimeSyncRequests.count(timeSyncResponse.SequenceIndex) == 0)
+    auto serverTimeAtSent = _pendingTimeSyncRequests.extract(counter);
+    if (!serverTimeAtSent)
         return;
-
-    uint32 serverTimeAtSent = _pendingTimeSyncRequests.at(timeSyncResponse.SequenceIndex);
-    _pendingTimeSyncRequests.erase(timeSyncResponse.SequenceIndex);
 
     // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
     // we are going to make 2 assumptions:
     // 1) we assume that the request processing time equals 0.
     // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
-    uint32 lagDelay = roundTripDuration / 2;
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent.mapped(), responseReceiveTime);
+    int64 lagDelay = roundTripDuration / 2;
 
     /*
     clockDelta = serverTime - clientTime
@@ -757,9 +1002,26 @@ void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& 
     using the following relation:
     serverTime = clockDelta + clientTime
     */
-    int64 clockDelta = (int64)serverTimeAtSent + (int64)lagDelay - (int64)timeSyncResponse.ClientTime;
+    int64 clockDelta = serverTimeAtSent.mapped() + lagDelay - clientTime;
     _timeSyncClockDeltaQueue->push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
+}
+
+void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse const& timeSyncResponse)
+{
+    HandleTimeSync(timeSyncResponse.SequenceIndex, timeSyncResponse.ClientTime, timeSyncResponse.GetReceivedTime());
+}
+
+void WorldSession::HandleQueuedMessagesEnd(WorldPackets::Auth::QueuedMessagesEnd const& queuedMessagesEnd)
+{
+    HandleTimeSync(SPECIAL_RESUME_COMMS_TIME_SYNC_COUNTER, queuedMessagesEnd.Timestamp, queuedMessagesEnd.GetRawPacket()->GetReceivedTime());
+}
+
+void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete const& moveInitActiveMoverComplete)
+{
+    HandleTimeSync(SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER, moveInitActiveMoverComplete.Ticks, moveInitActiveMoverComplete.GetRawPacket()->GetReceivedTime());
+
+    _player->UpdateObjectVisibility(false);
 }
 
 void WorldSession::ComputeNewClockDelta()
@@ -795,12 +1057,10 @@ void WorldSession::ComputeNewClockDelta()
     }
     else if (_timeSyncClockDelta == 0)
         _timeSyncClockDelta = _timeSyncClockDeltaQueue->back().first;
-}
 
-void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete& moveInitActiveMoverComplete)
-{
-    _player->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
-    _player->SetTransportServerTime(GameTime::GetGameTimeMS() - moveInitActiveMoverComplete.Ticks);
-
-    _player->UpdateObjectVisibility(false);
+    if (_player)
+    {
+        _player->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+        _player->SetTransportServerTime(int32(_timeSyncClockDelta));
+    }
 }

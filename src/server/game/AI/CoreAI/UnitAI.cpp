@@ -29,15 +29,7 @@
 void UnitAI::AttackStart(Unit* victim)
 {
     if (victim && me->Attack(victim, true))
-    {
-        // Clear distracted state on attacking
-        if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-        {
-            me->ClearUnitState(UNIT_STATE_DISTRACTED);
-            me->GetMotionMaster()->Clear();
-        }
         me->GetMotionMaster()->MoveChase(victim);
-    }
 }
 
 void UnitAI::InitializeAI()
@@ -56,34 +48,6 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
         me->GetMotionMaster()->MoveChase(victim, dist);
-}
-
-void UnitAI::DoMeleeAttackIfReady()
-{
-    if (me->HasUnitState(UNIT_STATE_CASTING) || (me->IsCreature() && !me->ToCreature()->CanMelee()))
-        return;
-
-    Unit* victim = me->GetVictim();
-
-    if (!me->IsWithinMeleeRange(victim))
-        return;
-
-    // Check that the victim is in front of the unit
-    if (!me->HasInArc(2 * float(M_PI) / 3, victim))
-        return;
-
-    //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady())
-    {
-        me->AttackerStateUpdate(victim);
-        me->resetAttackTimer();
-    }
-
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
-    {
-        me->AttackerStateUpdate(victim, OFF_ATTACK);
-        me->resetAttackTimer(OFF_ATTACK);
-    }
 }
 
 bool UnitAI::DoSpellAttackIfReady(uint32 spellId)

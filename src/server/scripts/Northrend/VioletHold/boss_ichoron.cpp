@@ -23,7 +23,19 @@
 #include "SpellScript.h"
 #include "violet_hold.h"
 
-enum Spells
+enum IchoronTexts
+{
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_ENRAGE                                  = 4,
+    SAY_SHATTER                                 = 5,
+    SAY_BUBBLE                                  = 6,
+    EMOTE_SHATTER                               = 7
+};
+
+enum IchoronSpells
 {
     SPELL_WATER_BLAST                           = 54237,
     SPELL_WATER_BOLT_VOLLEY                     = 54241,
@@ -47,30 +59,20 @@ enum Spells
     SPELL_SPLASH                                = 59516
 };
 
-enum Yells
-{
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    SAY_SPAWN                                   = 3,
-    SAY_ENRAGE                                  = 4,
-    SAY_SHATTER                                 = 5,
-    SAY_BUBBLE                                  = 6,
-    EMOTE_SHATTER                               = 7
-};
-
-enum Actions
+enum IchoronActions
 {
     ACTION_WATER_GLOBULE_HIT                    = 1,
     ACTION_PROTECTIVE_BUBBLE_SHATTERED          = 2,
     ACTION_DRAINED                              = 3
 };
 
-enum Misc
+enum IchoronMisc
 {
     DATA_DEHYDRATION                            = 1
 };
 
+// 29313 - Ichoron
+// 32234 - Swirling Water Revenant
 struct boss_ichoron : public BossAI
 {
     boss_ichoron(Creature* creature) : BossAI(creature, DATA_ICHORON)
@@ -131,7 +133,7 @@ struct boss_ichoron : public BossAI
                 me->LowerPlayerDamageReq(damage);
                 me->ModifyHealth(-std::min<int32>(damage, me->GetHealth() - 1));
 
-                scheduler.DelayAll(Seconds(15));
+                scheduler.DelayAll(15s);
                 break;
             }
             case ACTION_DRAINED:
@@ -193,8 +195,7 @@ struct boss_ichoron : public BossAI
             _isFrenzy = true;
         }
 
-        scheduler.Update(diff,
-            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff);
     }
 
     void ScheduleTasks() override
@@ -205,17 +206,17 @@ struct boss_ichoron : public BossAI
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
         });
 
-        scheduler.Schedule(Seconds(10), Seconds(15), [this](TaskContext task)
+        scheduler.Schedule(10s, 15s, [this](TaskContext& task)
         {
             DoCastAOE(SPELL_WATER_BOLT_VOLLEY);
-            task.Repeat(Seconds(10), Seconds(15));
+            task.Repeat(10s, 15s);
         });
 
-        scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
+        scheduler.Schedule(6s, 9s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                 DoCast(target, SPELL_WATER_BLAST);
-            task.Repeat(Seconds(6), Seconds(9));
+            task.Repeat(6s, 9s);
         });
     }
 
@@ -224,6 +225,7 @@ private:
     bool _dehydration;
 };
 
+// 29321 - Ichor Globule
 struct npc_ichor_globule : public ScriptedAI
 {
     npc_ichor_globule(Creature* creature) : ScriptedAI(creature), _splashTriggered(false)
@@ -241,7 +243,7 @@ struct npc_ichor_globule : public ScriptedAI
         if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
         {
             DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
         }
     }
@@ -282,8 +284,6 @@ private:
 // 59820 - Drained
 class spell_ichoron_drained : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_drained);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -291,13 +291,13 @@ class spell_ichoron_drained : public AuraScript
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(true);
         GetTarget()->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(false);
         GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
@@ -315,8 +315,6 @@ class spell_ichoron_drained : public AuraScript
 // 54269 - Merge
 class spell_ichoron_merge : public SpellScript
 {
-    PrepareSpellScript(spell_ichoron_merge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHRINK });
@@ -342,8 +340,6 @@ class spell_ichoron_merge : public SpellScript
 // 54306 - Protective Bubble
 class spell_ichoron_protective_bubble : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_protective_bubble);
-
     bool Load() override
     {
         return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
@@ -366,8 +362,6 @@ class spell_ichoron_protective_bubble : public AuraScript
 // 54259 - Splatter
 class spell_ichoron_splatter : public AuraScript
 {
-    PrepareAuraScript(spell_ichoron_splatter);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

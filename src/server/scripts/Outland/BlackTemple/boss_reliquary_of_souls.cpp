@@ -26,7 +26,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Says
+enum ReliquaryTexts
 {
     // Essence of Suffering
     SUFF_SAY_AGRO       = 0,
@@ -53,7 +53,7 @@ enum Says
     //ANGER_SAY_DEATH   = 6
 };
 
-enum Spells
+enum ReliquarySpells
 {
     // Reliquary
     SPELL_SUMMON_ESSENCE_OF_SUFFERING   = 41488,
@@ -88,7 +88,7 @@ enum Spells
     SUMMON_ENSLAVED_SOUL                = 41538
 };
 
-enum Misc
+enum ReliquaryMisc
 {
     RELIQUARY_DESPAWN_WAYPOINT = 0,
     ACTION_ESSENCE_OF_SUFFERING_DEAD,
@@ -98,14 +98,14 @@ enum Misc
     ANGER_SOUND_ID_DEATH       = 11401
 };
 
-enum Phases
+enum ReliquaryPhases
 {
     PHASE_ESSENCE_OF_SUFFERING = 1,
     PHASE_ESSENCE_OF_DESIRE,
     PHASE_ESSENCE_OF_ANGER
 };
 
-enum Events
+enum ReliquaryEvents
 {
     EVENT_SUBMERGE = 1,
     EVENT_SUMMON_ESSENCE,
@@ -138,6 +138,7 @@ class EnslavedSoulEvent : public BasicEvent
         Creature* _owner;
 };
 
+// 22856 - Reliquary of the Lost
 struct boss_reliquary_of_souls : public BossAI
 {
     boss_reliquary_of_souls(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false) { }
@@ -283,6 +284,7 @@ private:
     bool _inCombat;
 };
 
+// 23418 - Essence of Suffering
 struct boss_essence_of_suffering : public BossAI
 {
     boss_essence_of_suffering(Creature* creature) : BossAI(creature, DATA_ESSENCE_OF_SUFFERING), _dead(false)
@@ -308,7 +310,7 @@ struct boss_essence_of_suffering : public BossAI
                 reliquary->AI()->DoAction(ACTION_ESSENCE_OF_SUFFERING_DEAD);
 
             DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
-            me->DespawnOrUnsummon(Seconds(2));
+            me->DespawnOrUnsummon(2s);
         }
     }
 
@@ -332,7 +334,6 @@ struct boss_essence_of_suffering : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
 
         events.ScheduleEvent(EVENT_SOUL_DRAIN, 20s);
@@ -362,12 +363,12 @@ struct boss_essence_of_suffering : public BossAI
             {
                 case EVENT_SOUL_DRAIN:
                     DoCastSelf(SPELL_SOUL_DRAIN, { SPELLVALUE_MAX_TARGETS, 5 });
-                    events.Repeat(Seconds(30), Seconds(35));
+                    events.Repeat(30s, 35s);
                     break;
                 case EVENT_FRENZY:
                     Talk(SUFF_SAY_ENRAGE);
                     DoCastSelf(SPELL_FRENZY);
-                    events.Repeat(Seconds(45), Seconds(50));
+                    events.Repeat(45s, 50s);
                     break;
                 default:
                     break;
@@ -376,13 +377,12 @@ struct boss_essence_of_suffering : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     bool _dead;
 };
 
+// 23419 - Essence of Desire
 struct boss_essence_of_desire : public BossAI
 {
     boss_essence_of_desire(Creature* creature) : BossAI(creature, DATA_ESSENCE_OF_DESIRE), _dead(false)
@@ -403,7 +403,6 @@ struct boss_essence_of_desire : public BossAI
         events.ScheduleEvent(EVENT_RUNE_SHIELD, 16s);
         events.ScheduleEvent(EVENT_DEADEN, 31s);
 
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         Talk(DESI_SAY_FREED);
     }
@@ -419,7 +418,7 @@ struct boss_essence_of_desire : public BossAI
                 reliquary->AI()->DoAction(ACTION_ESSENCE_OF_DESIRE_DEAD);
 
             DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
-            me->DespawnOrUnsummon(Seconds(2));
+            me->DespawnOrUnsummon(2s);
         }
     }
 
@@ -463,16 +462,16 @@ struct boss_essence_of_desire : public BossAI
             {
                 case EVENT_SPIRIT_SHOCK:
                     DoCastVictim(SPELL_SPIRIT_SHOCK);
-                    events.Repeat(Seconds(10), Seconds(15));
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_RUNE_SHIELD:
                     DoCastSelf(SPELL_RUNE_SHIELD);
-                    events.Repeat(Seconds(16));
+                    events.Repeat(16s);
                     break;
                 case EVENT_DEADEN:
                     Talk(DESI_SAY_SPEC);
                     DoCastVictim(SPELL_DEADEN);
-                    events.Repeat(Seconds(31));
+                    events.Repeat(31s);
                     break;
                 default:
                     break;
@@ -481,13 +480,12 @@ struct boss_essence_of_desire : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     bool _dead;
 };
 
+// 23420 - Essence of Anger
 struct boss_essence_of_anger : public BossAI
 {
     boss_essence_of_anger(Creature* creature) :BossAI(creature, DATA_ESSENCE_OF_ANGER)
@@ -509,9 +507,8 @@ struct boss_essence_of_anger : public BossAI
         events.ScheduleEvent(EVENT_START_CHECK_TANKER, 5s);
         events.ScheduleEvent(EVENT_SOUL_SCREAM, 11s);
         events.ScheduleEvent(EVENT_SPITE, 20s);
-        events.ScheduleEvent(EVENT_FREED_2, Seconds(1), Minutes(3));
+        events.ScheduleEvent(EVENT_FREED_2, 1s, 3min);
 
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
     }
 
@@ -553,12 +550,12 @@ struct boss_essence_of_anger : public BossAI
                 }
                 case EVENT_SOUL_SCREAM:
                     DoCastSelf(SPELL_SOUL_SCREAM);
-                    events.Repeat(Seconds(11));
+                    events.Repeat(11s);
                     break;
                 case EVENT_SPITE:
                     Talk(ANGER_SAY_SPITE);
                     DoCastSelf(SPELL_SPITE, { SPELLVALUE_MAX_TARGETS, 3 });
-                    events.Repeat(Seconds(20));
+                    events.Repeat(20s);
                     break;
                 case EVENT_START_CHECK_TANKER:
                     if (Unit* target = me->GetVictim())
@@ -567,7 +564,7 @@ struct boss_essence_of_anger : public BossAI
                         events.ScheduleEvent(EVENT_CHECK_TANKER, 1s);
                     }
                     else
-                        events.Repeat(Seconds(1));
+                        events.Repeat(1s);
                     break;
                 case EVENT_FREED_2:
                     Talk(ANGER_SAY_FREED_2);
@@ -579,14 +576,13 @@ struct boss_essence_of_anger : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
     ObjectGuid _targetGUID;
 };
 
+// 23469 - Enslaved Soul
 struct npc_enslaved_soul : public ScriptedAI
 {
     npc_enslaved_soul(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _dead(false) { }
@@ -599,7 +595,7 @@ struct npc_enslaved_soul : public ScriptedAI
 
         DoCastSelf(SPELL_ENSLAVED_SOUL_PASSIVE, true);
 
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();
@@ -641,8 +637,6 @@ struct npc_enslaved_soul : public ScriptedAI
             return;
 
         _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -651,6 +645,7 @@ private:
     bool _dead;
 };
 
+// 23417 - Reliquary Combat Trigger
 struct npc_reliquary_combat_trigger : public ScriptedAI
 {
     npc_reliquary_combat_trigger(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -715,8 +710,6 @@ private:
 // 41350 - Aura of Desire
 class spell_reliquary_of_souls_aura_of_desire : public AuraScript
 {
-    PrepareAuraScript(spell_reliquary_of_souls_aura_of_desire);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_AURA_OF_DESIRE_DAMAGE });
@@ -749,13 +742,11 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
 // 41337 - Aura of Anger
 class spell_reliquary_of_souls_aura_of_anger : public AuraScript
 {
-    PrepareAuraScript(spell_reliquary_of_souls_aura_of_anger);
-
     void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
     {
         if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
             aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
-        aurEff->SetAmount(100 * aurEff->GetTickNumber());
+        aurEff->SetAmount(100.0 * aurEff->GetTickNumber());
     }
 
     void Register() override
@@ -767,8 +758,6 @@ class spell_reliquary_of_souls_aura_of_anger : public AuraScript
 // 28819 - Submerge Visual
 class spell_reliquary_of_souls_submerge : public AuraScript
 {
-    PrepareAuraScript(spell_reliquary_of_souls_submerge);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->SetStandState(UNIT_STAND_STATE_SUBMERGED);
@@ -789,8 +778,6 @@ class spell_reliquary_of_souls_submerge : public AuraScript
 // 41376 - Spite
 class spell_reliquary_of_souls_spite : public AuraScript
 {
-    PrepareAuraScript(spell_reliquary_of_souls_spite);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SPITE_DAMAGE });
@@ -811,8 +798,6 @@ class spell_reliquary_of_souls_spite : public AuraScript
 // 41305 - Frenzy
 class spell_reliquary_of_souls_frenzy : public SpellScript
 {
-    PrepareSpellScript(spell_reliquary_of_souls_frenzy);
-
     void HandleAfterCast()
     {
         if (Creature* caster = GetCaster()->ToCreature())

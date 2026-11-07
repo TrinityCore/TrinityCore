@@ -98,7 +98,7 @@ void AggroAllPlayers(Creature* temp)
 {
     Map::PlayerList const& PlList = temp->GetMap()->GetPlayers();
 
-    if (PlList.isEmpty())
+    if (PlList.empty())
             return;
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
@@ -254,7 +254,7 @@ public:
             if (uiChargeTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -281,7 +281,7 @@ public:
                 if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (!players.isEmpty())
+                    if (!players.empty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
@@ -296,8 +296,6 @@ public:
                 }
                 uiShieldBreakerTimer = 7000;
             }else uiShieldBreakerTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -401,7 +399,7 @@ public:
             if (uiInterceptTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -429,8 +427,6 @@ public:
                 DoCastVictim(SPELL_MORTAL_STRIKE);
                 uiMortalStrikeTimer = urand(8000, 12000);
             } else uiMortalStrikeTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -573,8 +569,6 @@ public:
                 DoCast(me, SPELL_HASTE);
                 uiHasteTimer = 22000;
             } else uiHasteTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -644,7 +638,7 @@ public:
         {
             DoCast(me, SPELL_EARTH_SHIELD);
             DoCast(who, SPELL_HEX_OF_MENDING);
-        };
+        }
 
         void JustReachedHome() override
         {
@@ -700,7 +694,7 @@ public:
 
             if (uiHealingWaveTimer <= uiDiff)
             {
-                bool bChance = roll_chance_i(50);
+                bool bChance = roll_chance(50);
 
                 if (!bChance)
                 {
@@ -725,8 +719,6 @@ public:
 
                 uiHexMendingTimer = urand(20000, 25000);
             } else uiHexMendingTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -871,7 +863,7 @@ public:
                 else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (!players.isEmpty())
+                    if (!players.empty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
@@ -886,8 +878,6 @@ public:
                 }
                 bShoot = false;
             } else uiMultiShotTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1012,8 +1002,6 @@ public:
                     DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override

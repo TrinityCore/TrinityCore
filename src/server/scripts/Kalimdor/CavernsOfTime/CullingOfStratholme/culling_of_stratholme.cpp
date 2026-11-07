@@ -31,6 +31,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "SplineChainMovementGenerator.h"
 #include "StringFormat.h"
 #include "TemporarySummon.h"
@@ -85,7 +86,8 @@ enum InnEventLines
 enum InnEventMisc
 {
     DATA_REQUEST_FACING = 0,
-    DATA_REACHED_WP     = 1
+    DATA_REACHED_WP     = 1,
+    DATA_INVOKING_PLAYER_GUID,
 };
 
 class npc_hearthsinger_forresten_cot : public CreatureScript
@@ -158,8 +160,11 @@ class npc_hearthsinger_forresten_cot : public CreatureScript
             }
 
             // Player has hit the Belfast stairs areatrigger, we are taking him over for a moment
-            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
+                if (id != DATA_INVOKING_PLAYER_GUID)
+                    return;
+
                 if (_hadBelfast)
                     return;
                 _hadBelfast = true;
@@ -226,7 +231,7 @@ class at_stratholme_inn_stairs_cot : public AreaTriggerScript
                 if (instance->GetData(DATA_INSTANCE_PROGRESS) <= CRATES_IN_PROGRESS)
                     // Forrest's script will handle Belfast for this, since SmartAI lacks the features to do it (we can't pass a custom target)
                     if (Creature* forrest = player->FindNearestCreature(NPC_FORREST, 200.0f, true))
-                        forrest->AI()->SetGUID(player->GetGUID());
+                        forrest->AI()->SetGUID(player->GetGUID(), DATA_INVOKING_PLAYER_GUID);
             return true;
         }
 };
@@ -609,8 +614,8 @@ enum CrateEvent1Misc
     CHAIN_JENA_LEAVE    = 72
 };
 
-static float const marthaIdleOrientation1 = 3.159046f;
-static float const marthaIdleOrientation2 = 4.764749f;
+static constexpr float marthaIdleOrientation1 = 3.159046f;
+static constexpr float marthaIdleOrientation2 = 4.764749f;
 
 struct npc_martha_goslin : public CreatureScript
 {
@@ -978,12 +983,11 @@ enum CrateEvent3Misc
 
 };
 
-static Position const malcolmSpawn = { 1605.2420f, 805.4160f, 122.9956f, 5.284148f };
-static Position const scruffySpawn = { 1601.1030f, 805.3391f, 123.7677f, 5.471561f };
-static float const scruffyFacing2 = 5.734883f;
-static float const malcolmFacing3 = 2.303835f;
-static Position const scruffyPos3 = { 1629.004f, 810.138f, 120.4927f };
-static float const scruffyFacing4 = 5.445427f;
+static constexpr Position malcolmSpawn = { 1605.2420f, 805.4160f, 122.9956f, 5.284148f };
+static constexpr Position scruffySpawn = { 1601.1030f, 805.3391f, 123.7677f, 5.471561f };
+static constexpr float scruffyFacing2 = 5.734883f;
+static constexpr float malcolmFacing3 = 2.303835f;
+static constexpr float scruffyFacing4 = 5.445427f;
 
 struct npc_malcolm_moore : public CreatureScript
 {
@@ -1466,6 +1470,30 @@ public:
     }
 };
 
+enum TeleportToStratholme
+{
+    SPELL_TELEPORT_TO_COT_STRATHOLME     = 53436
+};
+
+// 53435 - Teleport to CoT Stratholme Phase 4
+class spell_cos_teleport_to_cot_stratholme_phase_4 : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_COT_STRATHOLME });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_COT_STRATHOLME);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cos_teleport_to_cot_stratholme_phase_4::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_culling_of_stratholme()
 {
     new npc_hearthsinger_forresten_cot();
@@ -1481,4 +1509,6 @@ void AddSC_culling_of_stratholme()
     new npc_sergeant_morigan();
     new npc_roger_owens();
     new npc_crate_helper();
+
+    RegisterSpellScript(spell_cos_teleport_to_cot_stratholme_phase_4);
 }

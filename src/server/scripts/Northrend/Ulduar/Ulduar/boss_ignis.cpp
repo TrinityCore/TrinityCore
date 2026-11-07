@@ -180,8 +180,9 @@ class boss_ignis : public CreatureScript
                 {
                     summon->SetFaction(FACTION_MONSTER_2);
                     summon->SetReactState(REACT_AGGRESSIVE);
-                    summon->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED);
+                    summon->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED);
                     summon->SetImmuneToPC(false);
+                    summon->SetUninteractible(false);
                     summon->SetControlled(false, UNIT_STATE_ROOT);
                 }
 
@@ -282,8 +283,6 @@ class boss_ignis : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -357,8 +356,6 @@ class npc_iron_construct : public CreatureScript
                     me->RemoveAura(SPELL_MOLTEN);
                     _brittled = true;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -382,7 +379,8 @@ class npc_scorch_ground : public CreatureScript
             npc_scorch_groundAI(Creature* creature) : ScriptedAI(creature)
             {
                 Initialize();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+                me->SetUnitFlag(UNIT_FLAG_PACIFIED);
+                me->SetUninteractible(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }
@@ -453,8 +451,6 @@ class spell_ignis_slag_pot : public SpellScriptLoader
 
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ignis_slag_pot_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_SLAG_POT_DAMAGE, SPELL_SLAG_IMBUED });

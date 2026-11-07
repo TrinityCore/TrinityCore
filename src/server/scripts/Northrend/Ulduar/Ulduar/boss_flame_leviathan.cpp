@@ -226,6 +226,7 @@ class boss_flame_leviathan : public CreatureScript
             boss_flame_leviathanAI(Creature* creature) : BossAI(creature, DATA_FLAME_LEVIATHAN)
             {
                 Initialize();
+                me->SetCanMelee(false); // DoSpellAttackIfReady
             }
 
             void Initialize()
@@ -250,7 +251,8 @@ class boss_flame_leviathan : public CreatureScript
 
                 DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
 
-                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_STUNNED);
+                me->SetUninteractible(true);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -571,7 +573,8 @@ class boss_flame_leviathan : public CreatureScript
                 if (id != ACTION_MOVE_TO_CENTER_POSITION)
                     return;
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_STUNNED);
+                me->SetUninteractible(false);
             }
 
             private:
@@ -645,10 +648,10 @@ class boss_flame_leviathan_seat : public CreatureScript
                         if (Creature* device = devicePassenger->ToCreature())
                         {
                             device->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                            device->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            device->SetUninteractible(false);
                         }
 
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                 }
                 else if (seatId == SEAT_TURRET)
                 {
@@ -774,12 +777,12 @@ class boss_flame_leviathan_overload_device : public CreatureScript
                 if (me->GetVehicle())
                 {
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
 
                     if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
                         me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                        player->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
+                        player->KnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
                         player->ExitVehicle();
                     }
                 }
@@ -901,7 +904,7 @@ class npc_pool_of_tar : public CreatureScript
         {
             npc_pool_of_tarAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetReactState(REACT_PASSIVE);
                 me->CastSpell(me, SPELL_TAR_PASSIVE, true);
             }
@@ -945,14 +948,6 @@ class npc_colossus : public CreatureScript
                 if (me->GetHomePosition().IsInDist(&Center, 50.f))
                     instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
             }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -970,7 +965,7 @@ class npc_thorims_hammer : public CreatureScript
         {
             npc_thorims_hammerAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->CastSpell(me, AURA_DUMMY_BLUE, true);
             }
 
@@ -1011,7 +1006,8 @@ public:
         npc_mimirons_infernoAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUninteractible(true);
             me->CastSpell(me, AURA_DUMMY_YELLOW, true);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1071,7 +1067,7 @@ class npc_hodirs_fury : public CreatureScript
         {
             npc_hodirs_furyAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->CastSpell(me, AURA_DUMMY_GREEN, true);
             }
 
@@ -1186,8 +1182,6 @@ class npc_freya_ward_summon : public CreatureScript
                 }
                 else
                     lashTimer -= diff;
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -1431,8 +1425,6 @@ class achievement_unbroken : public AchievementCriteriaScript
 // 62399 - Overload Circuit
 class spell_overload_circuit : public AuraScript
 {
-    PrepareAuraScript(spell_overload_circuit);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYSTEMS_SHUTDOWN });
@@ -1457,8 +1449,6 @@ class spell_overload_circuit : public AuraScript
 // 62292 - Blaze
 class spell_tar_blaze : public AuraScript
 {
-    PrepareAuraScript(spell_tar_blaze);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
@@ -1489,8 +1479,6 @@ class spell_load_into_catapult : public SpellScriptLoader
 
         class spell_load_into_catapult_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_load_into_catapult_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
@@ -1535,8 +1523,6 @@ class spell_auto_repair : public SpellScriptLoader
 
         class spell_auto_repair_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auto_repair_SpellScript);
-
             void CheckCooldownForTarget(SpellMissInfo missInfo)
             {
                 if (missInfo != SPELL_MISS_NONE)
@@ -1600,8 +1586,6 @@ class spell_systems_shutdown : public SpellScriptLoader
 
         class spell_systems_shutdown_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_systems_shutdown_AuraScript);
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Creature* owner = GetOwner()->ToCreature();
@@ -1644,7 +1628,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector() { };
+        explicit FlameLeviathanPursuedTargetSelector() { }
 
         bool operator()(WorldObject* target) const
         {
@@ -1683,8 +1667,6 @@ class spell_pursue : public SpellScriptLoader
 
         class spell_pursue_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pursue_SpellScript);
-
         private:
             // EFFECT #0 - select target
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1731,19 +1713,18 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vehicle_throw_passenger_SpellScript);
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Spell* baseSpell = GetSpell();
                 SpellCastTargets targets = baseSpell->m_targets;
-                int32 damage = GetEffectValue();
+                int32 damage = GetEffectValueAsInt();
                 if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                            Trinity::WorldObjectSpellAreaTargetCheck check({ .Min = 0.0f, .Max = 99.0f }, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
@@ -1765,12 +1746,13 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                                         }
                                                     }
                             }
-                            if (target && target->IsWithinDist2d(targets.GetDstPos(), GetEffectInfo().CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
+                            SpellRange radius = GetEffectInfo().CalcRadius();
+                            if (target && target->IsInRange2d(targets.GetDstPos(), radius.Min, radius.Max * 2)) // now we use *2 because the location of the seat is not correct
                                 passenger->EnterVehicle(target, 0);
                             else
                             {
                                 passenger->ExitVehicle();
-                                passenger->GetMotionMaster()->MoveJump(*targets.GetDstPos(), targets.GetSpeedXY(), targets.GetSpeedZ());
+                                passenger->GetMotionMaster()->MoveJump(EVENT_JUMP, *targets.GetDstPos(), targets.GetSpeedXY());
                             }
                         }
             }

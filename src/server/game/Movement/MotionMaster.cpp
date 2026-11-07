@@ -16,24 +16,21 @@
  */
 
 #include "MotionMaster.h"
-#include "AbstractFollower.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Errors.h"
 #include "G3DPosition.hpp"
 #include "Log.h"
-#include "Map.h"
+#include "MapUtils.h"
+#include "Memory.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
-#include "PetDefines.h"
 #include "Player.h"
 #include "ScriptSystem.h"
-#include "Unit.h"
-#include "WaypointDefines.h"
+#include "Types.h"
+#include <boost/container/static_vector.hpp>
 #include <algorithm>
 #include <iterator>
 
@@ -74,12 +71,7 @@ void MovementGeneratorDeleter::operator()(MovementGenerator* a)
 
 bool MovementGeneratorComparator::operator()(MovementGenerator const* a, MovementGenerator const* b) const
 {
-    if (a->Mode > b->Mode)
-        return true;
-    else if (a->Mode == b->Mode)
-        return a->Priority > b->Priority;
-
-    return false;
+    return a->Priority > b->Priority;
 }
 
 MovementGeneratorInformation::MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, std::string const& targetName) : Type(type), TargetGUID(targetGUID), TargetName(targetName) { }
@@ -90,8 +82,8 @@ MotionMaster::~MotionMaster()
 {
     _delayedActions.clear();
 
-    for (auto itr = _generators.begin(); itr != _generators.end(); itr = _generators.erase(itr))
-        MovementGeneratorPointerDeleter(*itr);
+    for (MovementGenerator* movement : _generators)
+        MovementGeneratorPointerDeleter(movement);
 }
 
 void MotionMaster::Initialize()
@@ -250,13 +242,12 @@ MovementGenerator* MotionMaster::GetMovementGenerator(std::function<bool(Movemen
                 movement = _defaultGenerator.get();
             break;
         case MOTION_SLOT_ACTIVE:
-            if (!_generators.empty())
-            {
-                auto itr = std::find_if(_generators.begin(), _generators.end(), std::ref(filter));
-                if (itr != _generators.end())
-                    movement = *itr;
-            }
+        {
+            auto itr = std::ranges::find_if(_generators, std::ref(filter));
+            if (itr != _generators.end())
+                movement = *itr;
             break;
+        }
         default:
             break;
     }
@@ -273,15 +264,10 @@ bool MotionMaster::HasMovementGenerator(std::function<bool(MovementGenerator con
     switch (slot)
     {
         case MOTION_SLOT_DEFAULT:
-            if (_defaultGenerator && filter(_defaultGenerator.get()))
-                value = true;
+            value = _defaultGenerator && filter(_defaultGenerator.get());
             break;
         case MOTION_SLOT_ACTIVE:
-            if (!_generators.empty())
-            {
-                auto itr = std::find_if(_generators.begin(), _generators.end(), std::ref(filter));
-                value = itr != _generators.end();
-            }
+            value = std::ranges::any_of(_generators, std::ref(filter));
             break;
         default:
             break;
@@ -302,20 +288,27 @@ void MotionMaster::Update(uint32 diff)
 
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
 
+    enum class InitState : uint8
+    {
+        Failed,
+        Success,
+        AlreadyInitialized
+    } initializationState = InitState::AlreadyInitialized;
+
     MovementGenerator* top = GetCurrentMovementGenerator();
     if (HasFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING) && IsStatic(top))
     {
         RemoveFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
-        top->Initialize(_owner);
+        initializationState = top->Initialize(_owner) ? InitState::Success : InitState::Failed;
     }
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
-        top->Initialize(_owner);
+        initializationState = top->Initialize(_owner) ? InitState::Success : InitState::Failed;
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED))
-        top->Reset(_owner);
+        initializationState = top->Reset(_owner) ? InitState::Success : InitState::Failed;
 
     ASSERT(!top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED), "MotionMaster:Update: update called on an uninitialized top! (%s) (type: %u, flags: %u)", _owner->GetGUID().ToString().c_str(), top->GetMovementGeneratorType(), top->Flags);
 
-    if (!top->Update(_owner, diff))
+    if (initializationState == InitState::Failed || !top->Update(_owner, initializationState == InitState::AlreadyInitialized ? diff : 0))
     {
         ASSERT(top == GetCurrentMovementGenerator(), "MotionMaster::Update: top was modified while updating! (%s)", _owner->GetGUID().ToString().c_str());
 
@@ -337,6 +330,16 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
     {
         delete movement;
         return;
+    }
+
+    if (movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE) && movement->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
+    {
+        bool wouldBecomeTop = _generators.lower_bound(movement) == _generators.begin();
+        if (!wouldBecomeTop || !movement->Initialize(_owner))
+        {
+            delete movement;
+            return;
+        }
     }
 
     if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
@@ -376,14 +379,12 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
                 DirectClearDefault();
             break;
         case MOTION_SLOT_ACTIVE:
-            if (!_generators.empty())
-            {
-                auto bounds = _generators.equal_range(movement);
-                auto itr = std::find(bounds.first, bounds.second, movement);
-                if (itr != _generators.end())
-                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
-            }
+        {
+            auto itr = _generators.find(movement);
+            if (itr != _generators.end())
+                Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             break;
+        }
         default:
             break;
     }
@@ -414,16 +415,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
                 DirectClearDefault();
             break;
         case MOTION_SLOT_ACTIVE:
-            if (!_generators.empty())
-            {
-                auto itr = std::find_if(_generators.begin(), _generators.end(), [type](MovementGenerator const* a) -> bool
-                {
-                    return a->GetMovementGeneratorType() == type;
-                });
-
-                if (itr != _generators.end())
-                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
-            }
+            DirectClear([type](MovementGenerator const* a) { return a->GetMovementGeneratorType() == type; });
             break;
         default:
             break;
@@ -477,28 +469,6 @@ void MotionMaster::Clear(MovementSlot slot)
     }
 }
 
-void MotionMaster::Clear(MovementGeneratorMode mode)
-{
-    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
-    {
-        DelayedActionDefine action = [this, mode]()
-        {
-            Clear(mode);
-        };
-        _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_CLEAR_MODE);
-        return;
-    }
-
-    if (Empty())
-        return;
-
-    std::function<bool(MovementGenerator*)> criteria = [mode](MovementGenerator* a) -> bool
-    {
-        return a->Mode == mode;
-    };
-    DirectClear(criteria);
-}
-
 void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
     if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
@@ -514,11 +484,7 @@ void MotionMaster::Clear(MovementGeneratorPriority priority)
     if (Empty())
         return;
 
-    std::function<bool(MovementGenerator*)> criteria = [priority](MovementGenerator* a) -> bool
-    {
-        return a->Priority == priority;
-    };
-    DirectClear(criteria);
+    DirectClear([priority](MovementGenerator const* a) { return a->Priority == priority; });
 }
 
 void MotionMaster::PropagateSpeedChange()
@@ -567,6 +533,13 @@ bool MotionMaster::StopOnDeath()
     return true;
 }
 
+void MotionMaster::InterruptOnTeleport()
+{
+    if (MovementGenerator* top = GetCurrentMovementGenerator())
+        if (!top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_FINALIZED))
+            top->Deactivate(_owner); // only deactivate top, don't remove it. non-resumable generators will clean up themselves on next update
+}
+
 void MotionMaster::MoveIdle()
 {
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);
@@ -577,7 +550,7 @@ void MotionMaster::MoveTargetedHome()
     Creature* owner = _owner->ToCreature();
     if (!owner)
     {
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', attempted to move towards target home.", _owner->GetGUID().ToString());
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', attempted to move towards target home.", _owner->GetGUID());
         return;
     }
 
@@ -586,33 +559,40 @@ void MotionMaster::MoveTargetedHome()
     Unit* target = owner->GetCharmerOrOwner();
     if (!target)
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', targeted home.", _owner->GetGUID().ToString());
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', targeted home.", _owner->GetGUID());
         Add(new HomeMovementGenerator<Creature>());
     }
     else
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', starts following '{}'", _owner->GetGUID().ToString(), target->GetGUID().ToString());
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '{}', starts following '{}'", _owner->GetGUID(), target->GetGUID());
         Add(new FollowMovementGenerator(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, {}));
     }
 }
 
-void MotionMaster::MoveRandom(float wanderDistance, Optional<Milliseconds> duration, MovementSlot slot /*= MOTION_SLOT_DEFAULT*/)
+void MotionMaster::MoveRandom(float wanderDistance /*= 0.0f*/, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::ForceWalk*/, MovementSlot slot /*= MOTION_SLOT_DEFAULT*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '{}', started random movement (spawnDist: {})", _owner->GetGUID(), wanderDistance);
     if (_owner->GetTypeId() == TYPEID_UNIT)
-    {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '{}', started random movement (spawnDist: {})", _owner->GetGUID().ToString(), wanderDistance);
-        Add(new RandomMovementGenerator<Creature>(wanderDistance, duration), slot);
-    }
+        Add(new RandomMovementGenerator<Creature>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)), slot);
+    else
+        Add(new RandomMovementGenerator<Player>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)));
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration /*= {}*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
+void MotionMaster::MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle /*= {}*/, Optional<Milliseconds> duration /*= {}*/, bool ignoreTargetWalk /*= false*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     // Ignore movement request if target not exist
     if (!target || target == _owner)
+    {
+        if (scriptResult)
+            scriptResult.SetResult(MovementStopReason::Interrupted);
         return;
+    }
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFollow: '{}', starts following '{}'", _owner->GetGUID().ToString(), target->GetGUID().ToString());
-    Add(new FollowMovementGenerator(target, dist, angle, duration), slot);
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFollow: '{}', starts following '{}'", _owner->GetGUID(), target->GetGUID());
+    Add(new FollowMovementGenerator(target, dist, angle, duration, ignoreTargetWalk, std::move(scriptResult)), slot);
 }
 
 void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
@@ -621,7 +601,7 @@ void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<C
     if (!target || target == _owner)
         return;
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveChase: '{}', starts chasing '{}'", _owner->GetGUID().ToString(), target->GetGUID().ToString());
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveChase: '{}', starts chasing '{}'", _owner->GetGUID(), target->GetGUID());
     Add(new ChaseMovementGenerator(target, dist, angle));
 }
 
@@ -629,44 +609,50 @@ void MotionMaster::MoveConfused()
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveConfused: '{}', started confused movement.", _owner->GetGUID().ToString());
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveConfused: '{}', started confused movement.", _owner->GetGUID());
         Add(new ConfusedMovementGenerator<Player>());
     }
     else
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveConfused: '{}', started confused movement.", _owner->GetGUID().ToString());
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveConfused: '{}', started confused movement.", _owner->GetGUID());
         Add(new ConfusedMovementGenerator<Creature>());
     }
 }
 
-void MotionMaster::MoveFleeing(Unit* enemy, Milliseconds time)
+void MotionMaster::MoveFleeing(Unit* enemy, Milliseconds time /*= 0ms*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     if (!enemy)
-        return;
-
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFleeing: '{}', flees from '{}' (time: {}ms)", _owner->GetGUID().ToString(), enemy->GetGUID().ToString(), time.count());
-    if (_owner->GetTypeId() == TYPEID_UNIT)
     {
-        if (time > 0ms)
-            Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
-        else
-            Add(new FleeingMovementGenerator<Creature>(enemy->GetGUID()));
+        if (scriptResult)
+            scriptResult.SetResult(MovementStopReason::Interrupted);
+        return;
     }
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFleeing: '{}', flees from '{}' (time: {}ms)", _owner->GetGUID(), enemy->GetGUID(), time.count());
+    if (_owner->GetTypeId() == TYPEID_UNIT && time > 0ms)
+        Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time, std::move(scriptResult)));
     else
-        Add(new FleeingMovementGenerator<Player>(enemy->GetGUID()));
+        Add(new FleeingMovementGenerator(enemy->GetGUID(), std::move(scriptResult)));
 }
 
 void MotionMaster::MovePoint(uint32 id, Position const& pos, bool generatePath/* = true*/, Optional<float> finalOrient/* = {}*/, Optional<float> speed /*= {}*/,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/, Optional<float> closeEnoughDistance /*= {}*/)
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/, Optional<float> closeEnoughDistance /*= {}*/,
+    Optional<MovementFadeObject> fadeObject /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath, finalOrient, speed, speedSelectionMode, closeEnoughDistance);
+    MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath, finalOrient, speed, speedSelectionMode, closeEnoughDistance,
+        fadeObject, std::move(scriptResult));
 }
 
 void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath /*= true*/, Optional<float> finalOrient /*= {}*/, Optional<float> speed /*= {}*/,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/, Optional<float> closeEnoughDistance /*= {}*/)
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/, Optional<float> closeEnoughDistance /*= {}*/,
+    Optional<MovementFadeObject> fadeObject /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePoint: '{}', targeted point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
-    Add(new PointMovementGenerator(id, x, y, z, generatePath, speed, finalOrient, nullptr, nullptr, speedSelectionMode, closeEnoughDistance));
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePoint: '{}', targeted point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID(), id, x, y, z);
+    Add(new PointMovementGenerator(id, x, y, z, generatePath, speed, finalOrient, nullptr, nullptr, speedSelectionMode, closeEnoughDistance,
+        fadeObject, std::move(scriptResult)));
 }
 
 void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
@@ -693,41 +679,55 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
 }
 
 void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/)
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Ground, tierTransitionId.value_or(0));
-        switch (speedSelectionMode)
-        {
-            case MovementWalkRunSpeedSelectionMode::ForceRun:
-                init.SetWalk(false);
-                break;
-            case MovementWalkRunSpeedSelectionMode::ForceWalk:
-                init.SetWalk(true);
-                break;
-            case MovementWalkRunSpeedSelectionMode::Default:
-            default:
-                break;
-        }
-        if (velocity)
-            init.SetVelocity(*velocity);
-    };
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id));
+    MoveTierTransition(id, pos, AnimTier::Ground, tierTransitionId, velocity, speedSelectionMode, std::move(scriptResult));
 }
 
 void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/)
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTakeoff: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+    MoveTierTransition(id, pos, AnimTier::Fly, tierTransitionId, velocity, speedSelectionMode, std::move(scriptResult));
+}
 
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+void MotionMaster::MoveTierTransition(uint32 id, Position const& pos, AnimTier newAnimTier, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTierTransition: '{}', anim tier transition to {} Id: {} (X: {}, Y: {}, Z: {})",
+        _owner->GetGUID(), newAnimTier, id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+
+    bool flyingTransition = newAnimTier == AnimTier::Fly || _owner->GetAnimTier() == AnimTier::Fly;
+    if (!tierTransitionId)
+    {
+        switch (newAnimTier)
+        {
+            case AnimTier::Ground:
+                tierTransitionId = 208;
+                break;
+            case AnimTier::Swim:
+                tierTransitionId = 149;
+                break;
+            case AnimTier::Hover:
+                tierTransitionId = 25;
+                break;
+            case AnimTier::Fly:
+                tierTransitionId = 17;
+                break;
+            default:
+                break;
+        }
+    }
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, tierTransitionId = tierTransitionId.value_or(0)](Movement::MoveSplineInit& init)
     {
         init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Hover, tierTransitionId.value_or(0));
+        init.SetAnimation(newAnimTier, tierTransitionId);
+        if (flyingTransition)
+            init.SetFly(); // ensure smooth animation even if gravity is disabled after/enabled before calling this function
+        init.SetSmooth();
         switch (speedSelectionMode)
         {
             case MovementWalkRunSpeedSelectionMode::ForceRun:
@@ -743,7 +743,8 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> t
         if (velocity)
             init.SetVelocity(*velocity);
     };
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id));
+
+    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, { .ScriptResult = std::move(scriptResult) }));
 }
 
 void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/,
@@ -753,7 +754,7 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_C
     if (_slot[MOTION_SLOT_CONTROLLED] && _slot[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
 */
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveCharge: '{}', charging point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveCharge: '{}', charging point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID(), id, x, y, z);
     PointMovementGenerator* movement = new PointMovementGenerator(id, x, y, z, generatePath, speed, {}, target, spellEffectExtraData);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_CHARGING;
@@ -780,26 +781,46 @@ void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_C
     init.Launch();
 }
 
-void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, float angle /*= M_PI*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
-    // This function may make players fall below map
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-        return;
-
-    if (speedXY < 0.01f)
+    if (std::abs(speedXY) < 0.01f && std::abs(speedZ) < 0.01f)
         return;
 
     Position dest = _owner->GetPosition();
+    float o = (dest == origin ? 0.0f : _owner->GetRelativeAngle(origin)) + angle;
+    if (speedXY < 0)
+    {
+        speedXY = -speedXY;
+        o = o - float(M_PI);
+    }
+
+    if (speedZ < 0)
+        speedZ = -speedZ; // doesn't seem to be supported on official servers - packet sent for knockback with positive and negative speed has the same flags and JumpGravity
+
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    // Use a mmap raycast to get a valid destination.
-    _owner->MovePositionToFirstCollision(dest, dist, _owner->GetRelativeAngle(origin) + float(M_PI));
+    boost::container::static_vector<G3D::Vector3, 3> path;
+    path.push_back(PositionToVector3(dest));
+
+    if (dist > 0.01f)
+    {
+        // Use a mmap raycast to get a valid destination.
+        _owner->MovePositionToFirstCollision(dest, dist, o);
+        path.push_back(PositionToVector3(dest));
+    }
+    else
+    {
+        // vertical knockbacks get a fake 0.5 higher additional point to avoid clientside spline length checks
+        // sniffs confirmed that it is always 0.5, no matter what the max height is
+        path.push_back(PositionToVector3(dest.GetPositionWithOffset({ 0.0f, 0.0f, 0.5f })));
+        path.push_back(PositionToVector3(dest));
+    }
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
-        init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+        init.MovebyPath({ path.data(), path.size() });
         init.SetParabolic(max_height, 0);
         init.SetOrientationFixed(true);
         init.SetVelocity(speedXY);
@@ -813,80 +834,63 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     Add(movement);
 }
 
-void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
+void MotionMaster::MoveJump(uint32 id, Position const& pos, std::variant<std::monostate, float, Milliseconds> speedOrTime /*= {}*/,
+    Optional<float> minHeight /*= {}*/, Optional<float> maxHeight /*= {}*/,
+    MovementFacingTarget const& facing /*= {}*/, bool orientationFixed, bool unlimitedSpeed /*= false*/, Optional<float> speedMultiplier /*= {}*/,
+    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    // This function may make players fall below map
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-        return;
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos);
 
-    float x, y, z = _owner->GetPositionZ();
+    float dist = _owner->GetExactDist(pos);
 
-    float moveTimeHalf = speedZ / Movement::gravity;
-    float dist = 2 * moveTimeHalf * speedXY;
+    float speedXY = std::visit([owner = _owner, speedMultiplier = speedMultiplier.value_or(1.0f), dist]<typename T>(T speedOrTime) noexcept -> float
+    {
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+            float baseSpeed = owner->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
+            if (Creature* creature = owner->ToCreature())
+                baseSpeed *= creature->GetCreatureTemplate()->speed_run;
 
-    _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
-    _owner->UpdateAllowedPositionZ(x, y, z);
+            return baseSpeed * 3.0f * speedMultiplier;
+        }
+        else if constexpr (std::is_same_v<T, float>)
+        {
+            return speedOrTime;
+        }
+        else if constexpr (std::is_same_v<T, Milliseconds>)
+        {
+            return dist / duration_cast<FloatSeconds>(speedOrTime).count();
+        }
+        else
+        {
+            static_assert(Trinity::dependant_false_v<T>, "Unhandled type");
+        }
+    }, speedOrTime);
 
-    MoveJump(x, y, z, 0.0f, speedXY, speedZ);
-}
+    if (!unlimitedSpeed)
+        speedXY = std::min(speedXY, 50.0f);
 
-void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
-{
-    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
-}
-
-void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '{}', jumps to point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
     if (speedXY < 0.01f)
+    {
+        if (scriptResult)
+            scriptResult.SetResult(MovementStopReason::Interrupted);
         return;
-
-    float moveTimeHalf = speedZ / Movement::gravity;
-    float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(x, y, z, false);
-        init.SetParabolic(max_height, 0);
-        init.SetVelocity(speedXY);
-        if (hasOrientation)
-            init.SetFacing(o);
-        if (effect)
-            init.SetSpellEffectExtraData(*effect);
-    };
-
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
-    movement->Priority = MOTION_PRIORITY_HIGHEST;
-    movement->BaseUnitState = UNIT_STATE_JUMPING;
-    Add(movement);
-}
-
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '{}', jumps to point Id: {} ({})", _owner->GetGUID().ToString(), id, pos.ToString());
-    if (speedXY < 0.01f)
-        return;
+    float duration = dist / speedXY;
+    float durationSqr = duration * duration;
+    float height = std::clamp(Movement::gravity * durationSqr / 8, minHeight.value_or(0.5f), maxHeight.value_or(1000.0f));
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
         init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-        init.SetParabolicVerticalAcceleration(gravity, 0);
-        init.SetUncompressed();
+        init.SetParabolic(height, 0);
         init.SetVelocity(speedXY);
-        init.SetUnlimitedSpeed();
-        if (hasOrientation)
-            init.SetFacing(pos.GetOrientation());
+        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
+        init.SetJumpOrientationFixed(orientationFixed);
+        if (unlimitedSpeed)
+            init.SetUnlimitedSpeed();
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
@@ -899,14 +903,17 @@ void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
         arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
+        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
-    movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
-void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
+void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount,
+    Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, this](Movement::MoveSplineInit& init)
     {
@@ -914,12 +921,14 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         Position const& pos = { x, y, z, 0.0f };
         float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
+        init.Path().reserve(stepCount + 1);
+
         // add the owner's current position as starting point as it gets removed after entering the cycle
-        init.Path().push_back(G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()));
+        init.Path().emplace_back(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 
         for (uint8 i = 0; i < stepCount; angle += step, ++i)
         {
-            G3D::Vector3 point;
+            G3D::Vector3& point = init.Path().emplace_back();
             point.x = x + radius * cosf(angle);
             point.y = y + radius * sinf(angle);
 
@@ -927,50 +936,34 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
                 point.z = z;
             else
                 point.z = _owner->GetMapHeight(point.x, point.y, z) + _owner->GetHoverOffset();
-
-            init.Path().push_back(point);
         }
 
+        init.SetCyclic();
         if (_owner->IsFlying())
         {
             init.SetFly();
-            init.SetCyclic();
             init.SetAnimation(AnimTier::Hover);
         }
         else
-        {
             init.SetWalk(true);
-            init.SetCyclic();
-        }
-    };
 
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0));
-}
-
-void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)
-{
-    Movement::PointsArray path;
-    path.reserve(pathSize);
-    std::transform(pathPoints, pathPoints + pathSize, std::back_inserter(path), [](Position const& point)
-    {
-        return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
-    });
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
-    {
-        init.MovebyPath(path);
-        init.SetWalk(walk);
-        if (fly)
+        switch (speedSelectionMode)
         {
-            init.SetFly();
-            init.SetUncompressed();
-            init.SetSmooth();
+            case MovementWalkRunSpeedSelectionMode::ForceRun:
+                init.SetWalk(false);
+                break;
+            case MovementWalkRunSpeedSelectionMode::ForceWalk:
+                init.SetWalk(true);
+                break;
+            case MovementWalkRunSpeedSelectionMode::Default:
+            default:
+                break;
         }
+        if (speed)
+            init.SetVelocity(*speed);
     };
 
-    // This code is not correct
-    // GenericMovementGenerator does not affect UNIT_STATE_ROAMING_MOVE
-    // need to call PointMovementGenerator with various pointIds
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, pointId));
+    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 0, { .Duration = duration, .ScriptResult = std::move(scriptResult) }));
 }
 
 void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
@@ -978,13 +971,13 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool w
     Creature* owner = _owner->ToCreature();
     if (!owner)
     {
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along DB spline chain. Ignoring.", _owner->GetGUID().ToString());
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along DB spline chain. Ignoring.", _owner->GetGUID());
         return;
     }
     std::vector<SplineChainLink> const* chain = sScriptSystemMgr->GetSplineChain(owner, dbChainId);
     if (!chain)
     {
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along non-existing spline chain with DB Id: {}.", _owner->GetGUID().ToString(), dbChainId);
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along non-existing spline chain with DB Id: {}.", _owner->GetGUID(), dbChainId);
         return;
     }
     MoveAlongSplineChain(pointId, *chain, walk);
@@ -999,20 +992,27 @@ void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
 {
     if (info.Empty())
     {
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::ResumeSplineChain: '{}', tried to resume a spline chain from empty info.", _owner->GetGUID().ToString());
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::ResumeSplineChain: '{}', tried to resume a spline chain from empty info.", _owner->GetGUID());
         return;
     }
     Add(new SplineChainMovementGenerator(info));
 }
 
-void MotionMaster::MoveFall(uint32 id/* = 0*/)
+void MotionMaster::MoveFall(uint32 id /*= 0*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
+    auto setterScopeExit = Trinity::make_unique_ptr_with_deleter(&scriptResult, [](Scripting::v2::ActionResultSetter<MovementStopReason>* opt)
+    {
+        if (bool(*opt))
+            opt->SetResult(MovementStopReason::Interrupted);
+    });
+
     // Use larger distance for vmap height search than in most other cases
     float tz = _owner->GetMapHeight(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFall: '{}', unable to retrieve a proper height at map Id: {} (X: {}, Y: {}, Z: {})",
-            _owner->GetGUID().ToString(), _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            _owner->GetGUID(), _owner->GetMapId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         return;
     }
 
@@ -1033,13 +1033,13 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
         return;
     }
 
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, this](Movement::MoveSplineInit& init)
+    std::function<void(Movement::MoveSplineInit&)> initializer = [this, tz](Movement::MoveSplineInit& init)
     {
         init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz + _owner->GetHoverOffset(), false);
         init.SetFall();
     };
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, { .ScriptResult = std::move(*setterScopeExit.release()) });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     Add(movement);
 }
@@ -1048,7 +1048,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
 {
     if (Creature* creature = _owner->ToCreature())
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '{}', seeks assistance (X: {}, Y: {}, Z: {})", creature->GetGUID().ToString(), x, y, z);
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '{}', seeks assistance (X: {}, Y: {}, Z: {})", creature->GetGUID(), x, y, z);
         creature->AttackStop();
         creature->CastStop();
         creature->DoNotReacquireSpellFocusTarget();
@@ -1056,41 +1056,42 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
         Add(new AssistanceMovementGenerator(EVENT_ASSIST_MOVE, x, y, z));
     }
     else
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '{}', attempted to seek assistance.", _owner->GetGUID().ToString());
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '{}', attempted to seek assistance.", _owner->GetGUID());
 }
 
 void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
 {
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistanceDistract: '{}', is distracted after assistance call (Time: {})", _owner->GetGUID().ToString(), time);
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistanceDistract: '{}', is distracted after assistance call (Time: {})", _owner->GetGUID(), time);
         Add(new AssistanceDistractMovementGenerator(time, _owner->GetOrientation()));
     }
     else
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistanceDistract: '{}', attempted to call distract assistance.", _owner->GetGUID().ToString());
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistanceDistract: '{}', attempted to call distract assistance.", _owner->GetGUID());
 }
 
-void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
+void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode, Optional<float> speed /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         if (path < sTaxiPathNodesByPath.size())
         {
-            TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', taxi to path Id: {} (node {})", _owner->GetGUID().ToString(), path, pathnode);
+            TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', taxi to path Id: {} (node {})", _owner->GetGUID(), path, pathnode);
 
             // Only one FLIGHT_MOTION_TYPE is allowed
             bool hasExisting = HasMovementGenerator([](MovementGenerator const* gen) { return gen->GetMovementGeneratorType() == FLIGHT_MOTION_TYPE; });
             ASSERT(!hasExisting, "Duplicate flight path movement generator");
 
-            FlightPathMovementGenerator* movement = new FlightPathMovementGenerator();
+            FlightPathMovementGenerator* movement = new FlightPathMovementGenerator(speed, std::move(scriptResult));
             movement->LoadPath(_owner->ToPlayer(), pathnode);
             Add(movement);
         }
         else
-            TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', attempted taxi to non-existing path Id: {} (node: {})", _owner->GetGUID().ToString(), path, pathnode);
+            TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', attempted taxi to non-existing path Id: {} (node: {})", _owner->GetGUID(), path, pathnode);
     }
     else
-        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', attempted taxi to path Id: {} (node: {})", _owner->GetGUID().ToString(), path, pathnode);
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '{}', attempted taxi to path Id: {} (node: {})", _owner->GetGUID(), path, pathnode);
 }
 
 void MotionMaster::MoveDistract(uint32 timer, float orientation)
@@ -1099,85 +1100,116 @@ void MotionMaster::MoveDistract(uint32 timer, float orientation)
     if (_slot[MOTION_SLOT_CONTROLLED])
         return;
 */
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveDistract: '{}', distracted (timer: {}, orientation: {})", _owner->GetGUID().ToString(), timer, orientation);
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveDistract: '{}', distracted (timer: {}, orientation: {})", _owner->GetGUID(), timer, orientation);
     Add(new DistractMovementGenerator(timer, orientation));
 }
 
-void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd /*= {}*/,
+    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/,
+    Optional<bool> exactSplinePath /*= {}*/, bool generatePath /*= true*/, Optional<MovementFadeObject> fadeObject /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     if (!pathId)
+    {
+        if (scriptResult)
+            scriptResult.SetResult(MovementStopReason::Interrupted);
         return;
+    }
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
-        _owner->GetGUID().ToString(), pathId, repeatable ? "YES" : "NO");
-    Add(new WaypointMovementGenerator<Creature>(pathId, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
+        _owner->GetGUID(), pathId, repeatable ? "YES" : "NO");
+
+    if (_owner->GetTypeId() == TYPEID_UNIT)
+        Add(new WaypointMovementGenerator<Creature>(pathId, repeatable, duration, speed, speedSelectionMode, std::move(waitTimeRangeAtPathEnd),
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, fadeObject, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+    else
+        Add(new WaypointMovementGenerator<Player>(pathId, repeatable, duration, speed, speedSelectionMode, std::move(waitTimeRangeAtPathEnd),
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, {}, std::move(scriptResult)));
 }
 
-void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration, Optional<float> speed,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
-    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd /*= {}*/,
+    Optional<float> wanderDistanceAtPathEnds /*= {}*/, Optional<bool> followPathBackwardsFromEndToStart /*= {}*/,
+    Optional<bool> exactSplinePath /*= {}*/, bool generatePath /*= true*/, Optional<MovementFadeObject> fadeObject /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePath: '{}', starts moving over path Id: {} (repeatable: {})",
-        _owner->GetGUID().ToString(), path.id, repeatable ? "YES" : "NO");
-    Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-        wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, generatePath), MOTION_SLOT_DEFAULT);
+        _owner->GetGUID(), path.Id, repeatable ? "YES" : "NO");
+
+    if (_owner->GetTypeId() == TYPEID_UNIT)
+        Add(new WaypointMovementGenerator<Creature>(path, repeatable, duration, speed, speedSelectionMode, std::move(waitTimeRangeAtPathEnd),
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, fadeObject, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+    else
+        Add(new WaypointMovementGenerator<Player>(path, repeatable, duration, speed, speedSelectionMode, std::move(waitTimeRangeAtPathEnd),
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, {}, std::move(scriptResult)));
 }
 
-void MotionMaster::MoveRotate(uint32 id, uint32 time, RotateDirection direction)
+void MotionMaster::MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time /*= {}*/,
+    Optional<float> turnSpeed /*= {}*/, Optional<float> totalTurnAngle /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
-    if (!time)
-        return;
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}ms, turnSpeed: {}, totalTurnAngle: {}, direction: {})",
+        _owner->GetGUID(), time.value_or(0ms).count(), turnSpeed, totalTurnAngle, direction);
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRotate: '{}', starts rotate (time: {}, direction: {})", _owner->GetGUID().ToString(), time, direction);
-    Add(new RotateMovementGenerator(id, time, direction));
+    Add(new RotateMovementGenerator(id, direction, time, turnSpeed, totalTurnAngle, std::move(scriptResult)));
 }
 
 void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2)
 {
     if (_owner->GetTypeId() == TYPEID_UNIT && leader)
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFormation: '{}', started to move in a formation with leader {}", _owner->GetGUID().ToString(), leader->GetGUID().ToString());
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFormation: '{}', started to move in a formation with leader {}", _owner->GetGUID(), leader->GetGUID());
         Add(new FormationMovementGenerator(leader, range, angle, point1, point2), MOTION_SLOT_DEFAULT);
     }
 }
 
-void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id/*= 0*/, MovementGeneratorPriority priority/* = MOTION_PRIORITY_NORMAL*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/)
+void MotionMaster::MoveFace(float orientation, uint32 id /*= EVENT_FACE*/)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID(), orientation);
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [owner = _owner, orientation](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
+        if (owner->GetTransport())
+            init.DisableTransportPathTransformations();     // It makes no sense to target global orientation
+        init.SetFacing(orientation);
+    };
+
+    Add(new ImmediateMovementGenerator(std::move(initializer), FACE_MOTION_TYPE, id));
+}
+
+void MotionMaster::MoveFace(WorldObject const* object, uint32 id /*= EVENT_FACE*/)
+{
+    if (!object)
+        return;
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID(), object->GetGUID());
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [owner = _owner, object](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
+        init.SetFacing(owner->GetAbsoluteAngle(object));    // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
+    };
+
+    Add(new ImmediateMovementGenerator(std::move(initializer), FACE_MOTION_TYPE, id));
+}
+
+void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id/*= 0*/, MovementGeneratorPriority priority/* = MOTION_PRIORITY_NORMAL*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     if (IsInvalidMovementGeneratorType(type))
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '{}', tried to launch a spline with an invalid MovementGeneratorType: {} (Id: {}, Priority: {})", _owner->GetGUID().ToString(), type, id, priority);
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '{}', tried to launch a spline with an invalid MovementGeneratorType: {} (Id: {}, Priority: {})", _owner->GetGUID(), type, id, priority);
         return;
     }
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '{}', initiates spline Id: {} (Type: {}, Priority: {})", _owner->GetGUID().ToString(), id, type, priority);
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '{}', initiates spline Id: {} (Type: {}, Priority: {})", _owner->GetGUID(), id, type, priority);
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), type, id);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), type, id, { .ScriptResult = scriptResult });
     movement->Priority = priority;
     Add(movement);
-}
-
-void MotionMaster::CalculateJumpSpeeds(float dist, UnitMoveType moveType, float speedMultiplier, float minHeight, float maxHeight, float& speedXY, float& speedZ) const
-{
-    float baseSpeed = _owner->IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType];
-    if (Creature* creature = _owner->ToCreature())
-        baseSpeed *= creature->GetCreatureTemplate()->speed_run;
-
-    speedXY = std::min(baseSpeed * 3.0f * speedMultiplier, std::max(28.0f, _owner->GetSpeed(moveType) * 4.0f));
-
-    float duration = dist / speedXY;
-    float durationSqr = duration * duration;
-    float height;
-    if (durationSqr < minHeight * 8 / Movement::gravity)
-        height = minHeight;
-    else if (durationSqr > maxHeight * 8 / Movement::gravity)
-        height = maxHeight;
-    else
-        height = Movement::gravity * durationSqr / 8;
-
-    speedZ = std::sqrt(2 * Movement::gravity * height);
 }
 
 /******************** Private methods ********************/
@@ -1191,17 +1223,18 @@ void MotionMaster::ResolveDelayedActions()
     }
 }
 
-void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
+void MotionMaster::Remove(MotionMasterContainer::iterator& iterator, bool active, bool movementInform)
 {
     MovementGenerator* pointer = *iterator;
-    _generators.erase(iterator);
+    iterator = _generators.erase(iterator);
     Delete(pointer, active, movementInform);
 }
 
 void MotionMaster::Pop(bool active, bool movementInform)
 {
-    if (!_generators.empty())
-        Remove(_generators.begin(), active, movementInform);
+    auto itr = _generators.begin();
+    if (itr != _generators.end())
+        Remove(itr, active, movementInform);
 }
 
 void MotionMaster::DirectInitialize()
@@ -1235,18 +1268,11 @@ void MotionMaster::DirectClearDefault()
 
 void MotionMaster::DirectClear(std::function<bool(MovementGenerator*)> const& filter)
 {
-    if (_generators.empty())
-        return;
-
     MovementGenerator const* top = GetCurrentMovementGenerator();
     for (auto itr = _generators.begin(); itr != _generators.end();)
     {
         if (filter(*itr))
-        {
-            MovementGenerator* movement = *itr;
-            itr = _generators.erase(itr);
-            Delete(movement, movement == top, false);
-        }
+            Remove(itr, *itr == top, false);
         else
             ++itr;
     }
@@ -1254,35 +1280,6 @@ void MotionMaster::DirectClear(std::function<bool(MovementGenerator*)> const& fi
 
 void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
 {
-/*
-    if (MovementGenerator* curr = _slot[slot])
-    {
-        _slot[slot] = nullptr; // in case a new one is generated in this slot during directdelete
-        if (_top == slot && (_cleanFlag & MOTIONMMASTER_CLEANFLAG_UPDATE))
-            DelayedDelete(curr);
-        else
-            DirectDelete(curr);
-    }
-    else if (_top < slot)
-    {
-        _top = slot;
-    }
-
-    _slot[slot] = m;
-    if (_top > slot)
-        _initialize[slot] = true;
-    else
-    {
-        _initialize[slot] = false;
-        m->Initialize(_owner);
-    }
-*/
-
-    /*
-     * NOTE: This mimics old behaviour: only one MOTION_SLOT_IDLE, MOTION_SLOT_ACTIVE, MOTION_SLOT_CONTROLLED
-     * On future changes support for multiple will be added
-     */
-
     switch (slot)
     {
         case MOTION_SLOT_DEFAULT:
@@ -1294,33 +1291,33 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                 AddFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
             break;
         case MOTION_SLOT_ACTIVE:
+        {
             if (!_generators.empty())
             {
-                if (movement->Priority >= (*_generators.begin())->Priority)
-                {
-                    auto itr = _generators.begin();
-                    if (movement->Priority == (*itr)->Priority)
-                        Remove(itr, true, false);
-                    else
-                        (*itr)->Deactivate(_owner);
-                }
-                else
-                {
-                    auto itr = std::find_if(_generators.begin(), _generators.end(), [movement](MovementGenerator const* a) -> bool
-                    {
-                        return a->Priority == movement->Priority;
-                    });
-
-                    if (itr != _generators.end())
-                        Remove(itr, false, false);
-                }
+                auto where = _generators.lower_bound(movement); // find movement with equal priority
+                bool replacesExisting = !movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE)
+                    && where != _generators.end() && !_generators.key_comp()(movement, *where);
+                auto top = _generators.begin();
+                if (replacesExisting)
+                    Remove(where, where == top, false);
+                else if (where == top)
+                    (*top)->Deactivate(_owner);
             }
             else
                 _defaultGenerator->Deactivate(_owner);
 
-            _generators.emplace(movement);
-            AddBaseUnitState(movement);
+            if (!movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE))
+            {
+                _generators.insert(movement);
+                AddBaseUnitState(movement);
+            }
+            else
+            {
+                movement->Finalize(_owner, true, true);
+                delete movement;
+            }
             break;
+        }
         default:
             break;
     }
@@ -1329,7 +1326,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
 void MotionMaster::Delete(MovementGenerator* movement, bool active, bool movementInform)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::Delete: deleting generator (Priority: {}, Flags: {}, BaseUnitState: {}, Type: {}), owner: '{}'",
-        movement->Priority, movement->Flags, movement->BaseUnitState, movement->GetMovementGeneratorType(), _owner->GetGUID().ToString());
+        movement->Priority, movement->Flags, movement->BaseUnitState, movement->GetMovementGeneratorType(), _owner->GetGUID());
 
     movement->Finalize(_owner, active, movementInform);
     ClearBaseUnitState(movement);
@@ -1339,7 +1336,7 @@ void MotionMaster::Delete(MovementGenerator* movement, bool active, bool movemen
 void MotionMaster::DeleteDefault(bool active, bool movementInform)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::DeleteDefault: deleting generator (Priority: {}, Flags: {}, BaseUnitState: {}, Type: {}), owner: '{}'",
-        _defaultGenerator->Priority, _defaultGenerator->Flags, _defaultGenerator->BaseUnitState, _defaultGenerator->GetMovementGeneratorType(), _owner->GetGUID().ToString());
+        _defaultGenerator->Priority, _defaultGenerator->Flags, _defaultGenerator->BaseUnitState, _defaultGenerator->GetMovementGeneratorType(), _owner->GetGUID());
 
     _defaultGenerator->Finalize(_owner, active, movementInform);
     _defaultGenerator = MovementGeneratorPointer(GetIdleMovementGenerator());

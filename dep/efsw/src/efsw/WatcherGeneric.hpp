@@ -3,28 +3,27 @@
 
 #include <efsw/FileWatcherImpl.hpp>
 
-namespace efsw
-{
+namespace efsw {
 
 class DirWatcherGeneric;
 
-class WatcherGeneric : public Watcher
-{
-	public:
-		FileWatcherImpl *		WatcherImpl;
-		DirWatcherGeneric *		DirWatch;
+class WatcherGeneric : public Watcher {
+  public:
+	FileWatcherImpl* WatcherImpl;
+	DirWatcherGeneric* DirWatch;
 
-		WatcherGeneric( WatchID id, const std::string& directory, FileWatchListener * fwl, FileWatcherImpl * fw, bool recursive );
+	WatcherGeneric( WatchID id, const std::string& directory, FileWatchListener* fwl,
+					FileWatcherImpl* fw, bool recursive );
 
-		~WatcherGeneric();
+	~WatcherGeneric();
 
-		void watch();
+	void watch() override;
 
-		void watchDir( std::string dir );
+	void watchDir( std::string dir );
 
-		bool pathInWatches( std::string path );
+	bool pathInWatches( std::string path );
 };
 
-}
+} // namespace efsw
 
 #endif

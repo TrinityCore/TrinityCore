@@ -16,48 +16,12 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 
-namespace bgs {
-namespace protocol {
-
-namespace {
-
-const ::google::protobuf::Descriptor* VoiceCredentials_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  VoiceCredentials_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* VoiceJoinType_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* VoiceMuteReason_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor_ = NULL;
-
-}  // namespace
-
 void protobuf_AssignDesc_voice_5ftypes_2eproto() {
   protobuf_AddDesc_voice_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "voice_types.proto");
   GOOGLE_CHECK(file != NULL);
-  VoiceCredentials_descriptor_ = file->message_type(0);
-  static const int VoiceCredentials_offsets_[5] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, voice_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, token_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, url_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, join_type_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, mute_reason_),
-  };
-  VoiceCredentials_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      VoiceCredentials_descriptor_,
-      VoiceCredentials::default_instance_,
-      VoiceCredentials_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VoiceCredentials, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(VoiceCredentials));
-  VoiceJoinType_descriptor_ = file->enum_type(0);
-  VoiceMuteReason_descriptor_ = file->enum_type(1);
-  VoiceProviderVersion_descriptor_ = file->enum_type(2);
 }
 
 namespace {
@@ -70,15 +34,11 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    VoiceCredentials_descriptor_, &VoiceCredentials::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_voice_5ftypes_2eproto() {
-  delete VoiceCredentials::default_instance_;
-  delete VoiceCredentials_reflection_;
 }
 
 void protobuf_AddDesc_voice_5ftypes_2eproto() {
@@ -87,24 +47,12 @@ void protobuf_AddDesc_voice_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::voice::v1::protobuf_AddDesc_api_2fcommon_2fv1_2fvoice_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\021voice_types.proto\022\014bgs.protocol\"\244\001\n\020Vo"
-    "iceCredentials\022\020\n\010voice_id\030\001 \001(\t\022\r\n\005toke"
-    "n\030\002 \001(\t\022\013\n\003url\030\003 \001(\t\022.\n\tjoin_type\030\004 \001(\0162"
-    "\033.bgs.protocol.VoiceJoinType\0222\n\013mute_rea"
-    "son\030\005 \001(\0162\035.bgs.protocol.VoiceMuteReason"
-    "*<\n\rVoiceJoinType\022\025\n\021VOICE_JOIN_NORMAL\020\000"
-    "\022\024\n\020VOICE_JOIN_MUTED\020\001*\243\001\n\017VoiceMuteReas"
-    "on\022\032\n\026VOICE_MUTE_REASON_NONE\020\000\0222\n.VOICE_"
-    "MUTE_REASON_PARENTAL_CONTROL_LISTEN_ONLY"
-    "\020\001\022\037\n\033VOICE_MUTE_REASON_REQUESTED\020\002\022\037\n\033V"
-    "OICE_MUTE_REASON_SQUELCHED\020\003*D\n\024VoicePro"
-    "viderVersion\022\025\n\021VOICE_PROVIDER_V4\020\000\022\025\n\021V"
-    "OICE_PROVIDER_V5\020\001B\002H\002", 502);
+    "\n\021voice_types.proto\032\037api/common/v1/voice"
+    "_types.protoB\002H\002P\000", 58);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "voice_types.proto", &protobuf_RegisterTypes);
-  VoiceCredentials::default_instance_ = new VoiceCredentials();
-  VoiceCredentials::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_voice_5ftypes_2eproto);
 }
 
@@ -114,143 +62,6 @@ struct StaticDescriptorInitializer_voice_5ftypes_2eproto {
     protobuf_AddDesc_voice_5ftypes_2eproto();
   }
 } static_descriptor_initializer_voice_5ftypes_2eproto_;
-const ::google::protobuf::EnumDescriptor* VoiceJoinType_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return VoiceJoinType_descriptor_;
-}
-bool VoiceJoinType_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
-const ::google::protobuf::EnumDescriptor* VoiceMuteReason_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return VoiceMuteReason_descriptor_;
-}
-bool VoiceMuteReason_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
-}
-
-const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return VoiceProviderVersion_descriptor_;
-}
-bool VoiceProviderVersion_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int VoiceCredentials::kVoiceIdFieldNumber;
-const int VoiceCredentials::kTokenFieldNumber;
-const int VoiceCredentials::kUrlFieldNumber;
-const int VoiceCredentials::kJoinTypeFieldNumber;
-const int VoiceCredentials::kMuteReasonFieldNumber;
-#endif  // !_MSC_VER
-
-VoiceCredentials::VoiceCredentials()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.VoiceCredentials)
-}
-
-void VoiceCredentials::InitAsDefaultInstance() {
-}
-
-VoiceCredentials::VoiceCredentials(const VoiceCredentials& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.VoiceCredentials)
-}
-
-void VoiceCredentials::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  voice_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  join_type_ = 0;
-  mute_reason_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-VoiceCredentials::~VoiceCredentials() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.VoiceCredentials)
-  SharedDtor();
-}
-
-void VoiceCredentials::SharedDtor() {
-  if (voice_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete voice_id_;
-  }
-  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete token_;
-  }
-  if (url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete url_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void VoiceCredentials::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* VoiceCredentials::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return VoiceCredentials_descriptor_;
-}
-
-const VoiceCredentials& VoiceCredentials::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_voice_5ftypes_2eproto();
-  return *default_instance_;
-}
-
-VoiceCredentials* VoiceCredentials::default_instance_ = NULL;
-
-VoiceCredentials* VoiceCredentials::New() const {
-  return new VoiceCredentials;
-}
-
-void VoiceCredentials::Swap(VoiceCredentials* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata VoiceCredentials::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = VoiceCredentials_descriptor_;
-  metadata.reflection = VoiceCredentials_reflection_;
-  return metadata;
-}
-
 // @@protoc_insertion_point(namespace_scope)
-
-}  // namespace protocol
-}  // namespace bgs
 
 // @@protoc_insertion_point(global_scope)

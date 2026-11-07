@@ -177,7 +177,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     _events.ScheduleEvent(EVENT_INTRO_2, 2s);
                     break;
                 case EVENT_INTRO_2:
-                    me->GetMotionMaster()->MoveJump(koltiraPos[0], 25.0f, 15.0f);
+                    me->GetMotionMaster()->MoveJump(EVENT_JUMP, koltiraPos[0], 12.0f, 1.0f);
 
                     _events.ScheduleEvent(EVENT_INTRO_3, 2s);
                     break;
@@ -416,8 +416,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -614,11 +612,9 @@ public:
 // 53110 - Devour Humanoid
 class spell_death_knight_devour_humanoid : public SpellScript
 {
-    PrepareSpellScript(spell_death_knight_devour_humanoid);
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectValueAsInt(), true);
     }
 
     void Register() override

@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <map>
+#include <variant>
 #include <vector>
 
 class Player;
@@ -29,6 +30,7 @@ enum TalentLearnResult : int32;
 
 namespace UF
 {
+struct TraitConfig;
 struct TraitEntry;
 }
 
@@ -68,18 +70,27 @@ struct PlayerDataAccessor
     bool IsQuestRewarded(int32 questId) const;
     bool HasAchieved(int32 achievementId) const;
     uint32 GetPrimarySpecialization() const;
+    std::variant<int64, float> GetDataElementAccount(uint32 dataElementId) const;
+    std::variant<int64, float> GetDataElementCharacter(uint32 dataElementId) const;
 
 private:
     Player const* _player;
 };
 
+struct SpentCurrency
+{
+    int32 Total = 0;
+    std::vector<std::pair<int32, int32>> ByGate;
+};
+
 void Load();
 int32 GenerateNewTraitConfigId();
 TraitConfigType GetConfigTypeForTree(int32 traitTreeId);
-void FillSpentCurrenciesMap(WorldPackets::Traits::TraitEntry const& entry, std::map<int32, int32>& cachedCurrencies);
+void FillSpentCurrenciesMap(std::vector<WorldPackets::Traits::TraitEntry> const& traitEntries, std::map<int32, SpentCurrency>& cachedCurrencies);
 std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player);
 bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry);
-LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies = false);
+LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies = false, bool removeInvalidEntries = false);
+bool CanApplyTraitNode(UF::TraitConfig const& traitConfig, UF::TraitEntry const& traitEntry);
 std::vector<TraitDefinitionEffectPointsEntry const*> const* GetTraitDefinitionEffectPointModifiers(int32 traitDefinitionId);
 void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player);
 }

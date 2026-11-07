@@ -121,7 +121,7 @@ public:
                         if (mBarrelCount == 5)
                         {
                             UpdateQuestCredit();
-                            if (TempSummon* drake = instance->SummonCreature(DRAKE_ENTRY, { 2128.43f, 71.01f, 64.42f, 1.74f }, nullptr, Milliseconds(30min).count()))
+                            if (TempSummon* drake = instance->SummonCreature(DRAKE_ENTRY, { 2128.43f, 71.01f, 64.42f, 1.74f }, nullptr, 30min))
                                 drake->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
                         }
                     }

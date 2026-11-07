@@ -291,6 +291,20 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   inline bool use_client_id() const;
   inline void set_use_client_id(bool value);
 
+  // optional bool deprecated_32_bit = 4;
+  inline bool has_deprecated_32_bit() const;
+  inline void clear_deprecated_32_bit();
+  static const int kDeprecated32BitFieldNumber = 4;
+  inline bool deprecated_32_bit() const;
+  inline void set_deprecated_32_bit(bool value);
+
+  // optional bool obsolete = 5;
+  inline bool has_obsolete() const;
+  inline void clear_obsolete();
+  static const int kObsoleteFieldNumber = 5;
+  inline bool obsolete() const;
+  inline void set_obsolete(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.SDKServiceOptions)
  private:
   inline void set_has_inbound();
@@ -299,6 +313,10 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   inline void clear_has_outbound();
   inline void set_has_use_client_id();
   inline void clear_has_use_client_id();
+  inline void set_has_deprecated_32_bit();
+  inline void clear_has_deprecated_32_bit();
+  inline void set_has_obsolete();
+  inline void clear_has_obsolete();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -307,6 +325,8 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   bool inbound_;
   bool outbound_;
   bool use_client_id_;
+  bool deprecated_32_bit_;
+  bool obsolete_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
@@ -730,6 +750,54 @@ inline void SDKServiceOptions::set_use_client_id(bool value) {
   set_has_use_client_id();
   use_client_id_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.use_client_id)
+}
+
+// optional bool deprecated_32_bit = 4;
+inline bool SDKServiceOptions::has_deprecated_32_bit() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SDKServiceOptions::set_has_deprecated_32_bit() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SDKServiceOptions::clear_has_deprecated_32_bit() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SDKServiceOptions::clear_deprecated_32_bit() {
+  deprecated_32_bit_ = false;
+  clear_has_deprecated_32_bit();
+}
+inline bool SDKServiceOptions::deprecated_32_bit() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.deprecated_32_bit)
+  return deprecated_32_bit_;
+}
+inline void SDKServiceOptions::set_deprecated_32_bit(bool value) {
+  set_has_deprecated_32_bit();
+  deprecated_32_bit_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.deprecated_32_bit)
+}
+
+// optional bool obsolete = 5;
+inline bool SDKServiceOptions::has_obsolete() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void SDKServiceOptions::set_has_obsolete() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void SDKServiceOptions::clear_has_obsolete() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void SDKServiceOptions::clear_obsolete() {
+  obsolete_ = false;
+  clear_has_obsolete();
+}
+inline bool SDKServiceOptions::obsolete() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.obsolete)
+  return obsolete_;
+}
+inline void SDKServiceOptions::set_obsolete(bool value) {
+  set_has_obsolete();
+  obsolete_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.obsolete)
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -15,13 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "the_botanica.h"
 
-enum Texts
+enum SarannisTexts
 {
     SAY_AGGRO                      = 0,
     SAY_SLAY                       = 1,
@@ -31,29 +35,31 @@ enum Texts
     SAY_DEATH                      = 5
 };
 
-enum Spells
+enum SarannisSpells
 {
-    SPELL_ARCANE_RESONANCE         = 34794,
     SPELL_ARCANE_DEVASTATION       = 34799,
-
     SPELL_SUMMON_REINFORCEMENTS    = 34803,
+
+    SPELL_ARCANE_RESONANCE         = 34794,
+
     SPELL_SUMMON_MENDER_1          = 34810,
     SPELL_SUMMON_RESERVIST_1       = 34817,
     SPELL_SUMMON_RESERVIST_2       = 34818,
     SPELL_SUMMON_RESERVIST_3       = 34819
 };
 
-enum Events
+enum SarannisEvents
 {
     EVENT_ARCANE_DEVASTATION       = 1,
     EVENT_SUMMON_REINFORCEMENTS
 };
 
-uint32 const SummonReinforcementsSpells[] =
+static constexpr std::array<uint32, 4> SummonReinforcementsSpells =
 {
     SPELL_SUMMON_MENDER_1, SPELL_SUMMON_RESERVIST_1, SPELL_SUMMON_RESERVIST_2, SPELL_SUMMON_RESERVIST_3
 };
 
+// 17976 - Commander Sarannis
 struct boss_commander_sarannis : public BossAI
 {
     boss_commander_sarannis(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS), _summoned(false) { }
@@ -67,24 +73,14 @@ struct boss_commander_sarannis : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
 
         // This is definitely just timed, not scheduled instantly when victim has specific amount of stacks of Arcane Resonance
-        events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, RAND(10s, 15s, 20s, 25s, 30s, 35s));
+        events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 10s, 20s);
         // Timed in heroic (repeatable), on HP PTC in normal (not repeatable)
         if (IsHeroic())
             events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 1min);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
     }
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -96,10 +92,26 @@ struct boss_commander_sarannis : public BossAI
         }
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellStart(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SUMMON_REINFORCEMENTS)
-            Talk(SAY_SUMMON);
+        if (spellInfo->Id == SPELL_SUMMON_REINFORCEMENTS)
+            Talk(EMOTE_SUMMON);
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_ARCANE_DEVASTATION:
+                // Not always?
+                Talk(SAY_ARCANE_DEVASTATION);
+                break;
+            case SPELL_SUMMON_REINFORCEMENTS:
+                Talk(SAY_SUMMON);
+                break;
+            default:
+                break;
+        }
     }
 
     // Do not despawn them
@@ -107,6 +119,17 @@ struct boss_commander_sarannis : public BossAI
     {
         if (me->IsEngaged())
             DoZoneInCombat(summon);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -124,14 +147,11 @@ struct boss_commander_sarannis : public BossAI
             switch (eventId)
             {
                 case EVENT_ARCANE_DEVASTATION:
-                    // Not always?
-                    Talk(SAY_ARCANE_DEVASTATION);
                     // She can cast it if victim has only one stack of Arcane Resonance but can she cast it if victim has no stacks?
                     DoCastVictim(SPELL_ARCANE_DEVASTATION);
-                    events.Repeat(RAND(10s, 15s, 20s, 25s, 30s, 35s));
+                    events.Repeat(10s, 20s);
                     break;
                 case EVENT_SUMMON_REINFORCEMENTS:
-                    Talk(EMOTE_SUMMON);
                     DoCastSelf(SPELL_SUMMON_REINFORCEMENTS);
                     if (IsHeroic())
                         events.Repeat(1min);
@@ -143,8 +163,6 @@ struct boss_commander_sarannis : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -154,9 +172,7 @@ private:
 // 34799 - Arcane Devastation
 class spell_commander_sarannis_arcane_devastation : public AuraScript
 {
-    PrepareAuraScript(spell_commander_sarannis_arcane_devastation);
-
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ARCANE_RESONANCE });
     }
@@ -175,8 +191,6 @@ class spell_commander_sarannis_arcane_devastation : public AuraScript
 // 34803 - Summon Reinforcements
 class spell_commander_sarannis_summon_reinforcements : public SpellScript
 {
-    PrepareSpellScript(spell_commander_sarannis_summon_reinforcements);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(SummonReinforcementsSpells);
@@ -185,8 +199,8 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (uint32 spells : SummonReinforcementsSpells)
-            caster->CastSpell(caster, spells, true);
+        for (uint32 spell : SummonReinforcementsSpells)
+            caster->CastSpell(nullptr, spell, true);
     }
 
     void Register() override

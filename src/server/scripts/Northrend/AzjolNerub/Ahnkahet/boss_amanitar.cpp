@@ -130,7 +130,7 @@ struct boss_amanitar : public BossAI
 
     void SpawnMushroom(Position const pos)
     {
-        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4s);
+        me->SummonCreature(roll_chance(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -189,8 +189,6 @@ struct boss_amanitar : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -215,7 +213,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         {
             DoCastSelf(SPELL_POISONOUS_MUSHROOM_VISUAL_AURA);
 
-            _scheduler.Schedule(1s, [this](TaskContext checkRangeContext)
+            _scheduler.Schedule(1s, [this](TaskContext& checkRangeContext)
             {
                 std::vector<Player*> playersNearby;
                 GetPlayerListInGrid(playersNearby, me, 2.0f);
@@ -228,7 +226,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
 
                     DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
 
-                    _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetObjectScale(0.1f);
                         me->DespawnOrUnsummon(Seconds(4));
@@ -239,7 +237,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
             });
         }
 
-        _scheduler.Schedule(Milliseconds(800), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(800), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_GROW, true);
         });
@@ -266,8 +264,6 @@ private:
 // 56648 - Potent Fungus
 class spell_amanitar_potent_fungus : public AuraScript
 {
-    PrepareAuraScript(spell_amanitar_potent_fungus);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();

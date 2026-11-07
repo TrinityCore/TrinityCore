@@ -97,6 +97,25 @@ struct npc_brunnhildar_prisoner : public ScriptedAI
     }
 };
 
+// 55048 - Free Brunnhildar Prisoner
+class spell_storm_peaks_free_brunnhildar_prisoner : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ICE_PRISON });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_ICE_PRISON);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_free_brunnhildar_prisoner::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*######
 ## npc_freed_protodrake
 ######*/
@@ -526,6 +545,7 @@ struct npc_wild_wyrm : public VehicleAI
         InitSpellsForPhase();
 
         me->SetImmuneToPC(false);
+        me->SetCanMelee(true);
     }
 
     void DoAction(int32 action) override
@@ -565,6 +585,7 @@ struct npc_wild_wyrm : public VehicleAI
         _playerGuid = caster->GetGUID();
         DoCastAOE(SPELL_FULL_HEAL_MANA, true);
         me->SetImmuneToPC(true);
+        me->SetCanMelee(false);
 
         me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
     }
@@ -641,7 +662,7 @@ struct npc_wild_wyrm : public VehicleAI
         {
             me->GetMotionMaster()->MovePath(PATH_WILD_WYRM, true);
         })
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext& context)
         {
             if (_phase == PHASE_MOUTH)
                 return;
@@ -697,8 +718,7 @@ struct npc_wild_wyrm : public VehicleAI
     {
         if (!_playerGuid)
         {
-            if (UpdateVictim())
-                DoMeleeAttackIfReady();
+            UpdateVictim();
             return;
         }
 
@@ -782,7 +802,7 @@ struct npc_king_jokkum_vehicle : public VehicleAI
             playerGUID = who->GetGUID();
             Talk(SAY_HOLD_ON, who);
             me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToNPC(true);
             me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
         }
     }
@@ -843,8 +863,6 @@ private:
 // 61319 - Jokkum Scriptcast
 class spell_jokkum_scriptcast : public AuraScript
 {
-    PrepareAuraScript(spell_jokkum_scriptcast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_JOKKUM_SUMMON });
@@ -865,8 +883,6 @@ class spell_jokkum_scriptcast : public AuraScript
 // 56650 - Player Cast Veranus Summon
 class spell_veranus_summon : public AuraScript
 {
-    PrepareAuraScript(spell_veranus_summon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_VERANUS_AND_THORIM });
@@ -892,8 +908,6 @@ enum CloseRift
 // 56763 - Close Rift
 class spell_close_rift : public AuraScript
 {
-    PrepareAuraScript(spell_close_rift);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
@@ -917,8 +931,6 @@ private:
 // 56689 - Grip
 class spell_grip : public AuraScript
 {
-    PrepareAuraScript(spell_grip);
-
     void DummyTick(AuraEffect const* /*aurEff*/)
     {
         ++_tickNumber;
@@ -975,12 +987,10 @@ class spell_grip : public AuraScript
 // 60533 - Grab On
 class spell_grab_on : public SpellScript
 {
-   PrepareSpellScript(spell_grab_on);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
-            grip->ModStackAmount(GetEffectValue(), AURA_REMOVE_BY_DEFAULT, false);
+            grip->ModStackAmount(GetEffectValueAsInt(), AURA_REMOVE_BY_DEFAULT, false);
     }
 
     void Register() override
@@ -994,8 +1004,6 @@ class spell_grab_on : public SpellScript
 template <int8 StacksToLose>
 class spell_loosen_grip : public SpellScript
 {
-   PrepareSpellScript(spell_loosen_grip);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP))
@@ -1011,16 +1019,14 @@ class spell_loosen_grip : public SpellScript
 // 60596 - Low Health Trigger
 class spell_low_health_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_low_health_trigger);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(nullptr, GetEffectValue(), true);
+        GetHitUnit()->CastSpell(nullptr, GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -1033,11 +1039,9 @@ class spell_low_health_trigger : public SpellScript
 // 60864 - Jaws of Death
 class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScript
 {
-    PrepareSpellScript(spell_jaws_of_death_claw_swipe_pct_damage);
-
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        SetEffectValue(static_cast<int32>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
+        SetEffectValue(static_cast<SpellEffectValue>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
     }
 
     void Register() override
@@ -1049,8 +1053,6 @@ class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScript
 // 56705 - Claw Swipe
 class spell_claw_swipe_check : public AuraScript
 {
-    PrepareAuraScript(spell_claw_swipe_check);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->GetAI()->DoAction(ACTION_CLAW_SWIPE_WARN);
@@ -1070,7 +1072,7 @@ class spell_claw_swipe_check : public AuraScript
             }
         }
 
-        GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), false);
+        GetTarget()->CastSpell(nullptr, aurEff->GetAmountAsInt(), false);
     }
 
     void Register() override
@@ -1083,8 +1085,6 @@ class spell_claw_swipe_check : public AuraScript
 // 60587 - Fatal Strike
 class spell_fatal_strike : public SpellScript
 {
-    PrepareSpellScript(spell_fatal_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
@@ -1092,11 +1092,11 @@ class spell_fatal_strike : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        int32 chance = 0;
+        SpellEffectValue chance = 0;
         if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRY_JAWS_OPEN, EFFECT_0))
             chance = aurEff->GetAmount();
 
-        if (!roll_chance_i(chance))
+        if (!roll_chance(chance))
         {
             GetCaster()->GetAI()->DoAction(ACTION_FATAL_STRIKE_MISS);
             return;
@@ -1114,8 +1114,6 @@ class spell_fatal_strike : public SpellScript
 // 56672 - Player Mount Wyrm
 class spell_player_mount_wyrm : public AuraScript
 {
-    PrepareAuraScript(spell_player_mount_wyrm);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
@@ -1133,31 +1131,6 @@ class spell_player_mount_wyrm : public AuraScript
 };
 
 /*######
-## Quest 12823: A Flawless Plan
-######*/
-
-// 55693 - Remove Collapsing Cave Aura
-class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
-{
-    PrepareSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_storm_peaks_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-/*######
 ## Quest 12987: Mounting Hodir's Helm
 ######*/
 
@@ -1171,8 +1144,6 @@ enum MountingHodirsHelm
 // 56278 - Read Pronouncement
 class spell_storm_peaks_read_pronouncement : public AuraScript
 {
-    PrepareAuraScript(spell_storm_peaks_read_pronouncement);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_1) &&
@@ -1210,8 +1181,6 @@ enum JormuttarIsSooFat
 // 56565 - Bear Flank Master
 class spell_storm_peaks_bear_flank_master : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_bear_flank_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_BEAR_FLANK, SPELL_BEAR_FLANK_FAIL });
@@ -1219,7 +1188,7 @@ class spell_storm_peaks_bear_flank_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
     }
 
     void Register() override
@@ -1231,8 +1200,6 @@ class spell_storm_peaks_bear_flank_master : public SpellScript
 // 56569 - Bear Flank Fail
 class spell_storm_peaks_bear_flank_fail : public AuraScript
 {
-    PrepareAuraScript(spell_storm_peaks_bear_flank_fail);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_CARVE_FAIL);
@@ -1268,8 +1235,6 @@ enum AmpleInspiration
 // 54581 - Mammoth Explosion Spell Spawner
 class spell_storm_peaks_mammoth_explosion_master : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_mammoth_explosion_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1306,8 +1271,6 @@ class spell_storm_peaks_mammoth_explosion_master : public SpellScript
 // 54892 - Unstable Explosive Detonation
 class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_unstable_explosive_detonation);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sObjectMgr->GetItemTemplate(ITEM_EXPLOSIVE_DEVICE);
@@ -1337,8 +1300,6 @@ enum MendingFences
 // 55512 - Call of Earth
 class spell_storm_peaks_call_of_earth : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_call_of_earth);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_EARTHEN });
@@ -1357,9 +1318,92 @@ class spell_storm_peaks_call_of_earth : public SpellScript
     }
 };
 
+/*######
+## Quest 12851: Bearly Hanging On
+######*/
+
+enum BearlyHangingOn
+{
+    NPC_FROSTGIANT             = 29351,
+    NPC_FROSTWORG              = 29358,
+    SPELL_FROSTGIANT_CREDIT    = 58184,
+    SPELL_FROSTWORG_CREDIT     = 58183,
+    SPELL_IMMOLATION           = 54690,
+    SPELL_ABLAZE               = 54683
+};
+
+// 54798 - FLAMING Arrow Triggered Effect
+class spell_storm_peaks_flaming_arrow_triggered_effect : public AuraScript
+{
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            Unit* target = GetTarget();
+            // Already in fire
+            if (target->HasAura(SPELL_ABLAZE))
+                return;
+
+            if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                switch (target->GetEntry())
+                {
+                    case NPC_FROSTWORG:
+                        target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
+                        target->CastSpell(target, SPELL_IMMOLATION, true);
+                        target->CastSpell(target, SPELL_ABLAZE, true);
+                        break;
+                    case NPC_FROSTGIANT:
+                        target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
+                        target->CastSpell(target, SPELL_IMMOLATION, true);
+                        target->CastSpell(target, SPELL_ABLAZE, true);
+                        break;
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_storm_peaks_flaming_arrow_triggered_effect::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+/*######
+## Quest 12920: Catching up with Brann
+######*/
+
+enum CatchingUpWithBrann
+{
+    SPELL_DESPAWN_BRANN    = 61121,
+    SPELL_CONTACT_BRANN    = 55038
+};
+
+// 61122 - Contact Brann
+class spell_storm_peaks_contact_brann : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DESPAWN_BRANN, SPELL_CONTACT_BRANN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DESPAWN_BRANN);
+        caster->CastSpell(caster, SPELL_CONTACT_BRANN);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_contact_brann::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
+    RegisterSpellScript(spell_storm_peaks_free_brunnhildar_prisoner);
     RegisterCreatureAI(npc_freed_protodrake);
     RegisterCreatureAI(npc_icefang);
     RegisterCreatureAI(npc_hyldsmeet_protodrake);
@@ -1379,11 +1423,12 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_claw_swipe_check);
     RegisterSpellScript(spell_fatal_strike);
     RegisterSpellScript(spell_player_mount_wyrm);
-    RegisterSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
     RegisterSpellScript(spell_storm_peaks_read_pronouncement);
     RegisterSpellScript(spell_storm_peaks_bear_flank_master);
     RegisterSpellScript(spell_storm_peaks_bear_flank_fail);
     RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
     RegisterSpellScript(spell_storm_peaks_call_of_earth);
+    RegisterSpellScript(spell_storm_peaks_flaming_arrow_triggered_effect);
+    RegisterSpellScript(spell_storm_peaks_contact_brann);
 }

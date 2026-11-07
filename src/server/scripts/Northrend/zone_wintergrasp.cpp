@@ -198,7 +198,7 @@ struct npc_wg_spirit_guide : public ScriptedAI
         if (!wintergrasp)
             return true;
 
-        GraveyardVect graveyard = wintergrasp->GetGraveyardVector();
+        GraveyardVect const& graveyard = wintergrasp->GetGraveyardVector();
         for (uint8 i = 0; i < graveyard.size(); i++)
             if (graveyard[i]->GetControlTeamId() == player->GetTeamId())
                 AddGossipItemFor(player, GossipOptionNpc::None, player->GetSession()->GetTrinityString(((BfGraveyardWG*)graveyard[i])->GetTextId()), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + i);
@@ -215,7 +215,7 @@ struct npc_wg_spirit_guide : public ScriptedAI
         Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
         if (wintergrasp)
         {
-            GraveyardVect gy = wintergrasp->GetGraveyardVector();
+            GraveyardVect const& gy = wintergrasp->GetGraveyardVector();
             for (uint8 i = 0; i < gy.size(); i++)
                 if (action - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
                     if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(gy[i]->GetGraveyardId()))
@@ -254,8 +254,6 @@ struct npc_wg_queue : public ScriptedAI
             FrostArmor_Timer = 180000;
         }
         else FrostArmor_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipHello(Player* player) override
@@ -354,8 +352,6 @@ private:
    61409 - Build Siege Vehicle (Force) */
 class spell_wintergrasp_force_building : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_force_building);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -370,7 +366,7 @@ class spell_wintergrasp_force_building : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), false);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), false);
     }
 
     void Register() override
@@ -382,8 +378,6 @@ class spell_wintergrasp_force_building : public SpellScript
 // 61178 - Grab Passenger
 class spell_wintergrasp_grab_passenger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_grab_passenger);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
@@ -393,6 +387,20 @@ class spell_wintergrasp_grab_passenger : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_grab_passenger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 49899 - Activate Robotic Arms
+class spell_wintergrasp_activate_robotic_arms : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_05);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_activate_robotic_arms::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -428,8 +436,6 @@ enum WgTeleport
 // 54640 - Teleport
 class spell_wintergrasp_defender_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport);
-
     SpellCastResult CheckCast()
     {
         if (Player* target = GetExplTargetUnit()->ToPlayer())
@@ -449,8 +455,6 @@ class spell_wintergrasp_defender_teleport : public SpellScript
 // 54643 - Teleport
 class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger);
-
     void HandleDummy(SpellEffIndex /*effindex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -471,13 +475,11 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 // 59911 - Tenacity
 class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
-    PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }))
             return false;
-        uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValue();
+        uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValueAsInt();
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
     }
 
@@ -485,9 +487,9 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
     {
         PreventDefaultAction();
 
-        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValueAsInt())
         {
-            int32 bp = 0;
+            SpellEffectValue bp = 0;
             if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
                 bp = healEffect->GetAmount();
 
@@ -503,7 +505,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValueAsInt())
             GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 
@@ -554,6 +556,7 @@ void AddSC_wintergrasp()
     RegisterGameObjectAI(go_wg_vehicle_teleporter);
     RegisterSpellScript(spell_wintergrasp_force_building);
     RegisterSpellScript(spell_wintergrasp_grab_passenger);
+    RegisterSpellScript(spell_wintergrasp_activate_robotic_arms);
     new achievement_wg_didnt_stand_a_chance();
     RegisterSpellScript(spell_wintergrasp_defender_teleport);
     RegisterSpellScript(spell_wintergrasp_defender_teleport_trigger);

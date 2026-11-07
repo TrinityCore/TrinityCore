@@ -367,7 +367,13 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.reserve(9);
 
     // CLI Client connection info
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     args.emplace_back("-h" + host);
+#else
+    // "." means unix socket, change to "localhost" to match what the unix mysql CLI client expects
+    args.emplace_back("-h" + (host == "." ? "localhost"s : host));
+#endif
+
     args.emplace_back("-u" + user);
 
     if (!password.empty())
@@ -383,9 +389,9 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
 #else
 
-    if (!std::isdigit(port_or_socket[0]))
+    if (host == ".")
     {
-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
+        // not a port: port_or_socket is the socket path
         args.emplace_back("-P0");
         args.emplace_back("--protocol=SOCKET");
         args.emplace_back("-S" + port_or_socket);
@@ -397,7 +403,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 #endif
 
     // Set the default charset to utf8
-    args.emplace_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8mb4");
 
     // Set max allowed packet to 1 GB
     args.emplace_back("--max-allowed-packet=1GB");
@@ -406,6 +412,14 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     if (ssl == "ssl")
         args.emplace_back("--ssl-mode=REQUIRED");
+
+#if MYSQL_VERSION_ID >= 90400
+
+    // Since MySQL 9.4 command line client commands are disabled by default
+    // We need to enable them to use `SOURCE` command
+    args.emplace_back("--commands=ON");
+
+#endif
 
 #else
 
@@ -423,7 +437,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
-    int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
+    int32 const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), std::move(args),
                                  "sql.updates", "", true);
 
     if (ret != EXIT_SUCCESS)

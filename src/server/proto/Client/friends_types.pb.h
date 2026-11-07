@@ -27,7 +27,7 @@
 #include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
-#include "invitation_types.pb.h"
+#include "api/common/v1/invitation_types.pb.h"
 #include "role_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)

@@ -27,14 +27,6 @@
 class Player;
 struct AreaTableEntry;
 
-namespace WorldPackets
-{
-    namespace Channel
-    {
-        class ChannelNotify;
-    }
-}
-
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
 {
@@ -76,8 +68,9 @@ enum ChatNotify : uint8
     CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
     CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
     CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
-    CHAT_TRIAL_RESTRICTED             = 0x24,           //+ "[%s] Free Trial accounts cannot send messages to this channel. |cffffd000|Hstorecategory:gametime|h[Click To Upgrade]|h|r"
-    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x25            //+ "That operation is not permitted in this channel."
+    CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE  = 0x24,           // same as CHAT_VOICE_ON_NOTICE but no chat mode change announcement
+    CHAT_TRIAL_RESTRICTED             = 0x25,           //+ "[%s] Free Trial accounts cannot send messages to this channel. |cffffd000|Hstorecategory:gametime|h[Click To Upgrade]|h|r"
+    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x26            //+ "That operation is not permitted in this channel."
 };
 
 enum ChannelFlags
@@ -96,22 +89,6 @@ enum ChannelFlags
     // LocalDefense             0x18 = 0x10 | 0x08
     // GuildRecruitment         0x38 = 0x20 | 0x10 | 0x08
     // LookingForGroup          0x50 = 0x40 | 0x10
-};
-
-enum ChannelDBCFlags
-{
-    CHANNEL_DBC_FLAG_NONE               = 0x00000,
-    CHANNEL_DBC_FLAG_INITIAL            = 0x00001,              // General, Trade, LocalDefense, LFG
-    CHANNEL_DBC_FLAG_ZONE_DEP           = 0x00002,              // General, Trade, LocalDefense, GuildRecruitment
-    CHANNEL_DBC_FLAG_GLOBAL             = 0x00004,              // WorldDefense
-    CHANNEL_DBC_FLAG_TRADE              = 0x00008,              // Trade, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY          = 0x00010,              // Trade, GuildRecruitment, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY2         = 0x00020,              // Trade, GuildRecruitment, LFG
-    CHANNEL_DBC_FLAG_DEFENSE            = 0x10000,              // LocalDefense, WorldDefense
-    CHANNEL_DBC_FLAG_GUILD_REQ          = 0x20000,              // GuildRecruitment
-    CHANNEL_DBC_FLAG_LFG                = 0x40000,              // LFG
-    CHANNEL_DBC_FLAG_UNK1               = 0x80000,              // General
-    CHANNEL_DBC_FLAG_NO_CLIENT_JOIN     = 0x200000
 };
 
 enum ChannelMemberFlags
@@ -176,6 +153,13 @@ class TC_GAME_API Channel
         Channel(ObjectGuid const& guid, uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
         Channel(ObjectGuid const& guid, std::string const& name, uint32 team = 0, std::string const& banList = "");     // custom player channel ctor
 
+        Channel(Channel const&) = delete;
+        Channel(Channel&&) = delete;
+        Channel& operator=(Channel const&) = delete;
+        Channel& operator=(Channel&&) = delete;
+
+        ~Channel();
+
         static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableEntry const* zoneEntry);
         std::string GetName(LocaleConstant locale = DEFAULT_LOCALE) const;
 
@@ -226,14 +210,14 @@ class TC_GAME_API Channel
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void SilenceAll(Player const* player, std::string const& name);
         void UnsilenceAll(Player const* player, std::string const& name);
-        void List(Player const* player);
+        void List(Player const* player) const;
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
         void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void JoinNotify(Player const* player);
-        void LeaveNotify(Player const* player);
+        void JoinNotify(ObjectGuid const& guid) const;
+        void LeaveNotify(ObjectGuid const& guid) const;
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
 
     private:

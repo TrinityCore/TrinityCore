@@ -342,9 +342,9 @@ public:
                 me->Mount(25279);
                 me->SetVisible(true);
 
-                sWorldStateMgr->SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 0, false, me->GetMap());
-                //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
-                sWorldStateMgr->SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 0, false, me->GetMap());
+                WorldStateMgr::SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 0, false, me->GetMap());
+                //WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
+                WorldStateMgr::SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 0, false, me->GetMap());
 
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID))
                     temp->setDeathState(JUST_DIED);
@@ -582,13 +582,13 @@ public:
                     switch (uiStep)
                     {
                         case 0:  // countdown
-                            //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 1, false, me->GetMap());
+                            //WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 1, false, me->GetMap());
                             break;
 
                         case 1:  // just delay
-                            //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 1, false, me->GetMap());
-                            sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
-                            sWorldStateMgr->SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 1, false, me->GetMap());
+                            //WorldStateMgr::SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 1, false, me->GetMap());
+                            WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
+                            WorldStateMgr::SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 1, false, me->GetMap());
                             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             JumpToNextStep(3000);
                             break;
@@ -747,7 +747,7 @@ public:
                         case 15: // summon gate
                             if (Creature* temp = me->SummonCreature(NPC_HIGHLORD_ALEXANDROS_MOGRAINE, LightofDawnLoc[22], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 5min))
                             {
-                                temp->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                temp->SetUninteractible(true);
                                 temp->CastSpell(temp, SPELL_ALEXANDROS_MOGRAINE_SPAWN, true);
                                 temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN06);
                                 uiAlexandrosGUID = temp->GetGUID();
@@ -758,7 +758,7 @@ public:
                         case 16: // Alexandros out
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiAlexandrosGUID))
                             {
-                                temp->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                temp->SetUninteractible(false);
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[23]);
                                 temp->AI()->Talk(SAY_LIGHT_OF_DAWN32);
                             }
@@ -1263,7 +1263,7 @@ public:
                             {
                                 // search players with in 50 yards for quest credit
                                 Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                                if (!PlayerList.isEmpty())
+                                if (!PlayerList.empty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                         if (me->IsWithinDistInMap(i->GetSource(), 500))
@@ -1465,8 +1465,6 @@ public:
                     SetHoldState(false);
 
                 } else uiFight_duration -= diff;
-
-                DoMeleeAttackIfReady();
             }
         }
 

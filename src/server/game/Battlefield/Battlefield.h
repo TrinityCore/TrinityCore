@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 #include <map>
+#include <memory>
 
 enum BattlefieldTypes
 {
@@ -92,77 +93,33 @@ namespace WorldPackets
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
-class TC_GAME_API BfCapturePoint
+class TC_GAME_API BattlefieldControlZoneHandler : public ControlZoneHandler
 {
-    public:
-        BfCapturePoint(Battlefield* bf);
+public:
+    explicit BattlefieldControlZoneHandler(Battlefield* bf);
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler&&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler&&) = delete;
 
-        virtual ~BfCapturePoint() { }
+    virtual ~BattlefieldControlZoneHandler();
 
-        // Send world state update to all players present
-        void SendUpdateWorldState(uint32 field, uint32 value);
-
-        // Send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
-
-        // Used when player is activated/inactivated in the area
-        virtual bool HandlePlayerEnter(Player* player);
-        virtual GuidSet::iterator HandlePlayerLeave(Player* player);
-        //virtual void HandlePlayerActivityChanged(Player* player);
-
-        // Checks if player is in range of a capture credit marker
-        bool IsInsideObjective(Player* player) const;
-
-        // Returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
-        virtual bool Update(uint32 diff);
-        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
-        virtual void SendChangePhase();
-
-        bool SetCapturePointData(GameObject* capturePoint);
-        bool DelCapturePoint();
-        GameObject* GetCapturePointGo();
-        uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
-
-        TeamId GetTeamId() const { return m_team; }
-        BattlefieldObjectiveStates GetObjectiveState() const { return m_State; }
-
-    protected:
-        // active Players in the area of the objective, 0 - alliance, 1 - horde
-        GuidSet m_activePlayers[PVP_TEAMS_COUNT];
-
-        // Total shift needed to capture the objective
-        float m_maxValue;
-        float m_minValue;
-
-        // Maximum speed of capture
-        float m_maxSpeed;
-
-        // The status of the objective
-        float m_value;
-        TeamId m_team;
-
-        // Objective states
-        BattlefieldObjectiveStates m_OldState;
-        BattlefieldObjectiveStates m_State;
-
-        // Neutral value on capture bar
-        uint32 m_neutralValuePct;
-
-        // Pointer to the Battlefield this objective belongs to
-        Battlefield* m_Bf;
-
-        // Capture point entry
-        uint32 m_capturePointEntry;
-
-        // Gameobject related to that capture point
-        ObjectGuid m_capturePointGUID;
+protected:
+    Battlefield* GetBattlefield();
+private:
+    Battlefield* _battlefield;
 };
 
 class TC_GAME_API BfGraveyard
 {
     public:
-        BfGraveyard(Battlefield* Bf);
-        virtual ~BfGraveyard() = default;
+        explicit BfGraveyard(Battlefield* bf);
+        BfGraveyard(BfGraveyard const&) = delete;
+        BfGraveyard(BfGraveyard&&) = delete;
+        BfGraveyard& operator=(BfGraveyard const&) = delete;
+        BfGraveyard& operator=(BfGraveyard&&) = delete;
+
+        virtual ~BfGraveyard();
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
@@ -197,15 +154,17 @@ class TC_GAME_API Battlefield : public ZoneScript
     public:
         /// Constructor
         explicit Battlefield(Map* map);
-        Battlefield(Battlefield const& right) = delete;
-        Battlefield(Battlefield&& right) = delete;
-        Battlefield& operator=(Battlefield const& right) = delete;
-        Battlefield& operator=(Battlefield&& right) = delete;
+        Battlefield(Battlefield const&) = delete;
+        Battlefield(Battlefield&&) = delete;
+        Battlefield& operator=(Battlefield const&) = delete;
+        Battlefield& operator=(Battlefield&&) = delete;
+
         /// Destructor
         virtual ~Battlefield();
 
         /// typedef of map witch store capturepoint and the associate gameobject entry
-        typedef std::map<uint32 /*lowguid */, BfCapturePoint*> BfCapturePointMap;
+
+        typedef std::unordered_map<uint32 /*control zone entry*/, std::unique_ptr<BattlefieldControlZoneHandler>> ControlZoneHandlerMap;
 
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
@@ -227,7 +186,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void InvitePlayersInZoneToWar();
 
         /// Called when a Unit is kill in battlefield zone
-        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { };
+        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { }
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
@@ -270,7 +229,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Battlefield - generic methods
         TeamId GetDefenderTeam() const { return m_DefenderTeam; }
         TeamId GetAttackerTeam() const { return TeamId(1 - m_DefenderTeam); }
-        TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
         void SetDefenderTeam(TeamId team) { m_DefenderTeam = team; }
 
         // Group methods
@@ -288,7 +246,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
-        void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
+        void SetGraveyardNumber(uint32 number);
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
@@ -334,7 +292,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void HideNpc(Creature* creature);
         void ShowNpc(Creature* creature, bool aggressive);
 
-        GraveyardVect GetGraveyardVector() const { return m_GraveyardList; }
+        GraveyardVect const& GetGraveyardVector() const { return m_GraveyardList; }
 
         uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }
@@ -346,6 +304,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         void InitStalker(uint32 entry, Position const& pos);
 
+        void ProcessEvent(WorldObject* target, uint32 eventId, WorldObject* invoker) override;
     protected:
         ObjectGuid StalkerGuid;
         uint32 m_Timer;                                         // Global timer for event
@@ -354,7 +313,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         TeamId m_DefenderTeam;
 
         // Map of the objectives belonging to this OutdoorPvP
-        BfCapturePointMap m_capturePoints;
+        ControlZoneHandlerMap ControlZoneHandlers;
 
         // Players info maps
         GuidUnorderedSet m_players[PVP_TEAMS_COUNT];                      // Players in zone
@@ -401,10 +360,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         void BroadcastPacketToZone(WorldPacket const* data) const;
         void BroadcastPacketToQueue(WorldPacket const* data) const;
         void BroadcastPacketToWar(WorldPacket const* data) const;
-
-        // CapturePoint system
-        void AddCapturePoint(BfCapturePoint* cp);
-        BfCapturePoint* GetCapturePoint(uint32 entry) const;
 
         void RegisterZone(uint32 zoneid);
         bool HasPlayer(Player* player) const;

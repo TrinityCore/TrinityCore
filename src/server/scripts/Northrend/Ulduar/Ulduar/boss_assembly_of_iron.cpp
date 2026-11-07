@@ -269,8 +269,6 @@ class boss_steelbreaker : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -437,8 +435,6 @@ class boss_runemaster_molgeim : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -652,8 +648,6 @@ class boss_stormcaller_brundir : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             private:
@@ -673,8 +667,6 @@ class spell_shield_of_runes : public SpellScriptLoader
 
         class spell_shield_of_runes_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_shield_of_runes_AuraScript);
-
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
@@ -701,8 +693,6 @@ class spell_assembly_meltdown : public SpellScriptLoader
 
         class spell_assembly_meltdown_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_assembly_meltdown_SpellScript);
-
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -729,8 +719,6 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
 
         class spell_assembly_rune_of_summoning_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_assembly_rune_of_summoning_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_RUNE_OF_SUMMONING_SUMMON });

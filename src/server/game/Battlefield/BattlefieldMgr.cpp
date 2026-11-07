@@ -16,10 +16,10 @@
  */
 
 #include "BattlefieldMgr.h"
-#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -64,7 +64,7 @@ void BattlefieldMgr::InitBattlefield()
                 continue;
             }
 
-            BattlefieldIdToScriptId[typeId] = sObjectMgr->GetScriptId(fields[1].GetString());
+            BattlefieldIdToScriptId[typeId] = sObjectMgr->GetScriptId(fields[1].GetStringView());
 
             ++count;
         } while (result->NextRow());

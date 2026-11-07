@@ -54,6 +54,11 @@ enum AVGameObjectIds
     GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT           = 377951
 };
 
+enum AVActionIds
+{
+    ACTION_FINISH_LEYMOR_INTRO  = 251501
+};
+
 template <class AI, class T>
 inline AI* GetAzureVaultAI(T* obj)
 {

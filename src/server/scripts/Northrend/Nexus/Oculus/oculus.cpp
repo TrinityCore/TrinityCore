@@ -363,7 +363,7 @@ struct npc_ruby_emerald_amber_drake : public VehicleAI
                     break;
             }
         }
-    };
+    }
 
 private:
     InstanceScript* _instance;
@@ -376,8 +376,6 @@ private:
 // 49462 - Call Ruby Drake
 class spell_oculus_call_ruby_emerald_amber_drake : public SpellScript
 {
-    PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake);
-
     void SetDest(SpellDestination& dest)
     {
         // Adjust effect summon position
@@ -396,8 +394,6 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScript
 // 49463 - Ride Ruby Drake Que
 class spell_oculus_ride_ruby_emerald_amber_drake_que : public AuraScript
 {
-    PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que);
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         // caster of the triggered spell is wrong for an unknown reason, handle it here correctly
@@ -415,8 +411,6 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public AuraScript
 // 50240 - Evasive Maneuvers
 class spell_oculus_evasive_maneuvers : public AuraScript
 {
-    PrepareAuraScript(spell_oculus_evasive_maneuvers);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
@@ -439,39 +433,29 @@ class spell_oculus_evasive_maneuvers : public AuraScript
 // 49840 - Shock Lance
 class spell_oculus_shock_lance : public SpellScript
 {
-    PrepareSpellScript(spell_oculus_shock_lance);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
     }
 
-    void CalcDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
-        int32 damage = GetEffectValue();
-        if (Unit* target = GetHitUnit())
+        if (AuraEffect const* shockCharges = victim->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
         {
-            if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
-            {
-                damage += shockCharges->GetAmount();
-                shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-            }
+            flatMod += shockCharges->GetAmountAsInt();
+            shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-
-        SetEffectValue(damage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_oculus_shock_lance::CalculateDamage);
     }
 };
 
 // 49838 - Stop Time
 class spell_oculus_stop_time : public AuraScript
 {
-    PrepareAuraScript(spell_oculus_stop_time);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
@@ -497,8 +481,6 @@ class spell_oculus_stop_time : public AuraScript
 // 49592 - Temporal Rift
 class spell_oculus_temporal_rift : public AuraScript
 {
-    PrepareAuraScript(spell_oculus_temporal_rift);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
@@ -511,7 +493,7 @@ class spell_oculus_temporal_rift : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 amount = aurEff->GetAmount() + damageInfo->GetDamage();
+        SpellEffectValue amount = aurEff->GetAmount() + damageInfo->GetDamage();
         if (amount >= 15000)
         {
             if (Unit* caster = GetCaster())
@@ -519,7 +501,7 @@ class spell_oculus_temporal_rift : public AuraScript
             amount -= 15000;
         }
 
-        const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+        aurEff->SetAmount(amount);
     }
 
     void Register() override
@@ -531,8 +513,6 @@ class spell_oculus_temporal_rift : public AuraScript
 // 50341 - Touch the Nightmare
 class spell_oculus_touch_the_nightmare : public SpellScript
 {
-    PrepareSpellScript(spell_oculus_touch_the_nightmare);
-
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
@@ -547,12 +527,10 @@ class spell_oculus_touch_the_nightmare : public SpellScript
 // 50344 - Dream Funnel
 class spell_oculus_dream_funnel : public AuraScript
 {
-    PrepareAuraScript(spell_oculus_dream_funnel);
-
-    void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         if (Unit* caster = GetCaster())
-            amount = int32(caster->CountPctFromMaxHealth(5));
+            amount = caster->CountPctFromMaxHealth(5);
 
         canBeRecalculated = false;
     }

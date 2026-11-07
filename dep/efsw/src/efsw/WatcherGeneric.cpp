@@ -1,15 +1,12 @@
-#include <efsw/WatcherGeneric.hpp>
-#include <efsw/FileSystem.hpp>
 #include <efsw/DirWatcherGeneric.hpp>
+#include <efsw/FileSystem.hpp>
+#include <efsw/WatcherGeneric.hpp>
 
-namespace efsw
-{
+namespace efsw {
 
-WatcherGeneric::WatcherGeneric( WatchID id, const std::string& directory, FileWatchListener * fwl, FileWatcherImpl * fw, bool recursive ) :
-	Watcher( id, directory, fwl, recursive ),
-	WatcherImpl( fw ),
-	DirWatch( NULL )
-{
+WatcherGeneric::WatcherGeneric( WatchID id, const std::string& directory, FileWatchListener* fwl,
+								FileWatcherImpl* fw, bool recursive ) :
+	Watcher( id, directory, fwl, recursive ), WatcherImpl( fw ), DirWatch( NULL ) {
 	FileSystem::dirAddSlashAtEnd( Directory );
 
 	DirWatch = new DirWatcherGeneric( NULL, this, directory, recursive, false );
@@ -17,24 +14,20 @@ WatcherGeneric::WatcherGeneric( WatchID id, const std::string& directory, FileWa
 	DirWatch->addChilds( false );
 }
 
-WatcherGeneric::~WatcherGeneric()
-{
+WatcherGeneric::~WatcherGeneric() {
 	efSAFE_DELETE( DirWatch );
 }
 
-void WatcherGeneric::watch()
-{
+void WatcherGeneric::watch() {
 	DirWatch->watch();
 }
 
-void WatcherGeneric::watchDir( std::string dir )
-{
+void WatcherGeneric::watchDir( std::string dir ) {
 	DirWatch->watchDir( dir );
 }
 
-bool WatcherGeneric::pathInWatches( std::string path )
-{
+bool WatcherGeneric::pathInWatches( std::string path ) {
 	return DirWatch->pathInWatches( path );
 }
 
-}
+} // namespace efsw

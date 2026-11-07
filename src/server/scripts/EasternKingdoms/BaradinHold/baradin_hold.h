@@ -27,16 +27,25 @@ uint32 const EncounterCount = 3;
 
 enum BHDataTypes
 {
-    DATA_ARGALOTH           = 0,
-    DATA_OCCUTHAR           = 1,
-    DATA_ALIZABAL           = 2
+    // Encounters
+    BOSS_ARGALOTH   = 0,
+    BOSS_OCCUTHAR   = 1,
+    BOSS_ALIZABAL   = 2,
+
+    // Encounter Related
+    DATA_EXTINUISH_FEL_FLAMES
 };
 
 enum BHCreatureIds
 {
-    BOSS_ARGALOTH           = 47120,
-    BOSS_OCCUTHAR           = 52363,
-    BOSS_ALIZABAL           = 55869,
+    // Bosses
+    NPC_ARGALOTH            = 47120,
+    NPC_OCCUTHAR            = 52363,
+    NPC_ALIZABAL            = 55869,
+
+    // Encounter Related Creatures
+    /*Argaloth*/
+    NPC_FEL_FLAMES          = 47829,
 
     NPC_EYE_OF_OCCUTHAR     = 52389,
     NPC_FOCUS_FIRE_DUMMY    = 52369,
@@ -50,10 +59,18 @@ enum BHGameObjectIds
     GO_ALIZABAL_DOOR        = 209849
 };
 
-template<typename AI>
-CreatureAI* GetBaradinHoldAI(Creature* creature)
+enum BHSpells
 {
-    return GetInstanceAI<AI>(creature, BHScriptName);
+    // Fel Flames
+    SPELL_FEL_FLAMES = 88999
+};
+
+template<class AI, class T>
+inline AI* GetBaradinHoldAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BHScriptName);
 }
+
+#define RegisterBaradinHoldCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBaradinHoldAI)
 
 #endif

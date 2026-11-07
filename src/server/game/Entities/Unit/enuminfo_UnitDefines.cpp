@@ -309,7 +309,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags3>::ToString(UnitFlags3 value)
         case UNIT_FLAG3_ALREADY_SKINNED: return { "UNIT_FLAG3_ALREADY_SKINNED", "UNIT_FLAG3_ALREADY_SKINNED", "" };
         case UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS: return { "UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS", "Suppress all NPC sounds", "Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible" };
         case UNIT_FLAG3_SUPPRESS_NPC_SOUNDS: return { "UNIT_FLAG3_SUPPRESS_NPC_SOUNDS", "Suppress NPC sounds", "Skips playing sounds on beginning and end of npc interaction" };
-        case UNIT_FLAG3_UNK20: return { "UNIT_FLAG3_UNK20", "UNIT_FLAG3_UNK20", "" };
+        case UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT: return { "UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT", "Allow Interaction While in Combat", "Allows using various NPC functions while in combat (vendor, gossip, questgiver)" };
         case UNIT_FLAG3_UNK21: return { "UNIT_FLAG3_UNK21", "UNIT_FLAG3_UNK21", "" };
         case UNIT_FLAG3_DONT_FADE_OUT: return { "UNIT_FLAG3_DONT_FADE_OUT", "UNIT_FLAG3_DONT_FADE_OUT", "" };
         case UNIT_FLAG3_UNK23: return { "UNIT_FLAG3_UNK23", "UNIT_FLAG3_UNK23", "" };
@@ -353,7 +353,7 @@ TC_API_EXPORT UnitFlags3 EnumUtils<UnitFlags3>::FromIndex(size_t index)
         case 17: return UNIT_FLAG3_ALREADY_SKINNED;
         case 18: return UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS;
         case 19: return UNIT_FLAG3_SUPPRESS_NPC_SOUNDS;
-        case 20: return UNIT_FLAG3_UNK20;
+        case 20: return UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT;
         case 21: return UNIT_FLAG3_UNK21;
         case 22: return UNIT_FLAG3_DONT_FADE_OUT;
         case 23: return UNIT_FLAG3_UNK23;
@@ -394,7 +394,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags3>::ToIndex(UnitFlags3 value)
         case UNIT_FLAG3_ALREADY_SKINNED: return 17;
         case UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS: return 18;
         case UNIT_FLAG3_SUPPRESS_NPC_SOUNDS: return 19;
-        case UNIT_FLAG3_UNK20: return 20;
+        case UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT: return 20;
         case UNIT_FLAG3_UNK21: return 21;
         case UNIT_FLAG3_DONT_FADE_OUT: return 22;
         case UNIT_FLAG3_UNK23: return 23;
@@ -421,7 +421,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return { "UNIT_NPC_FLAG_NONE", "UNIT_NPC_FLAG_NONE", "" };
         case UNIT_NPC_FLAG_GOSSIP: return { "UNIT_NPC_FLAG_GOSSIP", "has gossip menu", "100%" };
         case UNIT_NPC_FLAG_QUESTGIVER: return { "UNIT_NPC_FLAG_QUESTGIVER", "is quest giver", "100%" };
-        case UNIT_NPC_FLAG_UNK1: return { "UNIT_NPC_FLAG_UNK1", "UNIT_NPC_FLAG_UNK1", "" };
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return { "UNIT_NPC_FLAG_ACCOUNT_BANKER", "is account banker", "" };
         case UNIT_NPC_FLAG_UNK2: return { "UNIT_NPC_FLAG_UNK2", "UNIT_NPC_FLAG_UNK2", "" };
         case UNIT_NPC_FLAG_TRAINER: return { "UNIT_NPC_FLAG_TRAINER", "is trainer", "100%" };
         case UNIT_NPC_FLAG_TRAINER_CLASS: return { "UNIT_NPC_FLAG_TRAINER_CLASS", "is class trainer", "100%" };
@@ -466,7 +466,7 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 0: return UNIT_NPC_FLAG_NONE;
         case 1: return UNIT_NPC_FLAG_GOSSIP;
         case 2: return UNIT_NPC_FLAG_QUESTGIVER;
-        case 3: return UNIT_NPC_FLAG_UNK1;
+        case 3: return UNIT_NPC_FLAG_ACCOUNT_BANKER;
         case 4: return UNIT_NPC_FLAG_UNK2;
         case 5: return UNIT_NPC_FLAG_TRAINER;
         case 6: return UNIT_NPC_FLAG_TRAINER_CLASS;
@@ -508,7 +508,7 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return 0;
         case UNIT_NPC_FLAG_GOSSIP: return 1;
         case UNIT_NPC_FLAG_QUESTGIVER: return 2;
-        case UNIT_NPC_FLAG_UNK1: return 3;
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return 3;
         case UNIT_NPC_FLAG_UNK2: return 4;
         case UNIT_NPC_FLAG_TRAINER: return 5;
         case UNIT_NPC_FLAG_TRAINER_CLASS: return 6;
@@ -561,15 +561,18 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags2>::ToString(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW: return { "UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW", "is black market view", "only allows viewing black market auctions, no bidding" };
         case UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC: return { "UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC", "is garrrison talent", "" };
         case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return { "UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR", "is contribution collector", "" };
+        case UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES: return { "UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES", "enables avoiding obstacles when FastSteering spline flag is set", "" };
         case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return { "UNIT_NPC_FLAG_2_AZERITE_RESPEC", "is azerite respec", "" };
         case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return { "UNIT_NPC_FLAG_2_ISLANDS_QUEUE", "is islands queue", "" };
         case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return { "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "" };
+        case UNIT_NPC_FLAG_2_PERKS_VENDOR: return { "UNIT_NPC_FLAG_2_PERKS_VENDOR", "is trading post vendor", "" };
+        case UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER: return { "UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER", "is personal tabard designer", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 14; }
+TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 17; }
 
 template <>
 TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
@@ -587,9 +590,12 @@ TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
         case 8: return UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW;
         case 9: return UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC;
         case 10: return UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR;
-        case 11: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
-        case 12: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
-        case 13: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
+        case 11: return UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES;
+        case 12: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
+        case 13: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
+        case 14: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
+        case 15: return UNIT_NPC_FLAG_2_PERKS_VENDOR;
+        case 16: return UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER;
         default: throw std::out_of_range("index");
     }
 }
@@ -610,9 +616,12 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags2>::ToIndex(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW: return 8;
         case UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC: return 9;
         case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return 10;
-        case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 11;
-        case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 12;
-        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 13;
+        case UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES: return 11;
+        case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 12;
+        case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 13;
+        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 14;
+        case UNIT_NPC_FLAG_2_PERKS_VENDOR: return 15;
+        case UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER: return 16;
         default: throw std::out_of_range("value");
     }
 }

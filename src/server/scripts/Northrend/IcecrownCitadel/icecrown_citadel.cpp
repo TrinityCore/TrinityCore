@@ -135,7 +135,7 @@ enum ICCSpells
     SPELL_DARK_MENDING              = 71020
 };
 
-enum ICCTimedEventIds
+enum ICCEvents
 {
     // Light's Hammer RP
     EVENT_TIRION_INTRO_2 = 1,
@@ -208,7 +208,7 @@ enum ICCMisc
     POINT_LAND          = 1,
 };
 
-// at Light's Hammer
+// 37119 - Highlord Tirion Fordring (At Light's Hammer)
 struct npc_highlord_tirion_fordring_lh : public ScriptedAI
 {
     npc_highlord_tirion_fordring_lh(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -443,6 +443,7 @@ private:
     Unit const* _me;
 };
 
+// 38490, 38494 - Rotting Frost Giant
 struct npc_rotting_frost_giant : public ScriptedAI
 {
     npc_rotting_frost_giant(Creature* creature) : ScriptedAI(creature) { }
@@ -499,14 +500,13 @@ struct npc_rotting_frost_giant : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
     EventMap _events;
 };
 
+// 37744 - Frost Freeze Trap
 struct npc_frost_freeze_trap: public ScriptedAI
 {
     npc_frost_freeze_trap(Creature* creature) : ScriptedAI(creature)
@@ -542,6 +542,7 @@ private:
     EventMap _events;
 };
 
+// 38501 - Alchemist Adrianna
 struct npc_alchemist_adrianna : public ScriptedAI
 {
     npc_alchemist_adrianna(Creature* creature) : ScriptedAI(creature) { }
@@ -555,6 +556,7 @@ struct npc_alchemist_adrianna : public ScriptedAI
     }
 };
 
+// 30298 - Invisible Stalker (Float, Uninteractible, LargeAOI)
 class npc_arthas_teleport_visual : public CreatureScript
 {
     public:
@@ -605,6 +607,8 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
+// 39371 - King Varian Wrynn
+// 39372 - Garrosh Hellscream
 struct npc_entrance_faction_leader : public ScriptedAI
 {
     npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
@@ -625,7 +629,7 @@ public:
 
     bool operator()(Creature* target) const
     {
-        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPath() || _owner->GetDistance(target) > 10.0f)
+        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPathId() || _owner->GetDistance(target) > 10.0f)
             return false;
 
         switch (target->GetEntry())
@@ -657,13 +661,14 @@ static Emote const DarkFallensEmotes[]=
     EMOTE_ONESHOT_NO
 };
 
+// 38463 - Empowering Orb Visual Stalker
 struct npc_icc_orb_controller : public ScriptedAI
 {
     npc_icc_orb_controller(Creature* creature) : ScriptedAI(creature), _isInCombat(false), _isLongRepeat(false) { }
 
     void Reset() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext /*initialize*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*initialize*/)
         {
             std::vector<Creature*> creatures;
             ICCOrbControllerMinionSearch check(me, false);
@@ -685,7 +690,7 @@ struct npc_icc_orb_controller : public ScriptedAI
 
     void ScheduleVisualChannel(bool evading)
     {
-        _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext visual)
+        _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext& visual)
         {
             ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
@@ -779,18 +784,18 @@ struct DarkFallenAI : public ScriptedAI
 
     void Reset() override
     {
-        IsDoingEmotes = me->GetWaypointPath() ? false : true;
+        IsDoingEmotes = me->GetWaypointPathId() ? false : true;
         Scheduler.CancelAll();
         Scheduler.SetValidator([this]
         {
             return !me->HasUnitState(UNIT_STATE_CASTING);
         })
-        .Schedule(1s, 10s, [this](TaskContext emote)
+        .Schedule(1s, 10s, [this](TaskContext& emote)
         {
             if (!IsDoingEmotes)
                 return;
 
-            if (roll_chance_i(20))
+            if (roll_chance(20))
             {
                 std::vector<Creature*> creatures;
                 ICCOrbControllerMinionSearch check(me, true);
@@ -802,7 +807,7 @@ struct DarkFallenAI : public ScriptedAI
                     DoCast(friendly, SPELL_POLYMORPH_ALLY);
                 }
             }
-            Scheduler.Schedule(1s, [this](TaskContext /*emote*/)
+            emote.Schedule(1s, [this](TaskContext& /*emote*/)
             {
                 me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(DarkFallensEmotes));
             });
@@ -848,8 +853,6 @@ struct DarkFallenAI : public ScriptedAI
 
         if (AttackSpellId)
             DoSpellAttackIfReady(AttackSpellId);
-        else
-            DoMeleeAttackIfReady();
     }
 
 protected:
@@ -859,22 +862,23 @@ protected:
     uint32 AttackSpellId;
 };
 
+// 37595 - Darkfallen Blood Knight
 struct npc_darkfallen_blood_knight : public DarkFallenAI
 {
     npc_darkfallen_blood_knight(Creature* creature) : DarkFallenAI(creature) { }
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        Scheduler.Schedule(500ms, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_VAMPIRIC_AURA);
         })
-        .Schedule(8s, [this](TaskContext unholyStrike)
+        .Schedule(8s, [this](TaskContext& unholyStrike)
         {
             DoCastVictim(SPELL_UNHOLY_STRIKE);
             unholyStrike.Repeat(8s, 9s);
         })
-        .Schedule(6s, [this](TaskContext bloodMirror)
+        .Schedule(6s, [this](TaskContext& bloodMirror)
         {
             DoCastSelf(SPELL_BLOOD_MIRROR);
             bloodMirror.Repeat(34s);
@@ -882,19 +886,23 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
     }
 };
 
+// 37663 - Darkfallen Noble
 struct npc_darkfallen_noble : public DarkFallenAI
 {
-    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
         AttackSpellId = SPELL_SHADOW_BOLT;
-        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        Scheduler.Schedule(500ms, [this](TaskContext const& /*context*/)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
                 DoCast(target, SPELL_CHAINS_OF_SHADOW);
         })
-        .Schedule(11s, [this](TaskContext summonVampiric)
+        .Schedule(11s, [this](TaskContext& summonVampiric)
         {
             // Vampiric should be summoned by 70647 but i have no idea what is miscB of summon effect
             if (Unit* target = me->GetVictim())
@@ -905,6 +913,7 @@ struct npc_darkfallen_noble : public DarkFallenAI
     }
 };
 
+// 37901 - Vampiric Fiend
 struct npc_vampiric_fiend : public ScriptedAI
 {
     npc_vampiric_fiend(Creature* creature) : ScriptedAI(creature) { }
@@ -912,11 +921,11 @@ struct npc_vampiric_fiend : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_DISEASE_CLOUD);
-        _scheduler.Schedule(9s, [this](TaskContext /*leechingRoot*/)
+        _scheduler.Schedule(9s, [this](TaskContext const& /*leechingRoot*/)
         {
             DoCastVictim(SPELL_LEECHING_ROOT);
         })
-        .Schedule(38s, [this](TaskContext /*leechingRoot*/)
+        .Schedule(38s, [this](TaskContext const& /*leechingRoot*/)
         {
             me->DespawnOrUnsummon();
         });
@@ -934,33 +943,35 @@ struct npc_vampiric_fiend : public ScriptedAI
             return;
 
         _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
     TaskScheduler _scheduler;
 };
 
+// 37664 - Darkfallen Archmage
 struct npc_darkfallen_archmage : public DarkFallenAI
 {
-    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
         AttackSpellId = SPELL_FIREBALL;
-        Scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
+        Scheduler.Schedule(1s, [this](TaskContext& amplifyMagic)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_AMPLIFY_MAGIC);
             amplifyMagic.Repeat(15s, 24s);
         })
-        .Schedule(10s, [this](TaskContext blastWave)
+        .Schedule(10s, [this](TaskContext& blastWave)
         {
             DoCastSelf(SPELL_BLAST_WAVE);
             blastWave.Repeat(25s, 30s);
         })
-        .Schedule(17s, [this](TaskContext polymorph)
+        .Schedule(17s, [this](TaskContext& polymorph)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_POLYMORPH))
                 DoCast(target, SPELL_POLYMORPH);
@@ -969,18 +980,19 @@ struct npc_darkfallen_archmage : public DarkFallenAI
     }
 };
 
+// 37571 - Darkfallen Advisor
 struct npc_darkfallen_advisor : public DarkFallenAI
 {
     npc_darkfallen_advisor(Creature* creature) : DarkFallenAI(creature) { }
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(8s, [this](TaskContext lichSlap)
+        Scheduler.Schedule(8s, [this](TaskContext& lichSlap)
         {
             DoCastVictim(SPELL_LICH_SLAP);
             lichSlap.Repeat(12s);
         })
-        .Schedule(50s, [this](TaskContext immunity)
+        .Schedule(50s, [this](TaskContext& immunity)
         {
             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                 DoCast(target, SPELL_SHROUD_OF_SPELL_WARDING);
@@ -989,18 +1001,19 @@ struct npc_darkfallen_advisor : public DarkFallenAI
     }
 };
 
+// 37666 - Darkfallen Tactician
 struct npc_darkfallen_tactician : public DarkFallenAI
 {
     npc_darkfallen_tactician(Creature* creature) : DarkFallenAI(creature) { }
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(8s, [this](TaskContext unholyStrike)
+        Scheduler.Schedule(8s, [this](TaskContext& unholyStrike)
         {
             DoCastVictim(SPELL_UNHOLY_STRIKE);
             unholyStrike.Repeat(8s, 11s);
         })
-        .Schedule(10s, [this](TaskContext shadowStep)
+        .Schedule(10s, [this](TaskContext& shadowStep)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false))
             {
@@ -1012,6 +1025,7 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
+// 36725 - Nerub'ar Broodkeeper
 struct npc_icc_nerubar_broodkeeper : public ScriptedAI
 {
     npc_icc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature) { }
@@ -1103,14 +1117,13 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
     EventMap _events;
 };
 
+// 201741 - Empowering Blood Orb
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
@@ -1135,7 +1148,7 @@ struct go_empowering_blood_orb : public GameObjectAI
         me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
             trigger->DespawnOrUnsummon();
-        _scheduler.Schedule(3s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
         {
             me->Delete();
         });
@@ -1164,8 +1177,6 @@ private:
 // 70227 - Empowered Blood
 class spell_icc_empowered_blood : public AuraScript
 {
-    PrepareAuraScript(spell_icc_empowered_blood);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD_2 });
@@ -1191,8 +1202,6 @@ class spell_icc_empowered_blood : public AuraScript
 // 70304 - Empowered Blood
 class spell_icc_empowered_blood_3 : public AuraScript
 {
-    PrepareAuraScript(spell_icc_empowered_blood_3);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD_4 });
@@ -1218,8 +1227,6 @@ class spell_icc_empowered_blood_3 : public AuraScript
 // 70299 - Siphon Essence
 class spell_icc_siphon_essence : public AuraScript
 {
-    PrepareAuraScript(spell_icc_siphon_essence);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL && GetTarget()->IsAIEnabled())
@@ -1235,8 +1242,6 @@ class spell_icc_siphon_essence : public AuraScript
 // 70450 - Blood Mirror
 class spell_darkfallen_blood_mirror : public SpellScript
 {
-    PrepareSpellScript(spell_darkfallen_blood_mirror);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_MIRROR_2, SPELL_BLOOD_MIRROR_DAMAGE_SHARE });
@@ -1283,8 +1288,6 @@ private:
 // 70939 - Blood Queen Lana'thel - Clear all Status Ailments
 class spell_generic_remove_empowered_blood : public SpellScript
 {
-    PrepareSpellScript(spell_generic_remove_empowered_blood);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD });
@@ -1304,14 +1307,12 @@ class spell_generic_remove_empowered_blood : public SpellScript
 // 70733 - Stoneform
 class spell_icc_stoneform : public AuraScript
 {
-    PrepareAuraScript(spell_icc_stoneform);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(true);
             target->SetImmuneToPC(true);
             target->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_02);
         }
@@ -1322,7 +1323,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_AGGRESSIVE);
-            target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(false);
             target->SetImmuneToPC(false);
             target->SetEmoteState(EMOTE_ONESHOT_NONE);
         }
@@ -1338,8 +1339,6 @@ class spell_icc_stoneform : public AuraScript
 // 70536, 70545, 70546, 70547 - Spirit Alarm
 class spell_icc_spirit_alarm : public SpellScript
 {
-    PrepareSpellScript(spell_icc_spirit_alarm);
-
     void HandleEvent(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1390,8 +1389,6 @@ class spell_icc_spirit_alarm : public SpellScript
 // 72864 - Death Plague
 class spell_frost_giant_death_plague : public SpellScript
 {
-    PrepareSpellScript(spell_frost_giant_death_plague);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RECENTLY_INFECTED, SPELL_DEATH_PLAGUE_KILL, SPELL_DEATH_PLAGUE });
@@ -1455,17 +1452,15 @@ private:
 // 72155, 72162 - Harvest Blight Specimen
 class spell_icc_harvest_blight_specimen : public SpellScript
 {
-    PrepareSpellScript(spell_icc_harvest_blight_specimen);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void HandleQuestComplete(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -1478,11 +1473,9 @@ class spell_icc_harvest_blight_specimen : public SpellScript
 // 72585 - Soul Missile
 class spell_icc_soul_missile : public SpellScript
 {
-    PrepareSpellScript(spell_icc_soul_missile);
-
-    void RelocateDest(SpellDestination& dest)
+    static void RelocateDest(SpellScript const&, SpellDestination& dest)
     {
-        static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
+        static constexpr Position offset = { 0.0f, 0.0f, 200.0f, 0.0f };
         dest.RelocateOffset(offset);
     }
 

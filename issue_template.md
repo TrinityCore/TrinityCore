@@ -33,7 +33,7 @@ CHANGEME Tell us what should happen instead.
 
 **Branch(es):**
 
-CHANGEME 3.3.5, master or both
+CHANGEME 3.3.5, master, cata_classic or all
 
 **TC rev. hash/commit:** 
 

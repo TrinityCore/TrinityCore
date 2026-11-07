@@ -15,14 +15,74 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "BankPackets.h"
-#include "Item.h"
+#include "Chat.h"
+#include "Creature.h"
 #include "DB2Stores.h"
 #include "GossipDef.h"
+#include "Item.h"
+#include "Language.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Player.h"
-#include "WorldSession.h"
+
+bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
+{
+    // bankerGUID parameter is optional, set to 0 by default.
+    if (!bankerGUID)
+        bankerGUID = _player->PlayerTalkClass->GetInteractionData().SourceGuid;
+
+    bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == _player->PlayerTalkClass->GetInteractionData().SourceGuid);
+
+    if (!isUsingBankCommand)
+    {
+        Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(bankerGUID, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
+        if (!creature)
+            return false;
+    }
+
+    return true;
+}
+
+void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate)
+{
+    if (bankerActivate.InteractionType != PlayerInteractionType::Banker && bankerActivate.InteractionType != PlayerInteractionType::CharacterBanker)
+        return;
+
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(bankerActivate.Banker, UNIT_NPC_FLAG_ACCOUNT_BANKER | UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
+    if (!unit)
+    {
+        TC_LOG_ERROR("network", "WORLD: HandleBankerActivateOpcode - {} not found or you can not interact with him.", bankerActivate.Banker);
+        return;
+    }
+
+    switch (bankerActivate.InteractionType)
+    {
+        case PlayerInteractionType::Banker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER) || !unit->HasNpcFlag(UNIT_NPC_FLAG_BANKER))
+                return;
+            break;
+        case PlayerInteractionType::CharacterBanker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_BANKER))
+                return;
+            break;
+        case PlayerInteractionType::AccountBanker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER))
+                return;
+            break;
+        default:
+            break;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    // set currentBankerGUID for other bank action
+
+    SendShowBank(bankerActivate.Banker, bankerActivate.InteractionType);
+}
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet)
 {
@@ -30,9 +90,12 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
 
     if (!CanUseBank())
     {
-        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString());
+        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid);
         return;
     }
+
+    if (packet.BankType != BankType::Character)
+        return;
 
     Item* item = _player->GetItemByPos(packet.Bag, packet.Slot);
     if (!item)
@@ -57,31 +120,13 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
     _player->BankItem(dest, item, true);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
-{
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
-    if (!unit)
-    {
-        TC_LOG_ERROR("network", "WORLD: HandleBankerActivateOpcode - {} not found or you can not interact with him.", packet.Unit.ToString());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    // set currentBankerGUID for other bank action
-
-    SendShowBank(packet.Unit);
-}
-
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet)
 {
     TC_LOG_DEBUG("network", "STORAGE: receive bag = {}, slot = {}", packet.Bag, packet.Slot);
 
     if (!CanUseBank())
     {
-        TC_LOG_ERROR("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString());
+        TC_LOG_ERROR("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid);
         return;
     }
 
@@ -102,7 +147,6 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
         _player->RemoveItem(packet.Bag, packet.Slot, true);
         if (Item const* storedItem = _player->StoreItem(dest, item, true))
             _player->ItemAddedQuestCheck(storedItem->GetEntry(), storedItem->GetCount());
-
     }
     else                                                                // moving from inventory to bank
     {
@@ -119,73 +163,128 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
     }
 }
 
-void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet)
+void WorldSession::HandleBuyBankTab(WorldPackets::Bank::BuyBankTab const& buyBankTab)
 {
-    if (!CanUseBank(packet.Guid))
+    if (!CanUseBank(buyBankTab.Banker))
     {
-        TC_LOG_ERROR("network", "WORLD: HandleBuyBankSlotOpcode - {} not found or you can't interact with him.", packet.Guid.ToString());
+        TC_LOG_ERROR("network", "WorldSession::HandleBuyBankTab {} - Banker {} not found or can't interact with him.",
+            _player->GetGUID(), buyBankTab.Banker);
         return;
     }
 
-    uint32 slot = _player->GetBankBagSlotCount();
+    if (buyBankTab.BankType != BankType::Character)
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleBuyBankTab {} - Bank type {} is not supported.",
+            _player->GetGUID(), buyBankTab.BankType);
+        return;
+    }
 
-    // next slot
-    ++slot;
+    uint32 itemId = 0;
+    uint8 slot = 0;
+    uint8 inventorySlot = 0;
 
-    TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = {}", slot);
+    switch (buyBankTab.BankType)
+    {
+        case BankType::Character:
+            itemId = ITEM_CHARACTER_BANK_TAB_BAG;
+            slot = _player->GetCharacterBankTabCount();
+            inventorySlot = BANK_SLOT_BAG_START + slot;
+            break;
+        case BankType::Account:
+            itemId = ITEM_ACCOUNT_BANK_TAB_BAG;
+            slot = _player->GetAccountBankTabCount();
+            inventorySlot = ACCOUNT_BANK_SLOT_BAG_START + slot;
+            break;
+        default:
+            TC_LOG_DEBUG("network", "WorldSession::HandleBuyBankTab {} - Bank type {} is not supported.",
+                _player->GetGUID(), buyBankTab.BankType);
+            return;
+    }
 
-    BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
-    if (!slotEntry)
+    auto bankTab = std::ranges::find(sBankTabStore, std::pair(buyBankTab.BankType, int8(slot)),
+        [](BankTabEntry const* bankTab) { return std::pair(BankType(bankTab->BankType), bankTab->OrderIndex); });
+
+    if (bankTab == sBankTabStore.end())
         return;
 
-    uint32 price = slotEntry->Cost;
-
-    if (!_player->HasEnoughMoney(uint64(price)))
+    uint64 price = bankTab->Cost;
+    if (!_player->HasEnoughMoney(price))
         return;
 
-    _player->SetBankBagSlotCount(slot);
+    uint16 inventoryPos = 0;
+    InventoryResult msg = _player->CanEquipNewItem(inventorySlot, inventoryPos, itemId, false);
+    if (msg != EQUIP_ERR_OK)
+    {
+        _player->SendEquipError(msg, nullptr, nullptr, itemId);
+        return;
+    }
+
+    Item* bag = _player->EquipNewItem(inventoryPos, itemId, ItemContext::NONE, true);
+    if (!bag)
+        return;
+
+    switch (buyBankTab.BankType)
+    {
+        case BankType::Character:
+            _player->SetCharacterBankTabCount(slot + 1);
+            _player->SetCharacterBankTabSettings(slot, ChatHandler(this).PGetParseString(LANG_BANK_TAB_NAME, slot + 1), "", "", BagSlotFlags::None);
+            break;
+        case BankType::Account:
+            _player->SetAccountBankTabCount(slot + 1);
+            _player->SetAccountBankTabSettings(slot, ChatHandler(this).PGetParseString(LANG_BANK_TAB_NAME, slot + 1), "", "", BagSlotFlags::None);
+            break;
+        default:
+            break;
+    }
+
     _player->ModifyMoney(-int64(price));
 
-    _player->UpdateCriteria(CriteriaType::BankSlotsPurchased);
+    _player->UpdateCriteria(CriteriaType::BankTabPurchased, uint64(buyBankTab.BankType));
 }
 
-void WorldSession::HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& reagentBank)
+void WorldSession::HandleUpdateBankTabSettings(WorldPackets::Bank::UpdateBankTabSettings const& updateBankTabSettings)
 {
-    if (!CanUseBank(reagentBank.Banker))
+    if (!CanUseBank(updateBankTabSettings.Banker))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - {} not found or you can't interact with him.", reagentBank.Banker.ToString());
+        TC_LOG_ERROR("network", "WorldSession::HandleUpdateBankTabSettings {} - Banker {} not found or can't interact with him.",
+            _player->GetGUID(), updateBankTabSettings.Banker);
         return;
     }
 
-    if (_player->IsReagentBankUnlocked())
+    switch (updateBankTabSettings.BankType)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - Player ({}, name: {}) tried to unlock reagent bank a 2nd time.", _player->GetGUID().ToString(), _player->GetName());
-        return;
+        case BankType::Character:
+            if (updateBankTabSettings.Tab >= _player->m_activePlayerData->CharacterBankTabSettings.size())
+            {
+                TC_LOG_DEBUG("network", "WorldSession::HandleUpdateBankTabSettings {} doesn't have bank tab {} in bank type {}.",
+                    _player->GetGUID(), updateBankTabSettings.Tab, updateBankTabSettings.BankType);
+                return;
+            }
+            _player->SetCharacterBankTabSettings(updateBankTabSettings.Tab, updateBankTabSettings.Settings.Name,
+                updateBankTabSettings.Settings.Icon, updateBankTabSettings.Settings.Description, updateBankTabSettings.Settings.DepositFlags);
+            break;
+        case BankType::Account:
+            if (updateBankTabSettings.Tab >= _player->m_activePlayerData->AccountBankTabSettings.size())
+            {
+                TC_LOG_DEBUG("network", "WorldSession::HandleUpdateBankTabSettings {} doesn't have bank tab {} in bank type {}.",
+                    _player->GetGUID(), updateBankTabSettings.Tab, updateBankTabSettings.BankType);
+                return;
+            }
+            _player->SetAccountBankTabSettings(updateBankTabSettings.Tab, updateBankTabSettings.Settings.Name,
+                updateBankTabSettings.Settings.Icon, updateBankTabSettings.Settings.Description, updateBankTabSettings.Settings.DepositFlags);
+            break;
+        default:
+            TC_LOG_DEBUG("network", "WorldSession::HandleUpdateBankTabSettings {} - Bank type {} is not supported.",
+                _player->GetGUID(), updateBankTabSettings.BankType);
+            break;
     }
-
-    constexpr int64 price = 100 * GOLD;
-
-    if (!_player->HasEnoughMoney(price))
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - Player ({}, name: {}) without enough gold.", _player->GetGUID().ToString(), _player->GetName());
-        return;
-    }
-
-    _player->ModifyMoney(-price);
-    _player->UnlockReagentBank();
 }
 
-void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBank& reagentBank)
+void WorldSession::HandleAutoDepositCharacterBank(WorldPackets::Bank::AutoDepositCharacterBank const& autoDepositCharacterBank)
 {
-    if (!CanUseBank(reagentBank.Banker))
+    if (!CanUseBank(autoDepositCharacterBank.Banker))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleReagentBankDepositOpcode - {} not found or you can't interact with him.", reagentBank.Banker.ToString());
-        return;
-    }
-
-    if (!_player->IsReagentBankUnlocked())
-    {
-        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
+        TC_LOG_DEBUG("network", "WORLD: HandleReagentBankDepositOpcode - {} not found or you can't interact with him.", autoDepositCharacterBank.Banker);
         return;
     }
 
@@ -215,95 +314,13 @@ void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBan
     }
 }
 
-void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReagent& autoBankReagent)
+void WorldSession::SendShowBank(ObjectGuid guid, PlayerInteractionType interactionType)
 {
-    if (!CanUseBank())
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - {} not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString());
-        return;
-    }
+    _player->PlayerTalkClass->GetInteractionData().StartInteraction(guid, interactionType);
 
-    if (!_player->IsReagentBankUnlocked())
-    {
-        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
-        return;
-    }
-
-    Item* item = _player->GetItemByPos(autoBankReagent.PackSlot, autoBankReagent.Slot);
-    if (!item)
-        return;
-
-    ItemPosCountVec dest;
-    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
-    if (msg != EQUIP_ERR_OK)
-    {
-        _player->SendEquipError(msg, item, nullptr);
-        return;
-    }
-
-    if (dest.size() == 1 && dest[0].pos == item->GetPos())
-    {
-        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
-        return;
-    }
-
-    _player->RemoveItem(autoBankReagent.PackSlot, autoBankReagent.Slot, true);
-    _player->BankItem(dest, item, true);
-}
-
-void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStoreBankReagent& autoStoreBankReagent)
-{
-    if (!CanUseBank())
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - {} not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString());
-        return;
-    }
-
-    if (!_player->IsReagentBankUnlocked())
-    {
-        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
-        return;
-    }
-
-    Item* pItem = _player->GetItemByPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot);
-    if (!pItem)
-        return;
-
-    if (_player->IsReagentBankPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot))
-    {
-        ItemPosCountVec dest;
-        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
-        if (msg != EQUIP_ERR_OK)
-        {
-            _player->SendEquipError(msg, pItem, nullptr);
-            return;
-        }
-
-        _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-        _player->StoreItem(dest, pItem, true);
-    }
-    else
-    {
-        ItemPosCountVec dest;
-        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false, true, true);
-        if (msg != EQUIP_ERR_OK)
-        {
-            _player->SendEquipError(msg, pItem, nullptr);
-            return;
-        }
-
-        _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-        _player->BankItem(dest, pItem, true);
-    }
-}
-
-void WorldSession::SendShowBank(ObjectGuid guid)
-{
-    _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
-    npcInteraction.InteractionType = PlayerInteractionType::Banker;
+    npcInteraction.InteractionType = interactionType;
     npcInteraction.Success = true;
     SendPacket(npcInteraction.Write());
 }

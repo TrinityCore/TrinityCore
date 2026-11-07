@@ -23,6 +23,26 @@
 #define StratholmeScriptName "instance_stratholme"
 #define DataHeader "STR"
 
+enum STRBossIds
+{
+    BOSS_HEARTHSINGER_FORRESTEN = 0,
+    BOSS_TIMMY_THE_CRUEL        = 1,
+    BOSS_COMMANDER_MALOR        = 2,
+    BOSS_WILLEY_HOPEBREAKER     = 3,
+    BOSS_INSTRUCTOR_GALFORD     = 4,
+    BOSS_BALNAZZAR              = 5,
+    BOSS_THE_UNFORGIVEN         = 6,
+    BOSS_BARONESS_ANASTARI      = 7,
+    BOSS_NERUB_ENKAN            = 8,
+    BOSS_MALEKI_THE_PALLID      = 9,
+    BOSS_MAGISTRATE_BARTHILAS   = 10,
+    BOSS_RAMSTEIN_THE_GORGER    = 11,
+    BOSS_RIVENDARE              = 12,
+    BOSS_POSTMASTER_MALOWN      = 13,
+
+    MAX_ENCOUNTER
+};
+
 enum STRDataTypes
 {
     TYPE_BARON_RUN                      = 1,
@@ -31,8 +51,6 @@ enum STRDataTypes
     TYPE_PALLID                         = 4,
     TYPE_RAMSTEIN                       = 5,
     TYPE_BARON                          = 6,
-
-    TYPE_MALOWN                         = 7,
 
     DATA_BARON                          = 10,
     DATA_YSIDA_TRIGGER                  = 11,
@@ -47,6 +65,11 @@ enum STRDataTypes
 
 enum STRCreatureIds
 {
+    NPC_HEARTHSINGER_FORRESTEN          = 10558,
+    NPC_COMMANDER_MALOR                 = 11032,
+    NPC_INSTRUCTOR_GALFORD              = 10811,
+    NPC_THE_UNFORGIVEN                  = 10516,
+
     NPC_CRYSTAL                         = 10415, // ziggurat crystal
     NPC_BARON                           = 10440, // ziggurat crystal
     NPC_YSIDA_TRIGGER                   = 16100, // ziggurat crystal
@@ -63,7 +86,10 @@ enum STRCreatureIds
     NPC_CRIMSON_INITATE                 = 10420,
     NPC_CRIMSON_GALLANT                 = 10424,
 
-    NPC_TIMMY_THE_CRUEL                 = 10808
+    NPC_TIMMY_THE_CRUEL                 = 10808,
+
+    // Rat trap
+    NPC_PLAGUED_RAT                     = 10441,
 };
 
 enum STRGameobjectIds
@@ -79,7 +105,11 @@ enum STRGameobjectIds
     GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
     GO_PORT_ELDERS                      = 175377,  // port at elders square
-    GO_YSIDA_CAGE                       = 181071
+    GO_YSIDA_CAGE                       = 181071,
+    GO_PORT_TRAP_GATE_1                 = 175351,  // Portcullis used in the gate traps (rats trap)
+    GO_PORT_TRAP_GATE_2                 = 175350,  // Scarlet side
+    GO_PORT_TRAP_GATE_3                 = 175355,  // Undead side
+    GO_PORT_TRAP_GATE_4                 = 175354,
 };
 
 enum STRQuestIds
@@ -93,13 +123,6 @@ enum STRSpellIds
     SPELL_PERM_FEIGN_DEATH              = 29266,
     SPELL_YSIDA_SAVED                   = 31912,
     SPELL_YSIDA_CREDIT_EFFECT           = 31913
-};
-
-enum STRMisc
-{
-    //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
-    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
-    MAX_ENCOUNTER                       = 6
 };
 
 template <class AI, class T>

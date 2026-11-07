@@ -16,53 +16,62 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
 #include "Player.h"
-#include "Group.h"
+#include "SpellScript.h"
 
 /*######
 ## Quest 3628: You Are Rakh'likh, Demon
 ######*/
 
-enum TeleportToRazelikh
+enum YouAreRakhlikhDemon
 {
-    SPELL_TELEPORT_SINGLE               = 12885,
-    SPELL_TELEPORT_SINGLE_IN_GROUP      = 13142
+    SPELL_TELEPORT_TO_RAZELIKH_GROUP    = 27694
 };
 
 // 27686 - Teleport to Razelikh (GROUP)
-class spell_razelikh_teleport_group : public SpellScript
+class spell_blasted_lands_teleport_to_razelikh_group : public SpellScript
 {
-    PrepareSpellScript(spell_razelikh_teleport_group);
-
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_RAZELIKH_GROUP });
     }
 
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Player* player = GetHitPlayer())
-        {
-            if (Group* group = player->GetGroup())
-            {
-                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    if (Player* member = itr->GetSource())
-                        if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
-                            member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
-            }
-            else
-                player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
-        }
+        GetHitUnit()->CastSpell(nullptr, SPELL_TELEPORT_TO_RAZELIKH_GROUP, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_blasted_lands_teleport_to_razelikh_group::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quests 36881 and 34398: Warlords of Draenor: The Dark Portal
+######*/
+
+enum TeleportToTanaan
+{
+    SPELL_TELEPORT_TO_TANAAN = 167771,
+
+    MOVIE_INTO_THE_PORTAL    = 185
+};
+
+class player_teleport_to_tanaan : public PlayerScript
+{
+public:
+    player_teleport_to_tanaan() : PlayerScript("player_teleport_to_tanaan") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_INTO_THE_PORTAL)
+            player->CastSpell(player, SPELL_TELEPORT_TO_TANAAN, true);
     }
 };
 
 void AddSC_blasted_lands()
 {
-    RegisterSpellScript(spell_razelikh_teleport_group);
+    RegisterSpellScript(spell_blasted_lands_teleport_to_razelikh_group);
+    new player_teleport_to_tanaan();
 }

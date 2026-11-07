@@ -46,11 +46,12 @@ class go_shadowforge_brazier : public GameObjectScript
                     instance->SetData(TYPE_LYCEUM, DONE);
                 else
                     instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
-                // If used brazier open linked doors (North or South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                // If used both braziers, open linked doors (North and South)
+                if (instance->GetData(TYPE_LYCEUM) == DONE)
+                {
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+                }
 
                 return false;
             }
@@ -228,7 +229,6 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -373,9 +373,9 @@ public:
         return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
-    struct npc_phalanxAI : public ScriptedAI
+    struct npc_phalanxAI : public BossAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        npc_phalanxAI(Creature* creature) : BossAI(creature, BOSS_PHALANX)
         {
             Initialize();
         }
@@ -393,6 +393,7 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
         }
 
@@ -425,8 +426,6 @@ public:
                 DoCastVictim(SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 10000;
             } else MightyBlow_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

@@ -41,8 +41,9 @@ void protobuf_AssignDesc_report_5fservice_2eproto() {
       "report_service.proto");
   GOOGLE_CHECK(file != NULL);
   SendReportRequest_descriptor_ = file->message_type(0);
-  static const int SendReportRequest_offsets_[1] = {
+  static const int SendReportRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendReportRequest, report_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendReportRequest, program_),
   };
   SendReportRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -56,9 +57,10 @@ void protobuf_AssignDesc_report_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SendReportRequest));
   SubmitReportRequest_descriptor_ = file->message_type(1);
-  static const int SubmitReportRequest_offsets_[2] = {
+  static const int SubmitReportRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, report_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, program_),
   };
   SubmitReportRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -111,19 +113,20 @@ void protobuf_AddDesc_report_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024report_service.proto\022\026bgs.protocol.rep"
     "ort.v1\032\023account_types.proto\032\022report_type"
-    "s.proto\032\017rpc_types.proto\"C\n\021SendReportRe"
+    "s.proto\032\017rpc_types.proto\"T\n\021SendReportRe"
     "quest\022.\n\006report\030\001 \002(\0132\036.bgs.protocol.rep"
-    "ort.v1.Report\"\214\001\n\023SubmitReportRequest\022<\n"
-    "\010agent_id\030\001 \001(\0132*.bgs.protocol.account.v"
-    "1.GameAccountHandle\0227\n\013report_type\030\002 \001(\013"
-    "2\".bgs.protocol.report.v1.ReportType2\371\001\n"
-    "\rReportService\022U\n\nSendReport\022).bgs.proto"
-    "col.report.v1.SendReportRequest\032\024.bgs.pr"
-    "otocol.NoData\"\006\202\371+\002\010\001\022Y\n\014SubmitReport\022+."
-    "bgs.protocol.report.v1.SubmitReportReque"
-    "st\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\0326\202\371+,\n\""
-    "bnet.protocol.report.ReportService*\006repo"
-    "rt\212\371+\002\020\001B\005H\002\200\001\000", 575);
+    "ort.v1.Report\022\017\n\007program\030\002 \001(\r\"\235\001\n\023Submi"
+    "tReportRequest\022<\n\010agent_id\030\001 \001(\0132*.bgs.p"
+    "rotocol.account.v1.GameAccountHandle\0227\n\013"
+    "report_type\030\002 \001(\0132\".bgs.protocol.report."
+    "v1.ReportType\022\017\n\007program\030\003 \001(\r2\361\001\n\rRepor"
+    "tService\022U\n\nSendReport\022).bgs.protocol.re"
+    "port.v1.SendReportRequest\032\024.bgs.protocol"
+    ".NoData\"\006\202\371+\002\010\001\022Y\n\014SubmitReport\022+.bgs.pr"
+    "otocol.report.v1.SubmitReportRequest\032\024.b"
+    "gs.protocol.NoData\"\006\202\371+\002\010\002\032.\202\371+$\n\"bnet.p"
+    "rotocol.report.ReportService\212\371+\002\020\001B\005H\002\200\001"
+    "\000", 601);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "report_service.proto", &protobuf_RegisterTypes);
   SendReportRequest::default_instance_ = new SendReportRequest();
@@ -143,6 +146,7 @@ struct StaticDescriptorInitializer_report_5fservice_2eproto {
 
 #ifndef _MSC_VER
 const int SendReportRequest::kReportFieldNumber;
+const int SendReportRequest::kProgramFieldNumber;
 #endif  // !_MSC_VER
 
 SendReportRequest::SendReportRequest()
@@ -165,6 +169,7 @@ SendReportRequest::SendReportRequest(const SendReportRequest& from)
 void SendReportRequest::SharedCtor() {
   _cached_size_ = 0;
   report_ = NULL;
+  program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -218,6 +223,7 @@ void SendReportRequest::Swap(SendReportRequest* other) {
 #ifndef _MSC_VER
 const int SubmitReportRequest::kAgentIdFieldNumber;
 const int SubmitReportRequest::kReportTypeFieldNumber;
+const int SubmitReportRequest::kProgramFieldNumber;
 #endif  // !_MSC_VER
 
 SubmitReportRequest::SubmitReportRequest()
@@ -242,6 +248,7 @@ void SubmitReportRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
   report_type_ = NULL;
+  program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

@@ -279,7 +279,7 @@ struct boss_jedoga_shadowseeker : public BossAI
         switch (pointId)
         {
             case POINT_GROUND:
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_CYCLONE_STRIKE, 3s);
@@ -329,7 +329,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->InterruptNonMeleeSpells(true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO, JedogaGroundPosition);
                     break;
                 case EVENT_FLY_DELAY:
@@ -390,8 +390,6 @@ struct boss_jedoga_shadowseeker : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -416,7 +414,7 @@ struct npc_twilight_volunteer : public ScriptedAI
             me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL_VOLUNTEER);
             Talk(SAY_CHOSEN);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetWalk(true);
             me->GetMotionMaster()->MovePoint(POINT_SACRIFICE, JedogaSacrificePosition);
         }
@@ -443,7 +441,7 @@ struct npc_twilight_volunteer : public ScriptedAI
                     jedoga->AI()->DoAction(ACTION_SACRIFICE);
                     Talk(SAY_SACRIFICED);
 
-                    _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                     {
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
                         me->DespawnOrUnsummon(Seconds(5));
@@ -468,8 +466,6 @@ private:
 // 56328 - Random Lightning Visual Effect
 class spell_random_lightning_visual_effect : public SpellScript
 {
-    PrepareSpellScript(spell_random_lightning_visual_effect);
-
     void ModDestHeight(SpellDestination& dest)
     {
         Position const offset = { 0.0f, 0.0f, -19.0f, 0.0f };

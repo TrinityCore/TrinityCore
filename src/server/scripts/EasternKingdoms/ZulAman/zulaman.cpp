@@ -149,7 +149,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_BANGING_THE_GONG:
                             DoCast(me, SPELL_BANGING_THE_GONG);
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                            if (GameObject* strangeGong = _instance->GetGameObject(GO_STRANGE_GONG))
                                 strangeGong->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
                             break;
@@ -159,7 +159,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_2:
                             me->SetVirtualItem(0, uint32(0));
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                            if (GameObject* strangeGong = _instance->GetGameObject(GO_STRANGE_GONG))
                                 strangeGong->SetFlag(GO_FLAG_NOT_SELECTABLE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500ms);
                             break;
@@ -168,7 +168,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_4:
                             _instance->SetData(DATA_ZULAMAN_STATE, IN_PROGRESS);
-                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_MASSIVE_GATE)))
+                            if (GameObject* masiveGate = _instance->GetGameObject(GO_MASSIVE_GATE))
                                 masiveGate->SetGoState(GO_STATE_ACTIVE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_5, 3s);
                             break;
@@ -197,7 +197,7 @@ class npc_voljin_zulaman : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_STRANGE_GONG:
-                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                        if (GameObject* strangeGong = _instance->GetGameObject(GO_STRANGE_GONG))
                             me->SetFacingToObject(strangeGong); // setInFront
                         break;
                     case POINT_START_DOOR_OPENING_1:

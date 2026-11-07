@@ -58,7 +58,7 @@ enum SpawnGroups
 
 BossBoundaryData const boundaries =
 {
-    { DATA_LORD_MARROWGAR,        new CircleBoundary(Position(-428.0f,2211.0f), 95.0) },
+    { DATA_LORD_MARROWGAR,        new CircleBoundary(Position(-428.0f,2211.0f), 95.0f) },
     { DATA_LORD_MARROWGAR,        new RectangleBoundary(-430.0f, -330.0f, 2110.0f, 2310.0f) },
     { DATA_LADY_DEATHWHISPER,     new RectangleBoundary(-670.0f, -520.0f, 2145.0f, 2280.0f) },
     { DATA_DEATHBRINGER_SAURFANG, new RectangleBoundary(-565.0f, -465.0f, 2160.0f, 2260.0f) },
@@ -66,45 +66,44 @@ BossBoundaryData const boundaries =
     { DATA_FESTERGUT,             new RectangleBoundary(4205.0f, 4325.0f, 3082.0f, 3195.0f) },
     { DATA_PROFESSOR_PUTRICIDE,   new ParallelogramBoundary(Position(4356.0f, 3290.0f), Position(4435.0f, 3194.0f), Position(4280.0f, 3194.0f)) },
     { DATA_PROFESSOR_PUTRICIDE,   new RectangleBoundary(4280.0f, 4435.0f, 3150.0f, 4360.0f) },
-    { DATA_BLOOD_PRINCE_COUNCIL,  new EllipseBoundary(Position(4660.95f, 2769.194f), 85.0, 60.0) },
-    { DATA_BLOOD_QUEEN_LANA_THEL, new CircleBoundary(Position(4595.93f, 2769.365f), 64.0) },
+    { DATA_BLOOD_PRINCE_COUNCIL,  new EllipseBoundary(Position(4660.95f, 2769.194f), 85.0f, 60.0f) },
+    { DATA_BLOOD_QUEEN_LANA_THEL, new CircleBoundary(Position(4595.93f, 2769.365f), 64.0f) },
     { DATA_BLOOD_QUEEN_LANA_THEL, new ZRangeBoundary(391.78f, 473.43f) },
     { DATA_SISTER_SVALNA,         new RectangleBoundary(4291.0f, 4423.0f, 2438.0f, 2653.0f) },
     { DATA_VALITHRIA_DREAMWALKER, new RectangleBoundary(4112.5f, 4293.5f, 2385.0f, 2585.0f) },
-    { DATA_SINDRAGOSA,            new EllipseBoundary(Position(4408.6f, 2484.0f), 100.0, 75.0) }
+    { DATA_SINDRAGOSA,            new EllipseBoundary(Position(4408.6f, 2484.0f), 100.0f, 75.0f) }
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
-    { GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM },
-    { GO_ICEWALL,                             DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ICECROWN_ICEWALL02,           DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE },
-    { GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM  },
-    { GO_SAURFANG_S_DOOR,                     DATA_DEATHBRINGER_SAURFANG, DOOR_TYPE_PASSAGE },
-    { GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             DOOR_TYPE_ROOM },
-    { GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               DOOR_TYPE_ROOM },
-    { GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM },
-    { GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM },
-    { GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE },
-    { GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM },
-    { GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_PASSAGE },
-    { GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_SISTER_SVALNA,         DOOR_TYPE_PASSAGE },
-    { GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_ROOM },
-    { GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE },
-    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE },
-    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE },
-    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE },
-    { GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM },
-    { GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE },
-    { GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE },
-    { GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM },
-    { GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM },
-    { 0,                                      0,                          DOOR_TYPE_ROOM }  // END
+    { GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR,        EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ICEWALL,                             DATA_LORD_MARROWGAR,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ICECROWN_ICEWALL02,           DATA_LORD_MARROWGAR,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_LADY_DEATHWHISPER,     EncounterDoorBehavior::OpenWhenNotInProgress  },
+    { GO_SAURFANG_S_DOOR,                     DATA_DEATHBRINGER_SAURFANG, EncounterDoorBehavior::OpenWhenDone },
+    { GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, EncounterDoorBehavior::OpenWhenDone },
+    { GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_SISTER_SVALNA,         EncounterDoorBehavior::OpenWhenDone },
+    { GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01,  DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenInProgress },
+    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02,  DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenInProgress },
+    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03,  DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenInProgress },
+    { GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04,  DATA_VALITHRIA_DREAMWALKER, EncounterDoorBehavior::OpenWhenInProgress },
+    { GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            EncounterDoorBehavior::OpenWhenDone },
+    { GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            EncounterDoorBehavior::OpenWhenDone },
+    { GO_ICE_WALL,                            DATA_SINDRAGOSA,            EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ICE_WALL,                            DATA_SINDRAGOSA,            EncounterDoorBehavior::OpenWhenNotInProgress },
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_LORD_MARROWGAR, {{ 1101 }} },
     { DATA_LADY_DEATHWHISPER, {{ 1100 }} },
@@ -121,10 +120,10 @@ DungeonEncounterData const encounters[] =
 };
 
 // NPCs spawned at Light's Hammer on Lich King dead
-Position const JainaSpawnPos    = { -48.65278f, 2211.026f, 27.98586f, 3.124139f };
-Position const MuradinSpawnPos  = { -47.34549f, 2208.087f, 27.98586f, 3.106686f };
-Position const UtherSpawnPos    = { -26.58507f, 2211.524f, 30.19898f, 3.124139f };
-Position const SylvanasSpawnPos = { -41.45833f, 2222.891f, 27.98586f, 3.647738f };
+static constexpr Position JainaSpawnPos    = { -48.65278f, 2211.026f, 27.98586f, 3.124139f };
+static constexpr Position MuradinSpawnPos  = { -47.34549f, 2208.087f, 27.98586f, 3.106686f };
+static constexpr Position UtherSpawnPos    = { -26.58507f, 2211.524f, 30.19898f, 3.124139f };
+static constexpr Position SylvanasSpawnPos = { -41.45833f, 2222.891f, 27.98586f, 3.647738f };
 
 class instance_icecrown_citadel : public InstanceMapScript
 {
@@ -1015,18 +1014,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void SetGuidData(uint32 type, ObjectGuid guid) override
+            void SetData64(uint32 type, uint64 data) override
             {
                 switch (type)
                 {
                     case DATA_SINDRAGOSA_FROSTWYRMS:
-                        FrostwyrmGUIDs.insert(guid.GetCounter());
+                        FrostwyrmGUIDs.insert(data);
                         break;
                     case DATA_SPINESTALKER:
-                        SpinestalkerTrash.insert(guid.GetCounter());
+                        SpinestalkerTrash.insert(data);
                         break;
                     case DATA_RIMEFANG:
-                        RimefangTrash.insert(guid.GetCounter());
+                        RimefangTrash.insert(data);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1315,7 +1316,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case EVENT_TELEPORT_TO_FROSTMOURNE: // Harvest Soul (normal mode)
-                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, nullptr, 63000))
+                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, nullptr, 63s))
                         {
                             terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                             std::list<Creature*> triggers;
@@ -1327,7 +1328,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 visual->CastSpell(visual, SPELL_FROSTMOURNE_TELEPORT_VISUAL, true);
                             }
 
-                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, 63000))
+                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, 63s))
                             {
                                 terenas->AI()->AttackStart(warden);
                                 warden->GetThreatManager().AddThreat(terenas, 300000.0f, nullptr, true, true);

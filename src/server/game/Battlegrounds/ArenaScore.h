@@ -18,41 +18,19 @@
 #ifndef TRINITY_ARENA_SCORE_H
 #define TRINITY_ARENA_SCORE_H
 
-#include "BattlegroundScore.h"
-
-struct TC_GAME_API ArenaScore : public BattlegroundScore
-{
-    friend class Arena;
-
-    protected:
-        ArenaScore(ObjectGuid playerGuid, uint32 team);
-
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override;
-
-        // For Logging purpose
-        std::string ToString() const override;
-
-        uint32 PreMatchRating = 0;
-        uint32 PreMatchMMR = 0;
-        uint32 PostMatchRating = 0;
-        uint32 PostMatchMMR = 0;
-};
+#include "Define.h"
 
 struct TC_GAME_API ArenaTeamScore
 {
-    friend class Arena;
-    friend class Battleground;
+    ArenaTeamScore();
+    virtual ~ArenaTeamScore();
 
-    protected:
-        ArenaTeamScore();
-        virtual ~ArenaTeamScore();
+    void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
 
-        void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
-
-        uint32 PreMatchRating = 0;
-        uint32 PostMatchRating = 0;
-        uint32 PreMatchMMR = 0;
-        uint32 PostMatchMMR = 0;
+    uint32 PreMatchRating = 0;
+    uint32 PostMatchRating = 0;
+    uint32 PreMatchMMR = 0;
+    uint32 PostMatchMMR = 0;
 };
 
 #endif // TRINITY_ARENA_SCORE_H

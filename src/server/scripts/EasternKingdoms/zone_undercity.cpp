@@ -153,14 +153,15 @@ public:
         {
             if (summoned->GetEntry() == NPC_HIGHBORNE_BUNNY)
             {
+                summoned->SetDisableGravity(true);
+
                 if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
-                    target->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), 0);
+                    target->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, false);
                     target->UpdatePosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
-                summoned->SetDisableGravity(true);
                 targetGUID = summoned->GetGUID();
             }
         }
@@ -232,8 +233,6 @@ public:
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -333,8 +332,6 @@ enum DragonmawShinbones
 // 8856 - Bending Shinbone
 class spell_undercity_bending_shinbone : public SpellScript
 {
-    PrepareSpellScript(spell_undercity_bending_shinbone);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BENDING_SHINBONE1, SPELL_BENDING_SHINBONE2 });
@@ -342,7 +339,7 @@ class spell_undercity_bending_shinbone : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2, GetSpell());
+        GetCaster()->CastSpell(GetCaster(), roll_chance(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2, GetSpell());
     }
 
     void Register() override

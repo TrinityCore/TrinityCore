@@ -264,7 +264,7 @@ struct TDiabloRoot : public TFileTreeRoot
                 return ERROR_BAD_FORMAT;
 
             // Capture the array of DIABLO3_ASSET_ENTRY
-            pbDirectory = CaptureArray(pbDirectory, pbDataEnd, &DirHeader.pbAssetEntries, DIABLO3_ASSET_ENTRY, DirHeader.dwAssetEntries);
+            pbDirectory = CaptureArrayAsByte<DIABLO3_ASSET_ENTRY>(pbDirectory, pbDataEnd, &DirHeader.pbAssetEntries, DirHeader.dwAssetEntries);
             if(pbDirectory == NULL)
                 return ERROR_BAD_FORMAT;
 
@@ -274,7 +274,7 @@ struct TDiabloRoot : public TFileTreeRoot
                 return ERROR_BAD_FORMAT;
 
             // Capture the array of DIABLO3_ASSETIDX_ENTRY
-            pbDirectory = CaptureArray(pbDirectory, pbDataEnd, &DirHeader.pbAssetIdxEntries, DIABLO3_ASSETIDX_ENTRY, DirHeader.dwAssetIdxEntries);
+            pbDirectory = CaptureArrayAsByte<DIABLO3_ASSETIDX_ENTRY>(pbDirectory, pbDataEnd, &DirHeader.pbAssetIdxEntries, DirHeader.dwAssetIdxEntries);
             if(pbDirectory == NULL)
                 return ERROR_BAD_FORMAT;
         }

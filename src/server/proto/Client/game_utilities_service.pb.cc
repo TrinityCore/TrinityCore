@@ -234,7 +234,7 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       sizeof(RegisterUtilitiesRequest));
   RegisterUtilitiesResponse_descriptor_ = file->message_type(10);
   static const int RegisterUtilitiesResponse_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesResponse, client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesResponse, ciid_),
   };
   RegisterUtilitiesResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -372,39 +372,39 @@ void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
     "e\030\001 \003(\0132\025.bgs.protocol.Variant\"a\n\030Regist"
     "erUtilitiesRequest\022*\n\tattribute\030\001 \003(\0132\027."
     "bgs.protocol.Attribute\022\031\n\007program\030\002 \001(\007B"
-    "\010\212\371+\004\022\002\020\000\".\n\031RegisterUtilitiesResponse\022\021"
-    "\n\tclient_id\030\001 \001(\t\"\034\n\032UnregisterUtilities"
-    "Request2\204\t\n\024GameUtilitiesService\022}\n\024Proc"
-    "essClientRequest\022-.bgs.protocol.game_uti"
-    "lities.v1.ClientRequest\032..bgs.protocol.g"
-    "ame_utilities.v1.ClientResponse\"\006\202\371+\002\010\001\022"
-    "u\n\026PresenceChannelCreated\022=.bgs.protocol"
-    ".game_utilities.v1.PresenceChannelCreate"
-    "dRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\022}"
-    "\n\024ProcessServerRequest\022-.bgs.protocol.ga"
-    "me_utilities.v1.ServerRequest\032..bgs.prot"
-    "ocol.game_utilities.v1.ServerResponse\"\006\202"
-    "\371+\002\010\006\022z\n\023OnGameAccountOnline\022=.bgs.proto"
-    "col.game_utilities.v1.GameAccountOnlineN"
-    "otification\032\031.bgs.protocol.NO_RESPONSE\"\t"
-    "\210\002\001\202\371+\002\010\007\022|\n\024OnGameAccountOffline\022>.bgs."
-    "protocol.game_utilities.v1.GameAccountOf"
-    "flineNotification\032\031.bgs.protocol.NO_RESP"
-    "ONSE\"\t\210\002\001\202\371+\002\010\010\022\245\001\n\030GetAllValuesForAttri"
-    "bute\022\?.bgs.protocol.game_utilities.v1.Ge"
-    "tAllValuesForAttributeRequest\032@.bgs.prot"
-    "ocol.game_utilities.v1.GetAllValuesForAt"
-    "tributeResponse\"\006\202\371+\002\010\n\022\222\001\n\021RegisterUtil"
-    "ities\0228.bgs.protocol.game_utilities.v1.R"
-    "egisterUtilitiesRequest\0329.bgs.protocol.g"
-    "ame_utilities.v1.RegisterUtilitiesRespon"
-    "se\"\010\202\371+\004\010\013\020\003\022v\n\023UnregisterUtilities\022:.bg"
-    "s.protocol.game_utilities.v1.UnregisterU"
-    "tilitiesRequest\032\031.bgs.protocol.NO_RESPON"
-    "SE\"\010\202\371+\004\010\014\020\003\032H\202\371+<\n*bnet.protocol.game_u"
-    "tilities.GameUtilities*\016game_utilities\212\371"
-    "+\004\010\001\020\001BC\n\036bgs.protocol.game_utilities.v1"
-    "B\031GameUtilitiesServiceProtoH\002\200\001\000\210\001\001", 2595);
+    "\010\212\371+\004\022\002\020\000\")\n\031RegisterUtilitiesResponse\022\014"
+    "\n\004ciid\030\001 \001(\t\"\034\n\032UnregisterUtilitiesReque"
+    "st2\204\t\n\024GameUtilitiesService\022}\n\024ProcessCl"
+    "ientRequest\022-.bgs.protocol.game_utilitie"
+    "s.v1.ClientRequest\032..bgs.protocol.game_u"
+    "tilities.v1.ClientResponse\"\006\202\371+\002\010\001\022u\n\026Pr"
+    "esenceChannelCreated\022=.bgs.protocol.game"
+    "_utilities.v1.PresenceChannelCreatedRequ"
+    "est\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\022}\n\024Pro"
+    "cessServerRequest\022-.bgs.protocol.game_ut"
+    "ilities.v1.ServerRequest\032..bgs.protocol."
+    "game_utilities.v1.ServerResponse\"\006\202\371+\002\010\006"
+    "\022z\n\023OnGameAccountOnline\022=.bgs.protocol.g"
+    "ame_utilities.v1.GameAccountOnlineNotifi"
+    "cation\032\031.bgs.protocol.NO_RESPONSE\"\t\210\002\001\202\371"
+    "+\002\010\007\022|\n\024OnGameAccountOffline\022>.bgs.proto"
+    "col.game_utilities.v1.GameAccountOffline"
+    "Notification\032\031.bgs.protocol.NO_RESPONSE\""
+    "\t\210\002\001\202\371+\002\010\010\022\245\001\n\030GetAllValuesForAttribute\022"
+    "\?.bgs.protocol.game_utilities.v1.GetAllV"
+    "aluesForAttributeRequest\032@.bgs.protocol."
+    "game_utilities.v1.GetAllValuesForAttribu"
+    "teResponse\"\006\202\371+\002\010\n\022\222\001\n\021RegisterUtilities"
+    "\0228.bgs.protocol.game_utilities.v1.Regist"
+    "erUtilitiesRequest\0329.bgs.protocol.game_u"
+    "tilities.v1.RegisterUtilitiesResponse\"\010\202"
+    "\371+\004\010\013\020\003\022v\n\023UnregisterUtilities\022:.bgs.pro"
+    "tocol.game_utilities.v1.UnregisterUtilit"
+    "iesRequest\032\031.bgs.protocol.NO_RESPONSE\"\010\202"
+    "\371+\004\010\014\020\003\032H\202\371+<\n*bnet.protocol.game_utilit"
+    "ies.GameUtilities*\016game_utilities\212\371+\004\010\001\020"
+    "\001BC\n\036bgs.protocol.game_utilities.v1B\031Gam"
+    "eUtilitiesServiceProtoH\002\200\001\000\210\001\001", 2590);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "game_utilities_service.proto", &protobuf_RegisterTypes);
   ClientRequest::default_instance_ = new ClientRequest();
@@ -1211,7 +1211,7 @@ void RegisterUtilitiesRequest::Swap(RegisterUtilitiesRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int RegisterUtilitiesResponse::kClientIdFieldNumber;
+const int RegisterUtilitiesResponse::kCiidFieldNumber;
 #endif  // !_MSC_VER
 
 RegisterUtilitiesResponse::RegisterUtilitiesResponse()
@@ -1233,7 +1233,7 @@ RegisterUtilitiesResponse::RegisterUtilitiesResponse(const RegisterUtilitiesResp
 void RegisterUtilitiesResponse::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1243,8 +1243,8 @@ RegisterUtilitiesResponse::~RegisterUtilitiesResponse() {
 }
 
 void RegisterUtilitiesResponse::SharedDtor() {
-  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_id_;
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ciid_;
   }
   if (this != default_instance_) {
   }

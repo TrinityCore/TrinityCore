@@ -95,7 +95,8 @@ struct emerald_dragonAI : public WorldBossAI
     void Reset() override
     {
         WorldBossAI::Reset();
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(false);
         me->SetReactState(REACT_AGGRESSIVE);
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4s);
@@ -155,8 +156,6 @@ struct emerald_dragonAI : public WorldBossAI
 
         if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, -50.0f, true))
             DoCast(target, SPELL_SUMMON_PLAYER);
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -633,7 +632,8 @@ class boss_taerar : public CreatureScript
                     _shades += count;
 
                     DoCast(SPELL_SHADE);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUninteractible(true);
                     me->SetReactState(REACT_PASSIVE);
 
                     ++_stage;
@@ -670,7 +670,8 @@ class boss_taerar : public CreatureScript
                     {
                         _banished = false;
 
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUninteractible(false);
                         me->RemoveAurasDueToSpell(SPELL_SHADE);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
@@ -725,8 +726,6 @@ class spell_dream_fog_sleep : public SpellScriptLoader
 
         class spell_dream_fog_sleep_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(DreamFogTargetSelector());
@@ -770,8 +769,6 @@ class spell_mark_of_nature : public SpellScriptLoader
 
         class spell_mark_of_nature_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_nature_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(

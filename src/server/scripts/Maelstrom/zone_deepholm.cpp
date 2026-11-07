@@ -33,8 +33,6 @@ enum AllOurFriendsAreDead
 // 79614 - Spirit Totem
 class spell_spirit_totem : public SpellScript
 {
-    PrepareSpellScript(spell_spirit_totem);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SPEAK_TO_FALLEN_SPIRIT_FEMALE, SPELL_SPEAK_TO_FALLEN_SPIRIT_MALE });

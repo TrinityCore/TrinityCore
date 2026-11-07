@@ -167,7 +167,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(8), [this](TaskContext amplify)
+            _scheduler.Schedule(Seconds(8), [this](TaskContext& amplify)
             {
                 DoCastVictim(SPELL_AMPLIFY_FLAMES);
                 amplify.Repeat(Seconds(9));
@@ -185,10 +185,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            _scheduler.Update(diff);
         }
 
     private:
@@ -243,7 +240,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Milliseconds(2400), Seconds(8), [this](TaskContext summonImp)
+            _scheduler.Schedule(Milliseconds(2400), Seconds(8), [this](TaskContext& summonImp)
             {
                 DoCastAOE(SPELL_SUMMON_FIENDISH_IMP, true);
                 summonImp.Repeat();
@@ -289,7 +286,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(2), [this](TaskContext firebolt)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext& firebolt)
             {
                 DoCastVictim(SPELL_FIREBOLT);
                 firebolt.Repeat(Milliseconds(2400));
@@ -303,10 +300,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            _scheduler.Update(diff);
         }
 
     private:

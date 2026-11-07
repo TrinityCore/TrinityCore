@@ -30,7 +30,7 @@
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
 
-enum Texts
+enum RotfaceTexts
 {
     SAY_PRECIOUS_DIES           = 0,
     SAY_AGGRO                   = 1,
@@ -50,7 +50,7 @@ enum Texts
     EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
 
-enum Spells
+enum RotfaceSpells
 {
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
@@ -85,7 +85,7 @@ enum Spells
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 
-enum Events
+enum RotfaceEvents
 {
     // Rotface
     EVENT_SLIME_SPRAY       = 1,
@@ -101,6 +101,7 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
+// 36627 - Rotface
 struct boss_rotface : public BossAI
 {
     boss_rotface(Creature* creature) : BossAI(creature, DATA_ROTFACE)
@@ -229,8 +230,6 @@ struct boss_rotface : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -238,6 +237,7 @@ private:
     uint32 infectionStage;
 };
 
+// 36897 - Little Ooze
 struct npc_little_ooze : public ScriptedAI
 {
     npc_little_ooze(Creature* creature) : ScriptedAI(creature) { }
@@ -271,14 +271,13 @@ struct npc_little_ooze : public ScriptedAI
             DoCastVictim(SPELL_STICKY_OOZE);
             events.ScheduleEvent(EVENT_STICKY_OOZE, 15s);
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
     EventMap events;
 };
 
+// 36899 - Big Ooze
 struct npc_big_ooze : public ScriptedAI
 {
     npc_big_ooze(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
@@ -328,9 +327,6 @@ struct npc_big_ooze : public ScriptedAI
                     break;
             }
         }
-
-        if (me->IsVisible())
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -338,6 +334,7 @@ private:
     InstanceScript* instance;
 };
 
+// 37217 - Precious
 struct npc_precious_icc : public ScriptedAI
 {
     npc_precious_icc(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript()) { }
@@ -403,8 +400,6 @@ struct npc_precious_icc : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -416,8 +411,6 @@ private:
 // 69782, 69796, 69798, 69801 - Ooze Flood
 class spell_rotface_ooze_flood : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_ooze_flood);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (!GetHitUnit())
@@ -430,7 +423,7 @@ class spell_rotface_ooze_flood : public SpellScript
             return;
 
         triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValueAsInt()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetOriginalCaster(GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty));
     }
 
@@ -457,8 +450,6 @@ class spell_rotface_ooze_flood : public SpellScript
 // 69674, 71224, 73022, 73023 - Mutated Infection
 class spell_rotface_mutated_infection : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_mutated_infection);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // remove targets with this aura already
@@ -488,18 +479,16 @@ class spell_rotface_mutated_infection : public SpellScript
 
 class spell_rotface_mutated_infection_aura : public AuraScript
 {
-    PrepareAuraScript(spell_rotface_mutated_infection_aura);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValueAsInt()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValueAsInt()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetTriggeringAura(aurEff)
             .SetOriginalCaster(GetCasterGUID()));
     }
@@ -513,8 +502,6 @@ class spell_rotface_mutated_infection_aura : public AuraScript
 // 69538 - Small Ooze Combine
 class spell_rotface_little_ooze_combine : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_little_ooze_combine);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
@@ -537,8 +524,6 @@ class spell_rotface_little_ooze_combine : public SpellScript
 // 69553 - Large Ooze Combine
 class spell_rotface_large_ooze_combine : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_large_ooze_combine);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
@@ -583,8 +568,6 @@ class spell_rotface_large_ooze_combine : public SpellScript
 // 69610 - Large Ooze Buff Combine
 class spell_rotface_large_ooze_buff_combine : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_large_ooze_buff_combine);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -649,8 +632,6 @@ class spell_rotface_large_ooze_buff_combine : public SpellScript
 // 69839 - Unstable Ooze Explosion
 class spell_rotface_unstable_ooze_explosion_init : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER });
@@ -677,8 +658,6 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScript
 // 69832 - Unstable Ooze Explosion
 class spell_rotface_unstable_ooze_explosion : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_unstable_ooze_explosion);
-
     void CheckTarget(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -702,8 +681,6 @@ class spell_rotface_unstable_ooze_explosion : public SpellScript
 // 71441 - Unstable Ooze Explosion Suicide Trigger
 class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
 {
-    PrepareAuraScript(spell_rotface_unstable_ooze_explosion_suicide);
-
     void DespawnSelf(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -713,6 +690,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
 
         target->RemoveAllAuras();
         target->SetVisible(false);
+        target->ToCreature()->SetCanMelee(false);
         target->ToCreature()->DespawnOrUnsummon(60s);
     }
 
@@ -725,8 +703,6 @@ class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
 // 72285, 72288 - Vile Gas Trigger
 class spell_rotface_vile_gas_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_vile_gas_trigger);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
@@ -780,8 +756,6 @@ class spell_rotface_vile_gas_trigger : public SpellScript
 // 69507, 71213, 73189, 73190 - Slime Spray
 class spell_rotface_slime_spray : public SpellScript
 {
-    PrepareSpellScript(spell_rotface_slime_spray);
-
     void HandleResidue()
     {
         Player* target = GetHitPlayer();

@@ -21,7 +21,6 @@
 #include "AbstractFollower.h"
 #include "MovementDefines.h"
 #include "MovementGenerator.h"
-#include "Optional.h"
 #include "Position.h"
 #include "Timer.h"
 
@@ -33,11 +32,12 @@ class Unit;
 class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
-        explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration);
+        explicit FollowMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle, Optional<Milliseconds> duration,
+            bool ignoreTargetWalk = false, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         ~FollowMovementGenerator();
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;
@@ -51,7 +51,8 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         void UpdatePetSpeed(Unit* owner);
 
         float const _range;
-        ChaseAngle const _angle;
+        Optional<ChaseAngle const> _angle;
+        bool _ignoreTargetWalk;
 
         TimeTracker _checkTimer;
         Optional<TimeTracker> _duration;

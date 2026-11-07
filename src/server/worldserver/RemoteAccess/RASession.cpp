@@ -19,8 +19,8 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "IpAddress.h"
 #include "Log.h"
-#include "SRP6.h"
 #include "Util.h"
 #include "World.h"
 #include <boost/asio/buffer.hpp>
@@ -30,9 +30,11 @@
 
 void RASession::Start()
 {
+    _socket.non_blocking(false);
+
     // wait 1 second for active connections to send negotiation request
     for (int counter = 0; counter < 10 && _socket.available() == 0; counter++)
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(100ms);
 
     // Check if there are bytes available, if they are, then the client is requesting the negotiation
     if (_socket.available() > 0)
@@ -62,7 +64,7 @@ void RASession::Start()
     if (password.empty())
         return;
 
-    if (!CheckAccessLevel(username) || !CheckPassword(username, password))
+    if (!CheckAccessLevel(username) || !AccountMgr::CheckPassword(username, password))
     {
         Send("Authentication failed\r\n");
         _socket.close();
@@ -148,31 +150,6 @@ bool RASession::CheckAccessLevel(const std::string& user)
     }
 
     return true;
-}
-
-bool RASession::CheckPassword(const std::string& user, const std::string& pass)
-{
-    std::string safe_user = user;
-    Utf8ToUpperOnlyLatin(safe_user);
-
-    std::string safe_pass = pass;
-    Utf8ToUpperOnlyLatin(safe_pass);
-
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
-
-    stmt->setString(0, safe_user);
-
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-    {
-        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
-        Trinity::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
-
-        if (Trinity::Crypto::SRP6::CheckLogin(safe_user, safe_pass, salt, verifier))
-            return true;
-    }
-
-    TC_LOG_INFO("commands.ra", "Wrong password for user: {}", user);
-    return false;
 }
 
 bool RASession::ProcessCommand(std::string& command)

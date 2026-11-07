@@ -120,8 +120,6 @@ public:
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
 
         private:
@@ -154,7 +152,7 @@ class at_twilight_grove : public AreaTriggerScript
                         corrupter->AI()->Talk(YELL_TWILIGHT_CORRUPTOR_RESPAWN, player);
 
             return false;
-        };
+        }
 };
 
 void AddSC_duskwood()

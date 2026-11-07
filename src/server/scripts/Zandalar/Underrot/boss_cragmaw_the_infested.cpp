@@ -148,21 +148,21 @@ struct boss_cragmaw_the_infested : public BossAI
         if (Creature* fetidMaggot = ObjectAccessor::GetCreature(*me, _fetidMaggotGuid))
             fetidMaggot->DespawnOrUnsummon();
 
-        if (IsHeroic() || GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
+        if (IsHeroicOrHigher())
             DoCast(SPELL_POWER_ENERGIZE_TANTRUM);
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == POINT_TANTRUM_START_RND_MOVEMENT)
-            me->GetMotionMaster()->MoveRandom(20.0f);
+            me->GetMotionMaster()->MoveRandom(20.0f, {}, {}, MovementWalkRunSpeedSelectionMode::ForceRun);
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_TANTRUM_INITIAL)
             me->SetReactState(REACT_AGGRESSIVE);
-    };
+    }
 
     void UpdateAI(uint32 diff) override
     {
@@ -198,8 +198,6 @@ struct boss_cragmaw_the_infested : public BossAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     ObjectGuid _fetidMaggotGuid;
@@ -244,8 +242,6 @@ struct npc_cragmaw_blood_tick : public ScriptedAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -254,8 +250,6 @@ private:
 // 271775 - Tantrum Energy Bar (periodic)
 class spell_cragmaw_power_energize_tantrum : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_power_energize_tantrum);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -271,8 +265,6 @@ class spell_cragmaw_power_energize_tantrum : public AuraScript
 // 260411 - Summon Larva
 class spell_cragmaw_summon_larva : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_summon_larva);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
@@ -302,8 +294,6 @@ struct at_cragmaw_destroy_larva : AreaTriggerAI
 // 260416 - Metamorphosis
 class spell_cragmaw_larva_metamorphosis : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_larva_metamorphosis);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -340,8 +330,6 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 // 278641 - Blood Burst
 class spell_cragmaw_blood_burst : public AuraScript
 {
-    PrepareAuraScript(spell_cragmaw_blood_burst);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();

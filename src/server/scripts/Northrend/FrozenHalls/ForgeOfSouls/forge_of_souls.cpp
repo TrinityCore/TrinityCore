@@ -158,7 +158,6 @@ struct npc_sylvanas_fos : public ScriptedAI
             return;
 
         events.Update(diff);
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -255,16 +254,12 @@ struct npc_jaina_fos: public ScriptedAI
             return;
 
         events.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 69131 - Soul Sickness
 class spell_forge_of_souls_soul_sickness : public AuraScript
 {
-    PrepareAuraScript(spell_forge_of_souls_soul_sickness);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LETHARGY });

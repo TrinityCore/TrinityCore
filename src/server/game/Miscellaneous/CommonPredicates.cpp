@@ -19,3 +19,35 @@
 #include "Unit.h"
 
 Trinity::Predicates::IsVictimOf::IsVictimOf(Unit const* attacker) : _victim(attacker ? attacker->GetVictim() : nullptr) { }
+
+bool Trinity::Predicates::PowerPctOrderPred::operator()(WorldObject const* objA, WorldObject const* objB) const
+{
+    Unit const* a = objA->ToUnit();
+    Unit const* b = objB->ToUnit();
+    float rA = a ? a->GetPowerPct(_power) : 0.0f;
+    float rB = b ? b->GetPowerPct(_power) : 0.0f;
+    return _ascending ? rA < rB : rA > rB;
+}
+
+bool Trinity::Predicates::PowerPctOrderPred::operator()(Unit const* a, Unit const* b) const
+{
+    float rA = a->GetPowerPct(_power);
+    float rB = b->GetPowerPct(_power);
+    return _ascending ? rA < rB : rA > rB;
+}
+
+bool Trinity::Predicates::HealthPctOrderPred::operator()(WorldObject const* objA, WorldObject const* objB) const
+{
+    Unit const* a = objA->ToUnit();
+    Unit const* b = objB->ToUnit();
+    float rA = (a && a->GetMaxHealth()) ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
+    float rB = (b && b->GetMaxHealth()) ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
+    return _ascending ? rA < rB : rA > rB;
+}
+
+bool Trinity::Predicates::HealthPctOrderPred::operator()(Unit const* a, Unit const* b) const
+{
+    float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
+    float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
+    return _ascending ? rA < rB : rA > rB;
+}

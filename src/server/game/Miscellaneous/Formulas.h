@@ -30,18 +30,22 @@ namespace Trinity
 {
     inline uint32 GetExpansionForLevel(uint32 level)
     {
-        if (level < 60)
+        if (level < 30)
             return EXPANSION_CLASSIC;
-        else if (level < 70)
-            return EXPANSION_THE_BURNING_CRUSADE;
-        else if (level < 80)
-            return EXPANSION_WRATH_OF_THE_LICH_KING;
-        else if (level < 85)
+        else if (level < 35)
             return EXPANSION_CATACLYSM;
-        else if (level < 90)
-            return EXPANSION_MISTS_OF_PANDARIA;
-        else if (level < 100)
+        else if (level < 40)
             return EXPANSION_WARLORDS_OF_DRAENOR;
+        else if (level < 45)
+            return EXPANSION_BATTLE_FOR_AZEROTH;
+        else if (level < 50)
+            return EXPANSION_MISTS_OF_PANDARIA;
+        else if (level < 60)
+            return EXPANSION_SHADOWLANDS;
+        else if (level < 70)
+            return EXPANSION_DRAGONFLIGHT;
+        else if (level < 80)
+            return EXPANSION_THE_WAR_WITHIN;
         else
             return CURRENT_EXPANSION;
     }
@@ -191,7 +195,7 @@ namespace Trinity
                     if ((uint32(creature->GetCreatureDifficulty()->GetHealthScalingExpansion()) < GetExpansionForLevel(player->GetLevel())))
                         gain = uint32(round(gain / 10.0f));
 
-                    if (creature->isElite())
+                    if (creature->IsElite())
                     {
                         // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
                         if (u->GetMap()->IsDungeon())

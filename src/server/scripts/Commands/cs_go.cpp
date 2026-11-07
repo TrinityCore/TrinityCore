@@ -38,7 +38,6 @@ EndScriptData */
 #include "Transport.h"
 #include "Util.h"
 #include "WorldSession.h"
-#include <sstream>
 
 using namespace Trinity::ChatCommands;
 
@@ -47,7 +46,7 @@ class go_commandscript : public CommandScript
 public:
     go_commandscript() : CommandScript("go_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable goCommandTable =
         {
@@ -302,7 +301,7 @@ public:
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
         if (!node)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);
+            handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, *nodeId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -314,7 +313,7 @@ public:
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
         if (!at)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);
+            handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, *areaTriggerId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -338,14 +337,16 @@ public:
         }
 
         // update to parent zone if exist (client map show only zones without parents)
-        AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
+        AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID && areaEntry->GetFlags().HasFlag(AreaFlags::IsSubzone)
+            ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID)
+            : areaEntry;
         ASSERT(zoneEntry);
 
         x /= 100.0f;
         y /= 100.0f;
 
         std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(zoneEntry->ContinentID);
-        if (!sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y))
+        if (!sDB2Manager.Zone2MapCoordinates(zoneEntry->ID, x, y))
         {
             handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName[handler->GetSessionDbcLocale()], terrain->GetId(), terrain->GetMapName());
             handler->SetSentErrorMessage(true);
@@ -480,16 +481,16 @@ public:
             player->SaveRecallPosition();
 
         // try going to entrance
-        if (AreaTriggerStruct const* exit = sObjectMgr->GetGoBackTrigger(mapId))
+        if (AreaTriggerTeleport const* exit = sObjectMgr->GetGoBackTrigger(mapId))
         {
-            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+            if (player->TeleportTo(exit->Loc.GetMapId(), exit->Loc.GetPositionX(), exit->Loc.GetPositionY(), exit->Loc.GetPositionZ(), exit->Loc.GetOrientation() + M_PI))
             {
                 handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapName, mapId);
                 return true;
             }
             else
             {
-                uint32 const parentMapId = exit->target_mapId;
+                uint32 const parentMapId = exit->Loc.GetMapId();
                 char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->MapName[handler->GetSessionDbcLocale()];
                 handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
             }
@@ -498,9 +499,9 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapName, mapId);
 
         // try going to start
-        if (AreaTriggerStruct const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
+        if (AreaTriggerTeleport const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
         {
-            if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+            if (player->TeleportTo(entrance->Loc))
             {
                 handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapName, mapId);
                 return true;
@@ -520,16 +521,13 @@ public:
         if (needles.empty())
             return false;
 
-        std::multimap<uint32, CreatureTemplate const*> matches;
+        std::multimap<uint32, CreatureTemplate const*, std::greater<uint32>> matches;
         std::unordered_map<uint32, std::vector<CreatureData const*>> spawnLookup;
 
         // find all boss flagged mobs that match our needles
         for (auto const& pair : sObjectMgr->GetCreatureTemplates())
         {
             CreatureTemplate const& data = pair.second;
-            if (!(data.flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
-                continue;
-
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
             for (std::string_view label : needles)
@@ -539,7 +537,7 @@ public:
             if (count)
             {
                 matches.emplace(count, &data);
-                (void)spawnLookup[data.Entry]; // inserts default-constructed vector
+                spawnLookup.try_emplace(data.Entry);    // inserts default-constructed vector
             }
         }
 
@@ -567,7 +565,7 @@ public:
         }
 
         // see if we have multiple equal matches left
-        auto it = matches.crbegin(), end = matches.crend();
+        auto it = matches.cbegin(), end = matches.cend();
         uint32 const maxCount = it->first;
         if ((++it) != end && it->first == maxCount)
         {
@@ -580,7 +578,7 @@ public:
             return false;
         }
 
-        CreatureTemplate const* const boss = matches.crbegin()->second;
+        CreatureTemplate const* const boss = matches.cbegin()->second;
         std::vector<CreatureData const*> const& spawns = spawnLookup[boss->Entry];
         ASSERT(!spawns.empty());
 

@@ -211,7 +211,7 @@ class CASC_ARRAY
             while (ItemCountMax < NewItemCount)
                 ItemCountMax = ItemCountMax << 1;
 
-            // Allocate new table
+            // Allocate new table. If this fails, the 'm_pItemArray' remains valid
             NewItemArray = CASC_REALLOC(m_pItemArray, (ItemCountMax * m_ItemSize));
             if(NewItemArray == NULL)
                 return false;

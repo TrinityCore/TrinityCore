@@ -147,7 +147,6 @@ TCascStorage * TCascStorage::Release()
         delete this;
         return NULL;
     }
-
     return this;
 }
 
@@ -233,7 +232,6 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, PFILE_CKEY_ENTRY pFil
         pCKeyEntry->Flags = CASC_CE_HAS_CKEY | CASC_CE_HAS_EKEY | CASC_CE_IN_ENCODING;
         pCKeyEntry->RefCount = 0;
         pCKeyEntry->SpanCount = 1;
-        pCKeyEntry->Priority = 0;
 
         // Copy the information from index files to the CKey entry
         CopyEKeyEntry(hs, pCKeyEntry);
@@ -298,7 +296,7 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, CASC_DOWNLOAD_ENTRY &
         pCKeyEntry->Flags = (pCKeyEntry->Flags & ~CASC_CE_HAS_EKEY_PARTIAL) | CASC_CE_IN_DOWNLOAD;
     }
 
-    // Supply the rest
+    // Save the rest and return the entry
     pCKeyEntry->Priority = DlEntry.Priority;
     return pCKeyEntry;
 }
@@ -406,7 +404,7 @@ int CaptureEncodingHeader(CASC_ENCODING_HEADER & EnHeader, LPBYTE pbFileData, si
     return ERROR_SUCCESS;
 }
 
-static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHeader, LPBYTE pbPageBegin, LPBYTE pbEndOfPage)
+static DWORD LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHeader, LPBYTE pbPageBegin, LPBYTE pbEndOfPage)
 {
     PFILE_CKEY_ENTRY pFileEntry;
     LPBYTE pbFileEntry = pbPageBegin;
@@ -437,14 +435,14 @@ static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHead
     return ERROR_SUCCESS;
 }
 
-static int LoadEncodingManifest(TCascStorage * hs)
+static DWORD LoadEncodingManifest(TCascStorage * hs)
 {
     CASC_CKEY_ENTRY & CKeyEntry = hs->EncodingCKey;
     CASC_BLOB EncodingFile;
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading ENCODING manifest", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingManifest, "ENCODING", 0, 0))
         return ERROR_CANCELLED;
 
     // Fill-in the information from the index entry and insert it to the file tree
@@ -755,7 +753,7 @@ static int LoadDownloadManifest(TCascStorage * hs)
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading DOWNLOAD manifest", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingManifest, "DOWNLOAD", 0, 0))
         return ERROR_CANCELLED;
 
     // Load the entire DOWNLOAD file to memory
@@ -788,7 +786,7 @@ static int LoadInstallManifest(TCascStorage * hs)
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading INSTALL manifest", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingManifest, "INSTALL", 0, 0))
         return ERROR_CANCELLED;
 
     // Load the entire DOWNLOAD file to memory
@@ -856,7 +854,7 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
     assert(hs->pRootHandler == NULL);
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading ROOT manifest", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingManifest, "ROOT", 0, 0))
         return ERROR_CANCELLED;
 
     // Locale: The default parameter is 0 - in that case, we load all locales
@@ -892,7 +890,7 @@ __LoadRootFile:
                     dwErrCode = RootHandler_CreateTVFS(hs, RootFile);
                     break;
 
-                case CASC_WOW82_ROOT_SIGNATURE:
+                case CASC_WOW_ROOT_SIGNATURE:
                     dwErrCode = RootHandler_CreateWoW(hs, RootFile, dwLocaleMask);
                     break;
 
@@ -915,6 +913,10 @@ __LoadRootFile:
                     break;
             }
         }
+        else
+        {
+            dwErrCode = ERROR_BAD_FORMAT;
+        }
     }
     else
     {
@@ -924,7 +926,7 @@ __LoadRootFile:
     // Handle reparsing of the root file
     if(dwErrCode == ERROR_REPARSE_ROOT && pCKeyEntry != &hs->RootFile)
     {
-        if(InvokeProgressCallback(hs, "Loading ROOT manifest (reparsed)", NULL, 0, 0))
+        if(InvokeProgressCallback(hs, CascProgressLoadingManifest, "ROOT (reparsed)", 0, 0))
             return ERROR_CANCELLED;
 
         // Replace the root handler
@@ -942,7 +944,6 @@ __LoadRootFile:
         hs->pRootHandler->Copy(pOldRootHandler);
         delete pOldRootHandler;
     }
-
     return dwErrCode;
 }
 
@@ -960,7 +961,7 @@ static DWORD GetStorageTotalFileCount(TCascStorage * hs)
             {
                 // If there is zero or one file name reference, we count the item as one file.
                 // If there is more than 1 name reference, we count the file as many times as number of references
-                DWORD RefCount = (pCKeyEntry->RefCount > 0) ? pCKeyEntry->RefCount : 1;
+                DWORD RefCount = (pCKeyEntry->RefCount) ? pCKeyEntry->RefCount : 1;
 
                 // Add the number of references to the total file count
                 TotalFileCount += RefCount;
@@ -1178,6 +1179,19 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, L
         dwErrCode = LoadCdnBuildFile(hs);
     }
 
+    // Make sure we have a build number. If we don't, we assign a build number
+    // that is derived from the first beta TVFS build number
+    if(hs->dwBuildNumber == 0)
+    {
+        hs->dwBuildNumber = 21742 + hs->InstallCKey.ContentSize;
+    }
+
+    // Make sure we have a code name. Not a case of WoW build 22267
+    if(hs->szCodeName == NULL && hs->dwBuildNumber == 22267)
+    {
+        hs->SetProductCodeName("wow", 3);
+    }
+
     // Create the array of CKey entries. Each entry represents a file in the storage
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -1213,9 +1227,11 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, L
 
         // Continue loading the manifest
         dwErrCode = LoadBuildManifest(hs, dwLocaleMask);
-        if(dwErrCode != ERROR_SUCCESS)
+
+        // If we fail to load the ROOT file, we take the file names from the INSTALL manifest
+        // Beware on low memory condition - in that case, we cannot guarantee a consistent state of the root file
+        if(dwErrCode != ERROR_SUCCESS && dwErrCode != ERROR_NOT_ENOUGH_MEMORY)
         {
-            // If we fail to load the ROOT file, we take the file names from the INSTALL manifest
             dwErrCode = LoadInstallManifest(hs);
         }
     }
@@ -1331,6 +1347,13 @@ static DWORD ParseOpenParams(LPTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
         pArgs->szRegion = szParamsPtr;
     }
 
+    // There could be region appended at the end
+    if((szParamsPtr = GetNextParam(szParamsPtr)) != NULL)
+    {
+        if(pArgs->szBuildKey && pArgs->szBuildKey[0])
+            return ERROR_INVALID_PARAMETER;
+        pArgs->szBuildKey = szParamsPtr;
+    }
     return ERROR_SUCCESS;
 }
 

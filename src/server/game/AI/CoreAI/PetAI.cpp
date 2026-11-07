@@ -17,6 +17,7 @@
 
 #include "PetAI.h"
 #include "AIException.h"
+#include "CharmInfo.h"
 #include "Creature.h"
 #include "Errors.h"
 #include "Group.h"
@@ -80,15 +81,6 @@ void PetAI::UpdateAI(uint32 diff)
             StopAttack();
             return;
         }
-
-        // Check before attacking to prevent pets from leaving stay position
-        if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        {
-            if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
-                DoMeleeAttackIfReady();
-        }
-        else
-            DoMeleeAttackIfReady();
     }
     else
     {
@@ -363,7 +355,7 @@ void PetAI::HandleReturnMovement()
 
     // Prevent activating movement when under control of spells
     // such as "Eyes of the Beast"
-    if (me->IsCharmed())
+    if (me->isPossessed())
         return;
 
     if (!me->GetCharmInfo())
@@ -621,10 +613,10 @@ void PetAI::UpdateAllies()
     _allySet.insert(me->GetGUID());
     if (group) // add group
     {
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            Player* Target = itr->GetSource();
-            if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
+            Player* Target = itr.GetSource();
+            if (!Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
                 continue;
 
             if (Target->GetGUID() == owner->GetGUID())

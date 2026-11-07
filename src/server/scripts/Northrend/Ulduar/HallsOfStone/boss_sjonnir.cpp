@@ -24,7 +24,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum SjonnirTexts
 {
     SAY_AGGRO                            = 0,
     SAY_SLAY                             = 1,
@@ -32,7 +32,7 @@ enum Texts
     EMOTE_FRENZY                         = 3
 };
 
-enum Spells
+enum SjonnirSpells
 {
     SPELL_FRENZY                         = 28747,
 
@@ -65,23 +65,7 @@ enum Spells
 #define SPELL_SUMMON_MALFORMED_OOZE_PERIODIC DUNGEON_MODE<uint32>(50801,59858)
 #define SPELL_TOXIC_VOLLEY DUNGEON_MODE<uint32>(50838,59853)
 
-enum Creatures
-{
-    NPC_FORGED_IRON_TROGG                = 27979,
-    NPC_FORGED_IRON_DWARF                = 27982,
-    NPC_EARTHEN_DWARF                    = 27980
-};
-
-enum Misc
-{
-    POINT_CENTER                         = 0,
-    POINT_COMBINE                        = 1,
-
-    ACTION_SLUDGE_DEAD                   = 1,
-    DATA_ABUSE_THE_OOZE                  = 2
-};
-
-enum Events
+enum SjonnirEvents
 {
     EVENT_CHAIN_LIGHTNING                = 1,
     EVENT_LIGHTNING_SHIELD,
@@ -91,8 +75,25 @@ enum Events
     EVENT_FRENZY
 };
 
+enum SjonnirCreatures
+{
+    NPC_FORGED_IRON_TROGG                = 27979,
+    NPC_FORGED_IRON_DWARF                = 27982,
+    NPC_EARTHEN_DWARF                    = 27980
+};
+
+enum SjonnirMisc
+{
+    POINT_CENTER                         = 0,
+    POINT_COMBINE                        = 1,
+
+    ACTION_SLUDGE_DEAD                   = 1,
+    DATA_ABUSE_THE_OOZE                  = 2
+};
+
 Position const CenterPoint = { 1293.8799f, 666.942f, 189.60754f, 0.0f };
 
+// 27978 - Sjonnir The Ironshaper
 struct boss_sjonnir : public BossAI
 {
     boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR_THE_IRONSHAPER),
@@ -247,8 +248,6 @@ struct boss_sjonnir : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -259,6 +258,7 @@ private:
     bool _frenzied;
 };
 
+// 27981 - Malformed Ooze
 struct npc_malformed_ooze : public ScriptedAI
 {
     npc_malformed_ooze(Creature* creature) : ScriptedAI(creature) { }
@@ -314,7 +314,7 @@ struct npc_malformed_ooze : public ScriptedAI
                 me->GetMotionMaster()->MoveIdle();
                 me->GetMotionMaster()->MovePoint(POINT_COMBINE, creatureTarget->GetPosition());
 
-                _scheduler.Schedule(1s, [this](TaskContext task)
+                _scheduler.Schedule(1s, [this](TaskContext& task)
                 {
                     Creature* combineTarget = ObjectAccessor::GetCreature(*me, _combineTarget);
                     // Completely unclear what should happen in this case or in case when caster dies
@@ -350,6 +350,7 @@ private:
     ObjectGuid _combineTarget;
 };
 
+// 28165 - Iron Sludge
 struct npc_iron_sludge : public ScriptedAI
 {
     npc_iron_sludge(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -366,7 +367,7 @@ struct npc_iron_sludge : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(3s, 6s, [this](TaskContext task)
+        _scheduler.Schedule(3s, 6s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_TOXIC_VOLLEY);
             task.Repeat(3s, 6s);
@@ -385,10 +386,7 @@ struct npc_iron_sludge : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -404,8 +402,6 @@ private:
    50824 - Summon Earthen Dwarf */
 class spell_sjonnir_periodic_summon : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_periodic_summon);
-
 public:
     spell_sjonnir_periodic_summon(uint32 leftPipeSpell, uint32 rightPipeSpell)
         : AuraScript(), _leftPipeSpell(leftPipeSpell), _rightPipeSpell(rightPipeSpell) { }
@@ -439,8 +435,6 @@ private:
 // 50777 - Iron Sludge Spawn Visual
 class spell_sjonnir_iron_sludge_spawn_visual : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_iron_sludge_spawn_visual);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         // They're indeed passive but I'm not sure enough if it's handled by this aura or directly in script

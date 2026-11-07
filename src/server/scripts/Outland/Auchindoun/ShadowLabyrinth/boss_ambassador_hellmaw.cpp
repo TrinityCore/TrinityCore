@@ -164,8 +164,6 @@ struct boss_ambassador_hellmaw : public EscortAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

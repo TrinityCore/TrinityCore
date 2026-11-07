@@ -20,6 +20,8 @@
 
 #include "Common.h"
 
+enum MovementFlags : uint64;
+
 namespace G3D
 {
     class Vector3;
@@ -76,10 +78,9 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    float constexpr gravity = static_cast<float>(19.29110527038574);
+    float constexpr gravity = static_cast<float>(19.291103363037109375);
     TC_GAME_API extern UInt32Counter splineIdGen;
-    TC_GAME_API extern std::string MovementFlags_ToString(uint32 flags);
-    TC_GAME_API extern std::string MovementFlagsExtra_ToString(uint32 flags);
+    TC_GAME_API extern std::string MovementFlags_ToString(MovementFlags flags);
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H

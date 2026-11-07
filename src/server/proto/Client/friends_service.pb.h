@@ -27,7 +27,7 @@
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "friends_types.pb.h"
-#include "invitation_types.pb.h"
+#include "api/common/v1/invitation_types.pb.h"
 #include "rpc_types.pb.h"
 #include "ServiceBase.h"
 #include "MessageBuffer.h"

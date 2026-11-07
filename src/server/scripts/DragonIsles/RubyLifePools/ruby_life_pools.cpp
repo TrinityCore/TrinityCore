@@ -33,8 +33,6 @@ enum RLPSpells
 // 371652 - Executed
 class spell_ruby_life_pools_executed : public AuraScript
 {
-    PrepareAuraScript(spell_ruby_life_pools_executed);
-
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -52,8 +50,6 @@ class spell_ruby_life_pools_executed : public AuraScript
 // 384933 - Ice Shield
 class spell_ruby_life_pools_ice_shield : public AuraScript
 {
-    PrepareAuraScript(spell_ruby_life_pools_ice_shield);
-
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -71,8 +67,6 @@ class spell_ruby_life_pools_ice_shield : public AuraScript
 // 372793 - Excavate
 class spell_ruby_life_pools_excavate : public AuraScript
 {
-    PrepareAuraScript(spell_ruby_life_pools_excavate);
-
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
@@ -88,8 +82,6 @@ class spell_ruby_life_pools_excavate : public AuraScript
 // 395029 - Storm Infusion
 class spell_ruby_life_pools_storm_infusion : public SpellScript
 {
-    PrepareSpellScript(spell_ruby_life_pools_storm_infusion);
-
     void SetDest(SpellDestination& dest)
     {
         dest.RelocateOffset({ 9.0f, 0.0f, 4.0f, 0.0f });

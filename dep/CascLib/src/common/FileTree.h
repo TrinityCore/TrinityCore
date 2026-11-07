@@ -19,7 +19,7 @@
 #define FTREE_FLAG_USE_CONTENT_FLAGS  0x0004        // The FILE_NODE also contains content flags
 
 #define CFN_FLAG_FOLDER               0x0001        // This item is a folder
-#define CFN_FLAG_MOUNT_POINT          0x0002        // This item is a mount point.
+#define CFN_FLAG_MOUNT_POINT          0x0002        // This item is a mount point
 
 // Common structure for holding a single folder/file node
 typedef struct _CASC_FILE_NODE

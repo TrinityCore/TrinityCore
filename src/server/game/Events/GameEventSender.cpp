@@ -56,8 +56,8 @@ void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
     Map* map = source->GetMap();
     if (map->Instanceable())
     {
-        source->StartCriteriaTimer(CriteriaStartEvent::SendEvent, gameEventId);
-        source->ResetCriteria(CriteriaFailEvent::SendEvent, gameEventId);
+        source->FailCriteria(CriteriaFailEvent::SendEvent, gameEventId);
+        source->StartCriteria(CriteriaStartEvent::SendEvent, gameEventId);
     }
 
     source->UpdateCriteria(CriteriaType::PlayerTriggerGameEvent, gameEventId, 0, 0, source);

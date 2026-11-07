@@ -18,8 +18,8 @@
 #ifndef TRINITY_BAG_H
 #define TRINITY_BAG_H
 
-// Maximum 36 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOT_1)/2
-#define MAX_BAG_SIZE 36                                     // 2.0.12
+// Maximum 98 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOT_1)/2
+#define MAX_BAG_SIZE 98                                     // 11.0.0
 
 #include "Item.h"
 
@@ -54,29 +54,28 @@ class TC_GAME_API Bag : public Item
 
     protected:
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
-            UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const;
+            UF::ContainerData::Mask const& requestedContainerMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Bag const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Bag const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Bag const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::ItemData::Base ItemMask;
             UF::ContainerData::Base ContainerMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
 
-        std::string GetDebugInfo() const override;
-
-        UF::UpdateField<UF::ContainerData, 0, TYPEID_CONTAINER> m_containerData;
+        UF::UpdateField<UF::ContainerData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONTAINER> m_containerData;
 
     protected:
         void SetBagSize(uint32 numSlots) { SetUpdateFieldValue(m_values.ModifyValue(&Bag::m_containerData).ModifyValue(&UF::ContainerData::NumSlots), numSlots); }

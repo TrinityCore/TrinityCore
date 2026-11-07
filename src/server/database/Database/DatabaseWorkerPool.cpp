@@ -19,6 +19,7 @@
 #include "AdhocStatement.h"
 #include "Common.h"
 #include "Errors.h"
+#include "IoContext.h"
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/WorldDatabase.h"
 #include "Implementation/CharacterDatabase.h"
@@ -30,55 +31,125 @@
 #include "QueryCallback.h"
 #include "QueryHolder.h"
 #include "QueryResult.h"
-#include "SQLOperation.h"
 #include "Transaction.h"
 #include "MySQLWorkaround.h"
+#include <boost/asio/use_future.hpp>
 #include <mysqld_error.h>
+#include <utility>
 #ifdef TRINITY_DEBUG
-#include <sstream>
 #include <boost/stacktrace.hpp>
 #endif
 
-#define MIN_MYSQL_SERVER_VERSION 50700u
-#define MIN_MYSQL_SERVER_VERSION_STRING "5.7"
-#define MIN_MYSQL_CLIENT_VERSION 50700u
-#define MIN_MYSQL_CLIENT_VERSION_STRING "5.7"
-
-#define MIN_MARIADB_SERVER_VERSION 100209u
-#define MIN_MARIADB_SERVER_VERSION_STRING "10.2.9"
-#define MIN_MARIADB_CLIENT_VERSION 30003u
-#define MIN_MARIADB_CLIENT_VERSION_STRING "3.0.3"
-
-class PingOperation : public SQLOperation
+static consteval uint32 ParseVersionString(std::string_view chars)
 {
-    //! Operation for idle delaythreads
-    bool Execute() override
+    uint32 result = 0;
+    uint32 partialResult = 0;
+    uint32 multiplier = 10000;
+    for (std::size_t i =  0; i < chars.length(); ++i)
     {
-        m_conn->Ping();
-        return true;
+        char c = chars[i];
+        if (c == '.')
+        {
+            if (multiplier < 100)
+                throw "Too many . characters in version string";
+
+            result += partialResult * multiplier;
+            multiplier /= 100;
+            partialResult = 0;
+        }
+        else if (c >= '0' && c <= '9')
+        {
+            partialResult *= 10;
+            partialResult += c - '0';
+        }
+        else
+            throw "Invalid input character";
     }
+
+    result += partialResult * multiplier;
+
+    return result;
+}
+
+namespace
+{
+#ifdef TRINITY_DEBUG
+template<typename Database>
+thread_local bool WarnSyncQueries = false;
+#endif
+}
+
+template<typename T>
+struct DatabaseWorkerPool<T>::QueueSizeTracker
+{
+    explicit QueueSizeTracker(DatabaseWorkerPool* pool) : _pool(pool)
+    {
+        ++_pool->_queueSize;
+    }
+
+    QueueSizeTracker(QueueSizeTracker const& other) : _pool(other._pool) { ++_pool->_queueSize; }
+    QueueSizeTracker(QueueSizeTracker&& other) noexcept : _pool(std::exchange(other._pool, nullptr)) { }
+
+    QueueSizeTracker& operator=(QueueSizeTracker const& other)
+    {
+        if (this != &other)
+        {
+            if (_pool != other._pool)
+            {
+                if (_pool)
+                    --_pool->_queueSize;
+                if (other._pool)
+                    ++other._pool->_queueSize;
+            }
+            _pool = other._pool;
+        }
+        return *this;
+    }
+    QueueSizeTracker& operator=(QueueSizeTracker&& other) noexcept
+    {
+        if (this != &other)
+        {
+            if (_pool != other._pool)
+            {
+                if (_pool)
+                    --_pool->_queueSize;
+            }
+            _pool = std::exchange(other._pool, nullptr);
+        }
+        return *this;
+    }
+
+    ~QueueSizeTracker()
+    {
+        if (_pool)
+            --_pool->_queueSize;
+    }
+
+private:
+    DatabaseWorkerPool* _pool;
 };
 
 template <class T>
 DatabaseWorkerPool<T>::DatabaseWorkerPool()
-    : _queue(new ProducerConsumerQueue<SQLOperation*>()),
-      _async_threads(0), _synch_threads(0)
+    : _async_threads(0), _synch_threads(0)
 {
-    WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-
+    // We only need check compiled version match on Windows
+    // because on other platforms ABI compatibility is ensured by SOVERSION
+    // and Windows MySQL releases don't even have abi-version-like component in their dll file name
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #if defined(LIBMARIADB) && MARIADB_PACKAGE_VERSION_ID >= 30200
-    WPFatal(mysql_get_client_version() >= MIN_MARIADB_CLIENT_VERSION, "TrinityCore does not support MariaDB versions below " MIN_MARIADB_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MariaDB client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MARIADB_CLIENT_VERSION);
-    WPFatal(mysql_get_client_version() == MARIADB_PACKAGE_VERSION_ID, "Used MariaDB library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), MARIADB_PACKAGE_VERSION_ID);
+#define TRINITY_COMPILED_CLIENT_VERSION MARIADB_PACKAGE_VERSION_ID
 #else
-    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below " MIN_MYSQL_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MySQL client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MYSQL_CLIENT_VERSION);
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
+#define TRINITY_COMPILED_CLIENT_VERSION MYSQL_VERSION_ID
+#endif
+    WPFatal(mysql_get_client_version() == TRINITY_COMPILED_CLIENT_VERSION, "Used " TRINITY_MYSQL_FLAVOR " library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), TRINITY_COMPILED_CLIENT_VERSION);
+#undef TRINITY_COMPILED_CLIENT_VERSION
 #endif
 }
 
 template <class T>
 DatabaseWorkerPool<T>::~DatabaseWorkerPool()
 {
-    _queue->Cancel();
 }
 
 template <class T>
@@ -100,6 +171,8 @@ uint32 DatabaseWorkerPool<T>::Open()
         "Asynchronous connections: {}, synchronous connections: {}.",
         GetDatabaseName(), _async_threads, _synch_threads);
 
+    _ioContext = std::make_unique<Trinity::Asio::IoContext>(_async_threads);
+
     uint32 error = OpenConnections(IDX_ASYNC, _async_threads);
 
     if (error)
@@ -107,14 +180,17 @@ uint32 DatabaseWorkerPool<T>::Open()
 
     error = OpenConnections(IDX_SYNCH, _synch_threads);
 
-    if (!error)
-    {
-        TC_LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. "
-                    "{} total connections running.", GetDatabaseName(),
-                    (_connections[IDX_SYNCH].size() + _connections[IDX_ASYNC].size()));
-    }
+    if (error)
+        return error;
 
-    return error;
+    for (std::unique_ptr<T> const& connection : _connections[IDX_ASYNC])
+        connection->StartWorkerThread(_ioContext.get());
+
+    TC_LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. "
+        "{} total connections running.", GetDatabaseName(),
+        (_connections[IDX_SYNCH].size() + _connections[IDX_ASYNC].size()));
+
+    return 0;
 }
 
 template <class T>
@@ -122,8 +198,13 @@ void DatabaseWorkerPool<T>::Close()
 {
     TC_LOG_INFO("sql.driver", "Closing down DatabasePool '{}'.", GetDatabaseName());
 
+    if (_ioContext)
+        _ioContext->stop();
+
     //! Closes the actualy MySQL connection.
     _connections[IDX_ASYNC].clear();
+
+    _ioContext.reset();
 
     TC_LOG_INFO("sql.driver", "Asynchronous connections on DatabasePool '{}' terminated. "
                 "Proceeding with synchronous connections.",
@@ -188,63 +269,55 @@ QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= null
     if (!connection)
         connection = GetFreeConnection();
 
-    ResultSet* result = connection->Query(sql);
+    QueryResult result = BasicStatementTask::Query(connection, sql);
     connection->Unlock();
-    if (!result || !result->GetRowCount() || !result->NextRow())
-    {
-        delete result;
-        return QueryResult(nullptr);
-    }
 
-    return QueryResult(result);
+    return result;
 }
 
 template <class T>
 PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
-    auto connection = GetFreeConnection();
-    PreparedResultSet* ret = connection->Query(stmt);
+    T* connection = GetFreeConnection();
+    PreparedQueryResult ret = PreparedStatementTask::Query(connection, stmt);
     connection->Unlock();
 
     //! Delete proxy-class. Not needed anymore
     delete stmt;
 
-    if (!ret || !ret->GetRowCount())
-    {
-        delete ret;
-        return PreparedQueryResult(nullptr);
-    }
-
-    return PreparedQueryResult(ret);
+    return ret;
 }
 
 template <class T>
 QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)
 {
-    BasicStatementTask* task = new BasicStatementTask(sql, true);
-    // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-    QueryResultFuture result = task->GetFuture();
-    Enqueue(task);
+    std::future<QueryResult> result = boost::asio::post(_ioContext->get_executor(), boost::asio::use_future([this, sql = std::string(sql), tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        return BasicStatementTask::Query(conn, sql.c_str());
+    }));
     return QueryCallback(std::move(result));
 }
 
 template <class T>
 QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 {
-    PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
-    // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-    PreparedQueryResultFuture result = task->GetFuture();
-    Enqueue(task);
+    std::future<PreparedQueryResult> result = boost::asio::post(_ioContext->get_executor(), boost::asio::use_future([this, stmt = std::unique_ptr<PreparedStatement<T>>(stmt), tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        return PreparedStatementTask::Query(conn, stmt.get());
+    }));
     return QueryCallback(std::move(result));
 }
 
 template <class T>
 SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder)
 {
-    SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
-    // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-    QueryResultHolderFuture result = task->GetFuture();
-    Enqueue(task);
+    std::future<void> result = boost::asio::post(_ioContext->get_executor(), boost::asio::use_future([this, holder, tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        SQLQueryHolderTask::Execute(conn, holder.get());
+    }));
     return { std::move(holder), std::move(result) };
 }
 
@@ -274,7 +347,11 @@ void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction<T> transaction)
     }
 #endif // TRINITY_DEBUG
 
-    Enqueue(new TransactionTask(transaction));
+    boost::asio::post(_ioContext->get_executor(), [this, transaction, tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        TransactionTask::Execute(conn, transaction);
+    });
 }
 
 template <class T>
@@ -297,9 +374,11 @@ TransactionCallback DatabaseWorkerPool<T>::AsyncCommitTransaction(SQLTransaction
     }
 #endif // TRINITY_DEBUG
 
-    TransactionWithResultTask* task = new TransactionWithResultTask(transaction);
-    TransactionFuture result = task->GetFuture();
-    Enqueue(task);
+    std::future<bool> result = boost::asio::post(_ioContext->get_executor(), boost::asio::use_future([this, transaction, tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        return TransactionTask::Execute(conn, transaction);
+    }));
     return TransactionCallback(std::move(result));
 }
 
@@ -369,8 +448,22 @@ void DatabaseWorkerPool<T>::KeepAlive()
     //! as the sole purpose is to prevent connections from idling.
     auto const count = _connections[IDX_ASYNC].size();
     for (uint8 i = 0; i < count; ++i)
-        Enqueue(new PingOperation);
+    {
+        boost::asio::post(_ioContext->get_executor(), [this, tracker = QueueSizeTracker(this)]
+        {
+            T* conn = GetAsyncConnectionForCurrentThread();
+            conn->Ping();
+        });
+    }
 }
+
+#ifdef TRINITY_DEBUG
+template <class T>
+void DatabaseWorkerPool<T>::WarnAboutSyncQueries([[maybe_unused]] bool warn)
+{
+    WarnSyncQueries<T> = warn;
+}
+#endif
 
 template <class T>
 uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConnections)
@@ -378,17 +471,9 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
     for (uint8 i = 0; i < numConnections; ++i)
     {
         // Create the connection
-        auto connection = [&] {
-            switch (type)
-            {
-            case IDX_ASYNC:
-                return std::make_unique<T>(_queue.get(), *_connectionInfo);
-            case IDX_SYNCH:
-                return std::make_unique<T>(*_connectionInfo);
-            default:
-                ABORT();
-            }
-        }();
+        constexpr std::array<ConnectionFlags, IDX_SIZE> flags = { { CONNECTION_ASYNC, CONNECTION_SYNCH } };
+
+        std::unique_ptr<T> connection = std::make_unique<T>(*_connectionInfo, flags[type]);
 
         if (uint32 error = connection->Open())
         {
@@ -396,18 +481,9 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
             _connections[type].clear();
             return error;
         }
-#ifndef LIBMARIADB
-        else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
-#else
-        else if (connection->GetServerVersion() < MIN_MARIADB_SERVER_VERSION)
-#endif
+        else if (uint32 serverVersion = connection->GetServerVersion(); serverVersion < ParseVersionString(TRINITY_REQUIRED_MYSQL_VERSION))
         {
-#ifndef LIBMARIADB
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below " MIN_MYSQL_SERVER_VERSION_STRING " (found id {}, need id >= {}), please update your MySQL server", connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
-#else
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MariaDB versions below " MIN_MARIADB_SERVER_VERSION_STRING " (found id {}, need id >= {}), please update your MySQL server", connection->GetServerVersion(), MIN_MARIADB_SERVER_VERSION);
-#endif
-
+            TC_LOG_ERROR("sql.driver", "TrinityCore does not support " TRINITY_MYSQL_FLAVOR " versions below " TRINITY_REQUIRED_MYSQL_VERSION " (found id {}, need id >= {}), please update your " TRINITY_MYSQL_FLAVOR " server", serverVersion, ParseVersionString(TRINITY_REQUIRED_MYSQL_VERSION));
             return 1;
         }
         else
@@ -430,26 +506,18 @@ unsigned long DatabaseWorkerPool<T>::EscapeString(char* to, char const* from, un
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
-{
-    _queue->Push(op);
-}
-
-template <class T>
 size_t DatabaseWorkerPool<T>::QueueSize() const
 {
-    return _queue->Size();
+    return _queueSize;
 }
 
 template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
 #ifdef TRINITY_DEBUG
-    if (_warnSyncQueries)
+    if (WarnSyncQueries<T>)
     {
-        std::ostringstream ss;
-        ss << boost::stacktrace::stacktrace();
-        TC_LOG_WARN("sql.performances", "Sync query at:\n{}", ss.str());
+        TC_LOG_WARN("sql.performances", "Sync query at:\n{}", boost::stacktrace::to_string(boost::stacktrace::stacktrace()));
     }
 #endif
 
@@ -469,6 +537,17 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
 }
 
 template <class T>
+T* DatabaseWorkerPool<T>::GetAsyncConnectionForCurrentThread() const
+{
+    std::thread::id id = std::this_thread::get_id();
+    for (auto&& connection : _connections[IDX_ASYNC])
+        if (connection->GetWorkerThreadId() == id)
+            return connection.get();
+
+    return nullptr;
+}
+
+template <class T>
 char const* DatabaseWorkerPool<T>::GetDatabaseName() const
 {
     return _connectionInfo->database.c_str();
@@ -480,15 +559,21 @@ void DatabaseWorkerPool<T>::Execute(char const* sql)
     if (!sql)
         return;
 
-    BasicStatementTask* task = new BasicStatementTask(sql);
-    Enqueue(task);
+    boost::asio::post(_ioContext->get_executor(), [this, sql = std::string(sql), tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        BasicStatementTask::Execute(conn, sql.c_str());
+    });
 }
 
 template <class T>
 void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 {
-    PreparedStatementTask* task = new PreparedStatementTask(stmt);
-    Enqueue(task);
+    boost::asio::post(_ioContext->get_executor(), [this, stmt = std::unique_ptr<PreparedStatement<T>>(stmt), tracker = QueueSizeTracker(this)]
+    {
+        T* conn = GetAsyncConnectionForCurrentThread();
+        PreparedStatementTask::Execute(conn, stmt.get());
+    });
 }
 
 template <class T>
@@ -498,7 +583,7 @@ void DatabaseWorkerPool<T>::DirectExecute(char const* sql)
         return;
 
     T* connection = GetFreeConnection();
-    connection->Execute(sql);
+    BasicStatementTask::Execute(connection, sql);
     connection->Unlock();
 }
 
@@ -506,7 +591,7 @@ template <class T>
 void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 {
     T* connection = GetFreeConnection();
-    connection->Execute(stmt);
+    PreparedStatementTask::Execute(connection, stmt);
     connection->Unlock();
 
     //! Delete proxy-class. Not needed anymore

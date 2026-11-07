@@ -18,6 +18,7 @@
 #include "vmapexport.h"
 #include "Errors.h"
 #include "model.h"
+#include "StringFormat.h"
 #include "wmo.h"
 #include "adtfile.h"
 #include "cascfile.h"
@@ -98,7 +99,10 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
     fwrite(&nofgroups, sizeof(uint32), 1, output);
-    fwrite(N, 4 * 3, 1, output);// rootwmoid, flags, groupid
+    fwrite(N, 4, 1, output);// RootWMOID
+    ModelFlags tcFlags = ModelFlags::IsM2;
+    fwrite(&tcFlags, sizeof(ModelFlags), 1, output);
+    fwrite(N, 4 * 2, 1, output);// mogpFlags, groupWMOID
     fwrite(&bounds, sizeof(AaBox3D), 1, output);//bbox, only needed for WMO currently
     fwrite(N, 4, 1, output);// liquidflags
     fwrite("GRP ", 4, 1, output);
@@ -155,34 +159,18 @@ Vec3D fixCoordSystem(Vec3D const& v)
 
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    char tempname[1036];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
-    FILE* input = fopen(tempname, "r+b");
-
-    if (!input)
-        return;
-
-    fseek(input, 8, SEEK_SET); // get the correct no of vertices
-    int nVertices;
-    int count = fread(&nVertices, sizeof(int), 1, input);
-    fclose(input);
-
-    if (count != 1 || nVertices == 0)
-        return;
-
-    // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
+    // scale factor - divide by 1024
     float sc = doodadDef.Scale / 1024.0f;
 
     Vec3D position = fixCoords(doodadDef.Position);
 
     uint8 nameSet = 0;// not used for models
-    uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0);
-    uint8 tcflags = MOD_M2;
+    uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0, false);
+    uint8 tcflags = 0;
     if (mapID != originalMapId)
         tcflags |= MOD_PARENT_SPAWN;
 
-    //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
-    fwrite(&mapID, sizeof(uint32), 1, pDirfile);
+    //write Flags, NameSet, UniqueId, Pos, Rot, Scale, name
     fwrite(&tcflags, sizeof(uint8), 1, pDirfile);
     fwrite(&nameSet, sizeof(uint8), 1, pDirfile);
     fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
@@ -243,39 +231,18 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
 
             WMO::MODD const& doodad = doodadData.Spawns[doodadIndex];
 
-            char ModelInstName[1024];
+            std::string ModelInstName;
             if (doodadData.Paths)
-                sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+                ModelInstName = &doodadData.Paths[doodad.NameIndex];
             else if (doodadData.FileDataIds)
-                sprintf(ModelInstName, "FILE%08X.xxx", doodadData.FileDataIds[doodad.NameIndex]);
+                ModelInstName = Trinity::StringFormat("FILE{:08X}.xxx", doodadData.FileDataIds[doodad.NameIndex]);
             else
                 ASSERT(false);
 
-            uint32 nlen = strlen(ModelInstName);
-            NormalizeFileName(ModelInstName, nlen);
-            if (nlen > 3)
-            {
-                char const* extension = &ModelInstName[nlen - 4];
-                if (!strcmp(extension, ".mdx") || !strcmp(extension, ".mdl"))
-                {
-                    ModelInstName[nlen - 2] = '2';
-                    ModelInstName[nlen - 1] = '\0';
-                }
-            }
-
-            char tempname[1036];
-            sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
-            FILE* input = fopen(tempname, "r+b");
-            if (!input)
+            if (!ExtractSingleModel(ModelInstName))
                 continue;
 
-            fseek(input, 8, SEEK_SET); // get the correct no of vertices
-            int nVertices;
-            int count = fread(&nVertices, sizeof(int), 1, input);
-            fclose(input);
-
-            if (count != 1 || nVertices == 0)
-                continue;
+            uint32 nlen = ModelInstName.length();
 
             ASSERT(doodadId < std::numeric_limits<uint16>::max());
             ++doodadId;
@@ -292,13 +259,12 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             rotation.y = G3D::toDegrees(rotation.y);
 
             uint8 nameSet = 0;     // not used for models
-            uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId);
-            uint8 tcflags = MOD_M2;
+            uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId, false);
+            uint8 tcflags = 0;
             if (mapID != originalMapId)
                 tcflags |= MOD_PARENT_SPAWN;
 
-            //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
-            fwrite(&mapID, sizeof(uint32), 1, pDirfile);
+            //write Flags, NameSet, UniqueId, Pos, Rot, Scale, name
             fwrite(&tcflags, sizeof(uint8), 1, pDirfile);
             fwrite(&nameSet, sizeof(uint8), 1, pDirfile);
             fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
@@ -306,7 +272,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             fwrite(&rotation, sizeof(Vec3D), 1, pDirfile);
             fwrite(&doodad.Scale, sizeof(float), 1, pDirfile);
             fwrite(&nlen, sizeof(uint32), 1, pDirfile);
-            fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
+            fwrite(ModelInstName.c_str(), sizeof(char), nlen, pDirfile);
 
             if (dirfileCache)
             {
@@ -329,7 +295,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
                 CACHE_WRITE(&rotation, sizeof(Vec3D), 1, cacheData);
                 CACHE_WRITE(&doodad.Scale, sizeof(float), 1, cacheData);
                 CACHE_WRITE(&nlen, sizeof(uint32), 1, cacheData);
-                CACHE_WRITE(ModelInstName, sizeof(char), nlen, cacheData);
+                CACHE_WRITE(ModelInstName.c_str(), sizeof(char), nlen, cacheData);
             }
         }
     };

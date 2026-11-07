@@ -1,55 +1,57 @@
 #ifndef EFSW_DIRWATCHERGENERIC_HPP
 #define EFSW_DIRWATCHERGENERIC_HPP
 
-#include <efsw/WatcherGeneric.hpp>
-#include <efsw/FileInfo.hpp>
 #include <efsw/DirectorySnapshot.hpp>
+#include <efsw/FileInfo.hpp>
+#include <efsw/WatcherGeneric.hpp>
 #include <map>
 
 namespace efsw {
 
-class DirWatcherGeneric
-{
-	public:
-		typedef std::map<std::string, DirWatcherGeneric*> DirWatchMap;
+class DirWatcherGeneric {
+  public:
+	typedef std::map<std::string, DirWatcherGeneric*> DirWatchMap;
 
-		DirWatcherGeneric *	Parent;
-		WatcherGeneric *	Watch;
-		DirectorySnapshot	DirSnap;
-		DirWatchMap			Directories;
-		bool				Recursive;
+	DirWatcherGeneric* Parent;
+	WatcherGeneric* Watch;
+	DirectorySnapshot DirSnap;
+	DirWatchMap Directories;
+	bool Recursive;
 
-		DirWatcherGeneric( DirWatcherGeneric * parent, WatcherGeneric * ws, const std::string& directory, bool recursive, bool reportNewFiles = false );
+	DirWatcherGeneric( DirWatcherGeneric* parent, WatcherGeneric* ws, const std::string& directory,
+					   bool recursive, bool reportNewFiles = false );
 
-		~DirWatcherGeneric();
+	~DirWatcherGeneric();
 
-		void watch( bool reportOwnChange = false );
+	void watch( bool reportOwnChange = false );
 
-		void watchDir( std::string& dir );
+	void watchDir( std::string& dir );
 
-		static bool isDir( const std::string& directory );
+	static bool isDir( const std::string& directory );
 
-		bool pathInWatches( std::string path );
+	bool pathInWatches( std::string path );
 
-		void addChilds( bool reportNewFiles = true );
+	void addChilds( bool reportNewFiles = true );
 
-		DirWatcherGeneric * findDirWatcher( std::string dir );
+	DirWatcherGeneric* findDirWatcher( std::string dir );
 
-		DirWatcherGeneric * findDirWatcherFast( std::string dir );
-	protected:
-		bool				Deleted;
+	DirWatcherGeneric* findDirWatcherFast( std::string dir );
 
-		DirWatcherGeneric * createDirectory( std::string newdir );
+  protected:
+	bool Deleted;
 
-		void removeDirectory( std::string dir );
+	DirWatcherGeneric* createDirectory( std::string newdir );
 
-		void moveDirectory( std::string oldDir, std::string newDir );
+	void removeDirectory( std::string dir );
 
-		void resetDirectory( std::string directory );
+	void moveDirectory( std::string oldDir, std::string newDir );
 
-		void handleAction( const std::string& filename, unsigned long action, std::string oldFilename = "");
+	void resetDirectory( std::string directory );
+
+	void handleAction( const std::string& filename, unsigned long action,
+					   std::string oldFilename = "" );
 };
 
-}
+} // namespace efsw
 
 #endif

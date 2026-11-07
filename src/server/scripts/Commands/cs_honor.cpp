@@ -37,7 +37,7 @@ class honor_commandscript : public CommandScript
 public:
     honor_commandscript() : CommandScript("honor_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable honorAddCommandTable =
         {
@@ -72,7 +72,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        target->RewardHonor(nullptr, 1, amount);
+        target->RewardHonor(nullptr, 1, amount, HonorGainSource::Spell);
         return true;
     }
 
@@ -91,7 +91,7 @@ public:
             if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
-        handler->GetSession()->GetPlayer()->RewardHonor(target, 1);
+        handler->GetSession()->GetPlayer()->RewardHonor(target, 1, -1, HonorGainSource::Kill);
         return true;
     }
 

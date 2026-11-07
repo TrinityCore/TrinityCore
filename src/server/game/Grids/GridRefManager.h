@@ -24,15 +24,32 @@ template<class OBJECT>
 class GridReference;
 
 template<class OBJECT>
-class GridRefManager : public RefManager<GridRefManager<OBJECT>, OBJECT>
+class GridRefManager : public RefManager<GridReference<OBJECT>>
 {
-    public:
-        typedef LinkedListHead::Iterator< GridReference<OBJECT> > iterator;
-
-        GridReference<OBJECT>* getFirst() { return (GridReference<OBJECT>*)RefManager<GridRefManager<OBJECT>, OBJECT>::getFirst(); }
-        GridReference<OBJECT>* getLast() { return (GridReference<OBJECT>*)RefManager<GridRefManager<OBJECT>, OBJECT>::getLast(); }
-
-        iterator begin() { return iterator(getFirst()); }
-        iterator end() { return iterator(nullptr); }
 };
+
+template <typename ObjectType>
+struct GridRefManagerContainer
+{
+    using Container = GridRefManager<ObjectType>;
+    using ValueType = ObjectType*;
+
+    static bool Insert(Container& container, ValueType object)
+    {
+        object->AddToGrid(container);
+        return true;
+    }
+
+    static bool Remove(Container& /*container*/, ValueType object)
+    {
+        object->RemoveFromGrid();
+        return true;
+    }
+
+    static std::size_t Size(Container const& container)
+    {
+        return container.size();
+    }
+};
+
 #endif

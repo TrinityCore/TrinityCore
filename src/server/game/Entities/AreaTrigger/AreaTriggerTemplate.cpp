@@ -16,108 +16,94 @@
  */
 
 #include "AreaTriggerTemplate.h"
-#include <G3D/Vector3.h>
 #include <algorithm>
-#include <cstring>
 #include <cmath>
 
-AreaTriggerScaleInfo::AreaTriggerScaleInfo()
+float AreaTriggerShapeInfo::Sphere::GetMaxSearchRadius() const
 {
-    memset(Data.Raw, 0, sizeof(Data.Raw));
+    return std::max(Radius, RadiusTarget);
 }
 
-AreaTriggerShapeInfo::AreaTriggerShapeInfo()
+bool AreaTriggerShapeInfo::Sphere::IsDynamic() const
 {
-    Type = AREATRIGGER_TYPE_MAX;
-    memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
+    return Radius != RadiusTarget;
+}
+
+float AreaTriggerShapeInfo::Box::GetMaxSearchRadius() const
+{
+    return std::sqrt(std::max(
+        Extents.Pos.GetPositionX() * Extents.Pos.GetPositionX() + Extents.Pos.GetPositionY() * Extents.Pos.GetPositionY(),
+        ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY()));
+}
+
+bool AreaTriggerShapeInfo::Box::IsDynamic() const
+{
+    return Extents != ExtentsTarget;
+}
+
+float AreaTriggerShapeInfo::Polygon::GetMaxSearchRadius() const
+{
+    Position center(0.0f, 0.0f);
+    float maxSearchRadius = 0.0f;
+
+    for (TaggedPosition<Position::XY> const& vertex : PolygonVertices)
+        maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+    for (TaggedPosition<Position::XY> const& vertex : PolygonVerticesTarget)
+        maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+    return maxSearchRadius;
+}
+
+bool AreaTriggerShapeInfo::Polygon::IsDynamic() const
+{
+    return Height != HeightTarget || PolygonVertices != PolygonVerticesTarget;
+}
+
+float AreaTriggerShapeInfo::Cylinder::GetMaxSearchRadius() const
+{
+    return std::max(Radius, RadiusTarget);
+}
+
+bool AreaTriggerShapeInfo::Cylinder::IsDynamic() const
+{
+    return Radius != RadiusTarget || Height != HeightTarget || LocationZOffset != LocationZOffsetTarget;
+}
+
+float AreaTriggerShapeInfo::Disk::GetMaxSearchRadius() const
+{
+    return std::max(OuterRadius, OuterRadiusTarget);
+}
+
+bool AreaTriggerShapeInfo::Disk::IsDynamic() const
+{
+    return InnerRadius != InnerRadiusTarget || OuterRadius != OuterRadiusTarget || Height != HeightTarget || LocationZOffset != LocationZOffsetTarget;
+}
+
+float AreaTriggerShapeInfo::BoundedPlane::GetMaxSearchRadius() const
+{
+    return std::sqrt(std::max(
+        ExtentsY * ExtentsY + ExtentsZ * ExtentsZ,
+        ExtentsTargetY * ExtentsTargetY + ExtentsTargetZ * ExtentsTargetZ));
+}
+
+bool AreaTriggerShapeInfo::BoundedPlane::IsDynamic() const
+{
+    return ExtentsY != ExtentsTargetY || ExtentsZ != ExtentsTargetZ;
 }
 
 float AreaTriggerShapeInfo::GetMaxSearchRadius() const
 {
-    switch (Type)
-    {
-        case AREATRIGGER_TYPE_SPHERE:
-            return std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
-        case AREATRIGGER_TYPE_BOX:
-            return std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1]);
-        case AREATRIGGER_TYPE_CYLINDER:
-            return std::max(CylinderDatas.Radius, CylinderDatas.RadiusTarget);
-        case AREATRIGGER_TYPE_DISK:
-            return std::max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
-        case AREATRIGGER_TYPE_BOUNDED_PLANE:
-            return std::sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4);
-        default:
-            break;
-    }
-
-    return 0.0f;
+    return std::visit([&](auto const& data) { return data.GetMaxSearchRadius(); }, Data);
 }
 
-AreaTriggerTemplate::AreaTriggerTemplate()
+bool AreaTriggerShapeInfo::IsDynamic() const
 {
-    Id = { 0, false };
-    Flags = 0;
+    return std::visit([&](auto const& data) { return data.IsDynamic(); }, Data);
 }
 
-AreaTriggerTemplate::~AreaTriggerTemplate()
-{
-}
+AreaTriggerTemplate::AreaTriggerTemplate() = default;
+AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
-AreaTriggerCreateProperties::AreaTriggerCreateProperties()
-{
-    Id = 0;
-
-    MoveCurveId = 0;
-    ScaleCurveId = 0;
-    MorphCurveId = 0;
-    FacingCurveId = 0;
-
-    AnimId = 0;
-    AnimKitId = 0;
-
-    DecalPropertiesId = 0;
-
-    TimeToTarget = 0;
-    TimeToTargetScale = 0;
-
-    // legacy code from before it was known what each curve field does
-    // wtf? thats not how you pack curve data
-    float tmp = 1.0000001f;
-    memcpy(&ExtraScale.Data.Raw[5], &tmp, sizeof(tmp));
-    // also OverrideActive does nothing on ExtraScale
-    ExtraScale.Data.Structured.OverrideActive = 1;
-
-    Template = nullptr;
-
-    ScriptId = 0;
-}
-
-AreaTriggerCreateProperties::~AreaTriggerCreateProperties()
-{
-}
-
-bool AreaTriggerCreateProperties::HasSplines() const
-{
-    return SplinePoints.size() >= 2;
-}
-
-float AreaTriggerCreateProperties::GetMaxSearchRadius() const
-{
-    if (Shape.Type == AREATRIGGER_TYPE_POLYGON)
-    {
-        Position center(0.0f, 0.0f);
-        float maxSearchRadius = 0.0f;
-
-        for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-        {
-            float pointDist = center.GetExactDist2d(vertice);
-
-            if (pointDist > maxSearchRadius)
-                maxSearchRadius = pointDist;
-        }
-
-        return maxSearchRadius;
-    }
-
-    return Shape.GetMaxSearchRadius();
-}
+AreaTriggerCreateProperties::AreaTriggerCreateProperties() = default;
+AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;

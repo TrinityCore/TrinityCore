@@ -26,7 +26,7 @@
 struct CreatureData;
 struct SummonPropertiesEntry;
 
-class TC_GAME_API Transport : public GameObject, public TransportBase
+class TC_GAME_API Transport final : public GameObject, public TransportBase
 {
         friend Transport* TransportMgr::CreateTransport(uint32, Map*, ObjectGuid::LowType, uint8, uint32, uint32);
 
@@ -43,7 +43,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
-        void AddPassenger(WorldObject* passenger) override;
+        void AddPassenger(WorldObject* passenger, Position const& offset) override;
         Transport* RemovePassenger(WorldObject* passenger) override;
         PassengerSet const& GetPassengers() const { return _passengers; }
 
@@ -66,29 +66,25 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         *
         * @return Summoned creature.
         */
-        TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
+        TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = nullptr, Milliseconds duration = 0ms, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
 
         ObjectGuid GetTransportGUID() const override { return GetGUID(); }
 
         float GetTransportOrientation() const override { return GetOrientation(); }
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const override
-        {
-            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
-        }
+        Position GetPositionWithOffset(Position const& offset) const override { return Position::GetPositionWithOffset(offset); }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const override
-        {
-            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
-        }
+        Position GetPositionOffsetTo(Position const& endPos) const override { return Position::GetPositionOffsetTo(endPos); }
 
         int32 GetMapIdForSpawning() const override;
 
         uint32 GetTransportPeriod() const { return m_gameObjectData->Level; }
         void SetPeriod(uint32 period) { SetLevel(period); }
         uint32 GetTimer() const { return _pathProgress; }
+        Optional<uint32> GetNextStopTimestamp() const { return _requestStopTimestamp; }
+        bool IsStopped() const { return HasDynamicFlag(GO_DYNFLAG_LO_STOPPED); }
 
         void UpdatePosition(float x, float y, float z, float o);
 
@@ -109,7 +105,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
     private:
         bool TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o);
-        void TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o);
+        void TeleportPassengersAndHideTransport(uint32 newMapid);
         void UpdatePassengerPositions(PassengerSet const& passengers);
 
         TransportTemplate const* _transportInfo;

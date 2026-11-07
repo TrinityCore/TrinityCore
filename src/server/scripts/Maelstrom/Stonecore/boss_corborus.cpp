@@ -170,7 +170,7 @@ class boss_corborus : public CreatureScript
                             // Face Corborus to players and set new home position
                             me->SetFacingTo(3.176499f);
                             me->SetHomePosition(1154.55f, 878.843f, 284.963f, 3.176499f);
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
 
                             // Despawn Millhouse and all trash
                             instance->SetData(DATA_MILLHOUSE_EVENT_DESPAWN, 0);
@@ -192,7 +192,7 @@ class boss_corborus : public CreatureScript
                             events.RescheduleEvent(EVENT_SUBMERGE, 100s);
 
                             me->SetReactState(REACT_PASSIVE);
-                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(true);
                             DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                             me->AttackStop();
 
@@ -217,7 +217,7 @@ class boss_corborus : public CreatureScript
                             break;
                         case EVENT_EMERGE:
                             me->RemoveAllAuras();
-                            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(false);
                             DoCast(me, SPELL_EMERGE);
                             events.ScheduleEvent(EVENT_ATTACK, 2500ms);
                             break;
@@ -228,8 +228,6 @@ class boss_corborus : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void JustSummoned(Creature* summon) override
@@ -303,8 +301,6 @@ class npc_rock_borer : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

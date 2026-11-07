@@ -33,8 +33,6 @@ enum Spells
     SPELL_TELEPORT_DARNASSUS                                = 9268
 };
 
-const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
-
 struct go_blackfathom_altar : public GameObjectAI
 {
     go_blackfathom_altar(GameObject* go) : GameObjectAI(go) { }
@@ -151,8 +149,6 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -209,12 +205,10 @@ public:
 
     class spell_subjugator_korul_darkness_calls_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_subjugator_korul_darkness_calls_SpellScript);
-
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Unit* hitUnit = GetHitUnit())
-                GetCaster()->CastSpell(hitUnit, uint32(GetEffectValue()), true);
+                GetCaster()->CastSpell(hitUnit, uint32(GetEffectValueAsInt()), true);
         }
 
         void Register() override

@@ -28,7 +28,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 
-enum Spells
+enum GeneralBjarngrimSpells
 {
     // General Bjarngrim
     SPELL_CHARGE_UP                     = 52098,
@@ -57,7 +57,7 @@ enum Spells
     SPELL_CHARGE_UP_DUMMY               = 56458
 };
 
-enum Events
+enum GeneralBjarngrimEvents
 {
     // General Bjarngrim
     EVENT_CHARGE_UP = 1,
@@ -75,24 +75,24 @@ enum Events
     EVENT_CHECK_BJARNGRIMS_HEALTH
 };
 
-enum EventGroups
+enum GeneralBjarngrimEventGroups
 {
     EVENT_GROUP_DEFENSIVE_STANCE = 1,
     EVENT_GROUP_BERSERKER_STANCE,
     EVENT_GROUP_BATTLE_STANCE
 };
 
-enum Actions
+enum GeneralBjarngrimActions
 {
     ACTION_SWITCH_STANCE = 0
 };
 
-enum Phases
+enum GeneralBjarngrimPhases
 {
     PHASE_OUT_OF_COMBAT = 1
 };
 
-enum Texts
+enum GeneralBjarngrimTexts
 {
     // General Bjarngrim
     SAY_AGGRO                       = 0,
@@ -106,14 +106,14 @@ enum Texts
     SAY_DEATH                       = 8
 };
 
-enum VirtualItemIds
+enum GeneralBjarngrimVirtualItemIds
 {
     ITEM_ID_AXE         = 43625,
     ITEM_ID_SHIELD      = 39384,
     ITEM_ID_GREATAXE    = 43623
 };
 
-enum Stances
+enum GeneralBjarngrimStances
 {
     STANCE_DEFENSIVE = 0,
     STANCE_BERSERKER = 1,
@@ -122,7 +122,7 @@ enum Stances
     MAX_STANCE
 };
 
-// These values must be sync with the data in waypoint_data.
+// These values must be sync with the data in waypoint_path_node.
 // Each of these points is going to trigger a Charge Up sequence
 static std::array<uint8, 2> const ChargeUpWaypointIds = { 7, 15 };
 // Each of these points is going to remove the Tempoary Electrical Charge buff from General Bjarngrim
@@ -158,7 +158,7 @@ static std::array<StanceInfo, MAX_STANCE> const StanceData =
 
 struct boss_general_bjarngrim : public BossAI
 {
-    boss_general_bjarngrim(Creature* creature) : BossAI(creature, DATA_GENERAL_BJARNGRIM), _currentStanceId(STANCE_BATTLE) { }
+    boss_general_bjarngrim(Creature* creature) : BossAI(creature, BOSS_GENERAL_BJARNGRIM), _currentStanceId(STANCE_BATTLE) { }
 
     void JustAppeared() override
     {
@@ -308,8 +308,6 @@ struct boss_general_bjarngrim : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
  private:
@@ -357,7 +355,7 @@ struct npc_bjarngrim_stormforged_lieutenant : public ScriptedAI
                     _events.Repeat(22s);
                     break;
                 case EVENT_CHECK_BJARNGRIMS_HEALTH:
-                    if (Creature* bjarngrim = _instance->GetCreature(DATA_GENERAL_BJARNGRIM))
+                    if (Creature* bjarngrim = _instance->GetCreature(BOSS_GENERAL_BJARNGRIM))
                         if (bjarngrim->GetHealthPct() <= 75.f) // @todo: validate
                             DoCast(bjarngrim, SPELL_RENEW_STEEL);
 
@@ -367,8 +365,6 @@ struct npc_bjarngrim_stormforged_lieutenant : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -380,8 +376,6 @@ private:
 // 53792 - Battle Stance
 class spell_bjarngrim_stance_dummy : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_stance_dummy);
-
 public:
     spell_bjarngrim_stance_dummy(uint8 stanceId) : AuraScript(), _stanceId(stanceId) { }
 
@@ -456,8 +450,6 @@ private:
 // 52098 - Charge Up
 class spell_bjarngrim_charge_up : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_charge_up);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TEMPOARY_ELECTRICAL_CHARGE });
@@ -478,8 +470,6 @@ class spell_bjarngrim_charge_up : public AuraScript
 // 59085 - Arc Weld
 class spell_bjarngrim_arc_weld : public AuraScript
 {
-    PrepareAuraScript(spell_bjarngrim_arc_weld);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ARC_WELD_DAMAGE });

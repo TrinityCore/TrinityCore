@@ -52,7 +52,7 @@ class boss_daakara : public CreatureScript
 
         struct boss_daakaraAI : public BossAI
         {
-            boss_daakaraAI(Creature* creature) : BossAI(creature, DATA_DAAKARA) { }
+            boss_daakaraAI(Creature* creature) : BossAI(creature, BOSS_DAAKARA) { }
 
             void Reset() override
             {
@@ -96,8 +96,6 @@ class boss_daakara : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

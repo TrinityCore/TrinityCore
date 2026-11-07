@@ -22,7 +22,7 @@
 #include <functional>
 
 class WorldObject;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 template<typename First, typename Second, typename... Rest>
 inline First const& RAND(First const& first, Second const& second, Rest const&... rest)
@@ -75,7 +75,7 @@ enum SelectEffect : uint8
 struct AISpellInfoType
 {
     AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT)
-        , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f){ }
+        , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f), Targets(0), Effects(0) { }
     AITarget target;
     AICondition condition;
     Milliseconds cooldown;

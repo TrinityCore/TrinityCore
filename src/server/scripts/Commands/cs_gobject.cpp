@@ -58,7 +58,7 @@ class gobject_commandscript : public CommandScript
 public:
     gobject_commandscript() : CommandScript("gobject_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable gobjectCommandTable =
         {
@@ -113,7 +113,7 @@ public:
         GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
         if (!objectInfo)
         {
-            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -122,7 +122,7 @@ public:
         {
             // report to DB errors log as in loading case
             TC_LOG_ERROR("sql.sql", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
-            handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -130,11 +130,9 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY);
+        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromOrientation(player->GetOrientation()), InitialPhaseShift(player), 255, GO_STATE_READY);
         if (!object)
             return false;
-
-        PhasingHandler::InheritPhaseShift(object, player);
 
         if (spawnTimeSecs)
             object->SetRespawnTime(*spawnTimeSecs);
@@ -152,10 +150,9 @@ public:
         if (!object)
             return false;
 
-        /// @todo is it really necessary to add both the real and DB table guid here ?
-        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(spawnId)));
+        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(object->GetGameObjectData()));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), std::to_string(spawnId).c_str(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), std::to_string(spawnId).c_str(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -167,12 +164,12 @@ public:
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
-            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        player->SummonGameObject(objectId, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), spawntm);
+        player->SummonGameObject(objectId, *player, QuaternionData::fromOrientation(player->GetOrientation()), spawntm);
 
         return true;
     }
@@ -226,7 +223,7 @@ public:
                 "(POW(position_x - {}, 2) + POW(position_y - {}, 2) + POW(position_z - {}, 2)) AS order_ FROM gameobject "
                 "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{}' {} ORDER BY order_ ASC LIMIT 10",
                 handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY(), handler->GetSession()->GetPlayer()->GetPositionZ(),
-                handler->GetSession()->GetPlayer()->GetMapId(), eventFilter.str());
+                handler->GetSession()->GetPlayer()->GetMapId(), eventFilter.view());
         }
 
         if (!result)
@@ -303,7 +300,7 @@ public:
                 Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
                 if (!owner || !ownerGuid.IsPlayer())
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), spawnId);
+                    handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, std::to_string(*spawnId).c_str(), ownerGuid.ToString().c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }

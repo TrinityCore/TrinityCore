@@ -47,6 +47,7 @@ static HANDLE inline SocketToHandle(SOCKET sock)
 // Guarantees that there is zero terminator after the response
 char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, CASC_MIME_RESPONSE & MimeResponse)
 {
+    char * new_server_response = NULL;
     char * server_response = NULL;
     size_t total_received = 0;
     size_t buffer_length = BUFFER_INITIAL_SIZE;
@@ -83,12 +84,16 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, CA
             // Reallocate the buffer size, if needed
             if(total_received == buffer_length)
             {
-                // Reallocate the buffer
-                if((server_response = CASC_REALLOC(server_response, buffer_length + buffer_delta + 1)) == NULL)
+                // Reallocate the buffer. Note that if this fails, the old buffer remains valid
+                if((new_server_response = CASC_REALLOC(server_response, buffer_length + buffer_delta + 1)) == NULL)
                 {
                     dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+                    CASC_FREE(server_response);
                     break;
                 }
+
+                // Setup the new buffer
+                server_response = new_server_response;
                 buffer_length += buffer_delta;
                 buffer_delta = BUFFER_INITIAL_SIZE;
             }

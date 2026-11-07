@@ -21,28 +21,29 @@
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
-enum Spells
+enum CyanigosaTexts
 {
-    SPELL_SUMMON_PLAYER                         = 21150,
-    SPELL_ARCANE_VACUUM                         = 58694,
-    SPELL_BLIZZARD                              = 58693,
-    SPELL_MANA_DESTRUCTION                      = 59374,
-    SPELL_TAIL_SWEEP                            = 58690,
-    SPELL_UNCONTROLLABLE_ENERGY                 = 58688,
-    SPELL_TRANSFORM                             = 58668
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_DEATH                      = 2,
+    SAY_SPAWN                      = 3,
+    SAY_DISRUPTION                 = 4,
+    SAY_BREATH_ATTACK              = 5,
+    SAY_SPECIAL_ATTACK             = 6
 };
 
-enum Yells
+enum CyanigosaSpells
 {
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    SAY_SPAWN                                   = 3,
-    SAY_DISRUPTION                              = 4,
-    SAY_BREATH_ATTACK                           = 5,
-    SAY_SPECIAL_ATTACK                          = 6
+    SPELL_SUMMON_PLAYER            = 21150,
+    SPELL_ARCANE_VACUUM            = 58694,
+    SPELL_BLIZZARD                 = 58693,
+    SPELL_MANA_DESTRUCTION         = 59374,
+    SPELL_TAIL_SWEEP               = 58690,
+    SPELL_UNCONTROLLABLE_ENERGY    = 58688,
+    SPELL_TRANSFORM                = 58668
 };
 
+// 31134 - Cyanigosa
 struct boss_cyanigosa : public BossAI
 {
     boss_cyanigosa(Creature* creature) : BossAI(creature, DATA_CYANIGOSA) { }
@@ -72,32 +73,31 @@ struct boss_cyanigosa : public BossAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff,
-            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff);
     }
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(10s, [this](TaskContext& task)
         {
             DoCastAOE(SPELL_ARCANE_VACUUM);
             task.Repeat();
         });
 
-        scheduler.Schedule(Seconds(15), [this](TaskContext task)
+        scheduler.Schedule(15s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                 DoCast(target, SPELL_BLIZZARD);
             task.Repeat();
         });
 
-        scheduler.Schedule(Seconds(20), [this](TaskContext task)
+        scheduler.Schedule(20s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_TAIL_SWEEP);
             task.Repeat();
         });
 
-        scheduler.Schedule(Seconds(25), [this](TaskContext task)
+        scheduler.Schedule(25s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
             task.Repeat();
@@ -105,13 +105,32 @@ struct boss_cyanigosa : public BossAI
 
         if (IsHeroic())
         {
-            scheduler.Schedule(Seconds(30), [this](TaskContext task)
+            scheduler.Schedule(30s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
                     DoCast(target, SPELL_MANA_DESTRUCTION);
                 task.Repeat();
             });
         }
+    }
+};
+
+// 58694 - Arcane Vacuum
+class spell_cyanigosa_arcane_vacuum : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_PLAYER });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_PLAYER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cyanigosa_arcane_vacuum::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -133,30 +152,9 @@ class achievement_defenseless : public AchievementCriteriaScript
         }
 };
 
-// 58694 - Arcane Vacuum
-class spell_cyanigosa_arcane_vacuum : public SpellScript
-{
-    PrepareSpellScript(spell_cyanigosa_arcane_vacuum);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_PLAYER });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_PLAYER, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_cyanigosa_arcane_vacuum::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 void AddSC_boss_cyanigosa()
 {
     RegisterVioletHoldCreatureAI(boss_cyanigosa);
-    new achievement_defenseless();
     RegisterSpellScript(spell_cyanigosa_arcane_vacuum);
+    new achievement_defenseless();
 }

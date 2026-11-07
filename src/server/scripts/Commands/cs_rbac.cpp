@@ -29,7 +29,7 @@ EndScriptData */
 #include "Config.h"
 #include "Language.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -54,7 +54,7 @@ class rbac_commandscript : public CommandScript
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable rbacAccountCommandTable =
         {
@@ -83,7 +83,8 @@ public:
         if (account.IsConnected())
             return { account.GetConnectedSession()->GetRBACData(), false };
 
-        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realm.Id.Realm, AccountMgr::GetSecurity(account.GetID(), realm.Id.Realm));
+        uint32 realmId = sRealmList->GetCurrentRealmId().Realm;
+        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realmId, AccountMgr::GetSecurity(account.GetID(), realmId));
         rbac->LoadFromDB();
 
         return { rbac, true };

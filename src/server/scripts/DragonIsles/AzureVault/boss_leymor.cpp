@@ -91,42 +91,31 @@ enum LeymorNpcs
     NPC_LEYLINE_SPROUTS                 = 190509
 };
 
-enum LeymorActions
-{
-    ACTION_ARCANE_TENDER_DEATH          = 1
-};
-
 // 186644 - Leymor
 struct boss_leymor : public BossAI
 {
-    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR), _killedArcaneTender(0) { }
+    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR) { }
 
     void JustAppeared() override
     {
         if (instance->GetData(DATA_LEYMOR_INTRO_DONE))
             return;
 
-        me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->SetImmuneToAll(true);
         DoCastSelf(SPELL_STASIS);
     }
 
     void DoAction(int32 action) override
     {
-        if (action == ACTION_ARCANE_TENDER_DEATH)
+        if (action == ACTION_FINISH_LEYMOR_INTRO)
         {
-            _killedArcaneTender++;
-            if (_killedArcaneTender >= 3)
+            scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
             {
-                instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
-
-                scheduler.Schedule(1s, [this](TaskContext /*context*/)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_STASIS);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-                    DoCastSelf(SPELL_ARCANE_ERUPTION);
-                    Talk(SAY_ANNOUNCE_AWAKEN);
-                });
-            }
+                me->RemoveAurasDueToSpell(SPELL_STASIS);
+                me->SetImmuneToAll(false);
+                DoCastSelf(SPELL_ARCANE_ERUPTION);
+                Talk(SAY_ANNOUNCE_AWAKEN);
+            });
         }
     }
 
@@ -149,7 +138,7 @@ struct boss_leymor : public BossAI
     {
         if (spell->Id == SPELL_CONSUMING_STOMP)
             DoCastAOE(SPELL_CONSUMING_STOMP_DAMAGE, true);
-    };
+    }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -205,30 +194,13 @@ struct boss_leymor : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
-
-private:
-    int32 _killedArcaneTender;
 };
 
 // 191164 - Arcane Tender
 struct npc_arcane_tender : public ScriptedAI
 {
     npc_arcane_tender(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        Creature* leymor = me->GetInstanceScript()->GetCreature(DATA_LEYMOR);
-        if (!leymor)
-            return;
-
-        if (!leymor->IsAIEnabled())
-            return;
-
-        leymor->AI()->DoAction(ACTION_ARCANE_TENDER_DEATH);
-    }
 
     void JustAppeared() override
     {
@@ -284,8 +256,6 @@ struct npc_arcane_tender : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -317,7 +287,7 @@ struct npc_ley_line_sprouts : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
+        if (IsMythic() || IsMythicPlus())
             DoCastAOE(SPELL_VOLATILE_SAPLING, true);
 
         if (TempSummon* tempSummon = me->ToTempSummon())
@@ -385,8 +355,6 @@ static Position const LeyLineSproutGroupOrigin[] =
 // 374364 - Ley-Line Sprouts
 class spell_ley_line_sprouts : public SpellScript
 {
-    PrepareSpellScript(spell_ley_line_sprouts);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_LEY_LINE_SPROUTS_MISSILE });
@@ -410,8 +378,6 @@ class spell_ley_line_sprouts : public SpellScript
 // 375732 - Stasis Ritual
 class spell_stasis_ritual : public AuraScript
 {
-    PrepareAuraScript(spell_stasis_ritual);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_STASIS_RITUAL_MISSILE });
@@ -432,8 +398,6 @@ class spell_stasis_ritual : public AuraScript
 // 375652 - Wild Eruption
 class spell_wild_eruption : public SpellScript
 {
-    PrepareSpellScript(spell_wild_eruption);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WILD_ERUPTION_MISSILE });
@@ -463,7 +427,7 @@ struct at_leymor_arcane_eruption : AreaTriggerAI
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -20.0f, MovementForceType::Gravity);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsPlayer())
             return;
@@ -475,8 +439,6 @@ struct at_leymor_arcane_eruption : AreaTriggerAI
 // 374567 - Explosive Brand
 class spell_explosive_brand : public SpellScript
 {
-    PrepareSpellScript(spell_explosive_brand);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_BRAND_KNOCKBACK });
@@ -496,8 +458,6 @@ class spell_explosive_brand : public SpellScript
 // 374567 - Explosive Brand
 class spell_explosive_brand_AuraScript : public AuraScript
 {
-    PrepareAuraScript(spell_explosive_brand_AuraScript);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_BRAND_DAMAGE });
@@ -521,8 +481,6 @@ class spell_explosive_brand_AuraScript : public AuraScript
 // 374720 - Consuming Stomp
 class spell_consuming_stomp : public AuraScript
 {
-    PrepareAuraScript(spell_consuming_stomp);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->KillSelf();
@@ -537,8 +495,6 @@ class spell_consuming_stomp : public AuraScript
 // 386660 - Erupting Fissure
 class spell_erupting_fissure : public SpellScript
 {
-    PrepareSpellScript(spell_erupting_fissure);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ERUPTING_FISSURE_SPROUT_SELECTOR });
@@ -558,8 +514,6 @@ class spell_erupting_fissure : public SpellScript
 // 375591 - Sappy Burst
 class spell_sappy_burst : public SpellScript
 {
-    PrepareSpellScript(spell_sappy_burst);
-
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->KillSelf();

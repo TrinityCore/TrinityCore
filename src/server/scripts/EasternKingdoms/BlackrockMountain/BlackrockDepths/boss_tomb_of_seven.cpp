@@ -225,8 +225,6 @@ class boss_doomrel : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override

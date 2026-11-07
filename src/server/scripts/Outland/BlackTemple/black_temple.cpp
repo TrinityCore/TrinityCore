@@ -22,7 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Spells
+enum BlackTempleSpells
 {
     // Wrathbone Flayer
     SPELL_CLEAVE                = 15496,
@@ -37,13 +37,13 @@ enum Spells
     SPELL_SHADOW_INFERNO_DAMAGE = 39646
 };
 
-enum Creatures
+enum BlackTempleCreatures
 {
     NPC_BLOOD_MAGE               = 22945,
     NPC_DEATHSHAPER              = 22882
 };
 
-enum Events
+enum BlackTempleEvents
 {
     // Wrathbone Flayer
     EVENT_GET_CHANNELERS = 1,
@@ -52,11 +52,12 @@ enum Events
     EVENT_IGNORED
 };
 
-enum Misc
+enum BlackTempleMisc
 {
     GROUP_OUT_OF_COMBAT = 1
 };
 
+// 22953 - Wrathbone Flayer
 struct npc_wrathbone_flayer : public ScriptedAI
 {
     npc_wrathbone_flayer(Creature* creature) : ScriptedAI(creature)
@@ -135,7 +136,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
                             if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
                                 deathshaper->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
-                        _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12s);
+                        _events.Repeat(12s);
 
                         break;
                     }
@@ -156,18 +157,17 @@ struct npc_wrathbone_flayer : public ScriptedAI
             {
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    _events.ScheduleEvent(EVENT_CLEAVE, 1s, 2s);
+                    _events.Repeat(1s, 2s);
                     break;
                 case EVENT_IGNORED:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_IGNORED);
-                    _events.ScheduleEvent(EVENT_IGNORED, 10s);
+                    _events.Repeat(10s);
                     break;
                 default:
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -178,6 +178,7 @@ private:
     bool _enteredCombat;
 };
 
+// 23398 - Angered Soul Fragment
 struct npc_angered_soul_fragment : public ScriptedAI
 {
     npc_angered_soul_fragment(Creature* creature) : ScriptedAI(creature) { }
@@ -186,18 +187,18 @@ struct npc_angered_soul_fragment : public ScriptedAI
     {
         _scheduler.CancelAll();
 
-        _scheduler.Schedule(Seconds(1), GROUP_OUT_OF_COMBAT, [this](TaskContext invi)
+        _scheduler.Schedule(1s, GROUP_OUT_OF_COMBAT, [this](TaskContext& invi)
         {
             DoCastSelf(SPELL_GREATER_INVISIBILITY);
 
             /* Workaround - On Retail creature appear and "vanish" again periodically, but i cant find packets
             with UPDATE_AURA on sniffs about it */
-            _scheduler.Schedule(Seconds(5), Seconds(10), GROUP_OUT_OF_COMBAT, [this](TaskContext /*context*/)
+            _scheduler.Schedule(5s, 10s, GROUP_OUT_OF_COMBAT, [this](TaskContext const& /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
             });
 
-            invi.Repeat(Seconds(15), Seconds(25));
+            invi.Repeat(15s, 25s);
         });
     }
 
@@ -206,13 +207,13 @@ struct npc_angered_soul_fragment : public ScriptedAI
         me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
 
         _scheduler.CancelGroup(GROUP_OUT_OF_COMBAT);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext anger)
+        _scheduler.Schedule(1s, [this](TaskContext& anger)
         {
             Unit* target = me->GetVictim();
             if (target && me->IsWithinMeleeRange(target))
                 DoCastSelf(SPELL_ANGER);
             else
-                anger.Repeat(Seconds(1));
+                anger.Repeat(1s);
         });
     }
 
@@ -225,8 +226,6 @@ struct npc_angered_soul_fragment : public ScriptedAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -236,8 +235,6 @@ private:
 // 41986 - Anger
 class spell_soul_fragment_anger : public SpellScript
 {
-    PrepareSpellScript(spell_soul_fragment_anger);
-
     void HandleKill()
     {
         if (Creature* caster = GetCaster()->ToCreature())
@@ -253,8 +250,6 @@ class spell_soul_fragment_anger : public SpellScript
 // 39645 - Shadow Inferno
 class spell_illidari_nightlord_shadow_inferno : public AuraScript
 {
-    PrepareAuraScript(spell_illidari_nightlord_shadow_inferno);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOW_INFERNO_DAMAGE });
@@ -263,7 +258,7 @@ class spell_illidari_nightlord_shadow_inferno : public AuraScript
     void OnPeriodic(AuraEffect const* aurEffect)
     {
         PreventDefaultAction();
-        int32 bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
+        SpellEffectValue bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
         GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SHADOW_INFERNO_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
     }
 

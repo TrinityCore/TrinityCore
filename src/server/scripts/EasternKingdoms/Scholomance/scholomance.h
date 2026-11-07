@@ -23,23 +23,30 @@
 #define ScholomanceScriptName "instance_scholomance"
 #define DataHeader "SC_old"
 
-uint32 const EncounterCount             = 8;
-
 enum SCDataTypes
 {
-    DATA_DOCTORTHEOLENKRASTINOV         = 0,
-    DATA_INSTRUCTORMALICIA              = 1,
-    DATA_LADYILLUCIABAROV               = 2,
-    DATA_LORDALEXEIBAROV                = 3,
-    DATA_LOREKEEPERPOLKELT              = 4,
-    DATA_THERAVENIAN                    = 5,
-    DATA_DARKMASTERGANDLING             = 6,
-    DATA_KIRTONOS                       = 7
+    DATA_DOCTOR_THEOLEN_KRASTINOV       = 0,
+    DATA_INSTRUCTOR_MALICIA             = 1,
+    DATA_LADY_ILLUCIA_BAROV             = 2,
+    DATA_LORD_ALEXEI_BAROV              = 3,
+    DATA_LOREKEEPER_POLKELT             = 4,
+    DATA_THE_RAVENIAN                   = 5,
+    DATA_DARKMASTER_GANDLING            = 6,
+    DATA_KIRTONOS                       = 7,
+    DATA_JANDICE_BAROV                  = 8,
+    DATA_RATTLEGORE                     = 9,
+    DATA_MARDUK_BLACKPOOL               = 10,
+    DATA_VECTUS                         = 11,
+    DATA_RAS_FROSTWHISPER               = 12,
+
+    MAX_ENCOUNTER
 };
 
 enum SCCreatureIds
 {
     NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_MARDUK_BLACKPOOL                = 10433,
+    NPC_RATTLEGORE                      = 11622,
     NPC_BONE_MINION                     = 16119
 };
 
@@ -61,5 +68,8 @@ inline AI* GetScholomanceAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ScholomanceScriptName);
 }
+
+#define RegisterScholomanceCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetScholomanceAI)
+#define RegisterScholomanceGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetScholomanceAI)
 
 #endif

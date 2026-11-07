@@ -27,7 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum VolkhanTexts
 {
     // Volkhan
     SAY_AGGRO                       = 0,
@@ -39,7 +39,7 @@ enum Texts
     SAY_SLAY                        = 6
 };
 
-enum Spells
+enum VolkhanSpells
 {
     // Volkhan
     SPELL_TEMPER_SUMMON_OBJECT              = 52661,
@@ -63,7 +63,7 @@ enum Spells
 
 #define SPELL_SHATTER DUNGEON_MODE<uint32>(52429,59527)
 
-enum Events
+enum VolkhanEvents
 {
     // Volkhan
     EVENT_TEMPER_INTRO = 1,
@@ -76,7 +76,7 @@ enum Events
     EVENT_IMMOLATION_STRIKE
 };
 
-enum Actions
+enum VolkhanActions
 {
     // Volkhan
     ACTION_SHATTER_GOLEMS   = 0,
@@ -86,25 +86,25 @@ enum Actions
     ACTION_SHATTER          = 0
 };
 
-enum Phases
+enum VolkhanPhases
 {
     // Volkhan
     PHASE_INTRO = 1,
     PHASE_COMBAT
 };
 
-enum MovePoints
+enum VolkhanMovePoints
 {
     // Volkhan
     POINT_ID_ANVIL = 0
 };
 
-enum Misc
+enum VolkhanMisc
 {
     ENTRY_BRITTLE_GOLEM = 28681
 };
 
-enum Data
+enum VolkhanData
 {
     DATA_SHATTER_RESISTANT = 0
 };
@@ -113,7 +113,7 @@ static Position const AnvilPosition = { 1333.5901f, -103.67797f, 56.7177f };
 
 struct boss_volkhan : public BossAI
 {
-    boss_volkhan(Creature* creature) : BossAI(creature, DATA_VOLKHAN),
+    boss_volkhan(Creature* creature) : BossAI(creature, BOSS_VOLKHAN),
         _shatteredGolems(false), _temperingGolems(false), _temperCycles(0), _shatteredGolemsCount(0) { }
 
     void JustAppeared() override
@@ -283,8 +283,6 @@ struct boss_volkhan : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -366,8 +364,6 @@ struct npc_volkhan_molten_golem : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -377,8 +373,6 @@ private:
 // 52654, 52238 - Temper
 class spell_volkhan_temper_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_volkhan_temper_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TEMPER_DUMMY_COMBAT });
@@ -412,8 +406,6 @@ class spell_volkhan_temper_dummy : public SpellScript
 // 52441 - Cool Down
 class spell_volkhan_cool_down : public AuraScript
 {
-    PrepareAuraScript(spell_volkhan_cool_down);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_COOL_DOWN_SLOW, SPELL_COSMETIC_STUN_IMMUNE_FREEZE_AMNIM });
@@ -446,8 +438,6 @@ class spell_volkhan_cool_down : public AuraScript
 // 59123 Cosmetic - Stun + Immune Permanent (Freeze Anim)
 class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
 {
-    PrepareAuraScript(spell_volkhan_cosmetic_stun_immune_permanent);
-
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
@@ -463,8 +453,6 @@ class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
 // 52237, 59529 - Shattering Stomp
 class spell_volkhan_shattering_stomp : public SpellScript
 {
-    PrepareSpellScript(spell_volkhan_shattering_stomp);
-
     void HandleShattering()
     {
         if (Creature* caster = GetCaster()->ToCreature())

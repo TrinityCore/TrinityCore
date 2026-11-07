@@ -25,6 +25,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 QuestObjectiveCriteriaMgr::QuestObjectiveCriteriaMgr(Player* owner) : _owner(owner)
 {
@@ -37,8 +38,8 @@ QuestObjectiveCriteriaMgr::~QuestObjectiveCriteriaMgr()
 void QuestObjectiveCriteriaMgr::CheckAllQuestObjectiveCriteria(Player* referencePlayer)
 {
     // suppress sending packets
-    for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
-        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
+    for (CriteriaType criteriaType : CriteriaMgr::GetRetroactivelyUpdateableCriteriaTypes())
+        UpdateCriteria(criteriaType, 0, 0, 0, nullptr, referencePlayer);
 }
 
 void QuestObjectiveCriteriaMgr::Reset()
@@ -164,47 +165,23 @@ void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction trans)
     }
 }
 
-void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete)
+void QuestObjectiveCriteriaMgr::ResetCriteriaTree(QuestObjective const* questObjective)
 {
-    TC_LOG_DEBUG("criteria.quest", "QuestObjectiveCriteriaMgr::ResetCriteria({}, {}, {})", uint32(failEvent), failAsset, evenIfCriteriaComplete ? "true" : "false");
+    _completedObjectives.erase(questObjective->ID);
 
-    // disable for gamemasters with GM-mode enabled
-    if (_owner->IsGameMaster())
-        return;
-
-    if (CriteriaList const* playerCriteriaList = sCriteriaMgr->GetCriteriaByFailEvent(failEvent, failAsset))
-    {
-        for (Criteria const* playerCriteria : *playerCriteriaList)
-        {
-            std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);
-            bool allComplete = true;
-            for (CriteriaTree const* tree : *trees)
-            {
-                // don't update already completed criteria if not forced
-                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
-                {
-                    allComplete = false;
-                    break;
-                }
-            }
-
-            if (allComplete)
-                continue;
-
-            RemoveCriteriaProgress(playerCriteria);
-        }
-    }
-}
-
-void QuestObjectiveCriteriaMgr::ResetCriteriaTree(uint32 criteriaTreeId)
-{
-    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(criteriaTreeId);
+    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(questObjective->ObjectID);
     if (!tree)
         return;
 
     CriteriaMgr::WalkCriteriaTree(tree, [this](CriteriaTree const* criteriaTree)
     {
         RemoveCriteriaProgress(criteriaTree->Criteria);
+    });
+
+    CriteriaMgr::WalkCriteriaTree(tree, [this](CriteriaTree const* criteriaTree)
+    {
+        if (criteriaTree->Criteria && advstd::ranges::contains(CriteriaMgr::GetRetroactivelyUpdateableCriteriaTypes(), CriteriaType(criteriaTree->Criteria->Entry->Type)))
+            UpdateCriteria(criteriaTree->Criteria, 0, 0, 0, nullptr, _owner);
     });
 }
 
@@ -219,7 +196,8 @@ void QuestObjectiveCriteriaMgr::SendAllData(Player const* /*receiver*/) const
         criteriaUpdate.PlayerGUID = _owner->GetGUID();
         criteriaUpdate.Flags = 0;
 
-        criteriaUpdate.CurrentTime = criteriaProgres.second.Date;
+        criteriaUpdate.CurrentTime.SetUtcTimeFromUnixTime(criteriaProgres.second.Date);
+        criteriaUpdate.CurrentTime += _owner->GetSession()->GetTimezoneOffset();
         criteriaUpdate.CreationTime = 0;
 
         SendPacket(criteriaUpdate.Write());
@@ -240,7 +218,7 @@ void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questOb
 
 bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* questObjective) const
 {
-    return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
+    return _completedObjectives.contains(questObjective->ID);
 }
 
 void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
@@ -254,7 +232,8 @@ void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, Cri
     if (criteria->Entry->StartTimer)
         criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
-    criteriaUpdate.CurrentTime = progress->Date;
+    criteriaUpdate.CurrentTime.SetUtcTimeFromUnixTime(progress->Date);
+    criteriaUpdate.CurrentTime += _owner->GetSession()->GetTimezoneOffset();
     criteriaUpdate.ElapsedTime = timeElapsed;
     criteriaUpdate.CreationTime = 0;
 
@@ -322,7 +301,9 @@ void QuestObjectiveCriteriaMgr::CompletedCriteriaTree(CriteriaTree const* tree, 
     if (!objective)
         return;
 
-    CompletedObjective(objective, referencePlayer);
+    CriteriaTree const* entireObjectiveTree = sCriteriaMgr->GetCriteriaTree(objective->ObjectID);
+    if (IsCompletedCriteriaTree(entireObjectiveTree))
+        CompletedObjective(objective, referencePlayer);
 }
 
 void QuestObjectiveCriteriaMgr::SendPacket(WorldPacket const* data) const
@@ -338,4 +319,9 @@ std::string QuestObjectiveCriteriaMgr::GetOwnerInfo() const
 CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
+}
+
+bool QuestObjectiveCriteriaMgr::RequiredAchievementSatisfied(uint32 achievementId) const
+{
+    return _owner->HasAchieved(achievementId);
 }

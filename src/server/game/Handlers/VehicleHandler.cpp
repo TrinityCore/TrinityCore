@@ -26,14 +26,18 @@
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
-    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
-    if (vehicleGUID.IsEmpty())
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveDismissVehicle.Status.guid, moveDismissVehicle.GetOpcode(), false);
+    if (!ValidateMovementInfo(mover, &moveDismissVehicle.Status))
         return;
 
-    _player->ValidateMovementInfo(&moveDismissVehicle.Status);
-    _player->m_movementInfo = moveDismissVehicle.Status;
+    moveDismissVehicle.Status.time = AdjustClientMovementTime(moveDismissVehicle.Status.time);
+    mover->m_movementInfo = moveDismissVehicle.Status;
 
-    _player->ExitVehicle();
+    if (Unit* vehicleBase = _player->GetVehicleBase())
+    {
+        vehicleBase->SendPetDismissSound();
+        _player->ExitVehicle();
+    }
 }
 
 void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& /*requestVehiclePrevSeat*/)
@@ -72,11 +76,15 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVe
 
 void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChangeVehicleSeats& moveChangeVehicleSeats)
 {
-    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
-    if (!vehicle_base)
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveChangeVehicleSeats.Status.guid, moveChangeVehicleSeats.GetOpcode(), false);
+    if (!mover)
         return;
 
-    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    Vehicle* vehicle = GetPlayer()->GetVehicle();
+    if (!vehicle)
+        return;
+
+    VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer());
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleMoveChangeVehicleSeats: Player {} tried to switch seats but current seatflags {} don't permit that.",
@@ -84,12 +92,10 @@ void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChang
         return;
     }
 
-    GetPlayer()->ValidateMovementInfo(&moveChangeVehicleSeats.Status);
-
-    if (vehicle_base->GetGUID() != moveChangeVehicleSeats.Status.guid)
+    if (!ValidateMovementInfo(mover, &moveChangeVehicleSeats.Status))
         return;
 
-    vehicle_base->m_movementInfo = moveChangeVehicleSeats.Status;
+    mover->m_movementInfo = moveChangeVehicleSeats.Status;
 
     if (moveChangeVehicleSeats.DstVehicle.IsEmpty())
         GetPlayer()->ChangeSeat(-1, moveChangeVehicleSeats.DstSeatIndex != 255);
@@ -192,5 +198,9 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.Status);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setVehicleRecIdAck.Data.Status.guid, setVehicleRecIdAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &setVehicleRecIdAck.Data.Status);
 }

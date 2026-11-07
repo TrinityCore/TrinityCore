@@ -98,12 +98,11 @@ enum MovementPoints
     POINT_SLABHIDE_LAND,
 };
 
-Position const SlabhideIntroPos = { 1292.27f, 1226.16f, 265.573f };
-Position const SlabhideIntroLandPos = { 1292.352f, 1226.478f, 247.6368f, 3.630285f };
+constexpr Position SlabhideIntroPos = { 1292.27f, 1226.16f, 265.573f };
+constexpr Position SlabhideIntroLandPos = { 1292.352f, 1226.478f, 247.6368f, 3.630285f };
 
-Position const SlabhideMiddlePos = { 1280.73f, 1212.31f, 247.3837f };
-Position const SlabhideInAirPos = { 1280.73f, 1212.31f, 257.3837f };
-Position const SlabhideLandPos = { 1282.7f, 1229.77f, 247.155f, 3.82227f };
+constexpr Position SlabhideMiddlePos = { 1280.73f, 1212.31f, 247.3837f };
+constexpr Position SlabhideInAirPos = { 1280.73f, 1212.31f, 257.3837f };
 
 class boss_slabhide : public CreatureScript
 {
@@ -197,7 +196,7 @@ class boss_slabhide : public CreatureScript
                         me->SetHover(false);
                         me->SetHomePosition(SlabhideIntroLandPos);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         instance->SetData(DATA_SLABHIDE_INTRO, DONE);
                         break;
@@ -284,8 +283,6 @@ class boss_slabhide : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -412,8 +409,6 @@ public:
 
     class spell_s81035_stalactite_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s81035_stalactite_SpellScript);
-
         void SummonStalactiteTrigger()
         {
             Unit* caster = GetCaster();
@@ -441,8 +436,6 @@ public:
 
     class spell_s81028_s80650_stalactite_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s81028_s80650_stalactite_SpellScript);
-
         void ModDestHeight(SpellDestination& dest)
         {
             // All stalactite triggers should have Z position 301.3837f, but no way to relocate (not relocateoffset!) height only.
@@ -472,8 +465,6 @@ public:
 
     class spell_stalactite_mod_dest_height_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_stalactite_mod_dest_height_SpellScript);
-
         void ModDestHeight(SpellDestination& dest)
         {
             Unit* caster = GetCaster();
@@ -502,8 +493,6 @@ public:
 
     class spell_s92306_crystal_storm_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s92306_crystal_storm_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
@@ -554,8 +543,6 @@ public:
 
     class spell_s92300_crystal_storm_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_s92300_crystal_storm_SpellScript);
-
         void FilterTargets(std::list<WorldObject*>& unitList)
         {
             Unit* caster = GetCaster();

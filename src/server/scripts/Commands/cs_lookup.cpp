@@ -38,7 +38,7 @@ EndScriptData */
 #include "WorldSession.h"
 #include <sstream>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -49,16 +49,16 @@ class lookup_commandscript : public CommandScript
 public:
     lookup_commandscript() : CommandScript("lookup_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> lookupPlayerCommandTable =
+        static ChatCommandTable lookupPlayerCommandTable =
         {
             { "ip",      rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      true, &HandleLookupPlayerIpCommand,        "" },
             { "account", rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, true, &HandleLookupPlayerAccountCommand,   "" },
             { "email",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,   true, &HandleLookupPlayerEmailCommand,     "" },
         };
 
-        static std::vector<ChatCommand> lookupCommandTable =
+        static ChatCommandTable lookupCommandTable =
         {
             { "area",     rbac::RBAC_PERM_COMMAND_LOOKUP_AREA,     true, &HandleLookupAreaCommand,     "" },
             { "creature", rbac::RBAC_PERM_COMMAND_LOOKUP_CREATURE, true, &HandleLookupCreatureCommand, "" },
@@ -684,17 +684,17 @@ public:
                         if (handler->GetSession())
                         {
                             int32 maxLevel = 0;
-                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
-                                handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
+                                handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                                 maxLevel = questLevels->MaxLevel;
 
                             int32 scalingFactionGroup = 0;
-                            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second.GetContentTuningId()))
+                            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second->GetContentTuningId()))
                                 scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                             handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first,
-                                handler->GetSession()->GetPlayer()->GetQuestLevel(&questTemplatePair.second),
-                                handler->GetSession()->GetPlayer()->GetQuestMinLevel(&questTemplatePair.second),
+                                handler->GetSession()->GetPlayer()->GetQuestLevel(questTemplatePair.second.get()),
+                                handler->GetSession()->GetPlayer()->GetQuestMinLevel(questTemplatePair.second.get()),
                                 maxLevel, scalingFactionGroup,
                                 title.c_str(), statusStr);
                         }
@@ -709,7 +709,7 @@ public:
                 }
             }
 
-            std::string title = questTemplatePair.second.GetLogTitle();
+            std::string title = questTemplatePair.second->GetLogTitle();
             if (title.empty())
                 continue;
 
@@ -744,17 +744,17 @@ public:
                 if (handler->GetSession())
                 {
                     int32 maxLevel = 0;
-                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
-                        handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
+                        handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                         maxLevel = questLevels->MaxLevel;
 
                     int32 scalingFactionGroup = 0;
-                    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second.GetContentTuningId()))
+                    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second->GetContentTuningId()))
                         scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                     handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first,
-                        handler->GetSession()->GetPlayer()->GetQuestLevel(&questTemplatePair.second),
-                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(&questTemplatePair.second),
+                        handler->GetSession()->GetPlayer()->GetQuestLevel(questTemplatePair.second.get()),
+                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(questTemplatePair.second.get()),
                         maxLevel, scalingFactionGroup,
                         title.c_str(), statusStr);
                 }
@@ -815,7 +815,7 @@ public:
             {
                 int32 maxLevel = 0;
                 if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(),
-                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                     maxLevel = questLevels->MaxLevel;
 
                 int32 scalingFactionGroup = 0;
@@ -1252,7 +1252,7 @@ public:
                         continue;
 
                     LocaleConstant locale = handler->GetSessionDbcLocale();
-                    std::string name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+                    std::string_view name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
 
                     if (name.empty())
                         continue;
@@ -1288,7 +1288,7 @@ public:
                             ? handler->GetTrinityString(LANG_ACTIVE)
                             : "";
 
-                        std::string titleNameStr = fmt::sprintf(name, targetName);
+                        std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
 
                         // send title in "id (idx:idx) - [namedlink locale]" format
                         if (handler->GetSession())

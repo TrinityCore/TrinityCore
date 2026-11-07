@@ -179,15 +179,15 @@ enum WintergraspNpcs
  *  WintergraspCapturePoint  *
  * ######################### */
 
-class WintergraspCapturePoint : public BfCapturePoint
+class WintergraspCapturePoint : public BattlefieldControlZoneHandler
 {
     public:
-        WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl);
+        WintergraspCapturePoint(BattlefieldWG* battlefield, WintergraspWorkshop* workshop);
 
-        void LinkToWorkshop(WintergraspWorkshop* workshop) { m_Workshop = workshop; }
-
-        void ChangeTeam(TeamId oldteam) override;
-        TeamId GetTeam() const { return m_team; }
+        void HandleContestedEventHorde([[maybe_unused]] GameObject* controlZone) override;
+        void HandleContestedEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+        void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+        void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
 
     protected:
         WintergraspWorkshop* m_Workshop;

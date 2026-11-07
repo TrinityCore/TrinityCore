@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "G3DPosition.hpp"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -29,7 +30,6 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
-#include <G3D/Vector3.h>
 
 enum Says
 {
@@ -230,7 +230,7 @@ enum RazorscalePhases
     PHASE_PERMA_GROUND
 };
 
-Position const PosBrokenHarpoon[4] =
+constexpr Position PosBrokenHarpoon[4] =
 {
     { 571.9465f, -136.0118f, 391.5171f, 2.286379f }, // 1
     { 589.9233f, -133.6223f, 391.8968f, 3.298687f }, // 2
@@ -238,7 +238,7 @@ Position const PosBrokenHarpoon[4] =
     { 606.2297f, -136.7212f, 391.1803f, 5.131269f }  // 3
 };
 
-Position const PosHarpoon[4] =
+constexpr Position PosHarpoon[4] =
 {
     { 571.9012f, -136.5541f, 391.5171f, 4.921829f }, // GO_RAZOR_HARPOON_1
     { 589.9233f, -133.6223f, 391.8968f, 4.81711f  }, // GO_RAZOR_HARPOON_2
@@ -246,7 +246,7 @@ Position const PosHarpoon[4] =
     { 606.2297f, -136.7212f, 391.1803f, 4.537859f }  // GO_RAZOR_HARPOON_4
 };
 
-Position const DefendersPosition[6] =
+constexpr Position DefendersPosition[6] =
 {
     { 624.3065f, -154.4163f, 391.6442f },
     { 611.6274f, -170.9375f, 391.8087f },
@@ -256,14 +256,14 @@ Position const DefendersPosition[6] =
     { 549.1727f, -159.1180f, 391.8087f }
 };
 
-Position const TrapperPosition[3] =
+constexpr Position TrapperPosition[3] =
 {
     { 574.9293f, -184.5150f, 391.8921f },
     { 539.7838f, -178.5337f, 391.3053f },
     { 627.1754f, -177.9638f, 391.5553f }
 };
 
-uint32 const SummonMinionsSpells[4] =
+constexpr uint32 SummonMinionsSpells[4] =
 {
     SPELL_TRIGGER_SUMMON_IRON_DWARVES,
     SPELL_TRIGGER_SUMMON_IRON_DWARVES_2,
@@ -271,8 +271,7 @@ uint32 const SummonMinionsSpells[4] =
     SPELL_TRIGGER_SUMMON_IRON_VRYKUL
 };
 
-uint32 const pathSize = 11;
-G3D::Vector3 const RazorscalePath[pathSize] =
+G3D::Vector3 const RazorscalePath[] =
 {
     { 657.0227f, -361.1278f, 519.5406f },
     { 698.9319f, -340.9654f, 520.4857f },
@@ -287,11 +286,10 @@ G3D::Vector3 const RazorscalePath[pathSize] =
     { 611.5800f, -353.1930f, 526.2653f }
 };
 
-Position const RazorFlightPosition       = { 585.3610f, -173.5592f, 456.8430f, 1.526665f };
-Position const RazorFlightPositionPhase2 = { 619.1450f, -238.0780f, 475.1800f, 1.423917f };
-Position const RazorscaleLand            = { 585.4010f, -173.5430f, 408.5080f, 1.570796f };
-Position const RazorscaleGroundPosition  = { 585.4010f, -173.5430f, 391.6421f, 1.570796f };
-Position const RazorscaleFirstPoint      = { 657.0227f, -361.1278f, 519.5406f };
+constexpr Position RazorFlightPosition       = { 585.3610f, -173.5592f, 456.8430f, 1.526665f };
+constexpr Position RazorFlightPositionPhase2 = { 619.1450f, -238.0780f, 475.1800f, 1.423917f };
+constexpr Position RazorscaleLand            = { 585.4010f, -173.5430f, 408.5080f, 1.570796f };
+constexpr Position RazorscaleGroundPosition  = { 585.4010f, -173.5430f, 391.6421f, 1.570796f };
 
 struct boss_razorscale : public BossAI
 {
@@ -331,8 +329,7 @@ struct boss_razorscale : public BossAI
     {
         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
         {
-            Movement::PointsArray path(RazorscalePath, RazorscalePath + pathSize);
-            init.MovebyPath(path, 0);
+            init.MovebyPath(RazorscalePath);
             init.SetCyclic();
             init.SetFly();
         };
@@ -654,9 +651,6 @@ struct boss_razorscale : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (events.IsInPhase(PHASE_PERMA_GROUND))
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -938,7 +932,7 @@ struct npc_expedition_trapper : public ScriptedAI
                 break;
             case ACTION_STOP_CAST:
                 me->InterruptNonMeleeSpells(false);
-                _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MoveTargetedHome();
                 });
@@ -995,7 +989,7 @@ struct npc_expedition_engineer : public ScriptedAI
             _canUpdateAI = true;
             if (_myPositionNumber == ENGINEER_EAST)
                 Talk(SAY_AGGRO);
-            _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(28), [this](TaskContext const& /*context*/)
             {
                 HandleHarpoonMovement();
                 me->SetImmuneToNPC(false);
@@ -1005,7 +999,7 @@ struct npc_expedition_engineer : public ScriptedAI
         {
             if (_myPositionNumber == ENGINEER_EAST)
                 Talk(SAY_AGGRO);
-            _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(28), [this](TaskContext const& /*context*/)
             {
                 HandleHarpoonMovement();
             });
@@ -1014,7 +1008,7 @@ struct npc_expedition_engineer : public ScriptedAI
 
     void ChangeOrientation(float orientation)
     {
-        _scheduler.Schedule(Milliseconds(1), [this, orientation](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(1), [this, orientation](TaskContext const& /*context*/)
         {
             me->SetFacingTo(orientation);
         });
@@ -1171,11 +1165,11 @@ struct npc_expedition_engineer : public ScriptedAI
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_1);
 
                 _scheduler.
-                    Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                 {
                     me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                 })
-                    .Schedule(Seconds(18), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleSecondHarpoonMovement();
                 });
@@ -1184,7 +1178,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_2_25:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_2);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleThirdHarpoonMovement();
                 });
@@ -1192,7 +1186,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_3:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_3);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleFourthHarpoonMovement();
                 });
@@ -1200,7 +1194,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_4:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_4);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleBaseMovement();
                 });
@@ -1230,10 +1224,10 @@ struct npc_razorscale_spawner : public ScriptedAI
         me->SetFarVisible(true);
         me->SetReactState(REACT_PASSIVE);
         _scheduler.
-            Schedule(Seconds(1), [this](TaskContext /*context*/)
+            Schedule(Seconds(1), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_SUMMON_MOLE_MACHINE);
-        }).Schedule(Seconds(6), [this](TaskContext /*context*/)
+        }).Schedule(Seconds(6), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SummonMinionsSpells[urand(0, 3)]);
         });
@@ -1300,8 +1294,6 @@ struct npc_darkrune_watcher : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1367,8 +1359,6 @@ struct npc_darkrune_guardian : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1434,8 +1424,6 @@ struct npc_darkrune_sentinel : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1486,7 +1474,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
             {
                 if (Creature* controller = me->FindNearestCreature(NPC_RAZORSCALE_CONTROLLER, 5.0f))
                     controller->AI()->Talk(EMOTE_HARPOON);
@@ -1556,11 +1544,11 @@ public:
         void Reset() override
         {
             me->SetFlag(GO_FLAG_NOT_SELECTABLE);
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
             {
                 me->UseDoorOrButton();
             });
-            _scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(10), [this](TaskContext const& /*context*/)
             {
                 me->Delete();
             });
@@ -1584,8 +1572,6 @@ public:
    64021 - Flame Breath */
 class spell_razorscale_flame_breath : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_flame_breath);
-
     void CheckDamage()
     {
         Creature* target = GetHitCreature();
@@ -1620,8 +1606,6 @@ class spell_razorscale_flame_breath : public SpellScript
    63969 - Summon Iron Dwarves */
 class spell_razorscale_summon_iron_dwarves : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_summon_iron_dwarves);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1661,8 +1645,6 @@ class spell_razorscale_summon_iron_dwarves : public SpellScript
 // 64821 - Fuse Armor
 class spell_razorscale_fuse_armor : public AuraScript
 {
-    PrepareAuraScript(spell_razorscale_fuse_armor);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FUSED_ARMOR });
@@ -1686,8 +1668,6 @@ class spell_razorscale_fuse_armor : public AuraScript
 // 62669 - Firebolt
 class spell_razorscale_firebolt : public SpellScript
 {
-    PrepareSpellScript(spell_razorscale_firebolt);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_RAZORSCALE_HARPOON_FIRE_STATE; });

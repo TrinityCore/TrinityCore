@@ -194,7 +194,6 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     useFlyPath = false;
     damageTaken = 0;
     memset(DummyTarget, 0, sizeof(DummyTarget));
-    Reset();
 }
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
@@ -408,7 +407,7 @@ void hyjal_trashAI::JustDied(Unit* /*killer*/)
     if (IsEvent && !me->isWorldBoss())
         instance->SetData(DATA_TRASH, 0);//signal trash is dead
 
-    if ((instance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !me->isWorldBoss()) || (damageTaken < me->GetMaxHealth()/4 && me->isWorldBoss()))
+    if (instance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !me->isWorldBoss())
         me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);//no loot
 }
 
@@ -426,7 +425,7 @@ public:
             CanMove = false;
             Delay = rand32() % 30000;
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetDisplayId(MODEL_INVIS);
             go = false;
             Initialize();
@@ -490,7 +489,7 @@ public:
                 if (spawnTimer <= diff)
                 {
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetDisplayId(me->GetNativeDisplayId());
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
@@ -530,7 +529,6 @@ public:
                 DoCastVictim(SPELL_FLAME_BUFFET, true);
                 FlameBuffetTimer = 7000;
             } else FlameBuffetTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -633,7 +631,6 @@ public:
                 DoCastVictim(SPELL_KNOCKDOWN);
                 KnockDownTimer = 15000 + rand32() % 10000;
             } else KnockDownTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -735,8 +732,6 @@ public:
             } else FrenzyTimer -= diff;
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -871,8 +866,6 @@ public:
                 DoCastVictim(SPELL_SHADOW_BOLT);
                 ShadowBoltTimer = 20000 + rand32() % 10000;
             } else ShadowBoltTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -988,7 +981,6 @@ public:
                 DoCast(me, SPELL_ANTI_MAGIC_SHELL);
                 ShellTimer = 50000 + rand32() % 10000;
             } else ShellTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1079,7 +1071,6 @@ public:
                 DoCastVictim(SPELL_WEB);
                 WebTimer = 20000 + rand32() % 5000;
             } else WebTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1170,7 +1161,6 @@ public:
                 DoCastVictim(SPELL_MANA_BURN);
                 ManaBurnTimer = 9000 + rand32() % 5000;
             } else ManaBurnTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1513,7 +1503,6 @@ public:
                 me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 

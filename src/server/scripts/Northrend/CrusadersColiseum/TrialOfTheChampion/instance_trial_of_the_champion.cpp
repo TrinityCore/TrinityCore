@@ -28,7 +28,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "Player.h"
 #include "trial_of_the_champion.h"
 
 constexpr uint32 ToCEncounterCount = 4;
@@ -60,12 +59,10 @@ public:
             SetBossNumber(ToCEncounterCount);
             LoadDungeonEncounterData(encounters);
             uiArgentSoldierDeaths = 0;
-            teamInInstance = 0;
 
             bDone = false;
         }
 
-        uint32 teamInInstance;
         PersistentInstanceScriptValue<uint16> uiMovementDone;
         PersistentInstanceScriptValue<uint16> uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
@@ -84,12 +81,6 @@ public:
         GuidList VehicleList;
 
         bool bDone;
-
-        void OnPlayerEnter(Player* player) override
-        {
-            if (!teamInInstance)
-                teamInInstance = player->GetTeam();
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {
@@ -114,29 +105,21 @@ public:
 
         uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
         {
-            if (!teamInInstance)
-            {
-                Map::PlayerList const& players = instance->GetPlayers();
-                if (!players.isEmpty())
-                    if (Player* player = players.begin()->GetSource())
-                        teamInInstance = player->GetTeam();
-            }
-
             uint32 entry = data->id;
             switch (entry)
             {
                 case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    return teamInInstance == HORDE ? VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT : VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
+                    return instance->GetTeamInInstance() == HORDE ? VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT : VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
                 case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    return teamInInstance == HORDE ? VEHICLE_AMBROSE_BOLTSPARK_MOUNT : VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
+                    return instance->GetTeamInInstance() == HORDE ? VEHICLE_AMBROSE_BOLTSPARK_MOUNT : VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
                 case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    return teamInInstance == HORDE ? VEHICLE_COLOSOS_MOUNT : VEHICLE_RUNOK_WILDMANE_MOUNT;
+                    return instance->GetTeamInInstance() == HORDE ? VEHICLE_COLOSOS_MOUNT : VEHICLE_RUNOK_WILDMANE_MOUNT;
                 case VEHICLE_ZUL_TORE_MOUNT:
-                    return teamInInstance == HORDE ? VEHICLE_EVENSONG_MOUNT : VEHICLE_ZUL_TORE_MOUNT;
+                    return instance->GetTeamInInstance() == HORDE ? VEHICLE_EVENSONG_MOUNT : VEHICLE_ZUL_TORE_MOUNT;
                 case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    return teamInInstance == HORDE ? VEHICLE_LANA_STOUTHAMMER_MOUNT : VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
+                    return instance->GetTeamInInstance() == HORDE ? VEHICLE_LANA_STOUTHAMMER_MOUNT : VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
                 case NPC_JAEREN:
-                    return teamInInstance == HORDE ? NPC_ARELAS : NPC_JAEREN;
+                    return instance->GetTeamInInstance() == HORDE ? NPC_ARELAS : NPC_JAEREN;
                 default:
                     return entry;
             }
@@ -179,7 +162,7 @@ public:
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 25h);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromOrientation(1.42f), 25h);
                             }
                         }
                     }

@@ -118,7 +118,8 @@ struct boss_anub_arak : public BossAI
     void Reset() override
     {
         BossAI::Reset();
-        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(false);
         _nextSubmerge = 75;
         _petCount = 0;
     }
@@ -279,8 +280,6 @@ struct boss_anub_arak : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -328,7 +327,8 @@ struct boss_anub_arak : public BossAI
                 {
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                     me->RemoveAurasDueToSpell(SPELL_IMPALE_AURA);
-                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUninteractible(false);
                     DoCastSelf(SPELL_EMERGE);
                     events.SetPhase(PHASE_EMERGE);
                     events.ScheduleEvent(EVENT_POUND, 13s, 18s, 0, PHASE_EMERGE);
@@ -358,7 +358,8 @@ struct boss_anub_arak : public BossAI
     {
         if (spellInfo->Id == SPELL_SUBMERGE)
         {
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUninteractible(true);
             me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
             DoCastSelf(SPELL_IMPALE_AURA, true);
 
@@ -454,14 +455,6 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
 {
     npc_anubarak_anub_ar_assassin(Creature* creature) : npc_anubarak_pet_template(creature, false){ }
 
-    Position GetRandomPositionAround(Creature* anubarak)
-    {
-        static float DISTANCE_MIN = 10.0f;
-        static float DISTANCE_MAX = 30.0f;
-        double angle = rand_norm() * 2.0 * M_PI;
-        return { anubarak->GetPositionX() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::sin(angle)), anubarak->GetPositionY() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::cos(angle)), anubarak->GetPositionZ() };
-    }
-
     void InitializeAI() override
     {
         npc_anubarak_pet_template::InitializeAI();
@@ -469,10 +462,11 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
         if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
         {
             Position jumpTo;
+            uint32 attempts = 0;
             do
-                jumpTo = GetRandomPositionAround(anubarak);
-            while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
-            me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
+                jumpTo = anubarak->GetRandomPoint(anubarak->GetPosition(), 30.0f, 10.f);
+            while (!CreatureAI::IsInBounds(*boundary, &jumpTo) && attempts < 10);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, jumpTo, 24.0f, 20.0f, 30.0f);
             DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
         }
     }
@@ -484,7 +478,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(6s, [this](TaskContext task)
+        _scheduler.Schedule(6s, [this](TaskContext& task)
         {
             if (me->GetVictim() && me->GetVictim()->isInBack(me))
                 DoCastVictim(SPELL_BACKSTAB);
@@ -498,10 +492,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -528,7 +519,7 @@ struct npc_anubarak_anub_ar_guardian : public npc_anubarak_pet_template
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(6s, [this](TaskContext task)
+        _scheduler.Schedule(6s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_SUNDER_ARMOR);
             task.Repeat(12s);
@@ -540,10 +531,7 @@ struct npc_anubarak_anub_ar_guardian : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -561,7 +549,7 @@ struct npc_anubarak_anub_ar_venomancer : public npc_anubarak_pet_template
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(5s, [this](TaskContext task)
+        _scheduler.Schedule(5s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_POISON_BOLT);
             task.Repeat(2s, 3s);
@@ -573,10 +561,7 @@ struct npc_anubarak_anub_ar_venomancer : public npc_anubarak_pet_template
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -603,8 +588,6 @@ struct npc_anubarak_impale_target : public NullCreatureAI
 // 53472, 59433 - Pound
 class spell_anubarak_pound : public AuraScript
 {
-    PrepareAuraScript(spell_anubarak_pound);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
@@ -625,8 +608,6 @@ class spell_anubarak_pound : public AuraScript
 // 53520 - Carrion Beetles
 class spell_anubarak_carrion_beetles : public AuraScript
 {
-    PrepareAuraScript(spell_anubarak_carrion_beetles);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_CARRION_BEETLE });

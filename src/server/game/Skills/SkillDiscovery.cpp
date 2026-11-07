@@ -174,7 +174,7 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
                 full_chance += item_iter->chance;
 
     float rate = full_chance / 100.0f;
-    float roll = (float)rand_chance() * rate;                      // roll now in range 0..full_chance
+    float roll = rand_chance() * rate;                             // roll now in range 0..full_chance
 
     for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
     {
@@ -230,7 +230,7 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
     {
         for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
-            if (roll_chance_f(item_iter->chance * sWorld->getRate(RATE_SKILL_DISCOVERY)) &&
+            if (roll_chance(item_iter->chance * sWorld->getRate(RATE_SKILL_DISCOVERY)) &&
                 item_iter->reqSkillValue <= skillvalue &&
                 !player->HasSpell(item_iter->spellId))
                 return item_iter->spellId;
@@ -248,7 +248,7 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
     {
         for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
-            if (roll_chance_f(item_iter->chance * sWorld->getRate(RATE_SKILL_DISCOVERY)) &&
+            if (roll_chance(item_iter->chance * sWorld->getRate(RATE_SKILL_DISCOVERY)) &&
                 item_iter->reqSkillValue <= skillvalue &&
                 !player->HasSpell(item_iter->spellId))
                 return item_iter->spellId;

@@ -26,7 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
-enum ScriptTexts
+enum FestergutTexts
 {
     SAY_STINKY_DEAD             = 0,
     SAY_AGGRO                   = 1,
@@ -40,7 +40,7 @@ enum ScriptTexts
     SAY_DEATH                   = 9,
 };
 
-enum Spells
+enum FestergutSpells
 {
     // Festergut
     SPELL_INHALE_BLIGHT         = 69165,
@@ -64,7 +64,7 @@ enum Spells
 uint32 const gaseousBlight[3]        = {69157, 69162, 69164};
 uint32 const gaseousBlightVisual[3]  = {69126, 69152, 69154};
 
-enum Events
+enum FestergutEvents
 {
     EVENT_BERSERK       = 1,
     EVENT_INHALE_BLIGHT = 2,
@@ -76,11 +76,12 @@ enum Events
     EVENT_MORTAL_WOUND  = 7,
 };
 
-enum Misc
+enum FestergutMisc
 {
     DATA_INOCULATED_STACK       = 69291
 };
 
+// 36626 - Festergut
 struct boss_festergut : public BossAI
 {
     boss_festergut(Creature* creature) : BossAI(creature, DATA_FESTERGUT)
@@ -255,8 +256,6 @@ struct boss_festergut : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SetData(uint32 type, uint32 data) override
@@ -289,6 +288,7 @@ private:
     uint32 _inhaleCounter;
 };
 
+// 37025 - Stinky
 struct npc_stinky_icc : public ScriptedAI
 {
     npc_stinky_icc(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -331,8 +331,6 @@ struct npc_stinky_icc : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -350,8 +348,6 @@ private:
 // 69195, 71219, 73031, 73032 - Pungent Blight
 class spell_festergut_pungent_blight : public SpellScript
 {
-    PrepareSpellScript(spell_festergut_pungent_blight);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -359,7 +355,7 @@ class spell_festergut_pungent_blight : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetCaster()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
         GetCaster()->ToCreature()->AI()->Talk(EMOTE_PUNGENT_BLIGHT);
     }
 
@@ -372,8 +368,6 @@ class spell_festergut_pungent_blight : public SpellScript
 // 72219, 72551, 72552, 72553 - Gastric Bloat
 class spell_festergut_gastric_bloat : public SpellScript
 {
-    PrepareSpellScript(spell_festergut_gastric_bloat);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_GASTRIC_EXPLOSION });
@@ -398,8 +392,6 @@ class spell_festergut_gastric_bloat : public SpellScript
 // 69290, 71222, 73033, 73034 - Blighted Spores
 class spell_festergut_blighted_spores : public AuraScript
 {
-    PrepareAuraScript(spell_festergut_blighted_spores);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_INOCULATED, SPELL_ORANGE_BLIGHT_RESIDUE });

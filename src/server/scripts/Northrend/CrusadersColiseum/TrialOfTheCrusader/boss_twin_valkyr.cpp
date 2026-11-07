@@ -276,7 +276,6 @@ struct boss_twin_baseAI : public BossAI
 
         Talk(SAY_AGGRO);
         DoCast(me, SurgeSpellId);
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
 
         events.ScheduleEvent(EVENT_TWIN_SPIKE, 20s);
@@ -358,8 +357,6 @@ struct boss_twin_baseAI : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     protected:
@@ -555,7 +552,8 @@ struct npc_unleashed_ballAI : public ScriptedAI
 
     void Reset() override
     {
-        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(true);
         me->SetReactState(REACT_PASSIVE);
         me->SetDisableGravity(true);
         me->SetCanFly(true);
@@ -649,8 +647,6 @@ struct npc_bullet_controller : public ScriptedAI
 // 66149, 68396 - Bullet Controller Periodic
 class spell_bullet_controller : public AuraScript
 {
-    PrepareAuraScript(spell_bullet_controller);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_PERIODIC_LIGHT, SPELL_SUMMON_PERIODIC_DARK });
@@ -678,8 +674,6 @@ class spell_bullet_controller : public AuraScript
 // 67590, 67602, 67603, 67604 - Powering Up
 class spell_powering_up : public SpellScript
 {
-    PrepareSpellScript(spell_powering_up);
-
     uint32 spellId = 0;
     uint32 poweringUp = 0;
 
@@ -723,11 +717,47 @@ class spell_powering_up : public SpellScript
 };
 
 // 65684, 67176, 67177, 67178 - Dark Essence
+class spell_twin_valkyr_dark_essence : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIGHT_ESSENCE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_twin_valkyr_dark_essence::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 65686, 67222, 67223, 67224 - Light Essence
+class spell_twin_valkyr_light_essence : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DARK_ESSENCE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_twin_valkyr_light_essence::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 65684, 67176, 67177, 67178 - Dark Essence
 // 65686, 67222, 67223, 67224 - Light Essence
 class spell_valkyr_essences : public AuraScript
 {
-    PrepareAuraScript(spell_valkyr_essences);
-
 public:
     spell_valkyr_essences()
     {
@@ -758,7 +788,7 @@ private:
                 // Twin Vortex part
                 uint32 lightVortex = SPELL_LIGHT_VORTEX_DAMAGE;
                 uint32 darkVortex = SPELL_DARK_VORTEX_DAMAGE;
-                int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0).CalcValue() / 1000 - 1;
+                int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt() / 1000 - 1;
 
                 if (lightVortex && darkVortex && stacksCount)
                 {
@@ -815,8 +845,6 @@ private:
 // 65916, 67248, 67249, 67250 - Power of the Twins
 class spell_power_of_the_twins : public AuraScript
 {
-    PrepareAuraScript(spell_power_of_the_twins);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -858,6 +886,8 @@ void AddSC_boss_twin_valkyr()
 
     RegisterSpellScript(spell_bullet_controller);
     RegisterSpellScript(spell_powering_up);
+    RegisterSpellScript(spell_twin_valkyr_dark_essence);
+    RegisterSpellScript(spell_twin_valkyr_light_essence);
     RegisterSpellScript(spell_valkyr_essences);
     RegisterSpellScript(spell_power_of_the_twins);
 }

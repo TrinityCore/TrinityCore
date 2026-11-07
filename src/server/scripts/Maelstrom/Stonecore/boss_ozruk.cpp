@@ -174,8 +174,6 @@ class boss_ozruk : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -193,8 +191,6 @@ public:
 
     class spell_rupture_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_rupture_AuraScript);
-
         void HandleEffectPeriodic(AuraEffect const* aurEff)
         {
             Unit* caster = GetCaster();
@@ -241,8 +237,6 @@ public:
 
     class spell_elementium_spike_shield_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_elementium_spike_shield_SpellScript);
-
         void HandleBouncerSpikes()
         {
             Unit* caster = GetCaster();

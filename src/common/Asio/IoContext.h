@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IoContext_h__
-#define IoContext_h__
+#ifndef TRINITYCORE_IO_CONTEXT_H
+#define TRINITYCORE_IO_CONTEXT_H
 
+#include <boost/asio/bind_executor.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
 
@@ -25,9 +26,35 @@ namespace Trinity
 {
     namespace Asio
     {
+        class IoContextExecutor : public boost::asio::io_context::executor_type
+        {
+        public:
+            using Base = boost::asio::io_context::executor_type;
+
+            using Base::Base;
+
+            IoContextExecutor(boost::asio::io_context::executor_type const& other) noexcept : Base(other) { }
+
+            IoContextExecutor(boost::asio::io_context::executor_type&& other) noexcept : Base(std::move(other)) { }
+
+            IoContextExecutor& operator=(basic_executor_type const& other) noexcept
+            {
+                Base::operator=(other);
+                return *this;
+            }
+
+            IoContextExecutor& operator=(basic_executor_type&& other) noexcept
+            {
+                Base::operator=(std::move(other));
+                return *this;
+            }
+        };
+
         class IoContext
         {
         public:
+            using executor_type = IoContextExecutor;
+
             IoContext() : _impl() { }
             explicit IoContext(int concurrency_hint) : _impl(concurrency_hint) { }
 
@@ -35,26 +62,38 @@ namespace Trinity
             operator boost::asio::io_context const&() const { return _impl; }
 
             std::size_t run() { return _impl.run(); }
+            std::size_t poll() { return _impl.poll(); }
             void stop() { _impl.stop(); }
 
-            boost::asio::io_context::executor_type get_executor() noexcept { return _impl.get_executor(); }
+            bool stopped() const { return _impl.stopped(); }
+            void restart() { return _impl.restart(); }
+
+            executor_type get_executor() noexcept { return _impl.get_executor(); }
 
         private:
             boost::asio::io_context _impl;
         };
 
         template<typename T>
-        inline decltype(auto) post(boost::asio::io_context& ioContext, T&& t)
+        inline decltype(auto) post(IoContext& ioContext, T&& t)
         {
             return boost::asio::post(ioContext, std::forward<T>(t));
+        }
+
+        using boost::asio::bind_executor;
+
+        template<typename T>
+        inline decltype(auto) post(IoContextExecutor const& executor, T&& t)
+        {
+            return boost::asio::post(executor.context(), boost::asio::bind_executor(executor, std::forward<T>(t)));
         }
 
         template<typename T>
         inline decltype(auto) get_io_context(T&& ioObject)
         {
-            return ioObject.get_executor().context();
+            return std::forward<T>(ioObject).get_executor().context();
         }
     }
 }
 
-#endif // IoContext_h__
+#endif // TRINITYCORE_IO_CONTEXT_H

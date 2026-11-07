@@ -17,19 +17,32 @@
 
 #include "GameTime.h"
 #include "Timer.h"
+#include "Timezone.h"
+#include "Types.h"
 #include "Util.h"
+#include "WowTime.h"
 
 namespace GameTime
 {
-    time_t const StartTime = time(nullptr);
+namespace
+{
+    time_t GameTime;
+    uint32 GameMSTime;
 
-    time_t GameTime = time(nullptr);
-    uint32 GameMSTime = 0;
-
-    SystemTimePoint GameTimeSystemPoint = SystemTimePoint::min();
-    TimePoint GameTimeSteadyPoint = TimePoint::min();
+    SystemTimePoint GameTimeSystemPoint;
+    TimePoint GameTimeSteadyPoint;
 
     tm DateTime;
+
+    WowTime UtcWow;
+    WowTime Wow;
+
+    time_t const StartTime = []
+    {
+        UpdateGameTimers();
+        return time(nullptr);
+    }();
+}
 
     time_t GetStartTime()
     {
@@ -59,17 +72,18 @@ namespace GameTime
     template<typename Clock>
     typename Clock::time_point GetTime()
     {
-        static_assert(!std::is_same<Clock, Clock>::value, "Missing specialization for GetGameTimePoint");
+        static_assert(Trinity::dependant_false_v<Clock>, "Missing specialization for GetGameTimePoint");
+        return { };
     }
 
     template<>
-    TC_GAME_API SystemTimePoint GetTime<std::chrono::system_clock>()
+    SystemTimePoint GetTime<std::chrono::system_clock>()
     {
         return GetSystemTime();
     }
 
     template<>
-    TC_GAME_API TimePoint GetTime<std::chrono::steady_clock>()
+    TimePoint GetTime<std::chrono::steady_clock>()
     {
         return Now();
     }
@@ -84,6 +98,16 @@ namespace GameTime
         return &DateTime;
     }
 
+    WowTime const* GetUtcWowTime()
+    {
+        return &UtcWow;
+    }
+
+    WowTime const* GetWowTime()
+    {
+        return &Wow;
+    }
+
     void UpdateGameTimers()
     {
         GameTime = time(nullptr);
@@ -91,5 +115,7 @@ namespace GameTime
         GameTimeSystemPoint = std::chrono::system_clock::now();
         GameTimeSteadyPoint = std::chrono::steady_clock::now();
         localtime_r(&GameTime, &DateTime);
+        UtcWow.SetUtcTimeFromUnixTime(GameTime);
+        Wow = UtcWow + Trinity::Timezone::GetSystemZoneOffsetAt(GameTimeSystemPoint);
     }
 }

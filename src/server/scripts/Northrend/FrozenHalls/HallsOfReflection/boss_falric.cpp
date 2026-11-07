@@ -140,8 +140,6 @@ class boss_falric : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

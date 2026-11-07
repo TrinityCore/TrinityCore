@@ -8,42 +8,28 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
-if(WIN32)
-  if(MSVC)
-    list(APPEND PRIVATE_SOURCES worldserver.rc)
-  endif()
-endif()
-
-if(USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
-endif()
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(worldserver
   ${PRIVATE_SOURCES}
 )
 
-if(NOT WIN32)
+CollectAndAddSourceFiles(
+  worldserver
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if(WIN32)
+  if(MSVC)
+    target_sources(worldserver PRIVATE worldserver.rc)
+  endif()
+else()
   target_compile_definitions(worldserver PRIVATE
     _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
     _TRINITY_CORE_CONFIG_DIR="${CONF_DIR}/worldserver.conf.d"
   )
 endif()
-
-if(UNIX AND NOT NOJEM AND NOT APPLE)
-  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
-endif()
-
-set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
 target_link_libraries(worldserver
   PRIVATE
@@ -51,57 +37,44 @@ target_link_libraries(worldserver
   PUBLIC
     scripts
     game
-    readline)
-
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+    readline
+    gsoap)
 
 target_include_directories(worldserver
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(worldserver
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
 # Add all dynamic projects as dependency to the worldserver
 if(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
   add_dependencies(worldserver ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})
 endif()
 
-if(COPY_CONF AND WIN32)
-  if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-    add_custom_command(TARGET worldserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-  elseif(MINGW)
-    add_custom_command(TARGET worldserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
-    )
-  endif()
-endif()
-
 if(UNIX)
   install(TARGETS worldserver DESTINATION bin)
   if(COPY_CONF)
+    add_custom_command(TARGET worldserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../etc/worldserver.conf.dist
+    )
     install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
 elseif(WIN32)
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   if(COPY_CONF)
+    add_custom_command(TARGET worldserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+    )
     install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()
 
 # Generate precompiled header
 if(USE_COREPCH)
-  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(worldserver PrecompiledHeaders/worldPCH.h)
 endif()

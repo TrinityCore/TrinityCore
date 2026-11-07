@@ -168,21 +168,13 @@ public:
         {
             if (spellInfo->Id == SPELL_SUMMON_INFERNAL)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetImmuneToPC(false);
                 me->RemoveAurasDueToSpell(SPELL_SPAWN_AND_PACIFY);
                 // handle by the spell below when such auras will be not removed after evade
                 me->SetDisplayId(MODEL_INFERNAL);
                 // DoCastSelf(SPELL_TRANSFORM_INFERNAL);
             }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -333,8 +325,6 @@ public:
             }
             else
                 CastTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -454,8 +444,6 @@ public:
                 }
                 return;
             }
-
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -876,8 +864,6 @@ public:
                     SpellTimer3 = SpawnCast[8].Timer2 + (rand32() % 7 * 1000);//Spell Reflection
                 } else SpellTimer3 -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* killer) override
@@ -1179,8 +1165,6 @@ public:
                     SpellTimer2 = SpawnCast[5].Timer2 + (rand32() % 7 * 13000);
                 } else SpellTimer2 -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -1433,11 +1417,9 @@ public:
                 }
             }
 
-        if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
-            if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
-                DoCastSelf(SPELL_ENRAGE);
-
-        DoMeleeAttackIfReady();
+            if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
+                if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
+                    DoCastSelf(SPELL_ENRAGE);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1517,8 +1499,6 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
         class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
-
             void HandleAfterHit()
             {
                 if (Player* caster = GetCaster()->ToPlayer())
@@ -1609,8 +1589,6 @@ enum DissensionAmongstTheRanks
 // 38224 - Illidari Agent Illusion
 class spell_shadowmoon_illidari_agent_illusion : public AuraScript
 {
-    PrepareAuraScript(spell_shadowmoon_illidari_agent_illusion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ILLIDARI_DISGUISE_MALE, SPELL_ILLIDARI_DISGUISE_FEMALE });
@@ -1640,13 +1618,11 @@ class spell_shadowmoon_illidari_agent_illusion : public AuraScript
 // 38223 - Quest Credit: Crazed Colossus
 class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
 {
-    PrepareSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo(
         {
-            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
             SPELL_KILL_CREDIT_CRAZED_COLOSSUS
         });
     }
@@ -1654,7 +1630,7 @@ class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        if (target->HasAura(uint32(GetEffectValue())))
+        if (target->HasAura(uint32(GetEffectValueAsInt())))
             target->CastSpell(target, SPELL_KILL_CREDIT_CRAZED_COLOSSUS);
     }
 
@@ -1662,6 +1638,71 @@ class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_quest_credit_crazed_colossus::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
+};
+
+/*######
+## Quest 10637, 10688: A Necessary Distraction
+######*/
+
+enum ANecessaryDistraction
+{
+    SPELL_BANISH_AZALOTH     = 37833
+};
+
+// 37834 - Unbanish Azaloth
+class spell_shadowmoon_unbanish_azaloth : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BANISH_AZALOTH });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_BANISH_AZALOTH);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_unbanish_azaloth::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 10672: Frankly, It Makes No Sense...
+######*/
+
+enum FranklyItMakesNoSense
+{
+    SPELL_ARCANO_SCORP_CONTROL_01     = 37868,
+    SPELL_ARCANO_SCORP_CONTROL_02     = 37893,
+    SPELL_ARCANO_SCORP_CONTROL_03     = 37895
+};
+
+// 37867 - Arcano-Scorp Control
+// 37892 - Arcano-Scorp Control
+// 37894 - Arcano-Scorp Control
+class spell_shadowmoon_arcano_scorp_control : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_shadowmoon_arcano_scorp_control(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
 void AddSC_shadowmoon_valley()
@@ -1680,4 +1721,8 @@ void AddSC_shadowmoon_valley()
     new npc_shadowmoon_tuber_node();
     RegisterSpellScript(spell_shadowmoon_illidari_agent_illusion);
     RegisterSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
+    RegisterSpellScript(spell_shadowmoon_unbanish_azaloth);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_01", SPELL_ARCANO_SCORP_CONTROL_01);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_02", SPELL_ARCANO_SCORP_CONTROL_02);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_03", SPELL_ARCANO_SCORP_CONTROL_03);
 }

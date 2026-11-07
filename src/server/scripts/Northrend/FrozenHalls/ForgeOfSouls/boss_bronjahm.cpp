@@ -45,16 +45,20 @@ enum Spells
     SPELL_SOULSTORM             = 68872,
     SPELL_SOULSTORM_CHANNEL     = 69008, // Pre-fight
     SPELL_SOULSTORM_VISUAL      = 68870, // Pre-cast Soulstorm
-    SPELL_PURPLE_BANISH_VISUAL  = 68862  // Used by Soul Fragment (Aura)
+    SPELL_PURPLE_BANISH_VISUAL  = 68862, // Used by Soul Fragment (Aura)
+
+    SPELL_KNOCKDOWN_STUN        = 68848,
+    SPELL_DRAW_CORRUPTED_SOUL   = 68846
 };
 
 enum Events
 {
-    EVENT_MAGIC_BANE    = 1,
-    EVENT_SHADOW_BOLT   = 2,
-    EVENT_CORRUPT_SOUL  = 3,
-    EVENT_SOULSTORM     = 4,
-    EVENT_FEAR          = 5
+    EVENT_MAGIC_BANE = 1,
+    EVENT_SHADOW_BOLT,
+    EVENT_CORRUPT_SOUL,
+    EVENT_SOULSTORM,
+    EVENT_FEAR,
+    EVENT_TELEPORT
 };
 
 enum CombatPhases
@@ -82,6 +86,7 @@ struct boss_bronjahm : public BossAI
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
         events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
         events.ScheduleEvent(EVENT_CORRUPT_SOUL, 25s, 35s, 0, PHASE_1);
+        me->SetCanMelee(true);
     }
 
     void JustReachedHome() override
@@ -114,9 +119,8 @@ struct boss_bronjahm : public BossAI
         if (events.IsInPhase(PHASE_1) && !HealthAbovePct(30))
         {
             events.SetPhase(PHASE_2);
-            DoCast(me, SPELL_TELEPORT);
-            events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
-            events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
+            events.ScheduleEvent(EVENT_TELEPORT, 1ms, 0, PHASE_2);
+            me->SetCanMelee(false);
         }
     }
 
@@ -196,6 +200,11 @@ struct boss_bronjahm : public BossAI
                     me->CastSpell(nullptr, SPELL_FEAR, { SPELLVALUE_MAX_TARGETS, 1 });
                     events.ScheduleEvent(EVENT_FEAR, 8s, 12s, 0, PHASE_2);
                     break;
+                case EVENT_TELEPORT:
+                    DoCastSelf(SPELL_TELEPORT);
+                    events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
+                    events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
+                    break;
                 default:
                     break;
             }
@@ -203,9 +212,6 @@ struct boss_bronjahm : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (!events.IsInPhase(PHASE_2))
-            DoMeleeAttackIfReady();
     }
 };
 
@@ -241,33 +247,29 @@ private:
 // 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_magic_bane);
-
-    void RecalculateDamage(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
-        if (GetHitUnit()->GetPowerType() != POWER_MANA)
+        if (victim->GetPowerType() != POWER_MANA)
             return;
 
         int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-        int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-        SetEffectValue(std::min<int32>(maxDamage, newDamage));
+        int32 newDamage = damage + (victim->GetMaxPower(POWER_MANA) / 2);
+        damage = std::min(maxDamage, newDamage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_bronjahm_magic_bane::CalculateDamage);
     }
 };
 
 // 68861 - Consume Soul
 class spell_bronjahm_consume_soul : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_consume_soul);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -290,8 +292,6 @@ static uint32 const SoulstormVisualSpells[] =
 
 class spell_bronjahm_soulstorm_visual : public AuraScript
 {
-    PrepareAuraScript(spell_bronjahm_soulstorm_visual);
-
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -307,8 +307,6 @@ class spell_bronjahm_soulstorm_visual : public AuraScript
 // 68921, 69049 - Soulstorm
 class spell_bronjahm_soulstorm_targeting : public SpellScript
 {
-    PrepareSpellScript(spell_bronjahm_soulstorm_targeting);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
@@ -321,6 +319,27 @@ class spell_bronjahm_soulstorm_targeting : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
+// 68839 - Corrupt Soul
+class spell_bronjahm_corrupt_soul : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN_STUN, SPELL_DRAW_CORRUPTED_SOUL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_KNOCKDOWN_STUN, true);
+        target->CastSpell(target, SPELL_DRAW_CORRUPTED_SOUL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bronjahm_corrupt_soul::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -344,5 +363,6 @@ void AddSC_boss_bronjahm()
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_channel");
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_visual");
     RegisterSpellScript(spell_bronjahm_soulstorm_targeting);
-    RegisterSpellScript(achievement_bronjahm_soul_power);
+    RegisterSpellScript(spell_bronjahm_corrupt_soul);
+    new achievement_bronjahm_soul_power();
 }

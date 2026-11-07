@@ -109,6 +109,6 @@ namespace ObjectAccessor
     void RemoveObject(Player* player);
 
     TC_GAME_API void SaveAllPlayers();
-};
+}
 
 #endif

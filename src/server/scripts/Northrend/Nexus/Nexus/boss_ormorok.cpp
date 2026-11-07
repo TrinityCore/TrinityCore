@@ -166,8 +166,6 @@ struct boss_ormorok : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -268,8 +266,6 @@ std::array<uint32, 4> const SummonSpellsHeroic =
 // 47958, 57082 - Crystal Spikes
 class spell_ormorok_summon_crystal_spikes : public SpellScript
 {
-    PrepareSpellScript(spell_ormorok_summon_crystal_spikes);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(SummonSpells) && ValidateSpellInfo(SummonSpellsHeroic);
@@ -291,8 +287,6 @@ class spell_ormorok_summon_crystal_spikes : public SpellScript
 // 47941 - Crystal Spike
 class spell_ormorok_crystal_spike : public AuraScript
 {
-    PrepareAuraScript(spell_ormorok_crystal_spike);
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();

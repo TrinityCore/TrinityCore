@@ -28,7 +28,7 @@ class TC_GAME_API GarrisonMap : public Map
 public:
     GarrisonMap(uint32 id, time_t, uint32 instanceId, ObjectGuid const& owner);
 
-    void LoadGridObjects(NGridType* grid, Cell const& cell) override;
+    void LoadGridObjects(NGridType* grid) override;
     Garrison* GetGarrison();
 
     void InitVisibilityDistance() override;

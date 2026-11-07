@@ -39,27 +39,48 @@
 #include "Trainer.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet)
+enum class TabardVendorType : int32
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_TABARDDESIGNER, UNIT_NPC_FLAG_2_NONE);
+    Guild       = 0,
+    Personal    = 1,
+};
+
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate const& tabardVendorActivate)
+{
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(tabardVendorActivate.Vendor, UNIT_NPC_FLAG_TABARDDESIGNER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - {} not found or you can not interact with him.", packet.Unit.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - {} not found or you can not interact with him.", tabardVendorActivate.Vendor.ToString());
         return;
     }
+
+    TabardVendorType type = TabardVendorType(tabardVendorActivate.Type);
+    if (type != TabardVendorType::Guild && type != TabardVendorType::Personal)
+        return;
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendTabardVendorActivate(packet.Unit);
+    SendTabardVendorActivate(tabardVendorActivate.Vendor, TabardVendorType(tabardVendorActivate.Type));
 }
 
-void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
+void WorldSession::SendTabardVendorActivate(ObjectGuid guid, TabardVendorType type)
 {
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
-    npcInteraction.InteractionType = PlayerInteractionType::TabardVendor;
+    npcInteraction.InteractionType = [&]
+    {
+        switch (type)
+        {
+            case TabardVendorType::Guild:
+                return PlayerInteractionType::GuildTabardVendor;
+            case TabardVendorType::Personal:
+                return PlayerInteractionType::PersonalTabardVendor;
+            default:
+                ABORT_MSG("Unsupported tabard vendor type %d", AsUnderlyingType(type));
+        }
+    }();
     npcInteraction.Success = true;
     SendPacket(npcInteraction.Write());
 }
@@ -101,9 +122,8 @@ void WorldSession::SendTrainerList(Creature* npc, uint32 trainerId)
         return;
     }
 
-    _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = npc->GetGUID();
-    _player->PlayerTalkClass->GetInteractionData().TrainerId = trainerId;
+    _player->PlayerTalkClass->GetInteractionData().StartInteraction(npc->GetGUID(), PlayerInteractionType::Trainer);
+    _player->PlayerTalkClass->GetInteractionData().GetTrainer()->Id = trainerId;
     trainer->SendSpells(npc, _player, GetSessionDbLocaleIndex());
 }
 
@@ -122,10 +142,10 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.TrainerGUID)
+    if (!_player->PlayerTalkClass->GetInteractionData().IsInteractingWith(packet.TrainerGUID, PlayerInteractionType::Trainer))
         return;
 
-    if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
+    if (_player->PlayerTalkClass->GetInteractionData().GetTrainer()->Id != uint32(packet.TrainerID))
         return;
 
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);
@@ -177,7 +197,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
         return;
 
     // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.GossipUnit)
+    if (!_player->PlayerTalkClass->GetInteractionData().IsInteractingWith(packet.GossipUnit, PlayerInteractionType::Gossip))
         return;
 
     Creature* unit = nullptr;
@@ -274,9 +294,9 @@ void WorldSession::SendSpiritResurrect()
 
     // get corpse nearest graveyard
     WorldSafeLocsEntry const* corpseGrave = nullptr;
-    WorldLocation corpseLocation = _player->GetCorpseLocation();
     if (_player->HasCorpse())
     {
+        WorldLocation const& corpseLocation = _player->GetCorpseLocation();
         corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation, _player->GetTeam(), _player);
     }
 
@@ -351,9 +371,15 @@ void WorldSession::SendPetStableResult(StableResult result)
 
 void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
 {
-    if (!CheckStableMaster(setPetSlot.StableMaster) || setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    if (!CheckStableMaster(setPetSlot.StableMaster))
     {
-        SendPetStableResult(StableResult::InternalError);
+        SendPetStableResult(StableResult::NotStableMaster);
+        return;
+    }
+
+    if (setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    {
+        SendPetStableResult(StableResult::InvalidSlot);
         return;
     }
 

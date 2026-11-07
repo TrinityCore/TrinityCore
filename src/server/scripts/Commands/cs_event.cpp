@@ -37,7 +37,7 @@ class event_commandscript : public CommandScript
 public:
     event_commandscript() : CommandScript("event_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable eventCommandTable =
         {
@@ -114,7 +114,7 @@ public:
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);
 
-        handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description.c_str(), activeStr,
+        handler->PSendSysMessage(LANG_EVENT_INFO, *eventId, eventData.description.c_str(), activeStr,
             startTimeStr.c_str(), endTimeStr.c_str(), occurenceStr.c_str(), lengthStr.c_str(),
             nextStr.c_str());
         return true;
@@ -142,7 +142,7 @@ public:
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         if (activeEvents.find(eventId) != activeEvents.end())
         {
-            handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE, eventId);
+            handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE, *eventId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -174,7 +174,7 @@ public:
 
         if (activeEvents.find(eventId) == activeEvents.end())
         {
-            handler->PSendSysMessage(LANG_EVENT_NOT_ACTIVE, eventId);
+            handler->PSendSysMessage(LANG_EVENT_NOT_ACTIVE, *eventId);
             handler->SetSentErrorMessage(true);
             return false;
         }

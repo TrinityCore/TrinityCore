@@ -120,8 +120,11 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction tran
 
     for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < mailLoot.items.size(); ++i)
     {
-        if (LootItem* lootitem = mailLoot.LootItemInSlot(i, receiver))
+        if (LootItem const* lootitem = mailLoot.LootItemInSlot(i, receiver))
         {
+            if (lootitem->type != LootItemType::Item)
+                continue;
+
             if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, lootitem->context, receiver))
             {
                 item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
@@ -234,7 +237,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     stmt->setInt64 (++index, deliver_time);
     stmt->setUInt64(++index, m_money);
     stmt->setUInt64(++index, m_COD);
-    stmt->setUInt8 (++index, uint8(checked));
+    stmt->setUInt32(++index, checked);
     trans->Append(stmt);
 
     for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)

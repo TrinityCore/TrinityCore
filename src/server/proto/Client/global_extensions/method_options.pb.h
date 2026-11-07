@@ -186,6 +186,18 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline ::std::string* release_forward_key_proto_file();
   inline void set_allocated_forward_key_proto_file(::std::string* forward_key_proto_file);
 
+  // optional string forward_shard_name = 13;
+  inline bool has_forward_shard_name() const;
+  inline void clear_forward_shard_name();
+  static const int kForwardShardNameFieldNumber = 13;
+  inline const ::std::string& forward_shard_name() const;
+  inline void set_forward_shard_name(const ::std::string& value);
+  inline void set_forward_shard_name(const char* value);
+  inline void set_forward_shard_name(const char* value, size_t size);
+  inline ::std::string* mutable_forward_shard_name();
+  inline ::std::string* release_forward_shard_name();
+  inline void set_allocated_forward_shard_name(::std::string* forward_shard_name);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSMethodOptions)
  private:
   inline void set_has_id();
@@ -212,6 +224,8 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline void clear_has_client_register_type();
   inline void set_has_forward_key_proto_file();
   inline void clear_has_forward_key_proto_file();
+  inline void set_has_forward_shard_name();
+  inline void clear_has_forward_shard_name();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -228,6 +242,7 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   bool obsolete_;
   ::std::string* custom_region_resolver_;
   ::std::string* forward_key_proto_file_;
+  ::std::string* forward_shard_name_;
   int client_register_type_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto();
@@ -745,6 +760,82 @@ inline void BGSMethodOptions::set_allocated_forward_key_proto_file(::std::string
     forward_key_proto_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+}
+
+// optional string forward_shard_name = 13;
+inline bool BGSMethodOptions::has_forward_shard_name() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void BGSMethodOptions::set_has_forward_shard_name() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void BGSMethodOptions::clear_has_forward_shard_name() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void BGSMethodOptions::clear_forward_shard_name() {
+  if (forward_shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_shard_name_->clear();
+  }
+  clear_has_forward_shard_name();
+}
+inline const ::std::string& BGSMethodOptions::forward_shard_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.forward_shard_name)
+  return *forward_shard_name_;
+}
+inline void BGSMethodOptions::set_forward_shard_name(const ::std::string& value) {
+  set_has_forward_shard_name();
+  if (forward_shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_shard_name_ = new ::std::string;
+  }
+  forward_shard_name_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.forward_shard_name)
+}
+inline void BGSMethodOptions::set_forward_shard_name(const char* value) {
+  set_has_forward_shard_name();
+  if (forward_shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_shard_name_ = new ::std::string;
+  }
+  forward_shard_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSMethodOptions.forward_shard_name)
+}
+inline void BGSMethodOptions::set_forward_shard_name(const char* value, size_t size) {
+  set_has_forward_shard_name();
+  if (forward_shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_shard_name_ = new ::std::string;
+  }
+  forward_shard_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSMethodOptions.forward_shard_name)
+}
+inline ::std::string* BGSMethodOptions::mutable_forward_shard_name() {
+  set_has_forward_shard_name();
+  if (forward_shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_shard_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSMethodOptions.forward_shard_name)
+  return forward_shard_name_;
+}
+inline ::std::string* BGSMethodOptions::release_forward_shard_name() {
+  clear_has_forward_shard_name();
+  if (forward_shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = forward_shard_name_;
+    forward_shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSMethodOptions::set_allocated_forward_shard_name(::std::string* forward_shard_name) {
+  if (forward_shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete forward_shard_name_;
+  }
+  if (forward_shard_name) {
+    set_has_forward_shard_name();
+    forward_shard_name_ = forward_shard_name;
+  } else {
+    clear_has_forward_shard_name();
+    forward_shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.forward_shard_name)
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -20,24 +20,18 @@
 #include "gruuls_lair.h"
 #include "InstanceScript.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
-    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   DOOR_TYPE_PASSAGE },
-    { GO_GRUUL_DOOR,    DATA_GRUUL,     DOOR_TYPE_ROOM },
-    { 0,                0,              DOOR_TYPE_ROOM } // END
+    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_GRUUL_DOOR,    DATA_GRUUL,     EncounterDoorBehavior::OpenWhenNotInProgress },
 };
 
-MinionData const minionData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_MAULGAR,              DATA_MAULGAR },
-    { NPC_KROSH_FIREHAND,       DATA_MAULGAR },
-    { NPC_OLM_THE_SUMMONER,     DATA_MAULGAR },
-    { NPC_KIGGLER_THE_CRAZED,   DATA_MAULGAR },
-    { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR },
-    { 0, 0 }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MAULGAR, {{ 649 }} },
     { DATA_GRUUL, {{ 650 }} }
@@ -55,44 +49,9 @@ class instance_gruuls_lair : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadMinionData(minionData);
+                LoadObjectData(creatureData, {});
                 LoadDungeonEncounterData(encounters);
             }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    case NPC_MAULGAR:
-                        MaulgarGUID = creature->GetGUID();
-                        [[fallthrough]];
-                    case NPC_KROSH_FIREHAND:
-                    case NPC_OLM_THE_SUMMONER:
-                    case NPC_KIGGLER_THE_CRAZED:
-                    case NPC_BLINDEYE_THE_SEER:
-                        AddMinion(creature, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MAULGAR:
-                        return MaulgarGUID;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-        protected:
-            ObjectGuid MaulgarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

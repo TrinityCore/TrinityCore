@@ -223,7 +223,7 @@ struct boss_kalecgos : public BossAI
 
     void KilledUnit(Unit* who) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance_i(50))
+        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance(50))
             Talk(SAY_EVIL_SLAY);
     }
 
@@ -263,7 +263,7 @@ struct boss_kalecgos : public BossAI
             switch (eventId)
             {
                 case EVENT_ARCANE_BUFFET:
-                    if (roll_chance_i(20))
+                    if (roll_chance(20))
                         Talk(SAY_ARCANE_BUFFET);
                     DoCastAOE(SPELL_ARCANE_BUFFET);
                     events.Repeat(Seconds(8));
@@ -339,8 +339,6 @@ struct boss_kalecgos : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -420,8 +418,6 @@ struct boss_kalecgos_human : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -517,7 +513,7 @@ struct boss_sathrovarr : public BossAI
         switch (eventId)
         {
             case EVENT_SHADOWBOLT:
-                if (roll_chance_i(20))
+                if (roll_chance(20))
                     Talk(SAY_SATH_SPELL1);
                 DoCastAOE(SPELL_SHADOW_BOLT);
                 events.Repeat(Seconds(7), Seconds(10));
@@ -534,7 +530,7 @@ struct boss_sathrovarr : public BossAI
                 break;
             }
             case EVENT_CORRUPTION_STRIKE:
-                if (roll_chance_i(20))
+                if (roll_chance(20))
                     Talk(SAY_SATH_SPELL2);
                 DoCastVictim(SPELL_CORRUPTION_STRIKE);
                 events.Repeat(Seconds(13));
@@ -603,16 +599,14 @@ class go_kalecgos_spectral_rift : public GameObjectScript
 // 46732 - Tap Check
 class spell_kalecgos_tap_check : public SpellScript
 {
-    PrepareSpellScript(spell_kalecgos_tap_check);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().CalcValue(), true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().CalcValueAsInt(), true);
     }
 
     void Register() override
@@ -639,8 +633,6 @@ class SpectralBlastSelector : NonTankTargetSelector
 // 44869 - Spectral Blast
 class spell_kalecgos_spectral_blast : public SpellScript
 {
-    PrepareSpellScript(spell_kalecgos_spectral_blast);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -676,8 +668,6 @@ class spell_kalecgos_spectral_blast : public SpellScript
 // 44811 - Spectral Realm
 class spell_kalecgos_spectral_realm_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_kalecgos_spectral_realm_trigger);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -707,8 +697,6 @@ class spell_kalecgos_spectral_realm_trigger : public SpellScript
 // 46021 - Spectral Realm
 class spell_kalecgos_spectral_realm_aura : public AuraScript
 {
-    PrepareAuraScript(spell_kalecgos_spectral_realm_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -736,8 +724,6 @@ class spell_kalecgos_spectral_realm_aura : public AuraScript
 // 45032, 45034 - Curse of Boundless Agony
 class spell_kalecgos_curse_of_boundless_agony : public AuraScript
 {
-    PrepareAuraScript(spell_kalecgos_curse_of_boundless_agony);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

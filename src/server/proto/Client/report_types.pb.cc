@@ -322,20 +322,20 @@ void protobuf_AddDesc_report_5ftypes_2eproto() {
     ".account.v1.GameAccountHandle\022\014\n\004text\030\002 "
     "\001(\t\"`\n\024RealLifeThreatReport\022:\n\006target\030\001 "
     "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
-    "tHandle\022\014\n\004text\030\002 \001(\t\"v\n\034InappropriateBa"
+    "tHandle\022\014\n\004text\030\002 \001(\t\"n\n\034InappropriateBa"
     "ttleTagReport\022:\n\006target\030\001 \001(\0132*.bgs.prot"
-    "ocol.account.v1.GameAccountHandle\022\032\n\nbat"
-    "tle_tag\030\002 \001(\tB\006\202\371+\002\010\001\"K\n\rHackingReport\022:"
-    "\n\006target\030\001 \001(\0132*.bgs.protocol.account.v1"
-    ".GameAccountHandle\"K\n\rBottingReport\022:\n\006t"
-    "arget\030\001 \001(\0132*.bgs.protocol.account.v1.Ga"
-    "meAccountHandle\"\345\001\n\006Report\022\023\n\013report_typ"
-    "e\030\001 \002(\t\022*\n\tattribute\030\002 \003(\0132\027.bgs.protoco"
-    "l.Attribute\022\025\n\nreport_qos\030\003 \001(\005:\0010\0221\n\021re"
-    "porting_account\030\004 \001(\0132\026.bgs.protocol.Ent"
-    "ityId\0226\n\026reporting_game_account\030\005 \001(\0132\026."
-    "bgs.protocol.EntityId\022\030\n\020report_timestam"
-    "p\030\006 \001(\006B\005H\002\200\001\000", 1694);
+    "ocol.account.v1.GameAccountHandle\022\022\n\nbat"
+    "tle_tag\030\002 \001(\t\"K\n\rHackingReport\022:\n\006target"
+    "\030\001 \001(\0132*.bgs.protocol.account.v1.GameAcc"
+    "ountHandle\"K\n\rBottingReport\022:\n\006target\030\001 "
+    "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
+    "tHandle\"\345\001\n\006Report\022\023\n\013report_type\030\001 \002(\t\022"
+    "*\n\tattribute\030\002 \003(\0132\027.bgs.protocol.Attrib"
+    "ute\022\025\n\nreport_qos\030\003 \001(\005:\0010\0221\n\021reporting_"
+    "account\030\004 \001(\0132\026.bgs.protocol.EntityId\0226\n"
+    "\026reporting_game_account\030\005 \001(\0132\026.bgs.prot"
+    "ocol.EntityId\022\030\n\020report_timestamp\030\006 \001(\006B"
+    "\005H\002\200\001\000", 1686);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "report_types.proto", &protobuf_RegisterTypes);
   ReportType::default_instance_ = new ReportType();

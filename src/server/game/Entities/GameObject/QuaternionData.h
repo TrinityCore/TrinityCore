@@ -34,16 +34,9 @@ struct TC_GAME_API QuaternionData
     bool isUnit() const;
     void toEulerAnglesZYX(float& Z, float& Y, float& X) const;
     static QuaternionData fromEulerAnglesZYX(float Z, float Y, float X);
+    static QuaternionData fromOrientation(float orientation);
 
-    friend bool operator==(QuaternionData const& left, QuaternionData const& right)
-    {
-        return left.x == right.x && left.y == right.y && left.z == right.z && left.w == right.w;
-    }
-
-    friend bool operator!=(QuaternionData const& left, QuaternionData const& right)
-    {
-        return !(left == right);
-    }
+    friend bool operator==(QuaternionData const& left, QuaternionData const& right) = default;
 };
 
 #endif // QuaternionData_h__

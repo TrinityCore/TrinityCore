@@ -224,7 +224,7 @@ struct boss_skadi : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->setActive(true);
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);
@@ -232,13 +232,13 @@ struct boss_skadi : public BossAI
                 instance->TriggerGameEvent(ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
                 scheduler
-                    .Schedule(Seconds(6), [this](TaskContext resetCheck)
+                    .Schedule(Seconds(6), [this](TaskContext& resetCheck)
                     {
                         if (Creature* resetTrigger = me->FindNearestCreature(NPC_TRIGGER_RESET, 200.0f))
                             resetTrigger->CastSpell(resetTrigger, SPELL_UTGARDE_PINNACLE_GUANTLET_RESET_CHECK, true);
                         resetCheck.Repeat();
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         if (Creature* grauf = instance->GetCreature(DATA_GRAUF))
                             DoCast(grauf, SPELL_RIDE_GRAUF);
@@ -259,24 +259,24 @@ struct boss_skadi : public BossAI
                 Talk(SAY_DRAKE_DEATH);
                 DoCastSelf(SPELL_SKADI_TELEPORT);
                 summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _phase = PHASE_GROUND;
 
                 scheduler
-                    .Schedule(Seconds(8), [this](TaskContext crush)
+                    .Schedule(Seconds(8), [this](TaskContext& crush)
                     {
                         DoCastVictim(SPELL_CRUSH);
                         crush.Repeat();
                     })
-                    .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
+                    .Schedule(Seconds(11), [this](TaskContext& poisonedSpear)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             DoCast(target, SPELL_POISONED_SPEAR);
                         poisonedSpear.Repeat();
                     })
-                    .Schedule(Seconds(23), [this](TaskContext whirlwind)
+                    .Schedule(Seconds(23), [this](TaskContext& whirlwind)
                     {
                         DoCast(SPELL_WHIRLWIND);
                         whirlwind.Repeat();
@@ -306,8 +306,6 @@ struct boss_skadi : public BossAI
         {
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
     }
 
@@ -358,7 +356,7 @@ struct npc_grauf : public ScriptedAI
         me->SetCanFly(true);
         me->SetDisableGravity(true);
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
         {
             me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_INITIAL, false);
         });
@@ -373,12 +371,12 @@ struct npc_grauf : public ScriptedAI
         {
             case POINT_BREACH:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreachPoint);
                         Talk(EMOTE_ON_RANGE);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         if (RAND(POINT_LEFT, POINT_RIGHT) == POINT_LEFT)
                             me->GetMotionMaster()->MoveAlongSplineChain(POINT_LEFT, SPLINE_CHAIN_BREACH_LEFT, false);
@@ -388,38 +386,38 @@ struct npc_grauf : public ScriptedAI
                 break;
             case POINT_LEFT:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreathPointLeft);
                         Talk(EMOTE_BREATH);
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_LEFT, false);
                         DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
                         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                             skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
                     });
                 break;
             case POINT_RIGHT:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreathPointRight);
                         Talk(EMOTE_BREATH);
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_RIGHT, false);
                         DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
                         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                             skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
                     });
@@ -481,7 +479,7 @@ struct npc_skadi_trashAI : public ScriptedAI
                 me->SetEmoteState(me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
                 break;
             case POINT_1:
-                _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_2, SecondaryWavesFinalPoint);
                 });
@@ -498,10 +496,7 @@ struct npc_skadi_trashAI : public ScriptedAI
     {
         UpdateVictim();
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
     virtual void ScheduleTasks() = 0;
@@ -518,12 +513,12 @@ struct npc_ymirjar_warrior : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext& context)
             {
                 DoCastVictim(SPELL_HAMSTRING);
                 context.Repeat(Seconds(11), Seconds(18));
             })
-            .Schedule(Seconds(9), [this](TaskContext context)
+            .Schedule(Seconds(9), [this](TaskContext& context)
             {
                 DoCastVictim(SPELL_STRIKE);
                 context.Repeat(Seconds(10), Seconds(13));
@@ -538,12 +533,12 @@ struct npc_ymirjar_witch_doctor : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(2), [this](TaskContext shadowBolt)
+            .Schedule(Seconds(2), [this](TaskContext& shadowBolt)
             {
                 DoCastVictim(SPELL_SHADOW_BOLT);
                 shadowBolt.Repeat();
             })
-            .Schedule(Seconds(20), Seconds(34), [this](TaskContext shrink)
+            .Schedule(Seconds(20), Seconds(34), [this](TaskContext& shrink)
             {
                 DoCastVictim(SPELL_SHRINK);
                 shrink.Repeat();
@@ -558,13 +553,13 @@ struct npc_ymirjar_harpooner : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(13), [this](TaskContext net)
+            .Schedule(Seconds(13), [this](TaskContext& net)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
                     DoCast(target, SPELL_NET);
                 net.Repeat();
             })
-            .Schedule(Seconds(2), [this](TaskContext castThrow)
+            .Schedule(Seconds(2), [this](TaskContext& castThrow)
             {
                 DoCastVictim(SPELL_THROW);
                 castThrow.Repeat();
@@ -580,8 +575,6 @@ struct npc_ymirjar_harpooner : public npc_skadi_trashAI
 // 47594 - Freezing Cloud
 class spell_freezing_cloud_area_right : public SpellScript
 {
-    PrepareSpellScript(spell_freezing_cloud_area_right);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
@@ -607,8 +600,6 @@ class spell_freezing_cloud_area_right : public SpellScript
 // 47574 - Freezing Cloud
 class spell_freezing_cloud_area_left : public SpellScript
 {
-    PrepareSpellScript(spell_freezing_cloud_area_left);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
@@ -634,8 +625,6 @@ class spell_freezing_cloud_area_left : public SpellScript
 // 47579, 60020 - Freezing Cloud
 class spell_freezing_cloud_damage : public AuraScript
 {
-    PrepareAuraScript(spell_freezing_cloud_damage);
-
     bool CanBeAppliedOn(Unit* target)
     {
         if (Aura* aur = target->GetAura(GetId()))
@@ -654,8 +643,6 @@ class spell_freezing_cloud_damage : public AuraScript
 // 49308 - Utgarde Pinnacle Guantlet Reset Check
 class spell_skadi_reset_check : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_reset_check);
-
     void CountTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_UTGARDE_PINNACLE_GAUNTLET_EFFECT));
@@ -689,8 +676,6 @@ private:
 // 48642 - Launch Harpoon
 class spell_skadi_launch_harpoon : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_launch_harpoon);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.size() >= 2)
@@ -713,8 +698,6 @@ class spell_skadi_launch_harpoon : public SpellScript
 // 50255, 59331 - Poisoned Spear
 class spell_skadi_poisoned_spear : public SpellScript
 {
-    PrepareSpellScript(spell_skadi_poisoned_spear);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
@@ -734,8 +717,6 @@ class spell_skadi_poisoned_spear : public SpellScript
 // 61791 - Ride Vehicle
 class spell_skadi_ride_vehicle : public AuraScript
 {
-    PrepareAuraScript(spell_skadi_ride_vehicle);
-
     void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         PreventDefaultAction();
@@ -756,8 +737,6 @@ class spell_skadi_ride_vehicle : public AuraScript
 // 59275 - Summon Gauntlet Mobs Periodic
 class spell_summon_gauntlet_mobs_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_summon_gauntlet_mobs_periodic);
-
     void CastTheNextTwoSpells()
     {
         for (uint8 i = 0; i < 2; ++i)

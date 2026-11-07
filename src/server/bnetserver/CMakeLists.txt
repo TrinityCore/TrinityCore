@@ -10,31 +10,21 @@
 
 ########### bnetserver ###############
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
+add_executable(bnetserver)
+
+CollectAndAddSourceFiles(
+  bnetserver
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 if (WIN32)
   if (MSVC)
-    list(APPEND PRIVATE_SOURCES bnetserver.rc)
+    target_sources(bnetserver PRIVATE bnetserver.rc)
   endif()
-endif()
-
-if (USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
-endif()
-
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_executable(bnetserver
-  ${PRIVATE_SOURCES}
-)
-
-if (NOT WIN32)
+else()
   target_compile_definitions(bnetserver PRIVATE
     _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
     _TRINITY_BNET_CONFIG_DIR="${CONF_DIR}/bnetserver.conf.d"
@@ -47,62 +37,38 @@ target_link_libraries(bnetserver
   PUBLIC
     shared)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
 target_include_directories(bnetserver
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(bnetserver
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
-if (COPY_CONF AND WIN32)
-  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-    add_custom_command(TARGET bnetserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-  elseif (MINGW)
-    add_custom_command(TARGET bnetserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
-    )
-  endif()
-endif()
-
-if (WIN32)
-  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-    add_custom_command(TARGET bnetserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.cert.pem ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.key.pem ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-  elseif (MINGW)
-    add_custom_command(TARGET bnetserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.cert.pem ${CMAKE_BINARY_DIR}/bin/
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.key.pem ${CMAKE_BINARY_DIR}/bin/
-    )
-  endif()
-endif()
+add_custom_command(TARGET bnetserver
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.cert.pem ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bnetserver.cert.pem
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.key.pem ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bnetserver.key.pem
+)
 
 if (UNIX)
   install(TARGETS bnetserver DESTINATION bin)
   if (COPY_CONF)
+    add_custom_command(TARGET bnetserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../etc/bnetserver.conf.dist
+    )
     install(FILES bnetserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
   install(FILES bnetserver.cert.pem bnetserver.key.pem DESTINATION bin)
 elseif (WIN32)
   install(TARGETS bnetserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   if (COPY_CONF)
+    add_custom_command(TARGET bnetserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bnetserver.conf.dist
+    )
     install(FILES bnetserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
   install(FILES bnetserver.cert.pem bnetserver.key.pem DESTINATION "${CMAKE_INSTALL_PREFIX}")
@@ -110,5 +76,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(bnetserver ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(bnetserver PrecompiledHeaders/bnetPCH.h)
 endif()

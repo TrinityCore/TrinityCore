@@ -27,6 +27,7 @@
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 
@@ -35,13 +36,14 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 class Player;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct Realm;
+enum class GameRule : int32;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -98,7 +100,7 @@ enum WorldTimers
 };
 
 /// Configuration elements
-enum WorldBoolConfigs
+enum WorldBoolConfigs : uint32
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
     CONFIG_ADDON_CHANNEL,
@@ -163,7 +165,6 @@ enum WorldBoolConfigs
     CONFIG_QUEST_IGNORE_AUTO_ACCEPT,
     CONFIG_QUEST_IGNORE_AUTO_COMPLETE,
     CONFIG_QUEST_ENABLE_QUEST_TRACKER,
-    CONFIG_WARDEN_ENABLED,
     CONFIG_ENABLE_MMAPS,
     CONFIG_WINTERGRASP_ENABLE,
     CONFIG_TOLBARAD_ENABLE,
@@ -173,7 +174,6 @@ enum WorldBoolConfigs
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
-    CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
     CONFIG_RESET_DUEL_COOLDOWNS,
     CONFIG_RESET_DUEL_HEALTH_MANA,
@@ -194,11 +194,15 @@ enum WorldBoolConfigs
     CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
     CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
     CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE,
+    CONFIG_EXTENDED_ACCOUNT_NAME_LENGTH_LIMIT,
     CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT,
+    CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS,
+    CONFIG_ENABLE_AE_LOOT,
+    CONFIG_LOAD_LOCALES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
-enum WorldFloatConfigs
+enum WorldFloatConfigs : uint32
 {
     CONFIG_GROUP_XP_DISTANCE = 0,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
@@ -222,10 +226,14 @@ enum WorldFloatConfigs
     CONFIG_CALL_TO_ARMS_5_PCT,
     CONFIG_CALL_TO_ARMS_10_PCT,
     CONFIG_CALL_TO_ARMS_20_PCT,
+    CONFIG_MAX_VISIBILITY_DISTANCE_CONTINENT,
+    CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE,
+    CONFIG_MAX_VISIBILITY_DISTANCE_BATTLEGROUND,
+    CONFIG_MAX_VISIBILITY_DISTANCE_ARENA,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
-enum WorldIntConfigs
+enum WorldIntConfigs : uint32
 {
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
@@ -234,7 +242,6 @@ enum WorldIntConfigs
     CONFIG_INTERVAL_CHANGEWEATHER,
     CONFIG_INTERVAL_DISCONNECT_TOLERANCE,
     CONFIG_PORT_WORLD,
-    CONFIG_PORT_INSTANCE,
     CONFIG_SOCKET_TIMEOUTTIME,
     CONFIG_SESSION_ADD_DELAY,
     CONFIG_GAME_TYPE,
@@ -258,13 +265,7 @@ enum WorldIntConfigs
     CONFIG_START_PLAYER_LEVEL,
     CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL,
     CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL,
-    CONFIG_START_EVOKER_PLAYER_LEVEL,
     CONFIG_START_ALLIED_RACE_LEVEL,
-    CONFIG_START_PLAYER_MONEY,
-    CONFIG_CURRENCY_START_APEXIS_CRYSTALS,
-    CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS,
-    CONFIG_CURRENCY_START_JUSTICE_POINTS,
-    CONFIG_CURRENCY_MAX_JUSTICE_POINTS,
     CONFIG_CURRENCY_RESET_HOUR,
     CONFIG_CURRENCY_RESET_DAY,
     CONFIG_CURRENCY_RESET_INTERVAL,
@@ -325,12 +326,13 @@ enum WorldIntConfigs
     CONFIG_AUCTION_LEVEL_REQ,
     CONFIG_MAIL_LEVEL_REQ,
     CONFIG_CORPSE_DECAY_NORMAL,
-    CONFIG_CORPSE_DECAY_RARE,
     CONFIG_CORPSE_DECAY_ELITE,
     CONFIG_CORPSE_DECAY_RAREELITE,
-    CONFIG_CORPSE_DECAY_WORLDBOSS,
+    CONFIG_CORPSE_DECAY_OBSOLETE,
+    CONFIG_CORPSE_DECAY_RARE,
+    CONFIG_CORPSE_DECAY_TRIVIAL,
+    CONFIG_CORPSE_DECAY_MINUSMOB,
     CONFIG_DEATH_SICKNESS_LEVEL,
-    CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
     CONFIG_BATTLEGROUND_INVITATION_TYPE,
     CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
@@ -344,12 +346,12 @@ enum WorldIntConfigs
     CONFIG_ARENA_START_PERSONAL_RATING,
     CONFIG_ARENA_START_MATCHMAKER_RATING,
     CONFIG_MAX_WHO,
+    CONFIG_WHO_LIST_UPDATE_INTERVAL,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
     CONFIG_ENABLE_SINFO_LOGIN,
-    CONFIG_PLAYER_ALLOW_COMMANDS,
     CONFIG_NUMTHREADS,
     CONFIG_LOGDB_CLEARINTERVAL,
     CONFIG_LOGDB_CLEARTIME,
@@ -376,13 +378,6 @@ enum WorldIntConfigs
     CONFIG_LFG_OPTIONSMASK,
     CONFIG_MAX_INSTANCES_PER_HOUR,
     CONFIG_XP_BOOST_DAYMASK,
-    CONFIG_WARDEN_CLIENT_RESPONSE_DELAY,
-    CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
-    CONFIG_WARDEN_CLIENT_FAIL_ACTION,
-    CONFIG_WARDEN_CLIENT_BAN_DURATION,
-    CONFIG_WARDEN_NUM_INJECT_CHECKS,
-    CONFIG_WARDEN_NUM_LUA_CHECKS,
-    CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
     CONFIG_WINTERGRASP_PLR_MIN_LVL,
@@ -433,17 +428,26 @@ enum WorldIntConfigs
     CONFIG_BLACKMARKET_MAXAUCTIONS,
     CONFIG_BLACKMARKET_UPDATE_PERIOD,
     CONFIG_FACTION_BALANCE_LEVEL_CHECK_DIFF,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_CONTINENT,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_BATTLEGROUND,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_ARENA,
     INT_CONFIG_VALUE_COUNT
 };
 
-enum WorldInt64Configs
+enum WorldInt64Configs : uint32
 {
     CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
-    INT64_CONFIT_VALUE_COUNT
+    CONFIG_START_PLAYER_MONEY,
+    CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY,
+    CONFIG_START_DEMON_HUNTER_PLAYER_MONEY,
+    CONFIG_START_EVOKER_PLAYER_MONEY,
+    CONFIG_START_ALLIED_RACE_MONEY,
+    INT64_CONFIG_VALUE_COUNT
 };
 
 /// Server rates
-enum Rates
+enum Rates : uint32
 {
     RATE_HEALTH = 0,
     RATE_POWER_MANA,
@@ -478,28 +482,33 @@ enum Rates
     RATE_XP_KILL,
     RATE_XP_BG_KILL,
     RATE_XP_QUEST,
-    RATE_XP_GUILD_MODIFIER,
     RATE_XP_EXPLORE,
     RATE_REPAIRCOST,
     RATE_REPUTATION_GAIN,
     RATE_REPUTATION_LOWLEVEL_KILL,
     RATE_REPUTATION_LOWLEVEL_QUEST,
     RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS,
-    RATE_CREATURE_NORMAL_HP,
-    RATE_CREATURE_ELITE_ELITE_HP,
-    RATE_CREATURE_ELITE_RAREELITE_HP,
-    RATE_CREATURE_ELITE_WORLDBOSS_HP,
-    RATE_CREATURE_ELITE_RARE_HP,
-    RATE_CREATURE_NORMAL_DAMAGE,
-    RATE_CREATURE_ELITE_ELITE_DAMAGE,
-    RATE_CREATURE_ELITE_RAREELITE_DAMAGE,
-    RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE,
-    RATE_CREATURE_ELITE_RARE_DAMAGE,
-    RATE_CREATURE_NORMAL_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_RARE_SPELLDAMAGE,
+    RATE_CREATURE_HP_NORMAL,
+    RATE_CREATURE_HP_ELITE,
+    RATE_CREATURE_HP_RAREELITE,
+    RATE_CREATURE_HP_OBSOLETE,
+    RATE_CREATURE_HP_RARE,
+    RATE_CREATURE_HP_TRIVIAL,
+    RATE_CREATURE_HP_MINUSMOB,
+    RATE_CREATURE_DAMAGE_NORMAL,
+    RATE_CREATURE_DAMAGE_ELITE,
+    RATE_CREATURE_DAMAGE_RAREELITE,
+    RATE_CREATURE_DAMAGE_OBSOLETE,
+    RATE_CREATURE_DAMAGE_RARE,
+    RATE_CREATURE_DAMAGE_TRIVIAL,
+    RATE_CREATURE_DAMAGE_MINUSMOB,
+    RATE_CREATURE_SPELLDAMAGE_NORMAL,
+    RATE_CREATURE_SPELLDAMAGE_ELITE,
+    RATE_CREATURE_SPELLDAMAGE_RAREELITE,
+    RATE_CREATURE_SPELLDAMAGE_OBSOLETE,
+    RATE_CREATURE_SPELLDAMAGE_RARE,
+    RATE_CREATURE_SPELLDAMAGE_TRIVIAL,
+    RATE_CREATURE_SPELLDAMAGE_MINUSMOB,
     RATE_CREATURE_AGGRO,
     RATE_REST_INGAME,
     RATE_REST_OFFLINE_IN_TAVERN_OR_CITY,
@@ -509,7 +518,6 @@ enum Rates
     RATE_AUCTION_DEPOSIT,
     RATE_AUCTION_CUT,
     RATE_HONOR,
-    RATE_TALENT,
     RATE_CORPSE_DECAY_LOOTED,
     RATE_INSTANCE_RESET_TIME,
     RATE_DURABILITY_LOSS_ON_DEATH,
@@ -522,48 +530,6 @@ enum Rates
     RATE_MONEY_QUEST,
     RATE_MONEY_MAX_LEVEL_QUEST,
     MAX_RATES
-};
-
-enum RealmZone
-{
-    REALM_ZONE_UNKNOWN       = 0,                           // any language
-    REALM_ZONE_DEVELOPMENT   = 1,                           // any language
-    REALM_ZONE_UNITED_STATES = 2,                           // extended-Latin
-    REALM_ZONE_OCEANIC       = 3,                           // extended-Latin
-    REALM_ZONE_LATIN_AMERICA = 4,                           // extended-Latin
-    REALM_ZONE_TOURNAMENT_5  = 5,                           // basic-Latin at create, any at login
-    REALM_ZONE_KOREA         = 6,                           // East-Asian
-    REALM_ZONE_TOURNAMENT_7  = 7,                           // basic-Latin at create, any at login
-    REALM_ZONE_ENGLISH       = 8,                           // extended-Latin
-    REALM_ZONE_GERMAN        = 9,                           // extended-Latin
-    REALM_ZONE_FRENCH        = 10,                          // extended-Latin
-    REALM_ZONE_SPANISH       = 11,                          // extended-Latin
-    REALM_ZONE_RUSSIAN       = 12,                          // Cyrillic
-    REALM_ZONE_TOURNAMENT_13 = 13,                          // basic-Latin at create, any at login
-    REALM_ZONE_TAIWAN        = 14,                          // East-Asian
-    REALM_ZONE_TOURNAMENT_15 = 15,                          // basic-Latin at create, any at login
-    REALM_ZONE_CHINA         = 16,                          // East-Asian
-    REALM_ZONE_CN1           = 17,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN2           = 18,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN3           = 19,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN4           = 20,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN5           = 21,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN6           = 22,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN7           = 23,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN8           = 24,                          // basic-Latin at create, any at login
-    REALM_ZONE_TOURNAMENT_25 = 25,                          // basic-Latin at create, any at login
-    REALM_ZONE_TEST_SERVER   = 26,                          // any language
-    REALM_ZONE_TOURNAMENT_27 = 27,                          // basic-Latin at create, any at login
-    REALM_ZONE_QA_SERVER     = 28,                          // any language
-    REALM_ZONE_CN9           = 29,                          // basic-Latin at create, any at login
-    REALM_ZONE_TEST_SERVER_2 = 30,                          // any language
-    REALM_ZONE_CN10          = 31,                          // basic-Latin at create, any at login
-    REALM_ZONE_CTC           = 32,
-    REALM_ZONE_CNC           = 33,
-    REALM_ZONE_CN1_4         = 34,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN2_6_9       = 35,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN3_7         = 36,                          // basic-Latin at create, any at login
-    REALM_ZONE_CN5_8         = 37                           // basic-Latin at create, any at login
 };
 
 struct PersistentWorldVariable;
@@ -593,6 +559,11 @@ typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 class TC_GAME_API World
 {
     public:
+        World(World const&) = delete;
+        World(World&&) = delete;
+        World& operator=(World const&) = delete;
+        World& operator=(World&&) = delete;
+
         static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
@@ -679,17 +650,15 @@ class TC_GAME_API World
             return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
         }
 
-        void SetInitialWorldSettings();
+        bool SetInitialWorldSettings();
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(uint32 string_id, ...);
         void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
-        void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = nullptr);
-        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
+        void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player const* player = nullptr);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, Optional<Team> team = { });
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, Optional<Team> team = { });
 
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
@@ -750,7 +719,7 @@ class TC_GAME_API World
 
         uint64 GetUInt64Config(WorldInt64Configs index) const
         {
-            return index < INT64_CONFIT_VALUE_COUNT ? m_int64_configs[index] : 0;
+            return index < INT64_CONFIG_VALUE_COUNT ? m_int64_configs[index] : 0;
         }
 
         static PersistentWorldVariable const NextCurrencyResetTimeVarId;                    // Next arena distribution time
@@ -779,23 +748,12 @@ class TC_GAME_API World
         BanReturn BanCharacter(std::string const& name, std::string const& duration, std::string const& reason, std::string const& author);
         bool RemoveBanCharacter(std::string const& name);
 
-        // for max speed access
-        static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
-        static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-        static float GetMaxVisibleDistanceInBG()            { return m_MaxVisibleDistanceInBG;         }
-        static float GetMaxVisibleDistanceInArenas()        { return m_MaxVisibleDistanceInArenas;     }
-
-        static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
-        static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
-        static int32 GetVisibilityNotifyPeriodInBG()        { return m_visibility_notify_periodInBG;         }
-        static int32 GetVisibilityNotifyPeriodInArenas()    { return m_visibility_notify_periodInArenas;     }
-
         void ProcessCliCommands();
         void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
 
         void ForceGameEventUpdate();
 
-        void UpdateRealmCharCount(uint32 accid);
+        void UpdateRealmCharCount(uint32 accountId);
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
@@ -824,6 +782,17 @@ class TC_GAME_API World
         // War mode balancing
         void SetForcedWarModeFactionBalanceState(TeamId team, int32 reward = 0);
         void DisableForcedWarModeFactionBalanceState();
+
+        struct GameRule
+        {
+            ::GameRule Rule;
+            std::variant<int32, float, bool> Value;
+        };
+
+        std::vector<GameRule> const& GetGameRules() const
+        {
+            return _gameRules;
+        }
 
     protected:
         void _UpdateGameTime();
@@ -876,7 +845,7 @@ class TC_GAME_API World
 
         float rate_values[MAX_RATES];
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
-        uint64 m_int64_configs[INT64_CONFIT_VALUE_COUNT];
+        uint64 m_int64_configs[INT64_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         std::unordered_map<std::string, int32> m_worldVariables;
@@ -887,17 +856,6 @@ class TC_GAME_API World
         bool m_allowMovement;
         std::vector<std::string> _motd;
         std::string m_dataPath;
-
-        // for max speed access
-        static float m_MaxVisibleDistanceOnContinents;
-        static float m_MaxVisibleDistanceInInstances;
-        static float m_MaxVisibleDistanceInBG;
-        static float m_MaxVisibleDistanceInArenas;
-
-        static int32 m_visibility_notify_periodOnContinents;
-        static int32 m_visibility_notify_periodInInstances;
-        static int32 m_visibility_notify_periodInBG;
-        static int32 m_visibility_notify_periodInArenas;
 
         // CLI command holder to be thread safe
         LockedQueue<CliCommandHolder*> cliCmdQueue;
@@ -918,7 +876,6 @@ class TC_GAME_API World
         void AddSession_(WorldSession* s);
         LockedQueue<WorldSession*> addSessQueue;
 
-        void ProcessLinkInstanceSocket(std::pair<std::weak_ptr<WorldSocket>, uint64> linkInfo);
         LockedQueue<std::pair<std::weak_ptr<WorldSocket>, uint64>> _linkSocketQueue;
 
         // used versions
@@ -949,13 +906,13 @@ class TC_GAME_API World
         uint32 _warnDiff;
         time_t _warnShutdownTime;
 
+        std::vector<GameRule> _gameRules;
+
         // War mode balancing
         void UpdateWarModeRewardValues();
 
     friend class debug_commandscript;
 };
-
-TC_GAME_API extern Realm realm;
 
 TC_GAME_API uint32 GetVirtualRealmAddress();
 

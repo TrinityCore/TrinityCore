@@ -29,7 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Texts
+enum LanathelTexts
 {
     SAY_AGGRO                   = 0,
     SAY_VAMPIRIC_BITE           = 1,
@@ -46,7 +46,7 @@ enum Texts
     EMOTE_BERSERK_RAID          = 12
 };
 
-enum Spells
+enum LanathelSpells
 {
     SPELL_SHROUD_OF_SORROW                  = 70986,
     SPELL_FRENZIED_BLOODTHIRST_VISUAL       = 71949,
@@ -76,7 +76,7 @@ enum Spells
     SPELL_BLOOD_INFUSION_CREDIT             = 72934
 };
 
-enum Shadowmourne
+enum LanathelMisc
 {
     QUEST_BLOOD_INFUSION                    = 24756,
 
@@ -97,7 +97,7 @@ uint32 const vampireAuras[3][4] =
 #define DELIRIOUS_SLASH            RAID_MODE<uint32>(71623, 71624, 71625, 71626)
 #define PRESENCE_OF_THE_DARKFALLEN RAID_MODE<uint32>(70994, 71962, 71963, 71964)
 
-enum Events
+enum LanathelEvents
 {
     EVENT_BERSERK                   = 1,
     EVENT_VAMPIRIC_BITE             = 2,
@@ -114,13 +114,13 @@ enum Events
     EVENT_GROUP_CANCELLABLE         = 2,
 };
 
-enum Guids
+enum LanathelGuids
 {
     GUID_VAMPIRE    = 1,
     GUID_BLOODBOLT  = 2,
 };
 
-enum Points
+enum LanathelPoints
 {
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
@@ -138,6 +138,7 @@ bool IsVampire(Unit const* unit)
     return false;
 }
 
+// 37955 - Blood-Queen Lana'thel
 struct boss_blood_queen_lana_thel : public BossAI
 {
     boss_blood_queen_lana_thel(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
@@ -409,8 +410,6 @@ struct boss_blood_queen_lana_thel : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     bool WasVampire(ObjectGuid guid) const
@@ -466,8 +465,6 @@ typedef boss_blood_queen_lana_thel LanaThelAI;
 // 70946, 71475, 71476, 71477 - Vampiric Bite
 class spell_blood_queen_vampiric_bite : public SpellScript
 {
-    PrepareSpellScript(spell_blood_queen_vampiric_bite);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, SPELL_FRENZIED_BLOODTHIRST, SPELL_PRESENCE_OF_THE_DARKFALLEN });
@@ -526,8 +523,6 @@ class spell_blood_queen_vampiric_bite : public SpellScript
 // 70877, 71474 - Frenzied Bloodthirst
 class spell_blood_queen_frenzied_bloodthirst : public AuraScript
 {
-    PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (InstanceScript* instance = GetTarget()->GetInstanceScript())
@@ -575,8 +570,6 @@ class BloodboltHitCheck
 // 71899, 71900, 71901, 71902 - Bloodbolt Whirl
 class spell_blood_queen_bloodbolt : public SpellScript
 {
-    PrepareSpellScript(spell_blood_queen_bloodbolt);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_TWILIGHT_BLOODBOLT });
@@ -613,8 +606,6 @@ class spell_blood_queen_bloodbolt : public SpellScript
 // 70871 - Essence of the Blood Queen
 class spell_blood_queen_essence_of_the_blood_queen : public AuraScript
 {
-    PrepareAuraScript(spell_blood_queen_essence_of_the_blood_queen);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL });
@@ -641,8 +632,6 @@ class spell_blood_queen_essence_of_the_blood_queen : public AuraScript
 // 71390 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen : public SpellScript
 {
-    PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_PACT_OF_THE_DARKFALLEN));
@@ -679,8 +668,6 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScript
 // 71340 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
 {
-    PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE });
@@ -690,9 +677,9 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, GetCastDifficulty());
-        int32 damage = damageSpell->GetEffect(EFFECT_0).CalcValue();
+        SpellEffectValue damage = damageSpell->GetEffect(EFFECT_0).CalcValue();
         float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-        damage = int32(damage * multiplier);
+        damage = damage * multiplier;
 
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(damage);
@@ -708,8 +695,6 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
 // 71341 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScript
 {
-    PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_target);
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         unitList.remove_if(Trinity::UnitAuraCheck(true, SPELL_PACT_OF_THE_DARKFALLEN));
@@ -725,8 +710,6 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScript
 // 71446, 71478, 71479, 71480 - Twilight Bloodbolt
 class spell_blood_queen_twilight_bloodbolt : public SpellScript
 {
-    PrepareSpellScript(spell_blood_queen_twilight_bloodbolt);
-
     void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
         Unit* caster = damageInfo.GetAttacker();;

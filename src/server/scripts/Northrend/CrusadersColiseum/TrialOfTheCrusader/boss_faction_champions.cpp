@@ -38,6 +38,7 @@ enum AIs
 enum Spells
 {
     // generic
+    SPELL_LEAP                      = 67382, // intro
     SPELL_ANTI_AOE                  = 68595,
     SPELL_PVP_TRINKET               = 65547,
 
@@ -482,13 +483,13 @@ struct boss_toc_champion_controller : public BossAI
                 if (playerTeam == ALLIANCE)
                 {
                     champion->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                    champion->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos], 20.0f, 20.0f);
-                    champion->SetOrientation(0);
+                    champion->CastSpell(vChampionJumpTarget[pos], SPELL_LEAP);
                 }
                 else
                 {
-                    champion->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                    champion->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), vChampionJumpTarget[pos].GetOrientation(), 20.0f, 20.0f);
+                    Position jumpTarget = { (ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3 };
+                    champion->SetHomePosition(jumpTarget);
+                    champion->CastSpell(jumpTarget, SPELL_LEAP);
                     champion->SetOrientation(3);
                 }
             }
@@ -632,7 +633,6 @@ struct boss_faction_championsAI : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
         if (Creature* pChampionController = instance->GetCreature(DATA_FACTION_CRUSADERS))
@@ -724,9 +724,6 @@ struct boss_faction_championsAI : public BossAI
                     return;
             }
         }
-
-        if (_aiType == AI_MELEE || _aiType == AI_PET)
-            DoMeleeAttackIfReady();
     }
 
     private:
@@ -1322,7 +1319,10 @@ struct npc_toc_mage : public boss_faction_championsAI
 
 struct npc_toc_hunter : public boss_faction_championsAI
 {
-    npc_toc_hunter(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED) { }
+    npc_toc_hunter(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void Reset() override
     {
@@ -2063,8 +2063,6 @@ struct npc_toc_pet_hunter : public boss_faction_championsAI
 // 65812, 68154, 68155, 68156 - Unstable Affliction
 class spell_faction_champion_warl_unstable_affliction : public AuraScript
 {
-    PrepareAuraScript(spell_faction_champion_warl_unstable_affliction);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_UNSTABLE_AFFLICTION_DISPEL });
@@ -2085,8 +2083,6 @@ class spell_faction_champion_warl_unstable_affliction : public AuraScript
 // 66017, 68753, 68754, 68755 - Death Grip
 class spell_faction_champion_death_grip : public SpellScript
 {
-    PrepareSpellScript(spell_faction_champion_death_grip);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DEATH_GRIP_PULL });
@@ -2110,8 +2106,6 @@ class spell_faction_champion_death_grip : public SpellScript
 // 65980 - Bloodlust
 class spell_toc_bloodlust : public SpellScript
 {
-    PrepareSpellScript(spell_toc_bloodlust);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ AURA_SATED });
@@ -2139,8 +2133,6 @@ class spell_toc_bloodlust : public SpellScript
 // 65983 - Heroism
 class spell_toc_heroism : public SpellScript
 {
-    PrepareSpellScript(spell_toc_heroism);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ AURA_EXHAUSTION });

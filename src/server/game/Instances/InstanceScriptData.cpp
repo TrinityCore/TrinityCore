@@ -49,7 +49,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::Load(char const* data
             }
         }
     */
-    if (_doc.Parse(data).HasParseError())
+    if (_doc.Parse(data, strlen(data)).HasParseError())
     {
         TC_LOG_ERROR("scripts.data.load", "JSON parser error {} at {} while loading data for instance {} [{}-{} | {}-{}]",
             rapidjson::GetParseError_En(_doc.GetParseError()), _doc.GetErrorOffset(),
@@ -184,7 +184,7 @@ uint32 InstanceScriptDataReader::GetInstanceId() const { return _instance.instan
 uint32 InstanceScriptDataReader::GetMapId() const { return _instance.instance->GetId(); }
 char const* InstanceScriptDataReader::GetMapName() const { return _instance.instance->GetMapName(); }
 uint32 InstanceScriptDataReader::GetDifficultyId() const { return uint32(_instance.instance->GetDifficultyID()); }
-char const* InstanceScriptDataReader::GetDifficultyName() const { return sDifficultyStore.AssertEntry(_instance.instance->GetDifficultyID())->Name[sWorld->GetDefaultDbcLocale()]; }
+std::string_view InstanceScriptDataReader::GetDifficultyName() const { return DB2Manager::GetDifficultyName(_instance.instance->GetDifficultyID()); }
 
 std::string InstanceScriptDataWriter::GetString()
 {

@@ -152,7 +152,6 @@ struct boss_razorgore : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -182,8 +181,6 @@ struct go_orb_of_domination : public GameObjectAI
 // 19873 - Destroy Egg
 class spell_egg_event : public SpellScript
 {
-    PrepareSpellScript(spell_egg_event);
-
     void HandleOnHit()
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())

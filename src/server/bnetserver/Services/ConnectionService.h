@@ -15,17 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ConnectionService_h__
-#define ConnectionService_h__
+#ifndef TRINITYCORE_CONNECTION_SERVICE_H
+#define TRINITYCORE_CONNECTION_SERVICE_H
 
 #include "Service.h"
-#include "connection_service.pb.h"
+#include "Client/connection_service.pb.h"
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    class Session;
-
-    namespace Services
+    namespace V1
     {
         class Connection : public Service<connection::v1::ConnectionService>
         {
@@ -37,9 +35,8 @@ namespace Battlenet
             uint32 HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
             uint32 HandleKeepAlive(NoData const* request) override;
             uint32 HandleRequestDisconnect(connection::v1::DisconnectRequest const* request) override;
-
         };
     }
 }
 
-#endif // ConnectionService_h__
+#endif // TRINITYCORE_CONNECTION_SERVICE_H

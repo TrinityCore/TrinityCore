@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -96,6 +97,8 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     if (!curloc)
         return;
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(unit->GetGUID(), PlayerInteractionType::TaxiNode);
+
     bool lastTaxiCheaterState = GetPlayer()->isTaxiCheater();
     if (unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
@@ -123,18 +126,6 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
 }
 
-void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
-{
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (mountDisplayId)
-        GetPlayer()->Mount(mountDisplayId);
-
-    GetPlayer()->GetMotionMaster()->MoveTaxiFlight(path, pathNode);
-}
-
 bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 {
     // find current node
@@ -145,13 +136,14 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 
     if (GetPlayer()->m_taxi.SetTaximaskNode(curloc))
     {
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(curloc).Write());
 
         WorldPackets::Taxi::TaxiNodeStatus data;
         data.Unit = unit->GetGUID();
         data.Status = TAXISTATUS_LEARNED;
         SendPacket(data.Write());
 
+        GetPlayer()->UpdateCriteria(CriteriaType::LearnTaxiNode, curloc);
         return true;
     }
     else
@@ -161,7 +153,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
 {
     if (GetPlayer()->m_taxi.SetTaximaskNode(nodeid))
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(nodeid).Write());
 }
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& activateTaxi)
@@ -202,10 +194,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
                 DB2Manager::MountXDisplayContainer usableDisplays;
                 std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
                 {
-                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
-
-                    return true;
+                    return ConditionMgr::IsPlayerMeetingCondition(GetPlayer(), mountDisplay->PlayerConditionID);
                 });
 
                 if (!usableDisplays.empty())

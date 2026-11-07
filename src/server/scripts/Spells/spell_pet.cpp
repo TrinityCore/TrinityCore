@@ -93,8 +93,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
 
         class spell_gen_pet_calculate_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_pet_calculate_AuraScript);
-
             bool Load() override
             {
                 if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -102,7 +100,7 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
             {
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
@@ -115,11 +113,11 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     // Increase crit spell from spell crit ratings
                     CritSpell += owner->GetRatingBonusValue(CR_CRIT_SPELL);
 
-                    amount += int32(CritSpell);
+                    amount += CritSpell;
                 }
             }
 
-            void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
             {
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
@@ -132,11 +130,11 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     // Increase crit melee from melee crit ratings
                     CritMelee += owner->GetRatingBonusValue(CR_CRIT_MELEE);
 
-                    amount += int32(CritMelee);
+                    amount += CritMelee;
                 }
             }
 
-            void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
             {
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
@@ -147,11 +145,11 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     // Increase hit melee from meele hit ratings
                     HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
-                    amount += int32(HitMelee);
+                    amount += HitMelee;
                 }
             }
 
-            void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
             {
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
@@ -162,11 +160,11 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     // Increase hit spell from spell hit ratings
                     HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                    amount += int32(HitSpell);
+                    amount += HitSpell;
                 }
             }
 
-            void CalculateAmountExpertise(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmountExpertise(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
             {
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
@@ -177,7 +175,7 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     // Increase Expertise from Expertise ratings
                     Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
 
-                    amount += int32(Expertise);
+                    amount += Expertise;
                 }
             }
 
@@ -223,8 +221,6 @@ public:
 
     class spell_warl_pet_scaling_01_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_scaling_01_AuraScript);
-
     public:
         spell_warl_pet_scaling_01_AuraScript()
         {
@@ -239,7 +235,7 @@ public:
             return true;
         }
 
-        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -293,7 +289,7 @@ public:
                 }
         }
 
-        void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -314,14 +310,14 @@ public:
                     {
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
-                            float base_attPower = pet->GetFlatModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetPctModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
-                            amount += CalculatePct(amount+base_attPower, /* aurEff */ect->GetAmount());
+                            float base_attPower = float(*pet->m_unitData->AttackPower);
+                            amount += CalculatePct(amount + base_attPower, /* aurEff */ect->GetAmount());
                         }
                     }
                 }
         }
 
-        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -366,8 +362,6 @@ public:
 
     class spell_warl_pet_scaling_02_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_scaling_02_AuraScript);
-
     public:
         spell_warl_pet_scaling_02_AuraScript()
         {
@@ -382,7 +376,7 @@ public:
             return true;
         }
 
-        void CalculateIntellectAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateIntellectAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -433,7 +427,7 @@ public:
                 }
         }
 
-        void CalculateArmorAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateArmorAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -444,7 +438,7 @@ public:
                     }
         }
 
-        void CalculateFireResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateFireResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -481,8 +475,6 @@ public:
 
     class spell_warl_pet_scaling_03_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_scaling_03_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -490,7 +482,7 @@ public:
             return true;
         }
 
-        void CalculateFrostResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateFrostResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -501,7 +493,7 @@ public:
                     }
         }
 
-        void CalculateArcaneResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateArcaneResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -512,7 +504,7 @@ public:
                     }
         }
 
-        void CalculateNatureResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateNatureResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -544,8 +536,6 @@ public:
 
     class spell_warl_pet_scaling_04_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_scaling_04_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -553,7 +543,7 @@ public:
             return true;
         }
 
-        void CalculateShadowResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateShadowResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -583,8 +573,6 @@ public:
 
     class spell_warl_pet_scaling_05_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_scaling_05_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -592,7 +580,7 @@ public:
             return true;
         }
 
-        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -603,11 +591,11 @@ public:
                 // Increase hit spell from spell hit ratings
                 HitMelee += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(HitMelee);
+                amount += HitMelee;
             }
         }
 
-        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -618,11 +606,11 @@ public:
                 // Increase hit spell from spell hit ratings
                 HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(HitSpell);
+                amount += HitSpell;
             }
         }
 
-        void CalculateAmountExpertise(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountExpertise(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -633,7 +621,7 @@ public:
                 // Increase hit spell from spell hit ratings
                 Expertise += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(Expertise);
+                amount += Expertise;
             }
         }
 
@@ -658,8 +646,6 @@ public:
 
     class spell_warl_pet_passive_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_passive_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -667,7 +653,7 @@ public:
             return true;
         }
 
-        void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -687,7 +673,7 @@ public:
             }
         }
 
-        void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -727,8 +713,6 @@ public:
 
     class spell_warl_pet_passive_damage_done_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_passive_damage_done_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -736,7 +720,7 @@ public:
             return true;
         }
 
-        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -778,8 +762,6 @@ public:
 
     class spell_warl_pet_passive_voidwalker_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_warl_pet_passive_voidwalker_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -787,7 +769,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -815,8 +797,6 @@ public:
 
     class spell_sha_pet_scaling_04_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_sha_pet_scaling_04_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -824,7 +804,7 @@ public:
             return true;
         }
 
-        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -835,11 +815,11 @@ public:
                 // Increase hit melee from meele hit ratings
                 HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
-                amount += int32(HitMelee);
+                amount += HitMelee;
             }
         }
 
-        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
@@ -850,7 +830,7 @@ public:
                 // Increase hit spell from spell hit ratings
                 HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(HitSpell);
+                amount += HitSpell;
             }
         }
 
@@ -874,8 +854,6 @@ public:
 
     class spell_hun_pet_scaling_01_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_scaling_01_AuraScript);
-
     public:
         spell_hun_pet_scaling_01_AuraScript()
         {
@@ -883,7 +861,7 @@ public:
         }
 
     private:
-        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
@@ -919,7 +897,7 @@ public:
                 _tempHealth = pet->GetHealth();
         }
 
-        void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -949,7 +927,7 @@ public:
             }
         }
 
-        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1005,8 +983,6 @@ public:
 
     class spell_hun_pet_scaling_02_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_scaling_02_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1014,7 +990,7 @@ public:
             return true;
         }
 
-        void CalculateFrostResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateFrostResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1030,7 +1006,7 @@ public:
             }
         }
 
-        void CalculateFireResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateFireResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1046,7 +1022,7 @@ public:
             }
         }
 
-        void CalculateNatureResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateNatureResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1083,8 +1059,6 @@ public:
 
     class spell_hun_pet_scaling_03_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_scaling_03_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1092,7 +1066,7 @@ public:
             return true;
         }
 
-        void CalculateShadowResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateShadowResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1108,7 +1082,7 @@ public:
             }
         }
 
-        void CalculateArcaneResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateArcaneResistanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1124,7 +1098,7 @@ public:
             }
         }
 
-        void CalculateArmorAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateArmorAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1161,8 +1135,6 @@ public:
 
     class spell_hun_pet_scaling_04_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_scaling_04_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1170,7 +1142,7 @@ public:
             return true;
         }
 
-        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1183,11 +1155,11 @@ public:
                 // Increase hit melee from meele hit ratings
                 HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
-                amount += int32(HitMelee);
+                amount += HitMelee;
             }
         }
 
-        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1200,11 +1172,11 @@ public:
                 // Increase hit spell from spell hit ratings
                 HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(HitSpell);
+                amount += HitSpell;
             }
         }
 
-        void CalculateAmountExpertise(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountExpertise(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1217,7 +1189,7 @@ public:
                 // Increase Expertise from Expertise ratings
                 Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
 
-                amount += int32(Expertise);
+                amount += Expertise;
             }
         }
 
@@ -1242,8 +1214,6 @@ public:
 
     class spell_hun_pet_passive_crit_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_passive_crit_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1251,7 +1221,7 @@ public:
             return true;
         }
 
-        void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountCritSpell(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1270,7 +1240,7 @@ public:
             }
         }
 
-        void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountCritMelee(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1309,8 +1279,6 @@ public:
 
     class spell_hun_pet_passive_damage_done_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_pet_passive_damage_done_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1318,7 +1286,7 @@ public:
             return true;
         }
 
-        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1349,8 +1317,6 @@ public:
 
     class spell_hun_animal_handler_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_animal_handler_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1358,7 +1324,7 @@ public:
             return true;
         }
 
-        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountDamageDone(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1390,8 +1356,6 @@ public:
 
     class spell_dk_avoidance_passive_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_avoidance_passive_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1399,7 +1363,7 @@ public:
             return true;
         }
 
-        void CalculateAvoidanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAvoidanceAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1434,8 +1398,6 @@ public:
 
     class spell_dk_pet_scaling_01_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_pet_scaling_01_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1443,7 +1405,7 @@ public:
             return true;
         }
 
-        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateStaminaAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1471,7 +1433,7 @@ public:
                 _tempHealth = pet->GetHealth();
         }
 
-        void CalculateStrengthAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateStrengthAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1511,8 +1473,6 @@ public:
 
     class spell_dk_pet_scaling_02_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_pet_scaling_02_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1520,7 +1480,7 @@ public:
             return true;
         }
 
-        void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1531,13 +1491,13 @@ public:
                 // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                 HasteMelee += (1-owner->m_modAttackSpeedPct[BASE_ATTACK])*100;
 
-                amount += int32(HasteMelee);
+                amount += HasteMelee;
             }
         }
 
         void Register() override
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_02_AuraScript::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MELEE_SLOW);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_02_AuraScript::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MOD_MELEE_RANGED_CASTING_HASTE);
         }
     };
 
@@ -1554,8 +1514,6 @@ public:
 
     class spell_dk_pet_scaling_03_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_pet_scaling_03_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1563,7 +1521,7 @@ public:
             return true;
         }
 
-        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1576,11 +1534,11 @@ public:
                 // Increase hit melee from meele hit ratings
                 HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
-                amount += int32(HitMelee);
+                amount += HitMelee;
             }
         }
 
-        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1593,7 +1551,7 @@ public:
                 // Increase hit spell from spell hit ratings
                 HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
-                amount += int32(HitSpell);
+                amount += HitSpell;
             }
         }
 
@@ -1617,8 +1575,6 @@ public:
 
     class spell_dk_rune_weapon_scaling_02_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_rune_weapon_scaling_02_AuraScript);
-
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1626,7 +1582,7 @@ public:
             return true;
         }
 
-        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
             {
@@ -1641,7 +1597,7 @@ public:
             }
         }
 
-        void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+        void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
         {
             if (!GetCaster() || !GetCaster()->GetOwner())
                 return;
@@ -1652,14 +1608,14 @@ public:
                 // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                 HasteMelee += (1-owner->m_modAttackSpeedPct[BASE_ATTACK])*100;
 
-                amount += int32(HasteMelee);
+                amount += HasteMelee;
             }
         }
 
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02_AuraScript::CalculateDamageDoneAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_DONE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02_AuraScript::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MELEE_SLOW);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02_AuraScript::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MOD_MELEE_RANGED_CASTING_HASTE);
         }
     };
 

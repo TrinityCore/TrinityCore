@@ -34,7 +34,7 @@ void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
       "global_extensions/method_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSMethodOptions_descriptor_ = file->message_type(0);
-  static const int BGSMethodOptions_offsets_[12] = {
+  static const int BGSMethodOptions_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, client_identity_routing_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, enable_fanout_),
@@ -47,6 +47,7 @@ void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, obsolete_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, client_register_type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, forward_key_proto_file_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, forward_shard_name_),
   };
   BGSMethodOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -96,7 +97,7 @@ void protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
     "\022\014bgs.protocol\032 google/protobuf/descript"
     "or.proto\032\037global_extensions/routing.prot"
     "o\032-global_extensions/register_method_typ"
-    "es.proto\"\254\003\n\020BGSMethodOptions\022\n\n\002id\030\001 \001("
+    "es.proto\"\310\003\n\020BGSMethodOptions\022\n\n\002id\030\001 \001("
     "\r\022H\n\027client_identity_routing\030\002 \001(\0162\'.bgs"
     ".protocol.ClientIdentityRoutingType\022\025\n\re"
     "nable_fanout\030\003 \001(\010\022!\n\031legacy_fanout_repl"
@@ -106,11 +107,11 @@ void protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
     "\030\010 \001(\t\022\037\n\027explicit_region_routing\030\t \001(\010\022"
     "\020\n\010obsolete\030\n \001(\010\022D\n\024client_register_typ"
     "e\030\013 \001(\0162&.bgs.protocol.ClientRegisterMet"
-    "hodType\022\036\n\026forward_key_proto_file\030\014 \001(\t:"
-    "X\n\016method_options\022\036.google.protobuf.Meth"
-    "odOptions\030\220\277\005 \001(\0132\036.bgs.protocol.BGSMeth"
-    "odOptionsB$\n\014bgs.protocolB\022MethodOptions"
-    "ProtoH\002", 727);
+    "hodType\022\036\n\026forward_key_proto_file\030\014 \001(\t\022"
+    "\032\n\022forward_shard_name\030\r \001(\t:X\n\016method_op"
+    "tions\022\036.google.protobuf.MethodOptions\030\220\277"
+    "\005 \001(\0132\036.bgs.protocol.BGSMethodOptionsB$\n"
+    "\014bgs.protocolB\022MethodOptionsProtoH\002", 755);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/method_options.proto", &protobuf_RegisterTypes);
   BGSMethodOptions::default_instance_ = new BGSMethodOptions();
@@ -143,6 +144,7 @@ const int BGSMethodOptions::kExplicitRegionRoutingFieldNumber;
 const int BGSMethodOptions::kObsoleteFieldNumber;
 const int BGSMethodOptions::kClientRegisterTypeFieldNumber;
 const int BGSMethodOptions::kForwardKeyProtoFileFieldNumber;
+const int BGSMethodOptions::kForwardShardNameFieldNumber;
 #endif  // !_MSC_VER
 
 BGSMethodOptions::BGSMethodOptions()
@@ -176,6 +178,7 @@ void BGSMethodOptions::SharedCtor() {
   obsolete_ = false;
   client_register_type_ = 0;
   forward_key_proto_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  forward_shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -196,6 +199,9 @@ void BGSMethodOptions::SharedDtor() {
   }
   if (forward_key_proto_file_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete forward_key_proto_file_;
+  }
+  if (forward_shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete forward_shard_name_;
   }
   if (this != default_instance_) {
   }

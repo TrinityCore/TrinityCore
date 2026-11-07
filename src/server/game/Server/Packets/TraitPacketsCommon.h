@@ -27,6 +27,7 @@ namespace UF
 {
 struct TraitConfig;
 struct TraitEntry;
+struct TraitSubTreeCache;
 }
 
 namespace WorldPackets::Traits
@@ -40,6 +41,17 @@ struct TraitEntry
     int32 TraitNodeEntryID = 0;
     int32 Rank = 0;
     int32 GrantedRanks = 0;
+    int32 BonusRanks = 0;
+};
+
+struct TraitSubTreeCache
+{
+    TraitSubTreeCache();
+    explicit TraitSubTreeCache(UF::TraitSubTreeCache const& ufSubTreeCache);
+
+    int32 TraitSubTreeID = 0;
+    std::vector<TraitEntry> Entries;
+    bool Active = false;
 };
 
 struct TraitConfig
@@ -54,12 +66,16 @@ struct TraitConfig
     int32 LocalIdentifier = 0;  // Local to specialization
     int32 SkillLineID = 0;
     int32 TraitSystemID = 0;
+    int32 VariationID = 0;
     std::vector<TraitEntry> Entries;
+    std::vector<TraitSubTreeCache> SubTrees;
     String<259> Name;
 };
 
 ByteBuffer& operator>>(ByteBuffer& data, TraitEntry& traitEntry);
 ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry);
+ByteBuffer& operator>>(ByteBuffer& data, TraitSubTreeCache& traitSubTreeCache);
+ByteBuffer& operator<<(ByteBuffer& data, TraitSubTreeCache const& traitSubTreeCache);
 ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig);
 ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig);
 }

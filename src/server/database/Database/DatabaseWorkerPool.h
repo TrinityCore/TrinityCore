@@ -18,17 +18,15 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include "StringFormat.h"
 #include <array>
+#include <atomic>
 #include <string>
 #include <vector>
 
-template <typename T>
-class ProducerConsumerQueue;
-
-class SQLOperation;
 struct MySQLConnectionInfo;
 
 template <class T>
@@ -206,12 +204,11 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
-        void WarnAboutSyncQueries([[maybe_unused]] bool warn)
-        {
 #ifdef TRINITY_DEBUG
-            _warnSyncQueries = warn;
+        static void WarnAboutSyncQueries(bool warn);
+#else
+        static void WarnAboutSyncQueries([[maybe_unused]] bool warn) { }
 #endif
-        }
 
         size_t QueueSize() const;
 
@@ -220,23 +217,24 @@ class DatabaseWorkerPool
 
         unsigned long EscapeString(char* to, char const* from, unsigned long length);
 
-        void Enqueue(SQLOperation* op);
-
         //! Gets a free connection in the synchronous connection pool.
         //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
         T* GetFreeConnection();
 
+        T* GetAsyncConnectionForCurrentThread() const;
+
         char const* GetDatabaseName() const;
 
+        struct QueueSizeTracker;
+        friend QueueSizeTracker;
+
         //! Queue shared by async worker threads.
-        std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
+        std::unique_ptr<Trinity::Asio::IoContext> _ioContext;
+        std::atomic<size_t> _queueSize;
         std::array<std::vector<std::unique_ptr<T>>, IDX_SIZE> _connections;
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
-#ifdef TRINITY_DEBUG
-        static inline thread_local bool _warnSyncQueries = false;
-#endif
 };
 
 #endif

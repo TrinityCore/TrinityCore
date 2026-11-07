@@ -341,7 +341,6 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
     private:
         EventMap _events;
@@ -361,85 +360,10 @@ enum AlexstraszaWrGate
 };
 
 /*######
-## Quest Strengthen the Ancients (12096|12092)
-######*/
-
-enum StrengthenAncientsMisc
-{
-    SAY_WALKER_FRIENDLY         = 0,
-    SAY_WALKER_ENEMY            = 1,
-    SAY_LOTHALOR                = 0,
-
-    SPELL_CREATE_ITEM_BARK      = 47550,
-    SPELL_CONFUSED              = 47044,
-
-    NPC_LOTHALOR                = 26321
-};
-
-// 47575 - Strengthen the Ancients: On Interact Dummy to Woodlands Walker
-class spell_q12096_q12092_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_q12096_q12092_dummy);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        uint32 roll = rand32() % 2;
-
-        Creature* tree = GetHitCreature();
-        Player* player = GetCaster()->ToPlayer();
-
-        if (!tree || !player)
-            return;
-
-        tree->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-
-        if (roll == 1) // friendly version
-        {
-            tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
-            tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
-            tree->DespawnOrUnsummon(1s);
-        }
-        else // enemy version
-        {
-            tree->AI()->Talk(SAY_WALKER_ENEMY, player);
-            tree->SetFaction(FACTION_MONSTER);
-            tree->Attack(player, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 47530 - Bark of the Walkers
-class spell_q12096_q12092_bark : public SpellScript
-{
-    PrepareSpellScript(spell_q12096_q12092_bark);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Creature* lothalor = GetHitCreature();
-        if (!lothalor || lothalor->GetEntry() != NPC_LOTHALOR)
-            return;
-
-        lothalor->AI()->Talk(SAY_LOTHALOR);
-        lothalor->RemoveAura(SPELL_CONFUSED);
-        lothalor->DespawnOrUnsummon(4s);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_bark::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-/*######
 ## Quest: Defending Wyrmrest Temple ID: 12372
 ######*/
 
-enum WyrmDefenderEnum
+enum DefendingWyrmrestTemple
 {
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
@@ -452,9 +376,13 @@ enum WyrmDefenderEnum
     SPELL_RENEW                              = 49263, // cast to heal drakes
     SPELL_WYRMREST_DEFENDER_MOUNT            = 49256,
 
+    SPELL_SUMMON_WYRMREST_DEFENDER           = 49207,
+
     // Texts data
-    WHISPER_MOUNTED                        = 0,
-    BOSS_EMOTE_ON_LOW_HEALTH               = 2
+    WHISPER_MOUNTED                          = 0,
+    BOSS_EMOTE_ON_LOW_HEALTH                 = 2,
+
+    NPC_WYRMREST_TEMPLE_CREDIT               = 27698
 };
 
 struct npc_wyrmrest_defender : public VehicleAI
@@ -546,6 +474,44 @@ struct npc_wyrmrest_defender : public VehicleAI
     }
 };
 
+// 49213 - Defending Wyrmrest Temple: Character Script Cast From Gossip
+class spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_WYRMREST_DEFENDER });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+       GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
+class spell_dragonblight_defending_wyrmrest_temple_dummy : public SpellScript
+{
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitCreature())
+            if (Unit* caster = GetOriginalCaster())
+                if (Vehicle* vehicle = caster->GetVehicleKit())
+                    if (Unit* passenger = vehicle->GetPassenger(0))
+                        if (Player* player = passenger->ToPlayer())
+                            player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_defending_wyrmrest_temple_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 /*######
 ## Quest 12053: The Might of the Horde
 ######*/
@@ -564,8 +530,6 @@ enum WarsongBattleStandard
 // 47304 - Warsong Battle Standard
 class spell_dragonblight_warsong_battle_standard : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_warsong_battle_standard);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_TAUNT_1) &&
@@ -601,8 +565,6 @@ enum MysteryOfTheInfinite
 // 49686 - Mystery of the Infinite: Script Effect Player Cast Mirror Image
 class spell_dragonblight_moti_mirror_image_script_effect : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
@@ -622,18 +584,16 @@ class spell_dragonblight_moti_mirror_image_script_effect : public SpellScript
 // 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
 class spell_dragonblight_moti_hourglass_cast_see_invis_on_master : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+                summoner->CastSpell(summoner, uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -656,8 +616,6 @@ enum TheChainGunAndYou
 // 49550 - Call Out Injured Soldier
 class spell_dragonblight_call_out_injured_soldier : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_call_out_injured_soldier);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_CALL_OUT_1) && sBroadcastTextStore.HasRecord(TEXT_CALL_OUT_2);
@@ -696,8 +654,6 @@ enum TortureTheTorturer
 // 48603 - High Executor's Branding Iron
 class spell_dragonblight_high_executor_branding_iron : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_high_executor_branding_iron);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TORTURER_KILL_CREDIT, SPELL_BRANDING_IRON_IMPACT });
@@ -759,8 +715,6 @@ enum ThePerfectDissemblance
 // 48692 - The Perfect Dissemblance: Quest Completion Script
 class spell_dragonblight_cancel_banshees_magic_mirror : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_cancel_banshees_magic_mirror);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BANSHEES_MAGIC_MIRROR });
@@ -790,8 +744,6 @@ enum AFallFromGrace
 // 48762 - A Fall from Grace: Scarlet Raven Priest Image - Master
 class spell_dragonblight_scarlet_raven_priest_image_master : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_scarlet_raven_priest_image_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_IMAGE_FEMALE, SPELL_PRIEST_IMAGE_MALE });
@@ -812,8 +764,6 @@ class spell_dragonblight_scarlet_raven_priest_image_master : public SpellScript
 // 48769 - A Fall from Grace: Quest Completion Script
 class spell_dragonblight_cancel_scarlet_raven_priest_image : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_cancel_scarlet_raven_priest_image);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_IMAGE_FEMALE, SPELL_PRIEST_IMAGE_MALE });
@@ -847,8 +797,6 @@ enum BombardTheBallistae
 // 48347 - Bombard the Ballistae: FX Master
 class spell_dragonblight_bombard_the_ballistae_fx_master : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_bombard_the_ballistae_fx_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -896,8 +844,6 @@ enum ProjectionsAndPlans
 // 47097 - Surge Needle Teleporter
 class spell_dragonblight_surge_needle_teleporter : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_surge_needle_teleporter);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TELE_MOONREST_GARDENS, SPELL_TELE_SURGE_NEEDLE });
@@ -934,16 +880,14 @@ class spell_dragonblight_surge_needle_teleporter : public SpellScript
 // 50252 - Blood Draw
 class spell_dragonblight_fill_blood_unholy_frost_gem : public SpellScript
 {
-    PrepareSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -952,25 +896,51 @@ class spell_dragonblight_fill_blood_unholy_frost_gem : public SpellScript
     }
 };
 
+/*######
+## Quest 12076: Messy Business
+######*/
+
+enum MessyBusiness
+{
+    SPELL_CORROSIVE_SPIT     = 47447
+};
+
+// 47435 - Scrape Corrosive Spit
+class spell_dragonblight_scrape_corrosive_spit : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CORROSIVE_SPIT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_CORROSIVE_SPIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_scrape_corrosive_spit::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 47447 - Corrosive Spit
 class spell_dragonblight_corrosive_spit : public AuraScript
 {
-    PrepareAuraScript(spell_dragonblight_corrosive_spit);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValueAsInt()))
             GetAura()->Remove();
     }
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValueAsInt()))
         {
             PreventDefaultAction();
             GetAura()->Remove();
@@ -984,12 +954,152 @@ class spell_dragonblight_corrosive_spit : public AuraScript
     }
 };
 
+/*######
+## Quest 12065, 12066: The Focus on the Beach
+######*/
+
+enum TheFocusOnTheBeach
+{
+    SPELL_LEY_LINE_INFORMATION_01     = 47391
+};
+
+// 47393 - The Focus on the Beach: Quest Completion Script
+class spell_dragonblight_focus_on_the_beach_quest_completion_script : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_01 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_01);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_focus_on_the_beach_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12083, 12084: Atop the Woodlands
+######*/
+
+enum AtopTheWoodlands
+{
+    SPELL_LEY_LINE_INFORMATION_02     = 47473
+};
+
+// 47615 - Atop the Woodlands: Quest Completion Script
+class spell_dragonblight_atop_the_woodlands_quest_completion_script : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_02 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_02);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_atop_the_woodlands_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12107, 12110: The End of the Line
+######*/
+
+enum TheEndOfTheLine
+{
+    SPELL_LEY_LINE_INFORMATION_03     = 47636
+};
+
+// 47638 - The End of the Line: Quest Completion Script
+class spell_dragonblight_end_of_the_line_quest_completion_script : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_03 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_03);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_end_of_the_line_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12028: Spiritual Insight
+######*/
+
+enum SpiritualInsight
+{
+    SPELL_SPIRITUAL_INSIGHT     = 47189
+};
+
+// 47190 - Toalu'u's Spiritual Incense
+class spell_dragonblight_toaluus_spiritual_incense : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPIRITUAL_INSIGHT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SPIRITUAL_INSIGHT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dragonblight_toaluus_spiritual_incense::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 24545: The Sacred and the Corrupt
+######*/
+
+enum TheSacredAndTheCorrupt
+{
+    SPELL_KNOCKDOWN     = 13360
+};
+
+// 70653 - Lich King Zap Player
+class spell_dragonblight_lich_king_zap_player : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_KNOCKDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_lich_king_zap_player::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
-    RegisterSpellScript(spell_q12096_q12092_dummy);
-    RegisterSpellScript(spell_q12096_q12092_bark);
     RegisterCreatureAI(npc_wyrmrest_defender);
+    RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip);
+    RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_dummy);
     RegisterSpellScript(spell_dragonblight_warsong_battle_standard);
     RegisterSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
     RegisterSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
@@ -1001,5 +1111,11 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_bombard_the_ballistae_fx_master);
     RegisterSpellScript(spell_dragonblight_surge_needle_teleporter);
     RegisterSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
+    RegisterSpellScript(spell_dragonblight_scrape_corrosive_spit);
     RegisterSpellScript(spell_dragonblight_corrosive_spit);
+    RegisterSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_toaluus_spiritual_incense);
+    RegisterSpellScript(spell_dragonblight_lich_king_zap_player);
 }

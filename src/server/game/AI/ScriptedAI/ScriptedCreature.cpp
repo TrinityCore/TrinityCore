@@ -17,11 +17,12 @@
 
 #include "ScriptedCreature.h"
 #include "AreaBoundary.h"
-#include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CommonHelpers.h"
 #include "CreatureAIImpl.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -122,11 +123,8 @@ void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
     }
 }
 
-ScriptedAI::ScriptedAI(Creature* creature) : ScriptedAI(creature, creature->GetScriptId()) { }
-
-ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), IsFleeing(false), _isCombatMovementAllowed(true)
+ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) noexcept : CreatureAI(creature, scriptId), _isCombatMovementAllowed(true)
 {
-    _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = me->GetMap()->GetDifficultyID();
 }
 
@@ -150,16 +148,13 @@ void ScriptedAI::AttackStart(Unit* who)
 void ScriptedAI::UpdateAI(uint32 /*diff*/)
 {
     // Check if we have a current target
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }
 
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
 {
     if (victim)
-        me->GetMotionMaster()->MoveChase(victim, distance, angle);
+        me->StartDefaultCombatMovement(victim, distance, angle);
 }
 
 void ScriptedAI::DoStartNoMovement(Unit* victim)
@@ -304,6 +299,41 @@ bool ScriptedAI::HealthAbovePct(uint32 pct) const
     return me->HealthAbovePct(pct);
 }
 
+bool ScriptedAI::IsLFR() const
+{
+    return me->GetMap()->IsLFR();
+}
+
+bool ScriptedAI::IsNormal() const
+{
+    return me->GetMap()->IsNormal();
+}
+
+bool ScriptedAI::IsHeroic() const
+{
+    return me->GetMap()->IsHeroic();
+}
+
+bool ScriptedAI::IsMythic() const
+{
+    return me->GetMap()->IsMythic();
+}
+
+bool ScriptedAI::IsMythicPlus() const
+{
+    return me->GetMap()->IsMythicPlus();
+}
+
+bool ScriptedAI::IsHeroicOrHigher() const
+{
+    return me->GetMap()->IsHeroicOrHigher();
+}
+
+bool ScriptedAI::IsTimewalking() const
+{
+    return me->GetMap()->IsTimewalking();
+}
+
 SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect)
 {
     // No target so we can't cast
@@ -365,13 +395,14 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         // Check if the spell meets our range requirements
-        if (rangeMin && me->GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
+        SpellRange spellRange = me->GetSpellMinMaxRangeForTarget(target, tempSpell);
+        if (rangeMin && spellRange.Min < rangeMin)
             continue;
-        if (rangeMax && me->GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
+        if (rangeMax && spellRange.Max > rangeMax)
             continue;
 
         // Check if our target is in range
-        if (me->IsWithinDistInMap(target, float(me->GetSpellMinRangeForTarget(target, tempSpell))) || !me->IsWithinDistInMap(target, float(me->GetSpellMaxRangeForTarget(target, tempSpell))))
+        if (me->IsWithinDistInMap(target, spellRange.Min) || !me->IsWithinDistInMap(target, spellRange.Max))
             continue;
 
         // All good so lets add it to the spell list
@@ -496,8 +527,22 @@ void ScriptedAI::SetCombatMovement(bool allowMovement)
     _isCombatMovementAllowed = allowMovement;
 }
 
+void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = nullptr*/, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/, StartCombatArgs const& combatArgs/* = { }*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner ? summoner->GetGUID() : ObjectGuid::Empty, combatArgs), who->m_Events.CalculateTime(timer));
+}
+
+void ScriptedAI::DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who/* = nullptr*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(event, who->m_Events.CalculateTime(timer));
+}
+
 // BossAI - for instanced bosses
-BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature), instance(creature->GetInstanceScript()), summons(creature), _bossId(bossId)
+BossAI::BossAI(Creature* creature, uint32 bossId) noexcept : ScriptedAI(creature), instance(creature->GetInstanceScript()), summons(creature), _bossId(bossId)
 {
     if (instance)
         SetBoundary(instance->GetBossBoundary(bossId));
@@ -507,12 +552,13 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature), instan
     });
 }
 
+BossAI::~BossAI() = default;
+
 void BossAI::_Reset()
 {
     if (!me->IsAlive())
         return;
 
-    me->SetCombatPulseDelay(0);
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
@@ -548,9 +594,7 @@ void BossAI::_JustEngagedWith(Unit* who)
         instance->SetBossState(_bossId, IN_PROGRESS);
     }
 
-    me->SetCombatPulseDelay(5);
     me->setActive(true);
-    DoZoneInCombat();
     ScheduleTasks();
 }
 
@@ -595,8 +639,6 @@ void BossAI::UpdateAI(uint32 diff)
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
     }
-
-    DoMeleeAttackIfReady();
 }
 
 bool BossAI::CanAIAttack(Unit const* target) const
@@ -629,7 +671,9 @@ void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*=
 }
 
 // WorldBossAI - for non-instanced bosses
-WorldBossAI::WorldBossAI(Creature* creature) : ScriptedAI(creature), summons(creature) { }
+WorldBossAI::WorldBossAI(Creature* creature) noexcept : ScriptedAI(creature), summons(creature) { }
+
+WorldBossAI::~WorldBossAI() = default;
 
 void WorldBossAI::_Reset()
 {
@@ -682,6 +726,4 @@ void WorldBossAI::UpdateAI(uint32 diff)
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
     }
-
-    DoMeleeAttackIfReady();
 }

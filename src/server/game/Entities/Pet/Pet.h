@@ -36,7 +36,7 @@ typedef std::vector<uint32> AutoSpellList;
 class Player;
 class PetAura;
 
-class TC_GAME_API Pet : public Guardian
+class TC_GAME_API Pet final : public Guardian
 {
     public:
         explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);
@@ -59,11 +59,12 @@ class TC_GAME_API Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map);
+        void SendNewlyTamed(bool playPingFx = true) const;
         static std::pair<PetStable::PetInfo const*, PetSaveMode> GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, Optional<PetSaveMode> slot);
         bool LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current, Optional<PetSaveMode> forcedSlot = {});
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
-        void FillPetInfo(PetStable::PetInfo* petInfo) const;
+        void FillPetInfo(PetStable::PetInfo* petInfo, Optional<ReactStates> forcedReactState = {}) const;
         void Remove(PetSaveMode mode, bool returnreagent = false);
         static void DeleteFromDB(uint32 petNumber);
 

@@ -40,7 +40,7 @@ uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 342
 OutdoorPvPSI::OutdoorPvPSI(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_SI;
-    m_LastController = 0;
+    m_LastController = TEAM_OTHER;
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)
@@ -66,9 +66,8 @@ bool OutdoorPvPSI::SetupOutdoorPvP()
     return true;
 }
 
-bool OutdoorPvPSI::Update(uint32 /*diff*/)
+void OutdoorPvPSI::Update(uint32 /*diff*/)
 {
-    return false;
 }
 
 void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, uint32 zone)
@@ -99,7 +98,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
             {
                 TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
                 /// @todo: confirm this text
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
+                m_map->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
                 m_LastController = ALLIANCE;
                 newScore = 0;
                 SetWorldState(SI_GATHERED_H, 0);
@@ -108,7 +107,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
-            player->RewardHonor(nullptr, 1, 19);
+            player->RewardHonor(nullptr, 1, 19, HonorGainSource::TeamContribution);
             // add 20 cenarion circle repu
             player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
@@ -125,7 +124,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
             {
                 TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
                 /// @todo: confirm this text
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
+                m_map->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
                 m_LastController = HORDE;
                 SetWorldState(SI_GATHERED_A, 0);
                 newScore = 0;
@@ -134,7 +133,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
-            player->RewardHonor(nullptr, 1, 19);
+            player->RewardHonor(nullptr, 1, 19, HonorGainSource::TeamContribution);
             // add 20 cenarion circle repu
             player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
@@ -157,9 +156,8 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
             {
                 // he dropped it further, summon mound
                 Map* map = player->GetMap();
-                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData::fromOrientation(player->GetOrientation()), InitialPhaseShift(player), 255, GO_STATE_READY))
                 {
-                    PhasingHandler::InheritPhaseShift(go, player);
                     go->SetRespawnTime(0);
 
                     if (!map->AddToMap(go))

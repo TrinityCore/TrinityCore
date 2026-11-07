@@ -94,16 +94,12 @@ struct boss_koralon : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 66725, 68161 - Meteor Fists
 class spell_koralon_meteor_fists : public AuraScript
 {
-    PrepareAuraScript(spell_koralon_meteor_fists);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
@@ -112,7 +108,7 @@ class spell_koralon_meteor_fists : public AuraScript
     void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
     }
 
     void Register() override
@@ -125,8 +121,6 @@ class spell_koralon_meteor_fists : public AuraScript
 // 66809, 67331 - Meteor Fists
 class spell_koralon_meteor_fists_damage : public SpellScript
 {
-    PrepareSpellScript(spell_koralon_meteor_fists_damage);
-
 public:
     spell_koralon_meteor_fists_damage()
     {
@@ -158,8 +152,6 @@ private:
 // 66808, 68160 - Meteor Fists
 class spell_flame_warder_meteor_fists : public AuraScript
 {
-    PrepareAuraScript(spell_flame_warder_meteor_fists);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
@@ -168,7 +160,7 @@ class spell_flame_warder_meteor_fists : public AuraScript
     void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
     }
 
     void Register() override

@@ -17,7 +17,6 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -27,6 +26,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -42,7 +42,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId) noexcept
     : UnitAI(creature), me(creature), _boundary(nullptr),
       _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _isEngaged(false), _moveInLOSLocked(false)
 {
@@ -124,7 +124,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->IsEngaged())
         return;
 
-    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
+    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false) && (me->IsAggroGracePeriodExpired() || me->GetMap()->Instanceable()))
         me->EngageWithTarget(who);
 }
 
@@ -148,8 +148,8 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     if (me->GetTypeId() != TYPEID_UNIT || me->IsEngaged() || me->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED))
         return;
 
-    // Only alert for hostiles!
-    if (me->IsCivilian() || me->HasReactState(REACT_PASSIVE) || !me->IsHostileTo(who) || !me->_IsTargetAcceptable(who))
+    // Only alert for hostiles that can actually engage the target.
+    if (me->IsCivilian() || me->HasReactState(REACT_PASSIVE) || me->IsImmuneToPC() || !me->IsHostileTo(who) || !me->_IsTargetAcceptable(who))
         return;
 
     // Send alert sound (if any) for this creature
@@ -172,7 +172,6 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
             return true;
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
-        case SUMMON_CATEGORY_UNK:
             if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
                 return true;
             switch (SummonTitle(properties->Title))
@@ -307,7 +306,8 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
         return false;
     }
 
-    me->RemoveAurasOnEvade();
+    if (me->IsStateRestoredOnEvade())
+        me->RemoveAurasOnEvade();
 
     me->CombatStop(true);
     if (!me->IsTapListNotClearedOnEvade())
@@ -322,6 +322,21 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     EngagementOver();
 
     return true;
+}
+
+void CreatureAI::AttackStart(Unit* victim)
+{
+    if (victim && me->Attack(victim, true))
+    {
+        // Clear distracted state on attacking
+        if (me->HasUnitState(UNIT_STATE_DISTRACTED))
+        {
+            me->ClearUnitState(UNIT_STATE_DISTRACTED);
+            me->GetMotionMaster()->Clear();
+        }
+
+        me->StartDefaultCombatMovement(victim);
+    }
 }
 
 Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player const* /*player*/)
@@ -398,7 +413,7 @@ int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) co
                 point->SetUnitFlag(UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    point->SetUninteractible(true);
             }
         }
 

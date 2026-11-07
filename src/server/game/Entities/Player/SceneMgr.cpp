@@ -63,7 +63,8 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.SceneInstanceID      = sceneInstanceID;
     playScene.SceneScriptPackageID = sceneTemplate->ScenePackageId;
     playScene.Location             = *position;
-    playScene.TransportGUID        = GetPlayer()->GetTransGUID();
+    if (!GetPlayer()->GetVehicle()) // skip vehicles passed as transport here until further research
+        playScene.TransportGUID    = GetPlayer()->GetTransGUID();
     playScene.Encrypted            = sceneTemplate->Encrypted;
     playScene.Write();
 
@@ -235,6 +236,16 @@ uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/) const
             ++activeSceneCount;
 
     return activeSceneCount;
+}
+
+Optional<uint32> SceneMgr::GetInstanceIdBySceneId(uint32 sceneId) const
+{
+    for (auto const& itr : _scenesByInstance)
+    {
+        if (itr.second->SceneId == sceneId)
+            return itr.first;
+    }
+    return std::nullopt;
 }
 
 void SceneMgr::TriggerDelayedScenes()

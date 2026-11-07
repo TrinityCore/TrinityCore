@@ -41,7 +41,7 @@ class quest_commandscript : public CommandScript
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable objectiveCommandTable =
         {
@@ -117,26 +117,22 @@ public:
 
         if (oldStatus != QUEST_STATUS_NONE)
         {
+            player->RemoveActiveQuest(quest->GetQuestId(), false);
+
             // remove all quest entries for 'entry' from quest log
-            for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+            if (oldStatus != QUEST_STATUS_REWARDED)
             {
-                uint32 logQuest = player->GetQuestSlotQuestId(slot);
-                if (logQuest == quest->GetQuestId())
+                // we ignore unequippable quest items in this case, its' still be equipped
+                player->TakeQuestSourceItem(quest->GetQuestId(), false);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
                 {
-                    player->SetQuestSlot(slot, 0);
-
-                    // we ignore unequippable quest items in this case, its' still be equipped
-                    player->TakeQuestSourceItem(logQuest, false);
-
-                    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-                    {
-                        player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                        player->UpdatePvPState();
-                    }
+                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                    player->UpdatePvPState();
                 }
             }
-            player->RemoveActiveQuest(quest->GetQuestId(), false);
             player->RemoveRewardedQuest(quest->GetQuestId());
+            player->DespawnPersonalSummonsForQuest(quest->GetQuestId());
 
             sScriptMgr->OnQuestStatusChange(player, quest->GetQuestId());
             sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
@@ -168,17 +164,9 @@ public:
                 }
                 break;
             }
-            case QUEST_OBJECTIVE_MONSTER:
+            case QUEST_OBJECTIVE_CURRENCY:
             {
-                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
-                    for (uint16 z = 0; z < obj.Amount; ++z)
-                        player->KilledMonster(creatureInfo, ObjectGuid::Empty);
-                break;
-            }
-            case QUEST_OBJECTIVE_GAMEOBJECT:
-            {
-                for (uint16 z = 0; z < obj.Amount; ++z)
-                    player->KillCreditGO(obj.ObjectID);
+                player->ModifyCurrency(obj.ObjectID, obj.Amount, CurrencyGainSource::Cheat);
                 break;
             }
             case QUEST_OBJECTIVE_MIN_REPUTATION:
@@ -202,13 +190,11 @@ public:
                 player->ModifyMoney(obj.Amount);
                 break;
             }
-            case QUEST_OBJECTIVE_PLAYERKILLS:
-            {
-                for (uint16 z = 0; z < obj.Amount; ++z)
-                    player->KilledPlayerCredit(ObjectGuid::Empty);
+            case QUEST_OBJECTIVE_PROGRESS_BAR:
+                // do nothing
                 break;
-            }
             default:
+                player->UpdateQuestObjectiveProgress(static_cast<QuestObjectiveType>(obj.Type), obj.ObjectID, obj.Amount);
                 break;
         }
     }
@@ -224,7 +210,7 @@ public:
         }
 
         // If player doesn't have the quest
-        if (player->GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_NONE
+        if ((player->GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_NONE && !quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
             || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());

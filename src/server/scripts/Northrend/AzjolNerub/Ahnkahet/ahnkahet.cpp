@@ -25,8 +25,6 @@
 // 56584 - Combined Toxins
 class spell_ahnkahet_combined_toxins : public AuraScript
 {
-    PrepareAuraScript(spell_ahnkahet_combined_toxins);
-
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         // only procs on poisons (damage class check to exclude stuff like Envenom)
@@ -40,26 +38,6 @@ class spell_ahnkahet_combined_toxins : public AuraScript
     }
 };
 
-// 56698, 59102 - Shadow Blast
-class spell_ahnkahet_shadow_blast : public SpellScript
-{
-    PrepareSpellScript(spell_ahnkahet_shadow_blast);
-
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        SetHitDamage(target->GetMaxHealth() * GetEffectInfo().BasePoints / 100);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_ahnkahet_shadow_blast::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 enum ShadowSickle
 {
     SPELL_SHADOW_SICKLE_TRIGGERED   = 56701,
@@ -69,8 +47,6 @@ enum ShadowSickle
 // 56702, 59103 - Shadow Sickle
 class spell_ahnkahet_shadow_sickle : public AuraScript
 {
-    PrepareAuraScript(spell_ahnkahet_shadow_sickle);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHADOW_SICKLE_TRIGGERED });
@@ -108,24 +84,22 @@ class spell_ahnkahet_shadow_sickle : public AuraScript
 // 58906, 58908, 58909, 58910 - Creature - Yogg-Saron Whisper
 class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 {
-    PrepareSpellScript(spell_ahnkahet_yogg_saron_whisper);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return sBroadcastTextStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue())) &&
-            sSoundKitStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+        return sBroadcastTextStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt())) &&
+            sSoundKitStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()));
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
-            GetCaster()->Unit::Whisper(uint32(GetEffectValue()), player, false);
+            GetCaster()->Unit::Whisper(uint32(GetEffectValueAsInt()), player, false);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
-            player->PlayDistanceSound(uint32(GetEffectValue()), player);
+            player->PlayDistanceSound(uint32(GetEffectValueAsInt()), player);
     }
 
     void Register() override
@@ -138,7 +112,6 @@ class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 void AddSC_ahnkahet()
 {
     RegisterSpellScript(spell_ahnkahet_combined_toxins);
-    RegisterSpellScript(spell_ahnkahet_shadow_blast);
     RegisterSpellScript(spell_ahnkahet_shadow_sickle);
     RegisterSpellScript(spell_ahnkahet_yogg_saron_whisper);
 }

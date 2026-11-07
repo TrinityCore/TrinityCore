@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "ItemEnchantmentMgr.h"
+#include "LootItemType.h"
 
 #include <shared_mutex>
 #include <unordered_map>
@@ -61,7 +62,7 @@ class StoredLootContainer
         void AddMoney(uint32 money, CharacterDatabaseTransaction trans);
 
         void RemoveMoney();
-        void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex);
+        void RemoveItem(LootItemType type, uint32 itemId, uint32 count, uint32 itemIndex);
 
         uint64 GetContainer() const { return _containerId; }
         uint32 GetMoney() const { return _money; }
@@ -76,6 +77,11 @@ class StoredLootContainer
 class LootItemStorage
 {
     public:
+        LootItemStorage(LootItemStorage const&) = delete;
+        LootItemStorage(LootItemStorage&&) = delete;
+        LootItemStorage& operator=(LootItemStorage const&) = delete;
+        LootItemStorage& operator=(LootItemStorage&&) = delete;
+
         static LootItemStorage* instance();
         static std::shared_mutex* GetLock();
 
@@ -83,12 +89,12 @@ class LootItemStorage
         bool LoadStoredLoot(Item* item, Player* player);
         void RemoveStoredMoneyForContainer(uint64 containerId);
         void RemoveStoredLootForContainer(uint64 containerId);
-        void RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count, uint32 itemIndex);
+        void RemoveStoredLootItemForContainer(uint64 containerId, LootItemType type, uint32 itemId, uint32 count, uint32 itemIndex);
         void AddNewStoredLoot(uint64 containerId, Loot* loot, Player* player);
 
     private:
-        LootItemStorage() { }
-        ~LootItemStorage() { }
+        LootItemStorage() = default;
+        ~LootItemStorage() = default;
 };
 
 #define sLootItemStorage LootItemStorage::instance()

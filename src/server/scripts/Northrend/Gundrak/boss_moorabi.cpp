@@ -145,7 +145,7 @@ struct boss_moorabi : public BossAI
             switch (eventId)
             {
                 case EVENT_GROUND_TREMOR:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_QUAKE);
                     DoCastAOE(_transformed ? SPELL_QUAKE : SPELL_GROUND_TREMOR);
                     events.Repeat(Seconds(10));
@@ -176,8 +176,6 @@ struct boss_moorabi : public BossAI
             if(me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -205,8 +203,6 @@ class achievement_less_rabi : public AchievementCriteriaScript
 // 55163 - Mojo Frenzy
 class spell_moorabi_mojo_frenzy : public AuraScript
 {
-    PrepareAuraScript(spell_moorabi_mojo_frenzy);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });

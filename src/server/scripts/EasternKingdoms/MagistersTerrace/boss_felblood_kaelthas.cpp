@@ -25,7 +25,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Says
+enum KaelthasTexts
 {
     // Kael'thas Sunstrider
     SAY_INTRO_1                 = 0,
@@ -39,7 +39,7 @@ enum Says
     SAY_DEATH                   = 8
 };
 
-enum Spells
+enum KaelthasSpells
 {
     // Kael'thas Sunstrider
     SPELL_FIREBALL                              = 44189,
@@ -87,7 +87,7 @@ uint32 gravityLapseTeleportSpells[] =
 #define SPELL_POWER_FEEDBACK        DUNGEON_MODE<uint32>(44233, 47109)
 #define SPELL_GRAVITY_LAPSE_DAMAGE  DUNGEON_MODE<uint32>(49887, 44226)
 
-enum Events
+enum KaelthasEvents
 {
     // Kael'thas Sunstrider
     EVENT_TALK_INTRO_1 = 1,
@@ -118,7 +118,7 @@ enum Events
     EVENT_PREPARE_REENGAGE
 };
 
-enum Phases
+enum KaelthasPhases
 {
     PHASE_INTRO = 0,
     PHASE_ONE   = 1,
@@ -126,6 +126,7 @@ enum Phases
     PHASE_OUTRO = 3
 };
 
+// 24664 - Kael'thas Sunstrider
 struct boss_felblood_kaelthas : public BossAI
 {
     boss_felblood_kaelthas(Creature* creature) : BossAI(creature, DATA_KAELTHAS_SUNSTRIDER)
@@ -378,6 +379,7 @@ private:
     bool _firstGravityLapse;
 };
 
+// 24674 - Phoenix
 struct npc_felblood_kaelthas_phoenix : public ScriptedAI
 {
     npc_felblood_kaelthas_phoenix(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -410,7 +412,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 DoCastSelf(SPELL_EMBER_BLAST);
                 // DoCastSelf(SPELL_SUMMON_PHOENIX_EGG); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
                 if (Creature* egg = DoSummon(NPC_PHOENIX_EGG, me->GetPosition(), 0s))
@@ -467,15 +469,13 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                     _isInEgg = false;
                     DoCastSelf(SPELL_FULL_HEAL);
                     DoCastSelf(SPELL_BURN);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 2s);
                     break;
                 default:
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     InstanceScript* _instance;
@@ -487,8 +487,6 @@ private:
 // 44191 - Flame Strike
 class spell_felblood_kaelthas_flame_strike : public AuraScript
 {
-    PrepareAuraScript(spell_felblood_kaelthas_flame_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FLAME_STRIKE_DAMAGE });

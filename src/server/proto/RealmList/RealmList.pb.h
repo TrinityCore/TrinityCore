@@ -41,12 +41,18 @@ class ClientInformation;
 class RealmListTicketClientInformation;
 class RealmCharacterCountEntry;
 class RealmCharacterCountList;
+class RealmListRAFInfo;
 class RealmEntry;
-class RealmState;
+class RealmListUpdatePart;
 class RealmListUpdates;
+class UtilityInfo;
+class BleepToken;
 class IPAddress;
 class RealmIPAddressFamily;
 class RealmListServerIPAddresses;
+class RealmJoinTicket;
+class BleepProxy;
+class BleepProxyList;
 
 // ===================================================================
 
@@ -653,6 +659,82 @@ class TC_PROTO_API RealmCharacterCountList : public ::google::protobuf::Message 
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API RealmListRAFInfo : public ::google::protobuf::Message {
+ public:
+  RealmListRAFInfo();
+  virtual ~RealmListRAFInfo();
+
+  RealmListRAFInfo(const RealmListRAFInfo& from);
+
+  inline RealmListRAFInfo& operator=(const RealmListRAFInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RealmListRAFInfo& default_instance();
+
+  void Swap(RealmListRAFInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  RealmListRAFInfo* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required fixed32 wowRealmAddress = 1;
+  inline bool has_wowrealmaddress() const;
+  inline void clear_wowrealmaddress();
+  static const int kWowRealmAddressFieldNumber = 1;
+  inline ::google::protobuf::uint32 wowrealmaddress() const;
+  inline void set_wowrealmaddress(::google::protobuf::uint32 value);
+
+  // required uint32 faction = 2;
+  inline bool has_faction() const;
+  inline void clear_faction();
+  static const int kFactionFieldNumber = 2;
+  inline ::google::protobuf::uint32 faction() const;
+  inline void set_faction(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmListRAFInfo)
+ private:
+  inline void set_has_wowrealmaddress();
+  inline void clear_has_wowrealmaddress();
+  inline void set_has_faction();
+  inline void clear_has_faction();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 wowrealmaddress_;
+  ::google::protobuf::uint32 faction_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static RealmListRAFInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
  public:
   RealmEntry();
@@ -770,6 +852,20 @@ class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 cfglanguagesid() const;
   inline void set_cfglanguagesid(::google::protobuf::uint32 value);
 
+  // required uint32 cfgContentSetID = 11;
+  inline bool has_cfgcontentsetid() const;
+  inline void clear_cfgcontentsetid();
+  static const int kCfgContentSetIDFieldNumber = 11;
+  inline ::google::protobuf::uint32 cfgcontentsetid() const;
+  inline void set_cfgcontentsetid(::google::protobuf::uint32 value);
+
+  // required float useBleepChance = 12;
+  inline bool has_usebleepchance() const;
+  inline void clear_usebleepchance();
+  static const int kUseBleepChanceFieldNumber = 12;
+  inline float usebleepchance() const;
+  inline void set_usebleepchance(float value);
+
   // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmEntry)
  private:
   inline void set_has_wowrealmaddress();
@@ -792,6 +888,10 @@ class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
   inline void clear_has_cfgconfigsid();
   inline void set_has_cfglanguagesid();
   inline void clear_has_cfglanguagesid();
+  inline void set_has_cfgcontentsetid();
+  inline void clear_has_cfgcontentsetid();
+  inline void set_has_usebleepchance();
+  inline void clear_has_usebleepchance();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -807,6 +907,8 @@ class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
   ::std::string* name_;
   ::google::protobuf::uint32 cfgconfigsid_;
   ::google::protobuf::uint32 cfglanguagesid_;
+  ::google::protobuf::uint32 cfgcontentsetid_;
+  float usebleepchance_;
   friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
@@ -816,14 +918,14 @@ class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_PROTO_API RealmState : public ::google::protobuf::Message {
+class TC_PROTO_API RealmListUpdatePart : public ::google::protobuf::Message {
  public:
-  RealmState();
-  virtual ~RealmState();
+  RealmListUpdatePart();
+  virtual ~RealmListUpdatePart();
 
-  RealmState(const RealmState& from);
+  RealmListUpdatePart(const RealmListUpdatePart& from);
 
-  inline RealmState& operator=(const RealmState& from) {
+  inline RealmListUpdatePart& operator=(const RealmListUpdatePart& from) {
     CopyFrom(from);
     return *this;
   }
@@ -837,13 +939,13 @@ class TC_PROTO_API RealmState : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const RealmState& default_instance();
+  static const RealmListUpdatePart& default_instance();
 
-  void Swap(RealmState* other);
+  void Swap(RealmListUpdatePart* other);
 
   // implements Message ----------------------------------------------
 
-  RealmState* New() const;
+  RealmListUpdatePart* New() const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -856,24 +958,33 @@ class TC_PROTO_API RealmState : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .JSON.RealmList.RealmEntry update = 1;
+  // required fixed32 wowRealmAddress = 1;
+  inline bool has_wowrealmaddress() const;
+  inline void clear_wowrealmaddress();
+  static const int kWowRealmAddressFieldNumber = 1;
+  inline ::google::protobuf::uint32 wowrealmaddress() const;
+  inline void set_wowrealmaddress(::google::protobuf::uint32 value);
+
+  // optional .JSON.RealmList.RealmEntry update = 2;
   inline bool has_update() const;
   inline void clear_update();
-  static const int kUpdateFieldNumber = 1;
+  static const int kUpdateFieldNumber = 2;
   inline const ::JSON::RealmList::RealmEntry& update() const;
   inline ::JSON::RealmList::RealmEntry* mutable_update();
   inline ::JSON::RealmList::RealmEntry* release_update();
   inline void set_allocated_update(::JSON::RealmList::RealmEntry* update);
 
-  // required bool deleting = 2;
+  // required bool deleting = 3;
   inline bool has_deleting() const;
   inline void clear_deleting();
-  static const int kDeletingFieldNumber = 2;
+  static const int kDeletingFieldNumber = 3;
   inline bool deleting() const;
   inline void set_deleting(bool value);
 
-  // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmState)
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmListUpdatePart)
  private:
+  inline void set_has_wowrealmaddress();
+  inline void clear_has_wowrealmaddress();
   inline void set_has_update();
   inline void clear_has_update();
   inline void set_has_deleting();
@@ -884,13 +995,14 @@ class TC_PROTO_API RealmState : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::JSON::RealmList::RealmEntry* update_;
+  ::google::protobuf::uint32 wowrealmaddress_;
   bool deleting_;
   friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
   void InitAsDefaultInstance();
-  static RealmState* default_instance_;
+  static RealmListUpdatePart* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -934,16 +1046,16 @@ class TC_PROTO_API RealmListUpdates : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated .JSON.RealmList.RealmState updates = 1;
+  // repeated .JSON.RealmList.RealmListUpdatePart updates = 1;
   inline int updates_size() const;
   inline void clear_updates();
   static const int kUpdatesFieldNumber = 1;
-  inline const ::JSON::RealmList::RealmState& updates(int index) const;
-  inline ::JSON::RealmList::RealmState* mutable_updates(int index);
-  inline ::JSON::RealmList::RealmState* add_updates();
-  inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState >&
+  inline const ::JSON::RealmList::RealmListUpdatePart& updates(int index) const;
+  inline ::JSON::RealmList::RealmListUpdatePart* mutable_updates(int index);
+  inline ::JSON::RealmList::RealmListUpdatePart* add_updates();
+  inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmListUpdatePart >&
       updates() const;
-  inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState >*
+  inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmListUpdatePart >*
       mutable_updates();
 
   // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmListUpdates)
@@ -953,13 +1065,203 @@ class TC_PROTO_API RealmListUpdates : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState > updates_;
+  ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmListUpdatePart > updates_;
   friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
   void InitAsDefaultInstance();
   static RealmListUpdates* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API UtilityInfo : public ::google::protobuf::Message {
+ public:
+  UtilityInfo();
+  virtual ~UtilityInfo();
+
+  UtilityInfo(const UtilityInfo& from);
+
+  inline UtilityInfo& operator=(const UtilityInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UtilityInfo& default_instance();
+
+  void Swap(UtilityInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  UtilityInfo* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required uint64 realmPermissions = 1;
+  inline bool has_realmpermissions() const;
+  inline void clear_realmpermissions();
+  static const int kRealmPermissionsFieldNumber = 1;
+  inline ::google::protobuf::uint64 realmpermissions() const;
+  inline void set_realmpermissions(::google::protobuf::uint64 value);
+
+  // repeated int32 entitlements = 2;
+  inline int entitlements_size() const;
+  inline void clear_entitlements();
+  static const int kEntitlementsFieldNumber = 2;
+  inline ::google::protobuf::int32 entitlements(int index) const;
+  inline void set_entitlements(int index, ::google::protobuf::int32 value);
+  inline void add_entitlements(::google::protobuf::int32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      entitlements() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_entitlements();
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.UtilityInfo)
+ private:
+  inline void set_has_realmpermissions();
+  inline void clear_has_realmpermissions();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint64 realmpermissions_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > entitlements_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static UtilityInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API BleepToken : public ::google::protobuf::Message {
+ public:
+  BleepToken();
+  virtual ~BleepToken();
+
+  BleepToken(const BleepToken& from);
+
+  inline BleepToken& operator=(const BleepToken& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BleepToken& default_instance();
+
+  void Swap(BleepToken* other);
+
+  // implements Message ----------------------------------------------
+
+  BleepToken* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 tokenLifespanNanoSecs = 1;
+  inline bool has_tokenlifespannanosecs() const;
+  inline void clear_tokenlifespannanosecs();
+  static const int kTokenLifespanNanoSecsFieldNumber = 1;
+  inline ::google::protobuf::int64 tokenlifespannanosecs() const;
+  inline void set_tokenlifespannanosecs(::google::protobuf::int64 value);
+
+  // required string address = 2;
+  inline bool has_address() const;
+  inline void clear_address();
+  static const int kAddressFieldNumber = 2;
+  inline const ::std::string& address() const;
+  inline void set_address(const ::std::string& value);
+  inline void set_address(const char* value);
+  inline void set_address(const char* value, size_t size);
+  inline ::std::string* mutable_address();
+  inline ::std::string* release_address();
+  inline void set_allocated_address(::std::string* address);
+
+  // required string token = 3;
+  inline bool has_token() const;
+  inline void clear_token();
+  static const int kTokenFieldNumber = 3;
+  inline const ::std::string& token() const;
+  inline void set_token(const ::std::string& value);
+  inline void set_token(const char* value);
+  inline void set_token(const char* value, size_t size);
+  inline ::std::string* mutable_token();
+  inline ::std::string* release_token();
+  inline void set_allocated_token(::std::string* token);
+
+  // required string proxy_id = 4;
+  inline bool has_proxy_id() const;
+  inline void clear_proxy_id();
+  static const int kProxyIdFieldNumber = 4;
+  inline const ::std::string& proxy_id() const;
+  inline void set_proxy_id(const ::std::string& value);
+  inline void set_proxy_id(const char* value);
+  inline void set_proxy_id(const char* value, size_t size);
+  inline ::std::string* mutable_proxy_id();
+  inline ::std::string* release_proxy_id();
+  inline void set_allocated_proxy_id(::std::string* proxy_id);
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.BleepToken)
+ private:
+  inline void set_has_tokenlifespannanosecs();
+  inline void clear_has_tokenlifespannanosecs();
+  inline void set_has_address();
+  inline void clear_has_address();
+  inline void set_has_token();
+  inline void clear_has_token();
+  inline void set_has_proxy_id();
+  inline void clear_has_proxy_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::int64 tokenlifespannanosecs_;
+  ::std::string* address_;
+  ::std::string* token_;
+  ::std::string* proxy_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static BleepToken* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1022,18 +1324,30 @@ class TC_PROTO_API IPAddress : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 port() const;
   inline void set_port(::google::protobuf::uint32 value);
 
+  // optional .JSON.RealmList.BleepToken token = 3;
+  inline bool has_token() const;
+  inline void clear_token();
+  static const int kTokenFieldNumber = 3;
+  inline const ::JSON::RealmList::BleepToken& token() const;
+  inline ::JSON::RealmList::BleepToken* mutable_token();
+  inline ::JSON::RealmList::BleepToken* release_token();
+  inline void set_allocated_token(::JSON::RealmList::BleepToken* token);
+
   // @@protoc_insertion_point(class_scope:JSON.RealmList.IPAddress)
  private:
   inline void set_has_ip();
   inline void clear_has_ip();
   inline void set_has_port();
   inline void clear_has_port();
+  inline void set_has_token();
+  inline void clear_has_token();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* ip_;
+  ::JSON::RealmList::BleepToken* token_;
   ::google::protobuf::uint32 port_;
   friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
@@ -1189,6 +1503,307 @@ class TC_PROTO_API RealmListServerIPAddresses : public ::google::protobuf::Messa
 
   void InitAsDefaultInstance();
   static RealmListServerIPAddresses* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RealmJoinTicket : public ::google::protobuf::Message {
+ public:
+  RealmJoinTicket();
+  virtual ~RealmJoinTicket();
+
+  RealmJoinTicket(const RealmJoinTicket& from);
+
+  inline RealmJoinTicket& operator=(const RealmJoinTicket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RealmJoinTicket& default_instance();
+
+  void Swap(RealmJoinTicket* other);
+
+  // implements Message ----------------------------------------------
+
+  RealmJoinTicket* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string gameAccount = 1;
+  inline bool has_gameaccount() const;
+  inline void clear_gameaccount();
+  static const int kGameAccountFieldNumber = 1;
+  inline const ::std::string& gameaccount() const;
+  inline void set_gameaccount(const ::std::string& value);
+  inline void set_gameaccount(const char* value);
+  inline void set_gameaccount(const char* value, size_t size);
+  inline ::std::string* mutable_gameaccount();
+  inline ::std::string* release_gameaccount();
+  inline void set_allocated_gameaccount(::std::string* gameaccount);
+
+  // required fixed32 platform = 2;
+  inline bool has_platform() const;
+  inline void clear_platform();
+  static const int kPlatformFieldNumber = 2;
+  inline ::google::protobuf::uint32 platform() const;
+  inline void set_platform(::google::protobuf::uint32 value);
+
+  // required fixed32 type = 3;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 3;
+  inline ::google::protobuf::uint32 type() const;
+  inline void set_type(::google::protobuf::uint32 value);
+
+  // required fixed32 clientArch = 4;
+  inline bool has_clientarch() const;
+  inline void clear_clientarch();
+  static const int kClientArchFieldNumber = 4;
+  inline ::google::protobuf::uint32 clientarch() const;
+  inline void set_clientarch(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmJoinTicket)
+ private:
+  inline void set_has_gameaccount();
+  inline void clear_has_gameaccount();
+  inline void set_has_platform();
+  inline void clear_has_platform();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_clientarch();
+  inline void clear_has_clientarch();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* gameaccount_;
+  ::google::protobuf::uint32 platform_;
+  ::google::protobuf::uint32 type_;
+  ::google::protobuf::uint32 clientarch_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static RealmJoinTicket* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API BleepProxy : public ::google::protobuf::Message {
+ public:
+  BleepProxy();
+  virtual ~BleepProxy();
+
+  BleepProxy(const BleepProxy& from);
+
+  inline BleepProxy& operator=(const BleepProxy& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BleepProxy& default_instance();
+
+  void Swap(BleepProxy* other);
+
+  // implements Message ----------------------------------------------
+
+  BleepProxy* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 ping_token_valid_duration = 1;
+  inline bool has_ping_token_valid_duration() const;
+  inline void clear_ping_token_valid_duration();
+  static const int kPingTokenValidDurationFieldNumber = 1;
+  inline ::google::protobuf::int64 ping_token_valid_duration() const;
+  inline void set_ping_token_valid_duration(::google::protobuf::int64 value);
+
+  // required int64 ping_port = 2;
+  inline bool has_ping_port() const;
+  inline void clear_ping_port();
+  static const int kPingPortFieldNumber = 2;
+  inline ::google::protobuf::int64 ping_port() const;
+  inline void set_ping_port(::google::protobuf::int64 value);
+
+  // required string address = 3;
+  inline bool has_address() const;
+  inline void clear_address();
+  static const int kAddressFieldNumber = 3;
+  inline const ::std::string& address() const;
+  inline void set_address(const ::std::string& value);
+  inline void set_address(const char* value);
+  inline void set_address(const char* value, size_t size);
+  inline ::std::string* mutable_address();
+  inline ::std::string* release_address();
+  inline void set_allocated_address(::std::string* address);
+
+  // required string ping_token = 4;
+  inline bool has_ping_token() const;
+  inline void clear_ping_token();
+  static const int kPingTokenFieldNumber = 4;
+  inline const ::std::string& ping_token() const;
+  inline void set_ping_token(const ::std::string& value);
+  inline void set_ping_token(const char* value);
+  inline void set_ping_token(const char* value, size_t size);
+  inline ::std::string* mutable_ping_token();
+  inline ::std::string* release_ping_token();
+  inline void set_allocated_ping_token(::std::string* ping_token);
+
+  // required int64 port = 5;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 5;
+  inline ::google::protobuf::int64 port() const;
+  inline void set_port(::google::protobuf::int64 value);
+
+  // required string proxy_id = 6;
+  inline bool has_proxy_id() const;
+  inline void clear_proxy_id();
+  static const int kProxyIdFieldNumber = 6;
+  inline const ::std::string& proxy_id() const;
+  inline void set_proxy_id(const ::std::string& value);
+  inline void set_proxy_id(const char* value);
+  inline void set_proxy_id(const char* value, size_t size);
+  inline ::std::string* mutable_proxy_id();
+  inline ::std::string* release_proxy_id();
+  inline void set_allocated_proxy_id(::std::string* proxy_id);
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.BleepProxy)
+ private:
+  inline void set_has_ping_token_valid_duration();
+  inline void clear_has_ping_token_valid_duration();
+  inline void set_has_ping_port();
+  inline void clear_has_ping_port();
+  inline void set_has_address();
+  inline void clear_has_address();
+  inline void set_has_ping_token();
+  inline void clear_has_ping_token();
+  inline void set_has_port();
+  inline void clear_has_port();
+  inline void set_has_proxy_id();
+  inline void clear_has_proxy_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::int64 ping_token_valid_duration_;
+  ::google::protobuf::int64 ping_port_;
+  ::std::string* address_;
+  ::std::string* ping_token_;
+  ::google::protobuf::int64 port_;
+  ::std::string* proxy_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static BleepProxy* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API BleepProxyList : public ::google::protobuf::Message {
+ public:
+  BleepProxyList();
+  virtual ~BleepProxyList();
+
+  BleepProxyList(const BleepProxyList& from);
+
+  inline BleepProxyList& operator=(const BleepProxyList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BleepProxyList& default_instance();
+
+  void Swap(BleepProxyList* other);
+
+  // implements Message ----------------------------------------------
+
+  BleepProxyList* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .JSON.RealmList.BleepProxy proxies = 1;
+  inline int proxies_size() const;
+  inline void clear_proxies();
+  static const int kProxiesFieldNumber = 1;
+  inline const ::JSON::RealmList::BleepProxy& proxies(int index) const;
+  inline ::JSON::RealmList::BleepProxy* mutable_proxies(int index);
+  inline ::JSON::RealmList::BleepProxy* add_proxies();
+  inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::BleepProxy >&
+      proxies() const;
+  inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::BleepProxy >*
+      mutable_proxies();
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.BleepProxyList)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::BleepProxy > proxies_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static BleepProxyList* default_instance_;
 };
 // ===================================================================
 
@@ -2044,6 +2659,58 @@ RealmCharacterCountList::mutable_counts() {
 
 // -------------------------------------------------------------------
 
+// RealmListRAFInfo
+
+// required fixed32 wowRealmAddress = 1;
+inline bool RealmListRAFInfo::has_wowrealmaddress() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RealmListRAFInfo::set_has_wowrealmaddress() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RealmListRAFInfo::clear_has_wowrealmaddress() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RealmListRAFInfo::clear_wowrealmaddress() {
+  wowrealmaddress_ = 0u;
+  clear_has_wowrealmaddress();
+}
+inline ::google::protobuf::uint32 RealmListRAFInfo::wowrealmaddress() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListRAFInfo.wowRealmAddress)
+  return wowrealmaddress_;
+}
+inline void RealmListRAFInfo::set_wowrealmaddress(::google::protobuf::uint32 value) {
+  set_has_wowrealmaddress();
+  wowrealmaddress_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmListRAFInfo.wowRealmAddress)
+}
+
+// required uint32 faction = 2;
+inline bool RealmListRAFInfo::has_faction() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RealmListRAFInfo::set_has_faction() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RealmListRAFInfo::clear_has_faction() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RealmListRAFInfo::clear_faction() {
+  faction_ = 0u;
+  clear_has_faction();
+}
+inline ::google::protobuf::uint32 RealmListRAFInfo::faction() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListRAFInfo.faction)
+  return faction_;
+}
+inline void RealmListRAFInfo::set_faction(::google::protobuf::uint32 value) {
+  set_has_faction();
+  faction_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmListRAFInfo.faction)
+}
+
+// -------------------------------------------------------------------
+
 // RealmEntry
 
 // required fixed32 wowRealmAddress = 1;
@@ -2355,41 +3022,113 @@ inline void RealmEntry::set_cfglanguagesid(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:JSON.RealmList.RealmEntry.cfgLanguagesID)
 }
 
+// required uint32 cfgContentSetID = 11;
+inline bool RealmEntry::has_cfgcontentsetid() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void RealmEntry::set_has_cfgcontentsetid() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void RealmEntry::clear_has_cfgcontentsetid() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void RealmEntry::clear_cfgcontentsetid() {
+  cfgcontentsetid_ = 0u;
+  clear_has_cfgcontentsetid();
+}
+inline ::google::protobuf::uint32 RealmEntry::cfgcontentsetid() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmEntry.cfgContentSetID)
+  return cfgcontentsetid_;
+}
+inline void RealmEntry::set_cfgcontentsetid(::google::protobuf::uint32 value) {
+  set_has_cfgcontentsetid();
+  cfgcontentsetid_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmEntry.cfgContentSetID)
+}
+
+// required float useBleepChance = 12;
+inline bool RealmEntry::has_usebleepchance() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void RealmEntry::set_has_usebleepchance() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void RealmEntry::clear_has_usebleepchance() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void RealmEntry::clear_usebleepchance() {
+  usebleepchance_ = 0;
+  clear_has_usebleepchance();
+}
+inline float RealmEntry::usebleepchance() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmEntry.useBleepChance)
+  return usebleepchance_;
+}
+inline void RealmEntry::set_usebleepchance(float value) {
+  set_has_usebleepchance();
+  usebleepchance_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmEntry.useBleepChance)
+}
+
 // -------------------------------------------------------------------
 
-// RealmState
+// RealmListUpdatePart
 
-// optional .JSON.RealmList.RealmEntry update = 1;
-inline bool RealmState::has_update() const {
+// required fixed32 wowRealmAddress = 1;
+inline bool RealmListUpdatePart::has_wowrealmaddress() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void RealmState::set_has_update() {
+inline void RealmListUpdatePart::set_has_wowrealmaddress() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void RealmState::clear_has_update() {
+inline void RealmListUpdatePart::clear_has_wowrealmaddress() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void RealmState::clear_update() {
+inline void RealmListUpdatePart::clear_wowrealmaddress() {
+  wowrealmaddress_ = 0u;
+  clear_has_wowrealmaddress();
+}
+inline ::google::protobuf::uint32 RealmListUpdatePart::wowrealmaddress() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListUpdatePart.wowRealmAddress)
+  return wowrealmaddress_;
+}
+inline void RealmListUpdatePart::set_wowrealmaddress(::google::protobuf::uint32 value) {
+  set_has_wowrealmaddress();
+  wowrealmaddress_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmListUpdatePart.wowRealmAddress)
+}
+
+// optional .JSON.RealmList.RealmEntry update = 2;
+inline bool RealmListUpdatePart::has_update() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RealmListUpdatePart::set_has_update() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RealmListUpdatePart::clear_has_update() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RealmListUpdatePart::clear_update() {
   if (update_ != NULL) update_->::JSON::RealmList::RealmEntry::Clear();
   clear_has_update();
 }
-inline const ::JSON::RealmList::RealmEntry& RealmState::update() const {
-  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmState.update)
+inline const ::JSON::RealmList::RealmEntry& RealmListUpdatePart::update() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListUpdatePart.update)
   return update_ != NULL ? *update_ : *default_instance_->update_;
 }
-inline ::JSON::RealmList::RealmEntry* RealmState::mutable_update() {
+inline ::JSON::RealmList::RealmEntry* RealmListUpdatePart::mutable_update() {
   set_has_update();
   if (update_ == NULL) update_ = new ::JSON::RealmList::RealmEntry;
-  // @@protoc_insertion_point(field_mutable:JSON.RealmList.RealmState.update)
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.RealmListUpdatePart.update)
   return update_;
 }
-inline ::JSON::RealmList::RealmEntry* RealmState::release_update() {
+inline ::JSON::RealmList::RealmEntry* RealmListUpdatePart::release_update() {
   clear_has_update();
   ::JSON::RealmList::RealmEntry* temp = update_;
   update_ = NULL;
   return temp;
 }
-inline void RealmState::set_allocated_update(::JSON::RealmList::RealmEntry* update) {
+inline void RealmListUpdatePart::set_allocated_update(::JSON::RealmList::RealmEntry* update) {
   delete update_;
   update_ = update;
   if (update) {
@@ -2397,65 +3136,379 @@ inline void RealmState::set_allocated_update(::JSON::RealmList::RealmEntry* upda
   } else {
     clear_has_update();
   }
-  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.RealmState.update)
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.RealmListUpdatePart.update)
 }
 
-// required bool deleting = 2;
-inline bool RealmState::has_deleting() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+// required bool deleting = 3;
+inline bool RealmListUpdatePart::has_deleting() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void RealmState::set_has_deleting() {
-  _has_bits_[0] |= 0x00000002u;
+inline void RealmListUpdatePart::set_has_deleting() {
+  _has_bits_[0] |= 0x00000004u;
 }
-inline void RealmState::clear_has_deleting() {
-  _has_bits_[0] &= ~0x00000002u;
+inline void RealmListUpdatePart::clear_has_deleting() {
+  _has_bits_[0] &= ~0x00000004u;
 }
-inline void RealmState::clear_deleting() {
+inline void RealmListUpdatePart::clear_deleting() {
   deleting_ = false;
   clear_has_deleting();
 }
-inline bool RealmState::deleting() const {
-  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmState.deleting)
+inline bool RealmListUpdatePart::deleting() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListUpdatePart.deleting)
   return deleting_;
 }
-inline void RealmState::set_deleting(bool value) {
+inline void RealmListUpdatePart::set_deleting(bool value) {
   set_has_deleting();
   deleting_ = value;
-  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmState.deleting)
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmListUpdatePart.deleting)
 }
 
 // -------------------------------------------------------------------
 
 // RealmListUpdates
 
-// repeated .JSON.RealmList.RealmState updates = 1;
+// repeated .JSON.RealmList.RealmListUpdatePart updates = 1;
 inline int RealmListUpdates::updates_size() const {
   return updates_.size();
 }
 inline void RealmListUpdates::clear_updates() {
   updates_.Clear();
 }
-inline const ::JSON::RealmList::RealmState& RealmListUpdates::updates(int index) const {
+inline const ::JSON::RealmList::RealmListUpdatePart& RealmListUpdates::updates(int index) const {
   // @@protoc_insertion_point(field_get:JSON.RealmList.RealmListUpdates.updates)
   return updates_.Get(index);
 }
-inline ::JSON::RealmList::RealmState* RealmListUpdates::mutable_updates(int index) {
+inline ::JSON::RealmList::RealmListUpdatePart* RealmListUpdates::mutable_updates(int index) {
   // @@protoc_insertion_point(field_mutable:JSON.RealmList.RealmListUpdates.updates)
   return updates_.Mutable(index);
 }
-inline ::JSON::RealmList::RealmState* RealmListUpdates::add_updates() {
+inline ::JSON::RealmList::RealmListUpdatePart* RealmListUpdates::add_updates() {
   // @@protoc_insertion_point(field_add:JSON.RealmList.RealmListUpdates.updates)
   return updates_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState >&
+inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmListUpdatePart >&
 RealmListUpdates::updates() const {
   // @@protoc_insertion_point(field_list:JSON.RealmList.RealmListUpdates.updates)
   return updates_;
 }
-inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState >*
+inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmListUpdatePart >*
 RealmListUpdates::mutable_updates() {
   // @@protoc_insertion_point(field_mutable_list:JSON.RealmList.RealmListUpdates.updates)
   return &updates_;
+}
+
+// -------------------------------------------------------------------
+
+// UtilityInfo
+
+// required uint64 realmPermissions = 1;
+inline bool UtilityInfo::has_realmpermissions() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void UtilityInfo::set_has_realmpermissions() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void UtilityInfo::clear_has_realmpermissions() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void UtilityInfo::clear_realmpermissions() {
+  realmpermissions_ = GOOGLE_ULONGLONG(0);
+  clear_has_realmpermissions();
+}
+inline ::google::protobuf::uint64 UtilityInfo::realmpermissions() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.UtilityInfo.realmPermissions)
+  return realmpermissions_;
+}
+inline void UtilityInfo::set_realmpermissions(::google::protobuf::uint64 value) {
+  set_has_realmpermissions();
+  realmpermissions_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.UtilityInfo.realmPermissions)
+}
+
+// repeated int32 entitlements = 2;
+inline int UtilityInfo::entitlements_size() const {
+  return entitlements_.size();
+}
+inline void UtilityInfo::clear_entitlements() {
+  entitlements_.Clear();
+}
+inline ::google::protobuf::int32 UtilityInfo::entitlements(int index) const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.UtilityInfo.entitlements)
+  return entitlements_.Get(index);
+}
+inline void UtilityInfo::set_entitlements(int index, ::google::protobuf::int32 value) {
+  entitlements_.Set(index, value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.UtilityInfo.entitlements)
+}
+inline void UtilityInfo::add_entitlements(::google::protobuf::int32 value) {
+  entitlements_.Add(value);
+  // @@protoc_insertion_point(field_add:JSON.RealmList.UtilityInfo.entitlements)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+UtilityInfo::entitlements() const {
+  // @@protoc_insertion_point(field_list:JSON.RealmList.UtilityInfo.entitlements)
+  return entitlements_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+UtilityInfo::mutable_entitlements() {
+  // @@protoc_insertion_point(field_mutable_list:JSON.RealmList.UtilityInfo.entitlements)
+  return &entitlements_;
+}
+
+// -------------------------------------------------------------------
+
+// BleepToken
+
+// required int64 tokenLifespanNanoSecs = 1;
+inline bool BleepToken::has_tokenlifespannanosecs() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void BleepToken::set_has_tokenlifespannanosecs() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void BleepToken::clear_has_tokenlifespannanosecs() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void BleepToken::clear_tokenlifespannanosecs() {
+  tokenlifespannanosecs_ = GOOGLE_LONGLONG(0);
+  clear_has_tokenlifespannanosecs();
+}
+inline ::google::protobuf::int64 BleepToken::tokenlifespannanosecs() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepToken.tokenLifespanNanoSecs)
+  return tokenlifespannanosecs_;
+}
+inline void BleepToken::set_tokenlifespannanosecs(::google::protobuf::int64 value) {
+  set_has_tokenlifespannanosecs();
+  tokenlifespannanosecs_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepToken.tokenLifespanNanoSecs)
+}
+
+// required string address = 2;
+inline bool BleepToken::has_address() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void BleepToken::set_has_address() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void BleepToken::clear_has_address() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void BleepToken::clear_address() {
+  if (address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_->clear();
+  }
+  clear_has_address();
+}
+inline const ::std::string& BleepToken::address() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepToken.address)
+  return *address_;
+}
+inline void BleepToken::set_address(const ::std::string& value) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepToken.address)
+}
+inline void BleepToken::set_address(const char* value) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepToken.address)
+}
+inline void BleepToken::set_address(const char* value, size_t size) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepToken.address)
+}
+inline ::std::string* BleepToken::mutable_address() {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepToken.address)
+  return address_;
+}
+inline ::std::string* BleepToken::release_address() {
+  clear_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = address_;
+    address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepToken::set_allocated_address(::std::string* address) {
+  if (address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete address_;
+  }
+  if (address) {
+    set_has_address();
+    address_ = address;
+  } else {
+    clear_has_address();
+    address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepToken.address)
+}
+
+// required string token = 3;
+inline bool BleepToken::has_token() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BleepToken::set_has_token() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BleepToken::clear_has_token() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BleepToken::clear_token() {
+  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_->clear();
+  }
+  clear_has_token();
+}
+inline const ::std::string& BleepToken::token() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepToken.token)
+  return *token_;
+}
+inline void BleepToken::set_token(const ::std::string& value) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepToken.token)
+}
+inline void BleepToken::set_token(const char* value) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepToken.token)
+}
+inline void BleepToken::set_token(const char* value, size_t size) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepToken.token)
+}
+inline ::std::string* BleepToken::mutable_token() {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepToken.token)
+  return token_;
+}
+inline ::std::string* BleepToken::release_token() {
+  clear_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = token_;
+    token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepToken::set_allocated_token(::std::string* token) {
+  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete token_;
+  }
+  if (token) {
+    set_has_token();
+    token_ = token;
+  } else {
+    clear_has_token();
+    token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepToken.token)
+}
+
+// required string proxy_id = 4;
+inline bool BleepToken::has_proxy_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void BleepToken::set_has_proxy_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void BleepToken::clear_has_proxy_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void BleepToken::clear_proxy_id() {
+  if (proxy_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_->clear();
+  }
+  clear_has_proxy_id();
+}
+inline const ::std::string& BleepToken::proxy_id() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepToken.proxy_id)
+  return *proxy_id_;
+}
+inline void BleepToken::set_proxy_id(const ::std::string& value) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepToken.proxy_id)
+}
+inline void BleepToken::set_proxy_id(const char* value) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepToken.proxy_id)
+}
+inline void BleepToken::set_proxy_id(const char* value, size_t size) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepToken.proxy_id)
+}
+inline ::std::string* BleepToken::mutable_proxy_id() {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepToken.proxy_id)
+  return proxy_id_;
+}
+inline ::std::string* BleepToken::release_proxy_id() {
+  clear_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = proxy_id_;
+    proxy_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepToken::set_allocated_proxy_id(::std::string* proxy_id) {
+  if (proxy_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_id_;
+  }
+  if (proxy_id) {
+    set_has_proxy_id();
+    proxy_id_ = proxy_id;
+  } else {
+    clear_has_proxy_id();
+    proxy_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepToken.proxy_id)
 }
 
 // -------------------------------------------------------------------
@@ -2562,6 +3615,47 @@ inline void IPAddress::set_port(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:JSON.RealmList.IPAddress.port)
 }
 
+// optional .JSON.RealmList.BleepToken token = 3;
+inline bool IPAddress::has_token() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void IPAddress::set_has_token() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void IPAddress::clear_has_token() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void IPAddress::clear_token() {
+  if (token_ != NULL) token_->::JSON::RealmList::BleepToken::Clear();
+  clear_has_token();
+}
+inline const ::JSON::RealmList::BleepToken& IPAddress::token() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.IPAddress.token)
+  return token_ != NULL ? *token_ : *default_instance_->token_;
+}
+inline ::JSON::RealmList::BleepToken* IPAddress::mutable_token() {
+  set_has_token();
+  if (token_ == NULL) token_ = new ::JSON::RealmList::BleepToken;
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.IPAddress.token)
+  return token_;
+}
+inline ::JSON::RealmList::BleepToken* IPAddress::release_token() {
+  clear_has_token();
+  ::JSON::RealmList::BleepToken* temp = token_;
+  token_ = NULL;
+  return temp;
+}
+inline void IPAddress::set_allocated_token(::JSON::RealmList::BleepToken* token) {
+  delete token_;
+  token_ = token;
+  if (token) {
+    set_has_token();
+  } else {
+    clear_has_token();
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.IPAddress.token)
+}
+
 // -------------------------------------------------------------------
 
 // RealmIPAddressFamily
@@ -2652,6 +3746,496 @@ inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmIPAddressFa
 RealmListServerIPAddresses::mutable_families() {
   // @@protoc_insertion_point(field_mutable_list:JSON.RealmList.RealmListServerIPAddresses.families)
   return &families_;
+}
+
+// -------------------------------------------------------------------
+
+// RealmJoinTicket
+
+// required string gameAccount = 1;
+inline bool RealmJoinTicket::has_gameaccount() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RealmJoinTicket::set_has_gameaccount() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RealmJoinTicket::clear_has_gameaccount() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RealmJoinTicket::clear_gameaccount() {
+  if (gameaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_->clear();
+  }
+  clear_has_gameaccount();
+}
+inline const ::std::string& RealmJoinTicket::gameaccount() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.gameAccount)
+  return *gameaccount_;
+}
+inline void RealmJoinTicket::set_gameaccount(const ::std::string& value) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline void RealmJoinTicket::set_gameaccount(const char* value) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline void RealmJoinTicket::set_gameaccount(const char* value, size_t size) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline ::std::string* RealmJoinTicket::mutable_gameaccount() {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.RealmJoinTicket.gameAccount)
+  return gameaccount_;
+}
+inline ::std::string* RealmJoinTicket::release_gameaccount() {
+  clear_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = gameaccount_;
+    gameaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RealmJoinTicket::set_allocated_gameaccount(::std::string* gameaccount) {
+  if (gameaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete gameaccount_;
+  }
+  if (gameaccount) {
+    set_has_gameaccount();
+    gameaccount_ = gameaccount;
+  } else {
+    clear_has_gameaccount();
+    gameaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+
+// required fixed32 platform = 2;
+inline bool RealmJoinTicket::has_platform() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RealmJoinTicket::set_has_platform() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RealmJoinTicket::clear_has_platform() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RealmJoinTicket::clear_platform() {
+  platform_ = 0u;
+  clear_has_platform();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::platform() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.platform)
+  return platform_;
+}
+inline void RealmJoinTicket::set_platform(::google::protobuf::uint32 value) {
+  set_has_platform();
+  platform_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.platform)
+}
+
+// required fixed32 type = 3;
+inline bool RealmJoinTicket::has_type() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void RealmJoinTicket::set_has_type() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void RealmJoinTicket::clear_has_type() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void RealmJoinTicket::clear_type() {
+  type_ = 0u;
+  clear_has_type();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::type() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.type)
+  return type_;
+}
+inline void RealmJoinTicket::set_type(::google::protobuf::uint32 value) {
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.type)
+}
+
+// required fixed32 clientArch = 4;
+inline bool RealmJoinTicket::has_clientarch() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void RealmJoinTicket::set_has_clientarch() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void RealmJoinTicket::clear_has_clientarch() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void RealmJoinTicket::clear_clientarch() {
+  clientarch_ = 0u;
+  clear_has_clientarch();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::clientarch() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.clientArch)
+  return clientarch_;
+}
+inline void RealmJoinTicket::set_clientarch(::google::protobuf::uint32 value) {
+  set_has_clientarch();
+  clientarch_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.clientArch)
+}
+
+// -------------------------------------------------------------------
+
+// BleepProxy
+
+// required int64 ping_token_valid_duration = 1;
+inline bool BleepProxy::has_ping_token_valid_duration() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void BleepProxy::set_has_ping_token_valid_duration() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void BleepProxy::clear_has_ping_token_valid_duration() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void BleepProxy::clear_ping_token_valid_duration() {
+  ping_token_valid_duration_ = GOOGLE_LONGLONG(0);
+  clear_has_ping_token_valid_duration();
+}
+inline ::google::protobuf::int64 BleepProxy::ping_token_valid_duration() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.ping_token_valid_duration)
+  return ping_token_valid_duration_;
+}
+inline void BleepProxy::set_ping_token_valid_duration(::google::protobuf::int64 value) {
+  set_has_ping_token_valid_duration();
+  ping_token_valid_duration_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.ping_token_valid_duration)
+}
+
+// required int64 ping_port = 2;
+inline bool BleepProxy::has_ping_port() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void BleepProxy::set_has_ping_port() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void BleepProxy::clear_has_ping_port() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void BleepProxy::clear_ping_port() {
+  ping_port_ = GOOGLE_LONGLONG(0);
+  clear_has_ping_port();
+}
+inline ::google::protobuf::int64 BleepProxy::ping_port() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.ping_port)
+  return ping_port_;
+}
+inline void BleepProxy::set_ping_port(::google::protobuf::int64 value) {
+  set_has_ping_port();
+  ping_port_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.ping_port)
+}
+
+// required string address = 3;
+inline bool BleepProxy::has_address() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BleepProxy::set_has_address() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BleepProxy::clear_has_address() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BleepProxy::clear_address() {
+  if (address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_->clear();
+  }
+  clear_has_address();
+}
+inline const ::std::string& BleepProxy::address() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.address)
+  return *address_;
+}
+inline void BleepProxy::set_address(const ::std::string& value) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.address)
+}
+inline void BleepProxy::set_address(const char* value) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepProxy.address)
+}
+inline void BleepProxy::set_address(const char* value, size_t size) {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  address_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepProxy.address)
+}
+inline ::std::string* BleepProxy::mutable_address() {
+  set_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    address_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepProxy.address)
+  return address_;
+}
+inline ::std::string* BleepProxy::release_address() {
+  clear_has_address();
+  if (address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = address_;
+    address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepProxy::set_allocated_address(::std::string* address) {
+  if (address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete address_;
+  }
+  if (address) {
+    set_has_address();
+    address_ = address;
+  } else {
+    clear_has_address();
+    address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepProxy.address)
+}
+
+// required string ping_token = 4;
+inline bool BleepProxy::has_ping_token() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void BleepProxy::set_has_ping_token() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void BleepProxy::clear_has_ping_token() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void BleepProxy::clear_ping_token() {
+  if (ping_token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ping_token_->clear();
+  }
+  clear_has_ping_token();
+}
+inline const ::std::string& BleepProxy::ping_token() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.ping_token)
+  return *ping_token_;
+}
+inline void BleepProxy::set_ping_token(const ::std::string& value) {
+  set_has_ping_token();
+  if (ping_token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ping_token_ = new ::std::string;
+  }
+  ping_token_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.ping_token)
+}
+inline void BleepProxy::set_ping_token(const char* value) {
+  set_has_ping_token();
+  if (ping_token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ping_token_ = new ::std::string;
+  }
+  ping_token_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepProxy.ping_token)
+}
+inline void BleepProxy::set_ping_token(const char* value, size_t size) {
+  set_has_ping_token();
+  if (ping_token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ping_token_ = new ::std::string;
+  }
+  ping_token_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepProxy.ping_token)
+}
+inline ::std::string* BleepProxy::mutable_ping_token() {
+  set_has_ping_token();
+  if (ping_token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ping_token_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepProxy.ping_token)
+  return ping_token_;
+}
+inline ::std::string* BleepProxy::release_ping_token() {
+  clear_has_ping_token();
+  if (ping_token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = ping_token_;
+    ping_token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepProxy::set_allocated_ping_token(::std::string* ping_token) {
+  if (ping_token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ping_token_;
+  }
+  if (ping_token) {
+    set_has_ping_token();
+    ping_token_ = ping_token;
+  } else {
+    clear_has_ping_token();
+    ping_token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepProxy.ping_token)
+}
+
+// required int64 port = 5;
+inline bool BleepProxy::has_port() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void BleepProxy::set_has_port() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void BleepProxy::clear_has_port() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void BleepProxy::clear_port() {
+  port_ = GOOGLE_LONGLONG(0);
+  clear_has_port();
+}
+inline ::google::protobuf::int64 BleepProxy::port() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.port)
+  return port_;
+}
+inline void BleepProxy::set_port(::google::protobuf::int64 value) {
+  set_has_port();
+  port_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.port)
+}
+
+// required string proxy_id = 6;
+inline bool BleepProxy::has_proxy_id() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void BleepProxy::set_has_proxy_id() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void BleepProxy::clear_has_proxy_id() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void BleepProxy::clear_proxy_id() {
+  if (proxy_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_->clear();
+  }
+  clear_has_proxy_id();
+}
+inline const ::std::string& BleepProxy::proxy_id() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxy.proxy_id)
+  return *proxy_id_;
+}
+inline void BleepProxy::set_proxy_id(const ::std::string& value) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.BleepProxy.proxy_id)
+}
+inline void BleepProxy::set_proxy_id(const char* value) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.BleepProxy.proxy_id)
+}
+inline void BleepProxy::set_proxy_id(const char* value, size_t size) {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  proxy_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.BleepProxy.proxy_id)
+}
+inline ::std::string* BleepProxy::mutable_proxy_id() {
+  set_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepProxy.proxy_id)
+  return proxy_id_;
+}
+inline ::std::string* BleepProxy::release_proxy_id() {
+  clear_has_proxy_id();
+  if (proxy_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = proxy_id_;
+    proxy_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BleepProxy::set_allocated_proxy_id(::std::string* proxy_id) {
+  if (proxy_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_id_;
+  }
+  if (proxy_id) {
+    set_has_proxy_id();
+    proxy_id_ = proxy_id;
+  } else {
+    clear_has_proxy_id();
+    proxy_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.BleepProxy.proxy_id)
+}
+
+// -------------------------------------------------------------------
+
+// BleepProxyList
+
+// repeated .JSON.RealmList.BleepProxy proxies = 1;
+inline int BleepProxyList::proxies_size() const {
+  return proxies_.size();
+}
+inline void BleepProxyList::clear_proxies() {
+  proxies_.Clear();
+}
+inline const ::JSON::RealmList::BleepProxy& BleepProxyList::proxies(int index) const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.BleepProxyList.proxies)
+  return proxies_.Get(index);
+}
+inline ::JSON::RealmList::BleepProxy* BleepProxyList::mutable_proxies(int index) {
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.BleepProxyList.proxies)
+  return proxies_.Mutable(index);
+}
+inline ::JSON::RealmList::BleepProxy* BleepProxyList::add_proxies() {
+  // @@protoc_insertion_point(field_add:JSON.RealmList.BleepProxyList.proxies)
+  return proxies_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::BleepProxy >&
+BleepProxyList::proxies() const {
+  // @@protoc_insertion_point(field_list:JSON.RealmList.BleepProxyList.proxies)
+  return proxies_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::BleepProxy >*
+BleepProxyList::mutable_proxies() {
+  // @@protoc_insertion_point(field_mutable_list:JSON.RealmList.BleepProxyList.proxies)
+  return &proxies_;
 }
 
 // @@protoc_insertion_point(namespace_scope)

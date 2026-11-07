@@ -108,23 +108,6 @@ enum Misc
     SUMMON_MINIBOSSES_GROUP = 1
 };
 
-class WormAttackEvent : public BasicEvent
-{
-public:
-    WormAttackEvent(TempSummon* owner) : BasicEvent(), _owner(owner) { }
-
-    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
-    {
-        _owner->SetReactState(REACT_AGGRESSIVE);
-        _owner->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
-        _owner->AI()->DoZoneInCombat();
-        return true;
-    }
-
-private:
-    TempSummon* _owner;
-};
-
 class OrbFinalPositionEvent : public BasicEvent
 {
 public:
@@ -317,14 +300,12 @@ struct PalehoofMinionsBossAI : public BossAI
 
     void Reset() override
     {
-        me->SetCombatPulseDelay(0);
         events.Reset();
         DoCastSelf(SPELL_FREEZE, true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         ScheduleTasks();
     }
@@ -466,7 +447,8 @@ struct boss_massive_jormungar : public PalehoofMinionsBossAI
     {
         if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
         {
-            summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2s));
+            summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+            SetAggressiveStateAfter(2s, summon, true);
             summon->GetMotionMaster()->MoveRandom(5.0f);
         }
     }
@@ -524,8 +506,6 @@ struct go_palehoof_sphere : public GameObjectAI
 // 48139 - Crazed
 class spell_palehoof_crazed : public AuraScript
 {
-    PrepareAuraScript(spell_palehoof_crazed);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_CRAZED_TAUNT);
@@ -540,8 +520,6 @@ class spell_palehoof_crazed : public AuraScript
 // 48146 - Crazed
 class spell_palehoof_crazed_effect : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_crazed_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CRAZED_TAUNT });
@@ -561,8 +539,6 @@ class spell_palehoof_crazed_effect : public SpellScript
 // 47669 - Awaken Subboss
 class spell_palehoof_awaken_subboss : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_awaken_subboss);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ORB_CHANNEL });
@@ -572,7 +548,7 @@ class spell_palehoof_awaken_subboss : public SpellScript
     {
         Unit* target = GetHitUnit();
         GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
-        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        target->SetUninteractible(false);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500ms));
     }
 
@@ -585,12 +561,10 @@ class spell_palehoof_awaken_subboss : public SpellScript
 // 47670 - Awaken Gortok
 class spell_palehoof_awaken_gortok : public SpellScript
 {
-    PrepareSpellScript(spell_palehoof_awaken_gortok);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        target->SetUninteractible(false);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8s));
     }
 
