@@ -33,6 +33,7 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include <sstream>
+#include <vector>
 
 class VehicleJoinEvent : public BasicEvent
 {
@@ -94,8 +95,84 @@ void Vehicle::Install()
         sScriptMgr->OnInstall(this);
 }
 
+namespace
+{
+constexpr float STALE_ACCESSORY_SEARCH_RANGE = 250.0f;
+constexpr Milliseconds BOARD_SPLINE_RESEND_DELAY = 400ms;
+
+// The previous mount's vendors stay up for a couple of seconds after dismount (the exit
+// unsummon, plus the mammoth goodbye). A new mount has to drop those copies first, or the
+// new passengers are summoned while the old ones still own the ride.
+void DespawnStalePlayerMountAccessories(Unit* player)
+{
+    if (!player->IsPlayer() || !player->IsMounted())
+        return;
+
+    FindCreatureOptions options;
+    options.IsSummon = true;
+    options.IgnorePhases = true;
+
+    std::vector<Creature*> nearby;
+    player->GetCreatureListWithOptionsInGrid(nearby, STALE_ACCESSORY_SEARCH_RANGE, options);
+
+    std::vector<TempSummon*> stale;
+    for (Creature* creature : nearby)
+    {
+        TempSummon* summon = creature->ToTempSummon();
+        if (!summon || !summon->IsInWorld() || summon->GetSummonerGUID() != player->GetGUID())
+            continue;
+        if (!summon->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+            continue;
+
+        stale.push_back(summon);
+    }
+
+    for (TempSummon* summon : stale)
+    {
+        player->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, summon->GetGUID());
+        if (summon->IsInWorld())
+            summon->UnSummon();
+    }
+}
+
+void ResendBoardSpline(Vehicle* vehicle, Unit* passenger)
+{
+    SeatMap::iterator seat = vehicle->GetSeatIteratorForPassenger(passenger);
+    if (seat == vehicle->Seats.end())
+        return;
+
+    VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
+    VehicleSeatAddon const* veSeatAddon = seat->second.SeatAddon;
+    float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
+    float x = veSeat->AttachmentOffset.X;
+    float y = veSeat->AttachmentOffset.Y;
+    float z = veSeat->AttachmentOffset.Z;
+
+    passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    passenger->m_movementInfo.transport.time = 0;
+    passenger->m_movementInfo.transport.seat = seat->first;
+    passenger->m_movementInfo.transport.guid = vehicle->GetBase()->GetGUID();
+    passenger->m_movementInfo.transport.vehicleId = vehicle->GetVehicleInfo()->ID;
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+    {
+        init.DisableTransportPathTransformations();
+        init.MoveTo(x, y, z, false, true);
+        init.SetFacing(o);
+        init.SetTransportEnter();
+    };
+    passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
+    passenger->GetMotionMaster()->Update(1);
+}
+}
+
 void Vehicle::InstallAllAccessories(bool evading)
 {
+    // Do this before RemoveAllPassengers. That call strips every control-vehicle aura on the
+    // player, and the vendors from the mount being replaced are still in the world.
+    if (_me->IsPlayer() && _me->IsMounted())
+        DespawnStalePlayerMountAccessories(_me);
+
     if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
@@ -106,6 +183,36 @@ void Vehicle::InstallAllAccessories(bool evading)
     for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
         if (!evading || itr->IsMinion)  // only install minions on evade mode
             InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime, itr->RideSpellID);
+
+    // The client often keeps only one of two board packets that arrive together.
+    // Send each one again on its own, after the spawn packets have been applied.
+    if (_me->IsPlayer() && _me->IsMounted())
+    {
+        Milliseconds delay = BOARD_SPLINE_RESEND_DELAY;
+        for (SeatMap::value_type const& seat : Seats)
+        {
+            ObjectGuid passengerGuid = seat.second.Passenger.Guid;
+            if (passengerGuid.IsEmpty())
+                continue;
+
+            _me->m_Events.AddEventAtOffset([me = _me, passengerGuid]()
+            {
+                if (!me->IsInWorld() || !me->IsMounted())
+                    return;
+
+                Vehicle* kit = me->GetVehicleKit();
+                if (!kit)
+                    return;
+
+                Unit* passenger = ObjectAccessor::GetUnit(*me, passengerGuid);
+                if (!passenger || passenger->GetVehicle() != kit)
+                    return;
+
+                ResendBoardSpline(kit, passenger);
+            }, delay);
+            delay += BOARD_SPLINE_RESEND_DELAY;
+        }
+    }
 }
 
 /**
@@ -421,6 +528,14 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     else
         _me->HandleSpellClick(accessory, seatId);
 
+    // The create packet is already on the wire. Run the board in this same update, or the
+    // client draws the vendor on the ground and then drops a later transport-enter spline.
+    if (_me->IsPlayer() && _me->IsMounted() && _me->IsInWorld() && accessory->IsInWorld())
+    {
+        accessory->m_Events.Update(1);
+        accessory->GetMotionMaster()->Update(1);
+    }
+
     /// If for some reason adding accessory to vehicle fails it will unsummon in
     /// @VehicleJoinEvent::Abort
 }
@@ -638,6 +753,12 @@ bool Vehicle::IsControllableVehicle() const
 
 void Vehicle::InitMovementInfoForBase()
 {
+    // A mounted player is still a ground mount. The vehicle exists for passenger
+    // seats; applying its no-jump / no-strafe / full-speed-turn flags makes the
+    // player drive like a vehicle, and nothing was clearing them on dismount.
+    if (_me->IsPlayer() && _me->IsMounted())
+        return;
+
     uint32 vehicleFlags = GetVehicleInfo()->Flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
@@ -820,10 +941,19 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         {
             return aurEff->GetCasterGUID() == Passenger->GetGUID();
         });
-    ASSERT(itr != vehicleAuras.end());
+    // The ride aura can already be gone when a mount swap uninstalls the vehicle mid-board.
+    if (itr == vehicleAuras.end())
+    {
+        Abort(0);
+        return true;
+    }
 
     AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(Target->GetBase()->GetGUID());
-    ASSERT(aurApp && !aurApp->GetRemoveMode());
+    if (!aurApp || aurApp->GetRemoveMode())
+    {
+        Abort(0);
+        return true;
+    }
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);

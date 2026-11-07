@@ -8326,21 +8326,22 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
     if (Player* player = ToPlayer())
     {
         // mount as a vehicle
-        if (VehicleId)
+        bool boardingPassengers = false;
+        if (VehicleId && CreateVehicleKit(VehicleId, creatureEntry))
         {
-            if (CreateVehicleKit(VehicleId, creatureEntry))
-            {
-                player->SendOnCancelExpectedVehicleRideAura();
-
-                // mounts can also have accessories
-                GetVehicleKit()->InstallAllAccessories(false);
-            }
+            player->SendOnCancelExpectedVehicleRideAura();
+            boardingPassengers = true;
         }
 
         // disable pet controls
         player->DisablePetControlsOnMount(REACT_PASSIVE, COMMAND_FOLLOW);
 
+        // This movement update resets passengers the client just attached, so it has to
+        // go out before the vendors board. Ordinary mounts still need it too.
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
+
+        if (boardingPassengers)
+            GetVehicleKit()->InstallAllAccessories(false);
     }
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Mount);
@@ -12192,12 +12193,22 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading /*= fa
     if (!vehInfo)
         return false;
 
+    // Mount swaps replace the kit. Destroying the old one without uninstalling leaves its
+    // passengers on a freed vehicle, and the new vendors then fail to take a seat.
+    if (m_vehicleKit)
+        RemoveVehicleKit();
+
     m_vehicleKit = Trinity::make_unique_trackable<Vehicle>(this, vehInfo, creatureEntry);
     m_updateFlag.Vehicle = true;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
 
     if (!loading)
         SendSetVehicleRecId(id);
+
+    // The client applies the vehicle record's own jump/strafe/turn limits when the
+    // rec id arrives. Push normal mount movement after that, or they latch until relog.
+    if (IsPlayer() && IsMounted())
+        ClearVehicleLocomotionFlags();
 
     return true;
 }
@@ -12216,6 +12227,13 @@ void Unit::RemoveVehicleKit(bool onRemoveFromWorld /*= false*/)
     m_updateFlag.Vehicle = false;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
     RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK | UNIT_NPC_FLAG_PLAYER_VEHICLE);
+
+    if (IsPlayer() && !onRemoveFromWorld)
+    {
+        ClearVehicleLocomotionFlags();
+        // A passenger aura whose rider never sat down is not removed by uninstall.
+        RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+    }
 }
 
 bool Unit::IsOnVehicle(Unit const* vehicle) const
@@ -12821,7 +12839,10 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
             return false;
         }
 
-        if (IsInMap(caster))
+        // The ride spell's target selection drops a player-driven mount, so those passengers
+        // get the control-vehicle aura directly. HandleAuraControlVehicle boards seat
+        // (amount - 1); the cast passes seatId + 1.
+        if (IsInMap(caster) && !(IsPlayer() && IsMounted()))
         {
             CastSpellExtraArgs args(flags);
             args.OriginalCaster = origCasterGUID;
@@ -12834,7 +12855,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
             for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
                 bp[spellEffectInfo.EffectIndex] = spellEffectInfo.BasePoints;
 
-            bp[effectIndex] = seatId;
+            bp[effectIndex] = seatId + 1;
 
             AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
             createInfo
@@ -12842,7 +12863,15 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
                 .SetBaseAmount(bp.data())
                 .SetCasterGUID(origCasterGUID);
 
-            Aura::TryRefreshStackOrCreate(createInfo);
+            if (Aura* rideAura = Aura::TryRefreshStackOrCreate(createInfo))
+            {
+                // Login applies this on the next aura update, once the player is in the world.
+                // A mounted player applies it now so the board spline leaves with the spawn.
+                if (IsInWorld())
+                    rideAura->ApplyForTargets();
+            }
+            else
+                castResult = SPELL_FAILED_DONT_REPORT;
         }
     }
     else
@@ -13936,6 +13965,39 @@ bool Unit::SetAlwaysAllowPitching(bool enable)
     }
 
     return true;
+}
+
+void Unit::ClearVehicleLocomotionFlags()
+{
+    RemoveUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE | MOVEMENTFLAG_NO_JUMPING
+        | MOVEMENTFLAG_FULL_SPEED_TURNING | MOVEMENTFLAG_FULL_SPEED_PITCHING | MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING
+        | MOVEMENTFLAG_CAN_DRIVE | MOVEMENTFLAG_DRIVING_FORWARD | MOVEMENTFLAG_DRIVING_BACKWARD);
+
+    Player* playerMover = GetPlayerMovingMe();
+    if (!playerMover)
+        return;
+
+    OpcodeServer const opcodes[] =
+    {
+        SMSG_MOVE_ENABLE_STRAFING,
+        SMSG_MOVE_ENABLE_JUMPING,
+        SMSG_MOVE_DISABLE_FULL_SPEED_TURNING,
+        SMSG_MOVE_DISABLE_FULL_SPEED_PITCHING,
+        SMSG_MOVE_UNSET_ALWAYS_ALLOW_PITCHING,
+        SMSG_MOVE_UNSET_CAN_DRIVE,
+    };
+
+    for (OpcodeServer opcode : opcodes)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(opcode);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+    }
+
+    WorldPackets::Movement::MoveUpdate moveUpdate;
+    moveUpdate.Status = &m_movementInfo;
+    SendMessageToSet(moveUpdate.Write(), playerMover);
 }
 
 bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
