@@ -52,6 +52,13 @@ struct GarrAbilities
 class TC_GAME_API GarrisonMgr
 {
 public:
+    GarrisonMgr();
+    GarrisonMgr(GarrisonMgr const&) = delete;
+    GarrisonMgr(GarrisonMgr&&) = delete;
+    GarrisonMgr& operator=(GarrisonMgr const&) = delete;
+    GarrisonMgr& operator=(GarrisonMgr&&) = delete;
+    ~GarrisonMgr();
+
     static GarrisonMgr& Instance();
 
     void Initialize();

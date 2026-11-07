@@ -1,0 +1,87 @@
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index 9202fe41d0..400a81361e 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -52,8 +52,10 @@ These control the version of Winsock used by G3D.
+ 
+ #ifndef _MSC_VER
+ /// Fast call is a register-based optimized calling convention supported only by Visual C++
++#ifndef __fastcall
+ #define __fastcall
+ #endif
++#endif
+ 
+ /** \def G3D_WINDOWS*/
+ /** \def G3D_FREEBSD2*/
+@@ -64,8 +66,10 @@ These control the version of Winsock used by G3D.
+ #   define G3D_WINDOWS
+ #elif defined(__MINGW32__)
+     #define G3D_WINDOWS
+-    #undef __MSVCRT_VERSION__
+-    #define __MSVCRT_VERSION__ 0x0601
++    #if !defined(__MSVCRT_VERSION__) || __MSVCRT_VERSION__ < 0x0601
++        #undef __MSVCRT_VERSION__
++        #define __MSVCRT_VERSION__ 0x0601
++    #endif
+     #include <windows.h>
+ #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
+     #define G3D_FREEBSD
+diff --git a/dep/g3dlite/source/GThread.cpp b/dep/g3dlite/source/GThread.cpp
+index 5f3f7ffd64..f6483a75d1 100644
+--- a/dep/g3dlite/source/GThread.cpp
++++ b/dep/g3dlite/source/GThread.cpp
+@@ -91,6 +91,11 @@ typedef struct tagTHREADNAME_INFO {
+ } THREADNAME_INFO;
+ #pragma pack(pop)
+ 
++static LONG ExceptionIgnorer(PEXCEPTION_POINTERS ex)
++{
++   return ex->ExceptionRecord->ExceptionCode == MS_VC_EXCEPTION ? EXCEPTION_CONTINUE_EXECUTION : EXCEPTION_CONTINUE_SEARCH;
++}
++
+ static void SetThreadName(DWORD dwThreadID, const char* threadName) {
+    THREADNAME_INFO info;
+    info.dwType = 0x1000;
+@@ -98,9 +103,9 @@ static void SetThreadName(DWORD dwThreadID, const char* threadName) {
+    info.dwThreadID = dwThreadID;
+    info.dwFlags = 0;
+ 
+-   __try {
+-      RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+-   } __except(EXCEPTION_EXECUTE_HANDLER) {}
++   PVOID handler = AddVectoredExceptionHandler(1, &ExceptionIgnorer);
++   RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
++   RemoveVectoredExceptionHandler(handler);
+ }
+ #endif
+ 
+diff --git a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+index d6fbfa7567..213cec86d8 100644
+--- a/dep/g3dlite/source/System.cpp
++++ b/dep/g3dlite/source/System.cpp
+@@ -42,6 +42,7 @@
+ #ifdef G3D_WINDOWS
+ 
+ #   include <conio.h>
++#   include <crtdbg.h>
+ #   include <sys/timeb.h>
+ #   include "G3D/RegistryUtil.h"
+ #include <Ole2.h>
+@@ -1725,7 +1726,7 @@ void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, ui
+ #if ! defined(__PIC__) || defined(__x86_64__)
+     // AT&T assembler syntax
+     asm volatile(
+-                 "movl $0, %%ecx   \n\n" /* Wipe ecx */
++                 "xor %%ecx, %%ecx \n\n" /* Wipe ecx */
+                  "cpuid            \n\t"
+                  : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                  : "a"(func));
+@@ -1733,7 +1734,7 @@ void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, ui
+     // AT&T assembler syntax
+     asm volatile(
+                  "pushl %%ebx      \n\t" /* save ebx */
+-                 "movl $0, %%ecx   \n\n" /* Wipe ecx */
++                 "xor %%ecx, %%ecx \n\n" /* Wipe ecx */
+                  "cpuid            \n\t"
+                  "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                  "popl %%ebx       \n\t" /* restore the old ebx */

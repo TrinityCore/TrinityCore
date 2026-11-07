@@ -29,12 +29,17 @@ class FleeingMovementGenerator : public MovementGenerator
 {
     public:
         explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
+        FleeingMovementGenerator(FleeingMovementGenerator const&) = delete;
+        FleeingMovementGenerator(FleeingMovementGenerator&&) = delete;
+        FleeingMovementGenerator& operator=(FleeingMovementGenerator const&) = delete;
+        FleeingMovementGenerator& operator=(FleeingMovementGenerator&&) = delete;
+        ~FleeingMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
-        void Initialize(Unit* owner) override;
-        void Reset(Unit* owner) override;
+        bool Initialize(Unit* owner) override;
+        bool Reset(Unit* owner) override;
         bool Update(Unit* owner, uint32 diff) override;
         void Deactivate(Unit* owner) override;
         void Finalize(Unit* owner, bool, bool) override;
@@ -54,7 +59,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator
 {
     public:
         explicit TimedFleeingMovementGenerator(ObjectGuid fleeTargetGUID, Milliseconds time,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {})
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {})
             : FleeingMovementGenerator(fleeTargetGUID, std::move(scriptResult)), _totalFleeTime(time) { }
 
         bool Update(Unit*, uint32) override;

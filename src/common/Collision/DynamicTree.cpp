@@ -23,13 +23,11 @@
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
-
-using VMAP::ModelInstance;
 
 namespace {
 
@@ -37,17 +35,13 @@ int CHECK_TREE_PERIOD = 200;
 
 } // namespace
 
-template<> struct HashTrait< GameObjectModel>{
-    static size_t hashCode(GameObjectModel const& g) { return (size_t)(void*)&g; }
-};
-
 template<> struct PositionTrait< GameObjectModel> {
-    static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.getPosition(); }
+    static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.GetPosition(); }
 };
 
 template<> struct BoundsTrait< GameObjectModel> {
     static void getBounds(GameObjectModel const& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(GameObjectModel const* g, G3D::AABox& out) { out = g->getBounds();}
+    void operator()(GameObjectModel const* g, G3D::AABox& out) const { getBounds(*g, out); }
 };
 
 /*
@@ -107,10 +101,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
 DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl()) { }
 
-DynamicMapTree::~DynamicMapTree()
-{
-    delete impl;
-}
+DynamicMapTree::~DynamicMapTree() = default;
 
 void DynamicMapTree::insert(GameObjectModel const& mdl)
 {
@@ -271,21 +262,27 @@ bool DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, PhaseShift 
     G3D::Vector3 v(x, y, z + 0.5f);
     DynamicTreeLocationInfoCallback intersectionCallBack(phaseShift);
     impl->intersectPoint(v, intersectionCallBack);
-    if (intersectionCallBack.GetLocationInfo().hitModel)
+    if (VMAP::GroupModel const* hitModel = intersectionCallBack.GetLocationInfo().hitModel)
     {
         data.floorZ = intersectionCallBack.GetLocationInfo().ground_Z;
-        uint32 liquidType = intersectionCallBack.GetLocationInfo().hitModel->GetLiquidType();
+        uint32 liquidType = hitModel->GetLiquidType();
         float liquidLevel;
         if (!reqLiquidType || VMAP::VMapFactory::createOrGetVMapManager()->GetLiquidFlagsPtr(liquidType) & *reqLiquidType)
-            if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
+            if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, hitModel, liquidLevel))
                 data.liquidInfo.emplace(liquidType, liquidLevel);
 
-        data.areaInfo.emplace(intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
+        data.areaInfo.emplace(hitModel->GetWmoID(),
             intersectionCallBack.GetHitModel()->GetNameSetId(),
             intersectionCallBack.GetLocationInfo().rootId,
-            intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags(),
+            hitModel->GetMogpFlags(),
             0);
         return true;
     }
     return false;
+}
+
+std::span<GameObjectModel const* const> DynamicMapTree::getModelsInGrid(uint32 gx, uint32 gy) const
+{
+    // convert from map tile X/Y to RegularGrid internal representation
+    return impl->getObjects(63 - int32(gx), 63 - int32(gy));
 }

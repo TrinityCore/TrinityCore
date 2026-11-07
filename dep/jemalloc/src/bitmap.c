@@ -1,4 +1,3 @@
-#define JEMALLOC_BITMAP_C_
 #include "jemalloc/internal/jemalloc_preamble.h"
 #include "jemalloc/internal/jemalloc_internal_includes.h"
 
@@ -11,7 +10,7 @@
 void
 bitmap_info_init(bitmap_info_t *binfo, size_t nbits) {
 	unsigned i;
-	size_t group_count;
+	size_t   group_count;
 
 	assert(nbits > 0);
 	assert(nbits <= (ZU(1) << LG_BITMAP_MAXBITS));
@@ -25,11 +24,11 @@ bitmap_info_init(bitmap_info_t *binfo, size_t nbits) {
 	group_count = BITMAP_BITS2GROUPS(nbits);
 	for (i = 1; group_count > 1; i++) {
 		assert(i < BITMAP_MAX_LEVELS);
-		binfo->levels[i].group_offset = binfo->levels[i-1].group_offset
-		    + group_count;
+		binfo->levels[i].group_offset =
+		    binfo->levels[i - 1].group_offset + group_count;
 		group_count = BITMAP_BITS2GROUPS(group_count);
 	}
-	binfo->levels[i].group_offset = binfo->levels[i-1].group_offset
+	binfo->levels[i].group_offset = binfo->levels[i - 1].group_offset
 	    + group_count;
 	assert(binfo->levels[i].group_offset <= BITMAP_GROUPS_MAX);
 	binfo->nlevels = i;
@@ -43,7 +42,7 @@ bitmap_info_ngroups(const bitmap_info_t *binfo) {
 
 void
 bitmap_init(bitmap_t *bitmap, const bitmap_info_t *binfo, bool fill) {
-	size_t extra;
+	size_t   extra;
 	unsigned i;
 
 	/*
@@ -70,12 +69,13 @@ bitmap_init(bitmap_t *bitmap, const bitmap_info_t *binfo, bool fill) {
 		bitmap[binfo->levels[1].group_offset - 1] >>= extra;
 	}
 	for (i = 1; i < binfo->nlevels; i++) {
-		size_t group_count = binfo->levels[i].group_offset -
-		    binfo->levels[i-1].group_offset;
-		extra = (BITMAP_GROUP_NBITS - (group_count &
-		    BITMAP_GROUP_NBITS_MASK)) & BITMAP_GROUP_NBITS_MASK;
+		size_t group_count = binfo->levels[i].group_offset
+		    - binfo->levels[i - 1].group_offset;
+		extra = (BITMAP_GROUP_NBITS
+		            - (group_count & BITMAP_GROUP_NBITS_MASK))
+		    & BITMAP_GROUP_NBITS_MASK;
 		if (extra != 0) {
-			bitmap[binfo->levels[i+1].group_offset - 1] >>= extra;
+			bitmap[binfo->levels[i + 1].group_offset - 1] >>= extra;
 		}
 	}
 }

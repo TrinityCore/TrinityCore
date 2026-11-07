@@ -139,8 +139,6 @@ protected:
 
 private:
     Guild* _owner;
-
-        friend class UnitTestDataLoader;
 };
 
 class TC_GAME_API AchievementGlobalMgr

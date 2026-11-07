@@ -25,8 +25,8 @@
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
-#include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
+#include "advstd.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <zlib.h>
 
@@ -67,7 +67,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 {
     _updateInterval = updateInterval;
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
+    _resolver = std::make_unique<Trinity::Net::Resolver>(ioContext);
 
     ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -80,7 +80,7 @@ void RealmList::Close()
 }
 
 void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
+    std::vector<boost::asio::ip::address>&& addresses,
     uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
     RealmPopulationState population)
 {
@@ -93,9 +93,7 @@ void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint
     realm.Timezone = timezone;
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
-    realm.Addresses.resize(2);
-    realm.Addresses[0] = std::move(address);
-    realm.Addresses[1] = std::move(localAddr);
+    realm.Addresses = std::move(addresses);
     realm.Port = port;
 }
 
@@ -121,48 +119,65 @@ void RealmList::UpdateRealms()
             Field* fields = result->Fetch();
             uint32 realmId = fields[0].GetUInt32();
             std::string name = fields[1].GetString();
-            std::string externalAddressString = fields[2].GetString();
-            std::string localAddressString = fields[3].GetString();
+            std::vector<boost::asio::ip::address> addresses;
 
-            Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
-            if (!externalAddress)
+            for (std::size_t i = 0; i < 4; ++i)
             {
-                TC_LOG_ERROR("realmlist", "Could not resolve address {} for realm \"{}\" id {}", externalAddressString, name, realmId);
+                if (Optional<std::string_view> addressStr = fields[2 + i].GetStringViewOrNull())
+                {
+                    for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(*addressStr, ""))
+                    {
+                        boost::asio::ip::address address = endpoint.address();
+                        if (advstd::ranges::contains(addresses, address))
+                            continue;
+
+                        addresses.push_back(std::move(address));
+                    }
+                }
+            }
+
+            if (addresses.empty())
+            {
+                TC_LOG_ERROR("realmlist", "Could not resolve any address for realm \"{}\" id {}", name, realmId);
                 continue;
             }
 
-            Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
-            if (!localAddress)
-            {
-                TC_LOG_ERROR("realmlist", "Could not resolve localAddress {} for realm \"{}\" id {}", localAddressString, name, realmId);
-                continue;
-            }
-
-            uint16 port = fields[4].GetUInt16();
-            uint8 icon = fields[5].GetUInt8();
+            uint16 port = fields[6].GetUInt16();
+            uint8 icon = fields[7].GetUInt8();
             if (icon == REALM_TYPE_FFA_PVP)
                 icon = REALM_TYPE_PVP;
             if (icon >= MAX_CLIENT_REALM_TYPE)
                 icon = REALM_TYPE_NORMAL;
-            RealmFlags flag = ConvertLegacyRealmFlags(Trinity::Legacy::RealmFlags(fields[6].GetUInt8()));
-            uint8 timezone = fields[7].GetUInt8();
-            uint8 allowedSecurityLevel = fields[8].GetUInt8();
-            RealmPopulationState pop = ConvertLegacyPopulationState(Trinity::Legacy::RealmFlags(fields[6].GetUInt8()), fields[9].GetFloat());
-            uint32 build = fields[10].GetUInt32();
-            uint8 region = fields[11].GetUInt8();
-            uint8 battlegroup = fields[12].GetUInt8();
+            RealmFlags flag = ConvertLegacyRealmFlags(Trinity::Legacy::RealmFlags(fields[8].GetUInt8()));
+            uint8 timezone = fields[9].GetUInt8();
+            uint8 allowedSecurityLevel = fields[10].GetUInt8();
+            RealmPopulationState pop = ConvertLegacyPopulationState(Trinity::Legacy::RealmFlags(fields[8].GetUInt8()), fields[11].GetFloat());
+            uint32 build = fields[12].GetUInt32();
+            uint8 region = fields[13].GetUInt8();
+            uint8 battlegroup = fields[14].GetUInt8();
 
             Battlenet::RealmHandle id{ region, battlegroup, realmId };
 
-            UpdateRealm(*newRealms.try_emplace(id, std::make_shared<Realm>()).first->second, id, build, name, externalAddress->address(), localAddress->address(), port, icon,
+            UpdateRealm(*newRealms.try_emplace(id, std::make_shared<Realm>()).first->second, id, build, name, std::move(addresses), port, icon,
                 flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
             newSubRegions.insert(Battlenet::RealmHandle{ region, battlegroup, 0 }.GetAddressString());
 
+            auto buildAddressesLogText = [&]
+            {
+                std::string text;
+                for (boost::asio::ip::address const& address : newRealms[id]->Addresses)
+                {
+                    text += address.to_string();
+                    text += ' ';
+                }
+                return text;
+            };
+
             if (!existingRealms.erase(id))
-                TC_LOG_INFO("realmlist", "Added realm \"{}\" at {}:{}.", name, externalAddressString, port);
+                TC_LOG_INFO("realmlist", "Added realm \"{}\" at {}(port {}).", name, buildAddressesLogText(), port);
             else
-                TC_LOG_DEBUG("realmlist", "Updating realm \"{}\" at {}:{}.", name, externalAddressString, port);
+                TC_LOG_DEBUG("realmlist", "Updating realm \"{}\" at {}(port {}).", name, buildAddressesLogText(), port);
         }
         while (result->NextRow());
     }
@@ -171,7 +186,7 @@ void RealmList::UpdateRealms()
         TC_LOG_INFO("realmlist", "Removed realm \"{}\".", itr->second);
 
     {
-        std::unique_lock<std::shared_mutex> lock(_realmsMutex);
+        std::scoped_lock lock(_realmsMutex);
 
         _subRegions.swap(newSubRegions);
         _realms.swap(newRealms);
@@ -184,7 +199,7 @@ void RealmList::UpdateRealms()
 
     if (_updateInterval)
     {
-        _updateTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
+        _updateTimer->expires_after(std::chrono::seconds(_updateInterval));
         _updateTimer->async_wait([this](boost::system::error_code const& error)
         {
             if (error)
@@ -197,7 +212,7 @@ void RealmList::UpdateRealms()
 
 std::shared_ptr<Realm const> RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    std::shared_lock lock(_realmsMutex);
     return Trinity::Containers::MapGetValuePtr(_realms, id);
 }
 
@@ -218,11 +233,10 @@ std::shared_ptr<Realm const> RealmList::GetCurrentRealm() const
     return nullptr;
 }
 
-void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
+std::vector<std::string> RealmList::GetSubRegions() const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
-    for (std::string const& subRegion : _subRegions)
-        response->add_attribute_value()->set_string_value(subRegion);
+    std::shared_lock lock(_realmsMutex);
+    return { _subRegions.begin(), _subRegions.end() };
 }
 
 void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTypes accountSecurityLevel, JSON::RealmList::RealmEntry* realmEntry) const
@@ -261,31 +275,30 @@ void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTy
     realmEntry->set_name(realm.Name);
     realmEntry->set_cfgconfigsid(realm.GetConfigId());
     realmEntry->set_cfglanguagesid(1);
+    realmEntry->set_cfgcontentsetid(0);
+    realmEntry->set_usebleepchance(0.0f);
 }
 
-std::vector<uint8> RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
+std::string RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
 {
-    std::vector<uint8> compressed;
     if (std::shared_ptr<Realm const> realm = GetRealm(id))
     {
         if (realm->PopulationLevel != RealmPopulationState::Offline && realm->Build == build && accountSecurityLevel >= realm->AllowedSecurityLevel)
         {
             JSON::RealmList::RealmEntry realmEntry;
             FillRealmEntry(*realm, build, accountSecurityLevel, &realmEntry);
-
-            std::string json = "JamJSONRealmEntry:" + JSON::Serialize(realmEntry);
-            CompressJson(json, &compressed);
+            return JSON::Serialize(realmEntry);
         }
     }
 
-    return compressed;
+    return { };
 }
 
 std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSecurityLevel, std::string const& subRegion) const
 {
     JSON::RealmList::RealmListUpdates realmList;
     {
-        std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+        std::shared_lock lock(_realmsMutex);
         for (auto const& [_, realm] : _realms)
         {
             if (realm->Id.GetSubRegionAddress() != subRegion)
@@ -313,30 +326,33 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSec
     return compressed;
 }
 
-uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
+RealmJoinResult RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
     std::array<uint8, 32> const& clientSecret, LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
-    AccountTypes accountSecurityLevel, bgs::protocol::game_utilities::v1::ClientResponse* response) const
+    AccountTypes accountSecurityLevel) const
 {
     if (std::shared_ptr<Realm const> realm = GetRealm(realmAddress))
     {
         if (realm->PopulationLevel == RealmPopulationState::Offline || realm->Build != build || accountSecurityLevel < realm->AllowedSecurityLevel)
-            return ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM;
+            return { .Result = ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM };
+
+        boost::asio::ip::address addressForClient = realm->GetAddressForClient(clientAddress);
 
         JSON::RealmList::RealmListServerIPAddresses serverAddresses;
         JSON::RealmList::RealmIPAddressFamily* addressFamily = serverAddresses.add_families();
-        addressFamily->set_family(1);
+        addressFamily->set_family(addressForClient.is_v6() ? 2 : 1);
 
         JSON::RealmList::IPAddress* address = addressFamily->add_addresses();
-        address->set_ip(realm->GetAddressForClient(clientAddress).to_string());
+        address->set_ip(addressForClient.to_string());
         address->set_port(realm->Port);
 
         std::string json = "JSONRealmListServerIPAddresses:" + JSON::Serialize(serverAddresses);
-        std::vector<uint8> compressed;
+        std::vector<uint8> serverAddressesCompressed;
 
-        if (!CompressJson(json, &compressed))
-            return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
+        if (!CompressJson(json, &serverAddressesCompressed))
+            return { .Result = ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE };
 
-        std::array<uint8, 32> serverSecret = Trinity::Crypto::GetRandomBytes<32>();
+        std::vector<uint8> serverSecret(32);
+        Trinity::Crypto::GetRandomBytes(serverSecret);
 
         std::array<uint8, 64> keyData;
         auto keyDestItr = keyData.begin();
@@ -359,19 +375,15 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::Vari
         joinTicket.set_clientarch(buildVariant.Arch);
         joinTicket.set_type(buildVariant.Type);
 
-        bgs::protocol::Attribute* attribute = response->add_attribute();
-        attribute->set_name("Param_RealmJoinTicket");
-        attribute->mutable_value()->set_blob_value(JSON::Serialize(joinTicket));
+        std::string joinTicketJson = JSON::Serialize(joinTicket);
 
-        attribute = response->add_attribute();
-        attribute->set_name("Param_ServerAddresses");
-        attribute->mutable_value()->set_blob_value(compressed.data(), compressed.size());
-
-        attribute = response->add_attribute();
-        attribute->set_name("Param_JoinSecret");
-        attribute->mutable_value()->set_blob_value(serverSecret.data(), serverSecret.size());
-        return ERROR_OK;
+        return {
+            .Result = ERROR_OK,
+            .JoinTicket = { joinTicketJson.begin(), joinTicketJson.end() },
+            .ServerAddresses = std::move(serverAddressesCompressed),
+            .JoinSecret = std::move(serverSecret)
+        };
     }
 
-    return ERROR_UTIL_SERVER_UNKNOWN_REALM;
+    return { .Result = ERROR_UTIL_SERVER_UNKNOWN_REALM };
 }

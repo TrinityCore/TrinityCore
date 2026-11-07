@@ -30,7 +30,7 @@ namespace
 {
 auto CreatePasswordUiMethodFromPemCallback(::pem_password_cb* callback)
 {
-    return Trinity::make_unique_ptr_with_deleter(UI_UTIL_wrap_read_pem_callback(callback, 0), &::UI_destroy_method);
+    return Trinity::make_unique_ptr_with_deleter<&::UI_destroy_method>(UI_UTIL_wrap_read_pem_callback(callback, 0));
 }
 
 auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const* passwordCallback, void* passwordCallbackData)
@@ -45,7 +45,7 @@ auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const*
 
     uri += genericPath;
 
-    return Trinity::make_unique_ptr_with_deleter(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr), &::OSSL_STORE_close);
+    return Trinity::make_unique_ptr_with_deleter<&::OSSL_STORE_close>(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr));
 }
 
 boost::system::error_code GetLastOpenSSLError()
@@ -117,7 +117,7 @@ bool Battlenet::SslContext::Initialize()
 
         _usesDevWildcardCertificate = [&]
         {
-            X509_NAME* nm = X509_get_subject_name(cert);
+            X509_NAME const* nm = X509_get_subject_name(cert);
             int32 lastpos = -1;
             while (true)
             {
@@ -125,18 +125,18 @@ bool Battlenet::SslContext::Initialize()
                 if (lastpos == -1)
                     break;
 
-                X509_NAME_ENTRY* e = X509_NAME_get_entry(nm, lastpos);
+                X509_NAME_ENTRY const* e = X509_NAME_get_entry(nm, lastpos);
                 if (!e)
                     continue;
 
-                ASN1_STRING* text = X509_NAME_ENTRY_get_data(e);
+                ASN1_STRING const* text = X509_NAME_ENTRY_get_data(e);
                 if (!text)
                     continue;
 
                 unsigned char* utf8TextRaw = nullptr;
                 if (int utf8Length = ASN1_STRING_to_UTF8(&utf8TextRaw, text); utf8Length >= 0)
                 {
-                    auto utf8Text = Trinity::make_unique_ptr_with_deleter(utf8TextRaw, [](unsigned char* ptr) { ::OPENSSL_free(ptr); });
+                    auto utf8Text = Trinity::make_unique_ptr_with_deleter<[](unsigned char* ptr) { ::OPENSSL_free(ptr); } >(utf8TextRaw);
                     if (std::string_view(reinterpret_cast<char const*>(utf8Text.get()), utf8Length) == "*.*")
                         return true;
                 }

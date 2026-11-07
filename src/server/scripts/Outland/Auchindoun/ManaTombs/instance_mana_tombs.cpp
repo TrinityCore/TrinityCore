@@ -20,7 +20,7 @@
 #include "Unit.h"
 #include "mana_tombs.h"
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_PANDEMONIUS, {{ 1900 }} },
     { DATA_TAVAROK, {{ 1901 }} },

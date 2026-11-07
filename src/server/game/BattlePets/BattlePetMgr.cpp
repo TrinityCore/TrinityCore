@@ -16,14 +16,15 @@
  */
 
 #include "BattlePetMgr.h"
-#include "DB2Stores.h"
 #include "Containers.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -36,8 +37,8 @@ namespace BattlePets
 {
 namespace
 {
-std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
-std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
+std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/>> _battlePetBreedStates;
+std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/>> _battlePetSpeciesStates;
 std::unordered_map<uint32 /*CreatureID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesByCreature;
 std::unordered_map<uint32 /*SpellID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesBySpell;
 std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
@@ -46,18 +47,14 @@ std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSp
 
 void BattlePet::CalculateStats()
 {
-    float health = 0.0f;
-    float power = 0.0f;
-    float speed = 0.0f;
-
     // get base breed stats
     auto breedState = _battlePetBreedStates.find(PacketInfo.Breed);
     if (breedState == _battlePetBreedStates.end()) // non existing breed id
         return;
 
-    health = breedState->second[STATE_STAT_STAMINA];
-    power = breedState->second[STATE_STAT_POWER];
-    speed = breedState->second[STATE_STAT_SPEED];
+    float health = breedState->second[STATE_STAT_STAMINA];
+    float power = breedState->second[STATE_STAT_POWER];
+    float speed = breedState->second[STATE_STAT_SPEED];
 
     // modify stats depending on species - not all pets have this
     auto speciesState = _battlePetSpeciesStates.find(PacketInfo.Species);
@@ -456,17 +453,16 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     if (!battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
         return;
 
-    BattlePet pet;
-    pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+
+    BattlePet& pet = _pets[guid.GetCounter()];
+    pet.PacketInfo.Guid = guid;
     pet.PacketInfo.Species = species;
     pet.PacketInfo.CreatureID = battlePetSpecies->CreatureID;
     pet.PacketInfo.DisplayID = display;
     pet.PacketInfo.Level = level;
-    pet.PacketInfo.Exp = 0;
-    pet.PacketInfo.Flags = 0;
     pet.PacketInfo.Breed = breed;
     pet.PacketInfo.Quality = AsUnderlyingType(quality);
-    pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
 
@@ -480,11 +476,8 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
 
     pet.SaveInfo = BATTLE_PET_NEW;
 
-    _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
-
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(pet));
-    SendUpdates(std::move(updates), true);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { pet };
+    SendUpdates(updates, true);
 
     player->UpdateCriteria(CriteriaType::UniquePetsOwned);
     player->UpdateCriteria(CriteriaType::LearnedNewPet, species);
@@ -537,7 +530,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, std::uni
             summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
 }
 
-bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
+bool BattlePetMgr::IsPetInSlot(ObjectGuid guid) const
 {
     for (WorldPackets::BattlePet::BattlePetSlot const& slot : _slots)
         if (slot.Pet.Guid == guid)
@@ -548,21 +541,21 @@ bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
 
 uint8 BattlePetMgr::GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
 {
-    return uint8(std::count_if(_pets.begin(), _pets.end(), [battlePetSpecies, ownerGuid](std::pair<uint64 const, BattlePet> const& pet)
+    return uint8(std::ranges::count_if(_pets, [battlePetSpecies, ownerGuid](BattlePet const& pet)
     {
-        if (pet.second.PacketInfo.Species != battlePetSpecies->ID)
+        if (pet.PacketInfo.Species != battlePetSpecies->ID)
             return false;
 
-        if (pet.second.SaveInfo == BATTLE_PET_REMOVED)
+        if (pet.SaveInfo == BATTLE_PET_REMOVED)
             return false;
 
         if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
-            if (!ownerGuid.IsEmpty() && pet.second.PacketInfo.OwnerInfo)
-                if (pet.second.PacketInfo.OwnerInfo->Guid != ownerGuid)
+            if (!ownerGuid.IsEmpty() && pet.PacketInfo.OwnerInfo)
+                if (pet.PacketInfo.OwnerInfo->Guid != ownerGuid)
                     return false;
 
         return true;
-    }));
+    }, Trinity::Containers::MapValue));
 }
 
 bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
@@ -575,10 +568,10 @@ bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies,
 uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
 {
     std::set<uint32> speciesIds;
-    std::transform(_pets.begin(), _pets.end(), std::inserter(speciesIds, speciesIds.end()), [](std::pair<uint64 const, BattlePet> const& pet)
+    std::ranges::transform(_pets, std::inserter(speciesIds, speciesIds.end()), [](BattlePet const& pet)
     {
-        return pet.second.PacketInfo.Species;
-    });
+        return pet.PacketInfo.Species;
+    }, Trinity::Containers::MapValue);
     return speciesIds.size();
 }
 
@@ -690,9 +683,8 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 
     // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
     // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
@@ -753,9 +745,8 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
@@ -792,29 +783,31 @@ void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
 {
     // TODO: After each Pet Battle, any injured companion will automatically
     // regain 50 % of the damage that was taken during combat
-    std::vector<std::reference_wrapper<BattlePet>> updates;
+    std::vector<std::reference_wrapper<BattlePet const>> updates;
 
-    for (auto& pet : _pets)
-        if (pet.second.PacketInfo.Health != pet.second.PacketInfo.MaxHealth)
-        {
-            pet.second.PacketInfo.Health += CalculatePct(pet.second.PacketInfo.MaxHealth, pct);
-            // don't allow Health to be greater than MaxHealth
-            pet.second.PacketInfo.Health = std::min(pet.second.PacketInfo.Health, pet.second.PacketInfo.MaxHealth);
-            if (pet.second.SaveInfo != BATTLE_PET_NEW)
-                pet.second.SaveInfo = BATTLE_PET_CHANGED;
-            updates.push_back(std::ref(pet.second));
-        }
+    for (auto& [_, pet] : _pets)
+    {
+        if (pet.PacketInfo.Health == pet.PacketInfo.MaxHealth)
+            continue;
 
-    SendUpdates(std::move(updates), false);
+        pet.PacketInfo.Health += CalculatePct(pet.PacketInfo.MaxHealth, pct);
+        // don't allow Health to be greater than MaxHealth
+        pet.PacketInfo.Health = std::min(pet.PacketInfo.Health, pet.PacketInfo.MaxHealth);
+        if (pet.SaveInfo != BATTLE_PET_NEW)
+            pet.SaveInfo = BATTLE_PET_CHANGED;
+
+        updates.push_back(pet);
+    }
+
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::UpdateBattlePetData(ObjectGuid guid)
@@ -884,16 +877,14 @@ void BattlePetMgr::SendJournal()
                 battlePetJournal.Pets.push_back(std::ref(pet.second.PacketInfo));
 
     battlePetJournal.Slots.reserve(_slots.size());
-    std::transform(_slots.begin(), _slots.end(), std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
+    std::ranges::transform(_slots, std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
     _owner->SendPacket(battlePetJournal.Write());
 }
 
-void BattlePetMgr::SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded)
+void BattlePetMgr::SendUpdates(std::span<std::reference_wrapper<BattlePet const> const> pets, bool petAdded)
 {
     WorldPackets::BattlePet::BattlePetUpdates updates;
-    for (BattlePet& pet : pets)
-        updates.Pets.push_back(std::ref(pet.PacketInfo));
-
+    std::ranges::transform(pets, std::back_inserter(updates.Pets), &BattlePet::PacketInfo);
     updates.PetAdded = petAdded;
     _owner->SendPacket(updates.Write());
 }

@@ -83,6 +83,11 @@ Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
     return nullptr;
 }
 
+void GroupMgr::SetGroupDbStoreSize(uint32 newSize)
+{
+    GroupDbStore.resize(newSize);
+}
+
 ObjectGuid::LowType GroupMgr::GenerateGroupId()
 {
     if (NextGroupId >= 0xFFFFFFFE)

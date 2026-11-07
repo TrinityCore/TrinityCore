@@ -28,6 +28,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
@@ -636,7 +637,7 @@ struct boss_anduin_wrynn : public BossAI
         {
             Talk(SAY_SLAY);
             _slayTextOnCooldown = true;
-            scheduler.Schedule(3s, [this](TaskContext /*task*/)
+            scheduler.Schedule(3s, [this](TaskContext const& /*task*/)
             {
                 _slayTextOnCooldown = false;
             });
@@ -687,7 +688,7 @@ struct boss_anduin_wrynn : public BossAI
                 summon->SetSpeedRate(MOVE_RUN, marchSpeed);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->CastSpell(summon, SPELL_MARCH_OF_THE_DAMNED_AREATRIGGER, true);
-                scheduler.Schedule(1s, [summon](TaskContext /*task*/)
+                scheduler.Schedule(1s, [summon](TaskContext const& /*task*/)
                 {
                     Position exitPlatform = summon->GetFirstCollisionPosition(100.0f, summon->GetAbsoluteAngle(summon));
                     summon->GetMotionMaster()->MovePoint(POINT_MARCH_OF_THE_DAMNED, exitPlatform, false, summon->GetOrientation());
@@ -762,7 +763,7 @@ struct boss_anduin_wrynn : public BossAI
             case ACTION_START_INTRODUCTION:
             {
                 instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, IN_PROGRESS);
-                scheduler.Schedule(1ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(1ms, [this](TaskContext const& /*task*/)
                 {
                     Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN);
                     if (!uther)
@@ -776,17 +777,17 @@ struct boss_anduin_wrynn : public BossAI
                     if (!jaina)
                         return;
 
-                    Conversation* convo = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                    if (!convo)
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                    if (!conversation)
                         return;
 
-                    convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
-                    convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
-                    convo->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 3, jaina->GetGUID());
-                    convo->Start();
+                    conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
+                    conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
+                    conversation->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 3, jaina->GetGUID());
+                    conversation->Start();
                 });
 
-                scheduler.Schedule(35s, [this](TaskContext /*task*/)
+                scheduler.Schedule(35s, [this](TaskContext const& /*task*/)
                 {
                     instance->SetData(DATA_ANDUIN_WRYNN_INTRODUCTION, DONE);
                     HandleIntroduction();
@@ -801,7 +802,7 @@ struct boss_anduin_wrynn : public BossAI
                 if (Creature* thrall = me->GetInstanceScript()->GetCreature(DATA_THRALL_ANDUIN))
                     thrall->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_THRALL, false);
 
-                scheduler.Schedule(10s, [this](TaskContext /*task*/)
+                scheduler.Schedule(10s, [this](TaskContext const& /*task*/)
                 {
                     MoveKnightsOnPlatform();
                 });
@@ -827,15 +828,15 @@ struct boss_anduin_wrynn : public BossAI
 
                 firim->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_FIRIM, false);
 
-                Conversation* convo = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                if (!convo)
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                if (!conversation)
                     break;
 
-                convo->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 1, jaina->GetGUID());
-                convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
-                convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 3, uther->GetGUID());
-                convo->AddActor(NPC_FIRIM_ANDUIN, 4, firim->GetGUID());
-                convo->Start();
+                conversation->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 1, jaina->GetGUID());
+                conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
+                conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 3, uther->GetGUID());
+                conversation->AddActor(NPC_FIRIM_ANDUIN, 4, firim->GetGUID());
+                conversation->Start();
                 break;
             }
             case ACTION_ARTHAS_INTERMISSION_UTHER:
@@ -843,10 +844,10 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
                 if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                 {
-                    if (Conversation* convo = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
+                    if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
                     {
-                        convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
-                        convo->Start();
+                        conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
+                        conversation->Start();
                     }
                 }
                 break;
@@ -856,10 +857,10 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
                 {
-                    if (Conversation* convo = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
+                    if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
                     {
-                        convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 1, sylvanas->GetGUID());
-                        convo->Start();
+                        conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 1, sylvanas->GetGUID());
+                        conversation->Start();
                     }
                 }
                 break;
@@ -869,7 +870,7 @@ struct boss_anduin_wrynn : public BossAI
                 if (_intermissionsDone == 0)
                 {
                     PhaseEvents(PHASE_TWO);
-                    scheduler.Schedule(3s, [this](TaskContext /*task*/)
+                    scheduler.Schedule(3s, [this](TaskContext const& /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                     });
@@ -877,7 +878,7 @@ struct boss_anduin_wrynn : public BossAI
                 else if (_intermissionsDone == 1)
                 {
                     PhaseEvents(PHASE_THREE);
-                    scheduler.Schedule(6s, [this](TaskContext /*task*/)
+                    scheduler.Schedule(6s, [this](TaskContext const& /*task*/)
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                     });
@@ -1023,7 +1024,7 @@ struct boss_anduin_wrynn : public BossAI
 
     void StartIntermission(uint8 intermissionNum)
     {
-        auto SpawnRemnant = [this](TaskContext /*task*/)
+        auto SpawnRemnant = [this](TaskContext const& /*task*/)
         {
             if (Creature* arthas = instance->GetCreature(DATA_REMNANT_OF_A_FALLEN_KING))
                 me->CastSpell(arthas, SPELL_SPAWN_REMNANT);
@@ -1031,24 +1032,24 @@ struct boss_anduin_wrynn : public BossAI
 
         Seconds timeOffset = intermissionNum * 1s;
 
-        scheduler.Schedule(1ms, [this](TaskContext /*task*/)
+        scheduler.Schedule(1ms, [this](TaskContext const& /*task*/)
         {
             me->SetReactState(REACT_PASSIVE);
             me->CastSpell(DominationGraspCenter, SPELL_SHADESTEP);
             PrepareAssistersForIntermission();
         });
 
-        scheduler.Schedule(1204ms + timeOffset, [this, intermissionNum](TaskContext /*task*/)
+        scheduler.Schedule(1204ms + timeOffset, [this, intermissionNum](TaskContext const& /*task*/)
         {
             DoAction(intermissionNum == 0 ? ACTION_ARTHAS_INTERMISSION_UTHER : ACTION_ARTHAS_INTERMISSION_SYLVANAS);
         });
 
-        scheduler.Schedule(2204ms + timeOffset, [this](TaskContext /*task*/)
+        scheduler.Schedule(2204ms + timeOffset, [this](TaskContext const& /*task*/)
         {
             me->SetFacingTo(1.626040f);
         });
 
-        scheduler.Schedule(4s + timeOffset, [this](TaskContext /*task*/)
+        scheduler.Schedule(4s + timeOffset, [this](TaskContext const& /*task*/)
         {
             DoCastSelf(SPELL_FORCE_OF_WILL);
             DoCastSelf(SPELL_HOPEBREAKER_CLEAR);
@@ -1067,7 +1068,7 @@ struct boss_anduin_wrynn : public BossAI
 
         scheduler.Schedule(7s + timeOffset, SpawnRemnant);
 
-        scheduler.Schedule(8s + timeOffset, [this, intermissionNum](TaskContext /*task*/)
+        scheduler.Schedule(8s + timeOffset, [this, intermissionNum](TaskContext const& /*task*/)
         {
             if (intermissionNum == 1 || IsMythic())
                 DoCastSelf(SPELL_MARCH_OF_THE_DAMNED_PERIODIC);
@@ -1161,7 +1162,7 @@ struct boss_anduin_wrynn : public BossAI
         {
             me->RemoveAurasDueToSpell(SPELL_DOMINATION_GRASP_ROOT_AREATRIGGER);
             me->RemoveAurasDueToSpell(SPELL_MARCH_OF_THE_DAMNED_PERIODIC);
-            scheduler.Schedule(6s, [this](TaskContext /*task*/)
+            scheduler.Schedule(6s, [this](TaskContext const& /*task*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
             });
@@ -1209,13 +1210,13 @@ struct boss_anduin_wrynn : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoAction(ACTION_MOVE_NPCS_ON_PLATFORM);
 
-        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLootSpawnPosition, QuaternionData::fromEulerAnglesZYX(-225.0f, 0.0f, 0.0f), 7_days))
+        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLootSpawnPosition, QuaternionData::fromOrientation(-225.0f), 7_days))
         {
             chest->SetGoState(GO_STATE_ACTIVE);
             chest->SetSpellVisualId(SPELL_VISUAL_CHEST_LOOT, ObjectGuid::Empty);
         }
 
-        scheduler.Schedule(5s, [this](TaskContext /*task*/)
+        scheduler.Schedule(5s, [this](TaskContext const& /*task*/)
         {
             instance->DoCastSpellOnPlayers(SPELL_FINAL_MOVIE);
         });
@@ -1510,14 +1511,14 @@ struct npc_anduin_wrynn_anduin_hope : public ScriptedAI
         if (IsHeroic() || IsMythic())
             DoCastSelf(SPELL_GLOOM);
 
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             Position exitPlatform = me->GetFirstCollisionPosition(100.0f, 0);
             me->GetMotionMaster()->MovePoint(POINT_ESCAPE_PLATFORM, exitPlatform, false, me->GetOrientation());
         });
         me->SetHealth(1);
 
-        _scheduler.Schedule(40s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(40s, [this](TaskContext const& /*task*/)
         {
             me->DespawnOrUnsummon();
         });
@@ -1777,13 +1778,13 @@ struct boss_remnant_of_a_fallen_king : public ScriptedAI
                 DoCastAOE(SPELL_DARK_PRESENCE);
                 DoZoneInCombat();
 
-                _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(1500ms, [this](TaskContext const& /*task*/)
                 {
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
                     me->SetUninteractible(false);
                 });
 
-                _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+                _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
                 {
                     DoCastSelf(SPELL_REMNANT_TIMER);
                     _events.ScheduleEvent(EVENT_ARMY_OF_THE_DEAD, 1ms);
@@ -1797,7 +1798,7 @@ struct boss_remnant_of_a_fallen_king : public ScriptedAI
             case ACTION_DESPAWN_REMNANT:
             {
                 DoCastSelf(SPELL_SOUL_DESPAWN);
-                _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(500ms, [this](TaskContext const& /*task*/)
                 {
                     EnterEvadeMode(EvadeReason::Other);
                 });
@@ -2184,7 +2185,7 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
         return ValidateSpellInfo({ SPELL_ANDUIN_PROGRESSION_AURA, SPELL_ANDUIN_KNEEL_POSE });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         amount = -1;
         canBeRecalculated = true;
@@ -2378,7 +2379,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
     void OnInitialize() override
     {
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BEFOULED_BARRIER_DEBUFF, at->GetMap()->GetDifficultyID()))
-            _absorbRequired = spellInfo->GetEffect(EFFECT_0).CalcValue(at->GetCaster());
+            _absorbRequired = spellInfo->GetEffect(EFFECT_0).CalcValueAsInt(at->GetCaster());
 
         at->SetTimeToTargetScale(30000);
 
@@ -2388,14 +2389,14 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             float startRadius = 1.0f;
 
             UpdateSize(startRadius, BEFOULED_BARRIER_MAX_RADIUS);
             at->SetTimeToTargetScale(500);
 
-            task.Schedule(Milliseconds(at->GetTimeToTargetScale()), [this](TaskContext task)
+            task.Schedule(Milliseconds(at->GetTimeToTargetScale()), [this](TaskContext& task)
             {
                 UpdateSizeBasedOnAbsorb();
                 task.Repeat();
@@ -2448,7 +2449,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
         caster->CastSpell(unit, SPELL_BEFOULED_BARRIER_DEBUFF, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAura(SPELL_BEFOULED_BARRIER_DEBUFF);
     }
@@ -2500,7 +2501,7 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             float startRadius = 1.0f;
             float targetRadius = BEACON_OF_HOPE_MAX_RADIUS;
@@ -2508,7 +2509,7 @@ struct at_anduin_wrynn_beacon_of_hope : AreaTriggerAI
             UpdateSize(startRadius, targetRadius);
             at->SetTimeToTargetScale(500);
 
-            task.Schedule(Milliseconds(at->GetTimeToTargetScale()), [this](TaskContext task)
+            task.Schedule(Milliseconds(at->GetTimeToTargetScale()), [this](TaskContext& task)
             {
                 UpdateSizeBasedOnCharges();
                 task.Repeat();
@@ -2608,7 +2609,7 @@ class spell_anduin_wrynn_befouled_barrier_absorb : public AuraScript
 
     void OnHealAbsorb(AuraEffect* /*aurEff*/, HealInfo const& healInfo, uint32& absorbAmount) const
     {
-        absorbAmount = CalculatePct(healInfo.GetHeal(), GetEffectInfo(EFFECT_2).CalcValue());
+        absorbAmount = CalculatePct(healInfo.GetHeal(), GetEffectInfo(EFFECT_2).CalcValueAsInt());
 
         Unit* caster = GetCaster();
         if (!caster)
@@ -2921,23 +2922,12 @@ class spell_anduin_wrynn_wicked_star_selector_AuraScript : public AuraScript
     }
 };
 
+// 365017 - Wicked Star CreatePropertiesId: 24322
+// 365017 - Wicked Star CreatePropertiesId: 24740
 // 365017 - Wicked Star CreatePropertiesId: 24741
 struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 {
     at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    static constexpr float GetWickedStarSpeed(Difficulty difficulty)
-    {
-        // in yards per second
-        switch (difficulty)
-        {
-            case DIFFICULTY_HEROIC_RAID:
-            case DIFFICULTY_MYTHIC_RAID:
-                return 18.0f;
-            default: // LFR + Normal
-                return 15.0f;
-        }
-    }
 
     void OnInitialize() override
     {
@@ -2950,13 +2940,10 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
             std::vector<G3D::Vector3> splinePoints;
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
             splinePoints.push_back(PositionToVector3(destPos));
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
 
-            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
-            at->InitSplines(std::move(splinePoints), timeToTarget);
+            at->InitSplines(splinePoints);
         }
     }
 
@@ -2971,9 +2958,9 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             return;
 
         if (caster->IsValidAttackTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         else if (caster->IsValidAssistTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void OnDestinationReached() override
@@ -3001,8 +2988,6 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 {
     at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : at_anduin_wrynn_wicked_star(areatrigger) { }
 
-    static float constexpr EMPOWERED_WICKED_STAR_SPEED = 14.0f; // in yards per second
-
     void HandleMovement(float angle) const
     {
         Unit* caster = at->GetCaster();
@@ -3014,13 +2999,10 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
         at->MovePositionToFirstCollision(destPos, 100.0f, angle);
 
         std::vector<G3D::Vector3> splinePoints;
-        splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(destPos));
+        splinePoints.push_back(PositionToVector3(at->GetPosition()));
         splinePoints.push_back(PositionToVector3(destPos));
 
-        float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / EMPOWERED_WICKED_STAR_SPEED * 1000;
-        at->InitSplines(std::move(splinePoints), timeToTarget);
+        at->InitSplines(splinePoints);
     }
 
     void OnInitialize() override
@@ -3168,7 +3150,7 @@ class spell_anduin_wrynn_soul_despawn : public SpellScript
 // 368913 - Force of Will
 class spell_anduin_wrynn_force_of_will : public AuraScript
 {
-    void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated) const
+    void RecalculateHook(AuraEffect const* /*aurEffect*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3180,7 +3162,7 @@ class spell_anduin_wrynn_force_of_will : public AuraScript
         canBeRecalculated = false;
     }
 
-    void RecalculateHookDamageTaken(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated) const
+    void RecalculateHookDamageTaken(AuraEffect const* /*aurEffect*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3573,7 +3555,7 @@ struct at_anduin_wrynn_hopelessness : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsAlive() && unit->HasAura(at->GetSpellId()))
             unit->RemoveAurasDueToSpell(at->GetSpellId());

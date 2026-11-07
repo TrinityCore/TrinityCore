@@ -33,10 +33,10 @@ class spell_soulbind_sulfuric_emission : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& procInfo)
     {
-        if (!procInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount()))
+        if (!procInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount()))
             return false;
 
-        if (procInfo.GetProcTarget()->HasAura(SPELL_SULFURIC_EMISSION_COOLDOWN_AURA))
+        if (procInfo.GetActionTarget()->HasAura(SPELL_SULFURIC_EMISSION_COOLDOWN_AURA))
             return false;
 
         return true;

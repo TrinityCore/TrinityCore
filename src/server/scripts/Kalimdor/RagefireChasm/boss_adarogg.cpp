@@ -150,17 +150,17 @@ struct boss_adarogg : public BossAI
         corruptedHoundmaster1->AI()->Talk(SAY_HOUNDMASTER_INTRO_0);
         corruptedHoundmaster2->AI()->Talk(SAY_HOUNDMASTER_INTRO_1);
 
-        scheduler.Schedule(2s, [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext& task)
         {
             DoCast(SPELL_ADJULES_CHOW_TIME);
             me->GetMotionMaster()->MovePoint(0, AdaroggIntroPoints[0]);
 
-            task.Schedule(1s, [this](TaskContext task)
+            task.Schedule(1s, [this](TaskContext& task)
             {
                 DoCast(SPELL_ADJULES_CHOW_TIME);
                 me->GetMotionMaster()->MovePoint(0, AdaroggIntroPoints[1]);
 
-                task.Schedule(1s + 200ms, [this](TaskContext /*task*/)
+                task.Schedule(1s + 200ms, [this](TaskContext const& /*task*/)
                 {
                     DoCast(SPELL_ADJULES_CHOW_TIME);
                     me->GetMotionMaster()->MovePath(PATH_INTRO, false);
@@ -174,19 +174,19 @@ struct boss_adarogg : public BossAI
         switch (pathId)
         {
             case PATH_INTRO:
-                scheduler.Schedule(6148ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(6148ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_INTRO2, false);
                 });
                 break;
             case PATH_INTRO2:
-                scheduler.Schedule(6996ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(6996ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_INTRO3, false);
                 });
                 break;
             case PATH_INTRO3:
-                scheduler.Schedule(6148ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(6148ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_INTRO2, false);
                 });
@@ -196,7 +196,7 @@ struct boss_adarogg : public BossAI
         }
 
         _eatCounter = 0;
-        scheduler.Schedule(1s, [this](TaskContext task)
+        scheduler.Schedule(1s, [this](TaskContext& task)
         {
             if (_eatCounter >= 2)
                 return;

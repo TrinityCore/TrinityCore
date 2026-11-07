@@ -20,9 +20,8 @@
 #include "Log.h"
 #include "StringFormat.h"
 #include <google/protobuf/message.h>
-#include <rapidjson/writer.h>
 #include <rapidjson/reader.h>
-#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <stack>
 
 class Serializer
@@ -186,9 +185,9 @@ void Serializer::WriteRepeatedMessageField(google::protobuf::Message const& valu
 class Deserializer : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Deserializer>
 {
 public:
-    bool ReadMessage(std::string const& json, google::protobuf::Message* message);
+    bool ReadMessage(std::string_view json, google::protobuf::Message* message);
 
-    bool Key(const Ch* str, rapidjson::SizeType length, bool copy);
+    bool Key(Ch const* str, rapidjson::SizeType length, bool copy);
     bool Null();
     bool Bool(bool b);
     bool Int(int32 i);
@@ -196,7 +195,7 @@ public:
     bool Int64(int64 i);
     bool Uint64(uint64 i);
     bool Double(double d);
-    bool String(const Ch* str, rapidjson::SizeType length, bool copy);
+    bool String(Ch const* str, rapidjson::SizeType length, bool copy);
     bool StartObject();
     bool EndObject(rapidjson::SizeType memberCount);
     bool StartArray();
@@ -213,20 +212,21 @@ private:
     std::vector<std::string> _errors;
 };
 
-bool Deserializer::ReadMessage(std::string const& json, google::protobuf::Message* message)
+bool Deserializer::ReadMessage(std::string_view json, google::protobuf::Message* message)
 {
-    rapidjson::StringStream ss(json.c_str());
+    rapidjson::MemoryStream ms(json.data(), json.length());
+    rapidjson::EncodedInputStream<rapidjson::UTF8<>, rapidjson::MemoryStream> is(ms);
 
     _objectState.push(message);
 
-    rapidjson::ParseResult result = _reader.Parse(ss, *this);
+    rapidjson::ParseResult result = _reader.Parse(is, *this);
 
     ASSERT(result.IsError() || (_objectState.empty() && _state.empty()));
 
     return !result.IsError() && _errors.empty();
 }
 
-bool Deserializer::Key(const Ch* str, rapidjson::SizeType /*length*/, bool /*copy*/)
+bool Deserializer::Key(Ch const* str, rapidjson::SizeType /*length*/, bool /*copy*/)
 {
     google::protobuf::FieldDescriptor const* field = _objectState.top()->GetDescriptor()->FindFieldByName(str);
     if (!field)
@@ -338,7 +338,7 @@ bool Deserializer::Double(double d)
     return true;
 }
 
-bool Deserializer::String(const Ch* str, rapidjson::SizeType /*length*/, bool /*copy*/)
+bool Deserializer::String(Ch const* str, rapidjson::SizeType /*length*/, bool /*copy*/)
 {
     google::protobuf::FieldDescriptor const* field = _state.top();
     google::protobuf::Message* message = _objectState.top();
@@ -443,7 +443,7 @@ std::string JSON::Serialize(google::protobuf::Message const& message)
     return serializer.GetString();
 }
 
-bool JSON::Deserialize(std::string const& json, google::protobuf::Message* message)
+bool JSON::Deserialize(std::string_view json, google::protobuf::Message* message)
 {
     Deserializer deserializer;
     if (!deserializer.ReadMessage(json, message))

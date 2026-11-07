@@ -1,0 +1,215 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H
+#define TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H
+
+#include "Define.h"
+#include <array>
+#include <span>
+
+class BaseEntity;
+class ByteBuffer;
+class Player;
+
+namespace UF
+{
+enum class UpdateFieldFlag : uint8;
+}
+
+namespace WowCS
+{
+enum class EntityFragment : uint8
+{
+    FEntityPosition                 = 2,
+    CGObject                        = 3, //  UPDATEABLE, INDIRECT,
+    FTransportLink                  = 6,
+    FPlayerOwnershipLink            = 14,
+    CActor                          = 16, //  INDIRECT,
+    FVendor_C                       = 18, //  UPDATEABLE,
+    FMirroredObject_C               = 19,
+    FMeshObjectData_C               = 20, //  UPDATEABLE,
+    FHousingDecor_C                 = 21, //  UPDATEABLE,
+    FHousingRoom_C                  = 22, //  UPDATEABLE,
+    FHousingRoomComponentMesh_C     = 23, //  UPDATEABLE,
+    FHousingPlayerHouse_C           = 24, //  UPDATEABLE,
+    FJamHousingCornerstone_C        = 28, //  UPDATEABLE,
+    FHousingDecorActor_C            = 29,
+    FNeighborhoodMirrorData_C       = 31, //  UPDATEABLE,
+    FMirroredPositionData_C         = 32, //  UPDATEABLE,
+    PlayerHouseInfoComponent_C      = 33, //  UPDATEABLE, INDIRECT,
+    FHousingStorage_C               = 34, //  UPDATEABLE,
+    FHousingFixture_C               = 35, //  UPDATEABLE,
+    PlayerInitiativeComponent_C     = 38, //  UPDATEABLE, INDIRECT,
+    FWorldStateListenerData_C       = 43,
+    Tag_Item                        = 200, //  TAG,
+    Tag_Container                   = 201, //  TAG,
+    Tag_AzeriteEmpoweredItem        = 202, //  TAG,
+    Tag_AzeriteItem                 = 203, //  TAG,
+    Tag_Unit                        = 204, //  TAG,
+    Tag_Player                      = 205, //  TAG,
+    Tag_GameObject                  = 206, //  TAG,
+    Tag_DynamicObject               = 207, //  TAG,
+    Tag_Corpse                      = 208, //  TAG,
+    Tag_AreaTrigger                 = 209, //  TAG,
+    Tag_SceneObject                 = 210, //  TAG,
+    Tag_Conversation                = 211, //  TAG,
+    Tag_AIGroup                     = 212, //  TAG,
+    Tag_Scenario                    = 213, //  TAG,
+    Tag_LootObject                  = 214, //  TAG,
+    Tag_ActivePlayer                = 215, //  TAG,
+    Tag_ActiveClient_S              = 216, //  TAG,
+    Tag_ActiveObject_C              = 217, //  TAG,
+    Tag_VisibleObject_C             = 218, //  TAG,
+    Tag_UnitVehicle                 = 219, //  TAG,
+    Tag_HousingRoom                 = 220, //  TAG,
+    Tag_MeshObject                  = 221, //  TAG,
+    Tag_HouseExteriorPiece          = 224, //  TAG,
+    Tag_HouseExteriorRoot           = 225, //  TAG,
+    Tag_HousingDecorProxyGameObject = 226, //  TAG,
+    End                             = 255,
+};
+
+inline constexpr bool IsUpdateableFragment(EntityFragment frag)
+{
+    return frag == EntityFragment::CGObject
+        || frag == EntityFragment::FVendor_C
+        || frag == EntityFragment::FMeshObjectData_C
+        || frag == EntityFragment::FHousingDecor_C
+        || frag == EntityFragment::FHousingRoom_C
+        || frag == EntityFragment::FHousingRoomComponentMesh_C
+        || frag == EntityFragment::FHousingPlayerHouse_C
+        || frag == EntityFragment::FJamHousingCornerstone_C
+        || frag == EntityFragment::FNeighborhoodMirrorData_C
+        || frag == EntityFragment::FMirroredPositionData_C
+        || frag == EntityFragment::PlayerHouseInfoComponent_C
+        || frag == EntityFragment::FHousingStorage_C
+        || frag == EntityFragment::FHousingFixture_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
+}
+
+inline constexpr bool IsIndirectFragment(EntityFragment frag)
+{
+    return frag == EntityFragment::CGObject
+        || frag == EntityFragment::CActor
+        || frag == EntityFragment::PlayerHouseInfoComponent_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
+}
+
+struct EntityFragmentsHolder
+{
+    std::array<EntityFragment, 8> Ids =
+    {
+        EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End,
+        EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
+    };
+
+    struct UpdateableFragments
+    {
+        static constexpr std::size_t N = 4;
+
+        std::array<EntityFragment, N> Ids =
+        {
+            EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
+        };
+        std::array<uint8, N> Masks = { };
+        std::array<void const*, N> Data;
+    };
+
+    UpdateableFragments Updateable;
+
+    uint8 Count = 0;
+    bool IdsChanged = false;
+
+    uint8 UpdateableCount = 0;
+    uint8 ContentsChangedMask = 0;
+
+    void Add(EntityFragment fragment, bool update, void const* data = nullptr);
+
+    void Remove(EntityFragment fragment);
+
+    std::span<EntityFragment const> GetIds() const { return std::span(Ids.begin(), Count); }
+};
+
+enum class EntityFragmentSerializationType : uint8
+{
+    Full    = 0,
+    Partial = 1
+};
+
+template <typename T>
+inline void const* GetRawFragmentData(T const& fragmentData)
+{
+    return std::addressof(*fragmentData);
+}
+
+template <typename FragmentData>
+struct FragmentSerializationTraits
+{
+    static void BuildCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
+    {
+        static_cast<FragmentData const*>(rawFragmentData)->WriteCreate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
+    }
+
+    static void BuildUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
+    {
+        static_cast<FragmentData const*>(rawFragmentData)->WriteUpdate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
+    }
+
+    static bool IsChanged(void const* rawFragmentData)
+    {
+        return static_cast<FragmentData const*>(rawFragmentData)->GetChangesMask().IsAnySet();
+    }
+
+    static void ClearChanged(void const* rawFragmentData)
+    {
+        const_cast<FragmentData*>(static_cast<FragmentData const*>(rawFragmentData))->ClearChangesMask();
+    }
+};
+
+using EntityFragmentSerializeFn = void (*)(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity);
+using EntityFragmentIsChangedFn = bool (*)(void const* rawFragmentData);
+using EntityFragmentClearChangedFn = void (*)(void const* rawFragmentData);
+
+struct EntityFragmentInfos
+{
+    static constexpr std::size_t N = static_cast<std::size_t>(EntityFragment::End) + 1;
+
+    std::array<EntityFragmentSerializeFn, N> SerializeCreate = { };
+    std::array<EntityFragmentSerializeFn, N> SerializeUpdate = { };
+    std::array<EntityFragmentIsChangedFn, N> IsChanged = { };
+    std::array<EntityFragmentClearChangedFn, N> ClearChanged = { };
+
+    static void Register(EntityFragment fragment,
+        EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate,
+        EntityFragmentIsChangedFn isChanged, EntityFragmentClearChangedFn clearChanged);
+
+    template <typename SerializationTraits>
+    inline static void Register(EntityFragment fragment, SerializationTraits)
+    {
+        EntityFragmentInfos::Register(fragment, &SerializationTraits::BuildCreate, &SerializationTraits::BuildUpdate,
+            &SerializationTraits::IsChanged, &SerializationTraits::ClearChanged);
+    }
+
+private:
+    EntityFragmentInfos();
+};
+
+extern EntityFragmentInfos const* EntityFragmentInfo;
+}
+
+#endif // TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H

@@ -100,22 +100,28 @@ void PreparedStatementBase::setDate(uint8 index, SystemTimePoint value)
     statement_data[index].data = value;
 }
 
-void PreparedStatementBase::setString(uint8 index, std::string const& value)
+void PreparedStatementBase::setString(uint8 index, std::string&& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
+    statement_data[index].data = std::move(value);
 }
 
-void PreparedStatementBase::setStringView(uint8 index, std::string_view value)
+void PreparedStatementBase::setString(uint8 index, std::string_view value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data.emplace<std::string>(value);
 }
 
-void PreparedStatementBase::setBinary(uint8 index, std::vector<uint8> const& value)
+void PreparedStatementBase::setBinary(uint8 index, std::vector<uint8>&& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
+    statement_data[index].data = std::move(value);
+}
+
+void PreparedStatementBase::setBinary(uint8 index, std::span<uint8 const> value)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data.emplace<std::vector<uint8>>(value.begin(), value.end());
 }
 
 void PreparedStatementBase::setNull(uint8 index)

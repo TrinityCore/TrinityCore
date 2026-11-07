@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include "StringFormatFwd.h"
 #include <span>
 #include <string>
 #include <cmath>
@@ -27,7 +28,16 @@ class ByteBuffer;
 
 struct TC_GAME_API Position
 {
-    constexpr Position(float x = 0, float y = 0, float z = 0, float o = 0)
+    constexpr Position()
+        : m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y)
+        : m_positionX(x), m_positionY(y), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z)
+        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z, float o)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientationConstexprWrapper(o)) { }
 
     // streamer tags
@@ -120,7 +130,7 @@ public:
     float GetExactDist(Position const& pos) const { return GetExactDist(pos.m_positionX, pos.m_positionY, pos.m_positionZ); }
     float GetExactDist(Position const* pos) const { return GetExactDist(*pos); }
 
-    void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
+    Position GetPositionOffsetTo(Position const & endPos) const;
     Position GetPositionWithOffset(Position const& offset) const;
 
     float GetAbsoluteAngle(float x, float y) const
@@ -181,16 +191,18 @@ private:
 class TC_GAME_API WorldLocation : public Position
 {
 public:
-    constexpr explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-        : Position(x, y, z, o), m_mapId(mapId) { }
+    constexpr WorldLocation() : m_mapId(MAPID_INVALID) { }
 
-    constexpr WorldLocation(uint32 mapId, Position const& position)
-        : Position(position), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y) : Position(x, y), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z) : Position(x, y, z), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z, float o) : Position(x, y, z, o), m_mapId(mapId) { }
+
+    constexpr WorldLocation(uint32 mapId, Position const& position) : Position(position), m_mapId(mapId) { }
 
     constexpr void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
-    constexpr void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+    constexpr void WorldRelocate(uint32 mapId, float x, float y, float z, float o)
     {
         m_mapId = mapId;
         Relocate(x, y, z, o);
@@ -215,11 +227,15 @@ TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position:
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer);
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::PackedXYZ> const& streamer);
 
 template<class Tag>
 struct TaggedPosition
 {
-    constexpr TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    constexpr TaggedPosition() { }
+    constexpr TaggedPosition(float x, float y) : Pos(x, y) { }
+    constexpr TaggedPosition(float x, float y, float z) : Pos(x, y, z) { }
+    constexpr TaggedPosition(float x, float y, float z, float o) : Pos(x, y, z, o) { }
     constexpr TaggedPosition(Position const& pos) : Pos(pos) { }
 
     constexpr TaggedPosition& operator=(Position const& pos)
@@ -230,13 +246,50 @@ struct TaggedPosition
 
     constexpr operator Position() const { return Pos; }
 
-    friend constexpr bool operator==(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos == right.Pos; }
-    friend constexpr bool operator!=(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos != right.Pos; }
+    friend bool operator==(TaggedPosition const& left, TaggedPosition const& right) = default;
 
     friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
     friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }
 
     Position Pos;
+};
+
+template <>
+struct fmt::formatter<Position, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(Position const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<WorldLocation, char, void> : fmt::formatter<Position, char, void>
+{
+    template <typename FormatContext>
+    auto format(WorldLocation const& worldLocation, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XY>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(TaggedPosition<Position::XY> const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XYZ>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(TaggedPosition<Position::XYZ> const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XYZO>, char, void> : fmt::formatter<Position, char, void>
+{
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::PackedXYZ>, char, void> : fmt::formatter<TaggedPosition<Position::XYZ>, char, void>
+{
 };
 
 #endif // Trinity_game_Position_h__

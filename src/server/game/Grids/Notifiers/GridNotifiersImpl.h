@@ -180,107 +180,14 @@ void Trinity::MessageDistDelivererToHostile<PacketSender>::Visit(DynamicObjectMa
 
 // WorldObject searchers & workers
 
-template <class Check, class Result>
+template <class Check, class Result, class MapTypeMaskCheck>
 template <class T>
-void Trinity::WorldObjectSearcherBase<Check, Result>::Visit(GridRefManager<T>& m)
-{
-    if (!(i_mapTypeMask & GridMapTypeMaskForType<T>::value))
-        return;
-
-    if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-        return;
-
-    for (GridReference<T> const& ref : m)
-    {
-        if (i_check(ref.GetSource()))
-        {
-            this->Insert(ref.GetSource());
-
-            if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-                return;
-        }
-    }
-}
-
-// Gameobject searchers
-
-template <class Check, class Result>
-void Trinity::GameObjectSearcherBase<Check, Result>::Visit(GameObjectMapType& m)
-{
-    if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-        return;
-
-    for (GridReference<GameObject> const& ref : m)
-    {
-        if (!ref.GetSource()->InSamePhase(*i_phaseShift))
-            continue;
-
-        if (i_check(ref.GetSource()))
-        {
-            this->Insert(ref.GetSource());
-
-            if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-                return;
-        }
-    }
-}
-
-// Unit searchers
-
-template <class Check, class Result>
-template <class T>
-void Trinity::UnitSearcherBase<Check, Result>::VisitImpl(GridRefManager<T>& m)
+inline void Trinity::WorldObjectSearcherBase<Check, Result, MapTypeMaskCheck>::VisitImpl(GridRefManager<T>& m)
 {
     if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
         return;
 
     for (GridReference<T> const& ref : m)
-    {
-        if (!ref.GetSource()->InSamePhase(*i_phaseShift))
-            continue;
-
-        if (i_check(ref.GetSource()))
-        {
-            this->Insert(ref.GetSource());
-
-            if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-                return;
-        }
-    }
-}
-
-// Creature searchers
-
-template <class Check, class Result>
-void Trinity::CreatureSearcherBase<Check, Result>::Visit(CreatureMapType& m)
-{
-    if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-        return;
-
-    for (GridReference<Creature> const& ref : m)
-    {
-        if (!ref.GetSource()->InSamePhase(*i_phaseShift))
-            continue;
-
-        if (i_check(ref.GetSource()))
-        {
-            this->Insert(ref.GetSource());
-
-            if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-                return;
-        }
-    }
-}
-
-// Player searchers
-
-template <class Check, class Result>
-void Trinity::PlayerSearcherBase<Check, Result>::Visit(PlayerMapType& m)
-{
-    if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
-        return;
-
-    for (GridReference<Player> const& ref : m)
     {
         if (!ref.GetSource()->InSamePhase(*i_phaseShift))
             continue;

@@ -21,12 +21,13 @@
 #include "ItemDefines.h"
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
+#include <cstring> // std::memset
 
 /*static*/ ItemTemplate& UnitTestDataLoader::GetItemTemplate(uint32 itemId, std::string_view name)
 {
     ItemTemplate& t = sObjectMgr->_itemTemplateStore[itemId];
     ItemEntry* itemEntry = new ItemEntry();
-    memset(itemEntry, 0, sizeof(ItemEntry));
+    std::memset(itemEntry, 0, sizeof(ItemEntry));
     itemEntry->ID = itemId;
     itemEntry->ClassID = ITEM_CLASS_MISCELLANEOUS;
     t.BasicData = itemEntry;

@@ -19,7 +19,9 @@
 #define TRINITY_SPAWNDATA_H
 
 #include "DBCEnums.h"
+#include "Optional.h"
 #include "Position.h"
+#include <array>
 #include <vector>
 
 class AreaTrigger;
@@ -70,6 +72,32 @@ struct SpawnGroupTemplateData
     SpawnGroupFlags flags;
 };
 
+struct SpawnTrackingTemplateData
+{
+    uint32 SpawnTrackingId;
+    uint32 MapId;
+    uint32 PhaseId;
+    uint32 PhaseGroup;
+    uint8 PhaseUseFlags;
+};
+
+struct SpawnTrackingStateData
+{
+    bool Visible = true;
+    Optional<uint32> StateSpellVisualId;
+    Optional<uint16> StateAnimId;
+    Optional<uint16> StateAnimKitId;
+    std::vector<uint32> StateWorldEffects;
+};
+
+enum class SpawnTrackingState : uint8
+{
+    None        = 0,
+    Active      = 1,
+    Complete    = 2,
+    Max
+};
+
 namespace Trinity { namespace Impl {
     template <typename T>
     struct SpawnObjectTypeForImpl { static_assert(!std::is_same<T,T>::value, "This type does not have an associated spawn type!"); };
@@ -94,6 +122,9 @@ struct SpawnMetadata
     uint32 mapId = MAPID_INVALID;
     bool dbData = true;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
+    SpawnTrackingTemplateData const* spawnTrackingData = nullptr;
+    std::vector<uint32> spawnTrackingQuestObjectives;
+    std::array<SpawnTrackingStateData, size_t(SpawnTrackingState::Max)> spawnTrackingStates;
 
     protected:
     SpawnMetadata(SpawnObjectType t) : type(t) {}

@@ -10,31 +10,21 @@
 
 ########### bnetserver ###############
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
+add_executable(bnetserver)
+
+CollectAndAddSourceFiles(
+  bnetserver
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 if (WIN32)
   if (MSVC)
-    list(APPEND PRIVATE_SOURCES bnetserver.rc)
+    target_sources(bnetserver PRIVATE bnetserver.rc)
   endif()
-endif()
-
-if (USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
-endif()
-
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_executable(bnetserver
-  ${PRIVATE_SOURCES}
-)
-
-if (NOT WIN32)
+else()
   target_compile_definitions(bnetserver PRIVATE
     _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
     _TRINITY_BNET_CONFIG_DIR="${CONF_DIR}/bnetserver.conf.d"
@@ -47,22 +37,14 @@ target_link_libraries(bnetserver
   PUBLIC
     shared)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
 target_include_directories(bnetserver
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(bnetserver
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
 add_custom_command(TARGET bnetserver
   POST_BUILD
@@ -94,5 +76,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(bnetserver ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(bnetserver PrecompiledHeaders/bnetPCH.h)
 endif()

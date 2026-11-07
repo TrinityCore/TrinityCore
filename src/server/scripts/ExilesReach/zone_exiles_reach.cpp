@@ -15,37 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "Conversation.h"
-#include "CreatureAIImpl.h"
-#include "Map.h"
-#include "Object.h"
-#include "Player.h"
 #include "CellImpl.h"
+#include "CombatAI.h"
 #include "Containers.h"
+#include "Conversation.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "PassiveAI.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
-#include "ScriptSystem.h"
 #include "SpellAuras.h"
+#include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "Transport.h"
-#include "Loot.h"
-#include "SpellHistory.h"
+#include "VehicleDefines.h"
 #include "WorldStateMgr.h"
-#include "Unit.h"
-#include "Vehicle.h"
-#include "WorldSession.h"
-#include "CombatAI.h"
-#include "PhasingHandler.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -640,10 +632,7 @@ public:
         if (!transport || !creature)
             return;
 
-        float x, y, z, o;
-        position.GetPosition(x, y, z, o);
-        transport->CalculatePassengerPosition(x, y, z, &o);
-        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        creature->SummonPersonalClone(transport->GetPositionWithOffset(position), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
     }
 };
 
@@ -835,7 +824,7 @@ struct npc_crew_ship_private : public ScriptedAI
     void JustAppeared() override
     {
         _path = GetPathID();
-        _scheduler.Schedule(Seconds(7), [this](TaskContext)
+        _scheduler.Schedule(Seconds(7), [this](TaskContext const&)
         {
             me->GetMotionMaster()->MovePath(_path, false);
         });
@@ -1041,7 +1030,7 @@ CreatureAI* CaptainGarrickAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 enum SpellCrashLandedData
 {
@@ -1287,7 +1276,7 @@ CreatureAI* CaptainGarrickBeachAISelector(Creature* creature)
         }
     }
     return new npc_captain_garrick_beach(creature);
-};
+}
 
 CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
 {
@@ -1302,7 +1291,7 @@ CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
         }
     }
     return new npc_warlord_grimaxe_beach(creature);
-};
+}
 
 enum HealedByLeaderBeachData
 {
@@ -1376,14 +1365,14 @@ CreatureAI* HealedByLeaderAllianceAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_survivors_healed_by_leader_beach_private<PATH_LONG_BEACH, 16 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* HealedByLeaderHordeAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_healed_by_leader_beach_private<PATH_SHORT_BEACH, 9 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum ExilesReachAllianceSurvivorsBeachData
 {
@@ -1522,62 +1511,15 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
     }
 };
 
-enum ExilesReachMurlocsData
-{
-    ITEM_STITCHED_CLOTH_SHOES           = 174791,
-    ITEM_STITCHED_LEATHER_BOOTS         = 174792,
-    ITEM_LINKED_MAIL_BOOTS              = 174793,
-    ITEM_DENTED_PLATE_BOOTS             = 174794,
-
-    QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED = 58883
-};
-
 // 150228 - Murloc Spearhunter
 // 150229 - Murloc Watershaper
-struct npc_murloc_spearhunter_watershaper : public ScriptedAI
+struct npc_murloc_spearhunter_watershaper_higher_ground : public ScriptedAI
 {
-    npc_murloc_spearhunter_watershaper(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_SHOES:
-                        case ITEM_STITCHED_LEATHER_BOOTS:
-                        case ITEM_LINKED_MAIL_BOOTS:
-                        case ITEM_DENTED_PLATE_BOOTS:
-                            player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-    }
-};
-
-// 150228 - Murloc Spearhunter
-// 150229 - Murloc Watershaper
-struct npc_murloc_spearhunter_watershaper_higher_ground : public npc_murloc_spearhunter_watershaper
-{
-    npc_murloc_spearhunter_watershaper_higher_ground(Creature* creature) : npc_murloc_spearhunter_watershaper(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustEngagedWith(Unit* who) override
     {
-        me->GetMotionMaster()->MoveJump(who->GetPosition(), 16.0f, 6.2f);
+        me->GetMotionMaster()->MoveJump(EVENT_JUMP, who->GetPosition(), 16.0f, 0.1f);
     }
 };
 
@@ -1684,7 +1626,7 @@ CreatureAI* BoBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* MithdranBeachStandingAISelector(Creature* creature)
 {
@@ -1700,7 +1642,7 @@ CreatureAI* MithdranBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
 {
@@ -1716,28 +1658,28 @@ CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* KeeLaBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* BjornBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_BJORN_STOUTHANDS_STANDING, 4 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_AUSTIN_HUXWORTH_STANDING, 5 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum LostExpeditionFollowerData
 {
@@ -2046,7 +1988,6 @@ class spell_summon_survivor_beach : public SpellScript
 
 enum CaptainGarrickAbandonedCampData
 {
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE     = 11696,
     CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE   = 12863,
 
     QUEST_COOKING_MEAT_ALLIANCE                         = 55174
@@ -2054,24 +1995,9 @@ enum CaptainGarrickAbandonedCampData
 
 enum WarlordGrimaxeAbandonedCampData
 {
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE        = 14439,
     CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE      = 14611,
 
     QUEST_COOKING_MEAT_HORDE                            = 59932
-};
-
-template<uint32 QuestId, uint32 ConversationId>
-struct npc_captain_abandoned_camp_exiles_reach : public ScriptedAI
-{
-    npc_captain_abandoned_camp_exiles_reach(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() != QuestId)
-            return;
-
-        Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID());
-    }
 };
 
 enum CookingMeatQuestData
@@ -2491,7 +2417,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
                 me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
 
                 OnReadyPointReached();
@@ -2564,13 +2490,13 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         me->SetFacingToObject(owner);
 
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     break;
                 }
                 case EVENT_COMBAT_TRAINING_END:
                     // Used by all classes
                     me->SetImmuneToPC(true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->RemoveAllAuras();
                     if (Unit* owner = me->GetDemonCreator())
                     {
@@ -2610,7 +2536,7 @@ struct npc_sparring_partner_enhanced_combat_training_warrior : public npc_sparri
     {
         _slamCounter = 0;
         me->SetImmuneToPC(true);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         player->GetSpellHistory()->ResetCharges(CHARGE_CATEGORY_CHARGE_SPELL);
         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
@@ -2969,7 +2895,7 @@ struct npc_sparring_partner_enhanced_combat_training_priest : public npc_sparrin
                 {
                     StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _secondaryCheck = false;
                 }
@@ -3027,7 +2953,7 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _secondaryCheck = true;
                 break;
             default:
@@ -3066,7 +2992,7 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
             {
                 StartConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN);
                 me->SetImmuneToPC(true);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_SHAMAN, 3s);
             }
         }
@@ -3120,7 +3046,7 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _secondaryCheck = true;
                 break;
             default:
@@ -3148,7 +3074,7 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
                 {
                     StartConversationWithPlayer(CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE);
                     me->SetImmuneToPC(true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_MAGE, 4s);
                 }
             }
@@ -3236,7 +3162,7 @@ struct npc_sparring_partner_enhanced_combat_training_warlock : public npc_sparri
                 {
                     StartConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _secondaryCheck = false;
                 }
@@ -3352,7 +3278,7 @@ struct npc_sparring_partner_enhanced_combat_training_druid : public npc_sparring
                 {
                     StartConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _hitByMoonfire = true;
                 }
@@ -3419,10 +3345,7 @@ CreatureAI* SparringPartnerEnhancedCombatTrainingSelector(Creature* creature)
         default:
             return new NullCreatureAI(creature);
     }
-    if (creature->IsPrivateObject())
-        return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
-    return new NullCreatureAI(creature);
-};
+}
 
 struct at_aggro_radius_check_enhanced_combat_tactics : AreaTriggerAI
 {
@@ -4176,7 +4099,7 @@ CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
 {
@@ -4191,7 +4114,7 @@ CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 // 316840 - Tutorial - Health (DNT)
 class spell_tutorial_health_dnt_proc_aura : public AuraScript
@@ -4377,8 +4300,6 @@ enum GeolordData
     SPELL_NECROTIC_RITUAL_DNT   = 305513,
     SPELL_EARTH_BOLT            = 270453,
     SPELL_UPHEAVAL              = 319273,
-
-    WORLDSTATE_HORDE            = 4486
 };
 
 static constexpr Position PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
@@ -4392,7 +4313,7 @@ struct npc_geolord_grekog : public ScriptedAI
     {
         uint32 prisonerEntry = NPC_LINDIE_SPRINGSTOCK;
 
-        if (sWorldStateMgr->GetValue(WORLDSTATE_HORDE, me->GetMap()) == 1)
+        if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_HORDE, me->GetMap()) == 1)
             prisonerEntry = NPC_CORK_FIZZLEPOP;
 
         Creature* bunny = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_INVIS_BUNNY_GEOLORD, .IgnorePhases = true });
@@ -4483,7 +4404,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             me->SetControlled(false, UNIT_STATE_ROOT);
-            me->GetMotionMaster()->MoveJump(BriarpatchPrisonerJumpToPosition, 7.9894905f, 19.29110336303710937f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, BriarpatchPrisonerJumpToPosition, 8.0f);
             Talk(SAY_GET_OUT_OF_HERE);
             _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
         }
@@ -4516,16 +4437,6 @@ enum OgreOverseerQuilboarText
     SAY_DEATH = 1,
 };
 
-enum ExilesReachQuilboarData
-{
-    ITEM_STITCHED_CLOTH_TUNIC      = 174811,
-    ITEM_STITCHED_LEATHER_TUNIC    = 174812,
-    ITEM_LINKED_MAIL_HAUBERK       = 174813,
-    ITEM_DENTED_CHESTPLATE         = 174814,
-
-    QUEST_BRIARPATCH_CHEST_DROPPED = 58904
-};
-
 enum QuilboarWarriorGeomancerData
 {
     EVENT_BRUTAL_STRIKE        = 1,
@@ -4551,7 +4462,7 @@ struct npc_quilboar_warrior : public ScriptedAI
     {
         me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 3s, 5s);
@@ -4559,35 +4470,8 @@ struct npc_quilboar_warrior : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_TUNIC:
-                        case ITEM_STITCHED_LEATHER_TUNIC:
-                        case ITEM_LINKED_MAIL_HAUBERK:
-                        case ITEM_DENTED_CHESTPLATE:
-                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -4629,7 +4513,7 @@ struct npc_quilboar_geomancer : public ScriptedAI
     {
         me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 5s);
@@ -4637,35 +4521,8 @@ struct npc_quilboar_geomancer : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_TUNIC:
-                        case ITEM_STITCHED_LEATHER_TUNIC:
-                        case ITEM_LINKED_MAIL_HAUBERK:
-                        case ITEM_DENTED_CHESTPLATE:
-                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -4697,11 +4554,6 @@ enum ExilesReachOgreOverseerData
     EVENT_OVERSEER_BACKHAND                 = 1,
     EVENT_OVERSEER_EARTHSHATTER             = 2,
 
-    ITEM_BATTERED_CLOAK                     = 11847,
-    ITEM_OVERSEERS_MANDATE                  = 174790,
-
-    QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED = 56051,
-
     SPELL_BACKHAND                          = 276991,
     SPELL_EARTHSHATTER                      = 319292
 };
@@ -4727,24 +4579,6 @@ struct npc_ogre_overseer : public ScriptedAI
     void JustDied(Unit* killer) override
     {
         Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_BATTERED_CLOAK)
-                    {
-                        player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -4791,8 +4625,8 @@ struct at_briarpatch_to_plains : AreaTriggerAI
         std::vector<WorldObject*> objs;
 
         Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), conversationId);
-        Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-        Cell::VisitGridObjects(player, checker, 100.0f);
+        Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), objs, check);
+        Cell::VisitGridObjects(player, searcher, 100.0f);
 
         if (objs.empty())
             Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr);
@@ -4925,7 +4759,7 @@ struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
                     }
 
                     if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
-                        copter->GetMotionMaster()->MoveJump(MiniChopperJumpPosition, 19.29f, 6.99f);
+                        copter->GetMotionMaster()->MoveJump(EVENT_JUMP, MiniChopperJumpPosition, 7.0f, 6.99f);
 
                     _events.ScheduleEvent(EVENT_RESIZE_COPTER_1, 6s);
                     break;
@@ -5016,7 +4850,7 @@ CreatureAI* LindieSpringstockSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* CorkFizzlepopSelector(Creature* creature)
 {
@@ -5029,7 +4863,7 @@ CreatureAI* CorkFizzlepopSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 enum CopterRideData
 {
@@ -5275,7 +5109,7 @@ CreatureAI* ChoppyBoosterSelector(Creature* creature)
             return new npc_choppy_booster_scout(creature);
     }
     return new NullCreatureAI(creature);
-};
+}
 
 // 167909 - Won'sa
 // 167910 - Bo
@@ -5298,7 +5132,7 @@ CreatureAI* HordeCrewPlainsSelector(Creature* creature)
         return new npc_horde_crew_plains_private(creature);
 
     return new NullCreatureAI(creature);
-};
+}
 
 static constexpr Position CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
 
@@ -6481,10 +6315,6 @@ enum TorgokData
     EVENT_CAST_SPIRIT_BOLT              = 1,
     EVENT_CAST_SOUL_GRASP               = 2,
 
-    ITEM_TORGOKS_REAGENT_POUCH          = 176398,
-
-    QUEST_TORGOKS_REAGENT_POUCH_DROPPED = 59610,
-
     SPELL_SPIRIT_BOLT                   = 319294,
     SPELL_SOUL_GRASP                    = 319298
 };
@@ -6510,21 +6340,6 @@ struct npc_torgok_q55879 : public ScriptedAI
     void JustDied(Unit* killer) override
     {
         Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
-                    {
-                        player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -6584,7 +6399,7 @@ CreatureAI* PrisonerQ55879Selector(Creature* creature)
         return new npc_prisoner_q55879_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum TheReDeather
 {
@@ -6959,7 +6774,7 @@ CreatureAI* BjornRuinsSelector(Creature* creature)
         return new npc_bjorn_stouthands_q55965_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum LanaRunToPit
 {
@@ -7023,7 +6838,7 @@ CreatureAI* LanaRuinsSelector(Creature* creature)
         return new npc_lana_jordan_q59948_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum CompanionRunToPit
 {
@@ -7076,7 +6891,7 @@ CreatureAI* AlariaRuinsSelector(Creature* creature)
         return new npc_companion_q55965_q59948_private<PATH_ALARIA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* WansaRuinsSelector(Creature* creature)
 {
@@ -7084,7 +6899,7 @@ CreatureAI* WansaRuinsSelector(Creature* creature)
         return new npc_companion_q55965_q59948_private<PATH_WONSA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 void AddSC_zone_exiles_reach()
 {
@@ -7121,7 +6936,6 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_bo_beach_laying);
     RegisterCreatureAI(npc_mithran_dawntracker_beach_laying);
     RegisterCreatureAI(npc_lana_jordan_beach_laying);
-    RegisterCreatureAI(npc_murloc_spearhunter_watershaper);
     RegisterCreatureAI(npc_murloc_spearhunter_watershaper_higher_ground);
     new FactoryCreatureScript<CreatureAI, &BoBeachStandingAISelector>("npc_bo_beach_standing");
     new FactoryCreatureScript<CreatureAI, &MithdranBeachStandingAISelector>("npc_mithdran_dawntracker_beach_standing");
@@ -7135,8 +6949,6 @@ void AddSC_zone_exiles_reach()
     new quest_finding_the_lost_expedition_horde();
     RegisterSpellScript(spell_summon_survivor_beach);
     // Abandoned Camp
-    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
-    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
     new quest_cooking_meat_alliance();
     new quest_cooking_meat_horde();
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
@@ -7216,4 +7028,4 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
     new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
     new FactoryCreatureScript<CreatureAI, &WansaRuinsSelector>("npc_wonsa_q59948");
-};
+}

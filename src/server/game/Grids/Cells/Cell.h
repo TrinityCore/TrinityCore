@@ -28,16 +28,7 @@ class WorldObject;
 
 struct CellArea
 {
-    CellArea() { }
     CellArea(CellCoord low, CellCoord high) : low_bound(low), high_bound(high) { }
-
-    bool operator!() const { return low_bound == high_bound; }
-
-    void ResizeBorders(CellCoord& begin_cell, CellCoord& end_cell) const
-    {
-        begin_cell = low_bound;
-        end_cell = high_bound;
-    }
 
     CellCoord low_bound;
     CellCoord high_bound;
@@ -45,10 +36,9 @@ struct CellArea
 
 struct Cell
 {
-    Cell() { data.All = 0; }
-    Cell(Cell const& cell) { data.All = cell.data.All; }
+    Cell() : data() { }
     explicit Cell(CellCoord const& p);
-    explicit Cell(float x, float y);
+    explicit Cell(float x, float y) : Cell(Trinity::ComputeCellCoord(x, y)) { }
 
     void Compute(uint32 &x, uint32 &y) const
     {
@@ -72,8 +62,13 @@ struct Cell
     uint32 CellY() const { return data.Part.cell_y; }
     uint32 GridX() const { return data.Part.grid_x; }
     uint32 GridY() const { return data.Part.grid_y; }
-    bool NoCreate() const { return data.Part.nocreate; }
-    void SetNoCreate() { data.Part.nocreate = 1; }
+
+    GridCoord GetGridCoord() const
+    {
+        return GridCoord(
+            data.Part.grid_x,
+            data.Part.grid_y);
+    }
 
     CellCoord GetCellCoord() const
     {
@@ -82,23 +77,15 @@ struct Cell
             data.Part.grid_y * MAX_NUMBER_OF_CELLS+data.Part.cell_y);
     }
 
-    Cell& operator=(Cell const& cell)
-    {
-        this->data.All = cell.data.All;
-        return *this;
-    }
-
     bool operator == (Cell const& cell) const { return (data.All == cell.data.All); }
     union
     {
         struct
         {
-            unsigned grid_x : 6;
-            unsigned grid_y : 6;
-            unsigned cell_x : 6;
-            unsigned cell_y : 6;
-            unsigned nocreate : 1;
-            unsigned reserved : 7;
+            uint8 grid_x;
+            uint8 grid_y;
+            uint8 cell_x;
+            uint8 cell_y;
         } Part;
         uint32 All;
     } data;
@@ -108,13 +95,13 @@ struct Cell
 
     static CellArea CalculateCellArea(float x, float y, float radius);
 
-    template<class T> static void VisitGridObjects(WorldObject const* obj, T& visitor, float radius, bool dont_load = true);
-    template<class T> static void VisitWorldObjects(WorldObject const* obj, T& visitor, float radius, bool dont_load = true);
-    template<class T> static void VisitAllObjects(WorldObject const* obj, T& visitor, float radius, bool dont_load = true);
+    template<class T> static void VisitGridObjects(WorldObject const* obj, T& visitor, float radius);
+    template<class T> static void VisitWorldObjects(WorldObject const* obj, T& visitor, float radius);
+    template<class T> static void VisitAllObjects(WorldObject const* obj, T& visitor, float radius);
 
-    template<class T> static void VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load = true);
-    template<class T> static void VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load = true);
-    template<class T> static void VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load = true);
+    template<class T> static void VisitGridObjects(float x, float y, Map* map, T& visitor, float radius);
+    template<class T> static void VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius);
+    template<class T> static void VisitAllObjects(float x, float y, Map* map, T& visitor, float radius);
 
 private:
     template<class T, class CONTAINER> void VisitCircle(TypeContainerVisitor<T, CONTAINER> &, Map &, CellCoord const&, CellCoord const&) const;

@@ -72,6 +72,12 @@ extern "C" {
   #endif
 #endif
 
+#if defined(CASCLIB_DETECT_UNICODE_MISMATCHES)
+#if defined(_UNICODE) != defined(CASCLIB_UNICODE)
+#error CascLib was not built with the same UNICODE setting as your project
+#endif
+#endif
+
 //-----------------------------------------------------------------------------
 // Defines
 
@@ -318,12 +324,21 @@ typedef struct _CASC_FILE_SPAN_INFO
 //-----------------------------------------------------------------------------
 // Extended version of CascOpenStorage
 
+typedef enum _CASC_PROGRESS_MSG
+{
+    CascProgressLoadingFile,                    // "Loading file: %s"
+    CascProgressLoadingManifest,                // "Loading manifest: %s"
+    CascProgressDownloadingFile,                // "Downloading file: %s"
+    CascProgressLoadingIndexes,                 // "Loading index files"
+    CascProgressDownloadingArchiveIndexes,      // "Downloading archive indexes"
+} CASC_PROGRESS_MSG, *PCASC_PROGRESS_MSG;
+
 // Some operations (e.g. opening an online storage) may take long time.
 // This callback allows an application to be notified about loading progress
 // and even cancel the storage loading process
 typedef bool (WINAPI * PFNPROGRESSCALLBACK)(    // Return 'true' to cancel the loading process
     void * PtrUserParam,                        // User-specific parameter passed to the callback
-    LPCSTR szWork,                              // Text for the current activity (example: "Loading "ENCODING" file")
+    CASC_PROGRESS_MSG ProgressMsg,              // Text for the current activity. The target callback needs to translate it into language-specific message
     LPCSTR szObject,                            // (optional) name of the object tied to the activity (example: index file name)
     DWORD CurrentValue,                         // (optional) current object being processed
     DWORD TotalValue                            // (optional) If non-zero, this is the total number of objects to process

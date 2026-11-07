@@ -22,19 +22,18 @@
 #include "BattlegroundScript.h"
 #include "Containers.h"
 #include "CreatureAI.h"
-#include "G3DPosition.hpp"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellHistory.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "WaypointDefines.h"
@@ -210,7 +209,7 @@ struct battleground_seething_shore final : BattlegroundScript
 
     void OnPrepareStage3() override
     {
-        _scheduler.Schedule(2s, [this](TaskContext context)
+        _scheduler.Schedule(2s, [this](TaskContext& context)
         {
             if (_activeAzeriteNodes.size() < MAX_AZERITE_SPAWNS)
             {
@@ -233,7 +232,7 @@ struct battleground_seething_shore final : BattlegroundScript
             }
         }
 
-        _scheduler.Schedule(30s, 2min, [this](TaskContext context)
+        _scheduler.Schedule(30s, 2min, [this](TaskContext& context)
         {
             SpawnBuffs();
             context.Repeat();
@@ -609,7 +608,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
             && ValidateSpellInfo(
                 {
-                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
                     SeethingShore::Spells::AchievementTrackerCreditClaimJumper,
                     SeethingShore::Spells::AchievementTrackerDeathFromAbove
                 });
@@ -623,7 +622,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
             args.TriggerFlags = TRIGGERED_FULL_MASK;
             args.OriginalCastId = GetSpell()->m_castId;
 
-            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValue(player)), args);
+            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValueAsInt(player)), args);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerCreditClaimJumper, true);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerDeathFromAbove, true);
         }
@@ -650,7 +649,7 @@ class spell_bg_seething_shore_speed_up : public SpellScript
         // Unsure about which spells should reset and which not
         // It's not the same list as the ones that reset on encounter reset
         if (Player* player = GetCaster()->ToPlayer())
-            player->GetSpellHistory()->ResetAllCooldowns();
+            player->RemoveArenaSpellCooldowns();
     }
 
     void Register() override
@@ -689,6 +688,9 @@ struct transport_seething_shore : TransportScript
 
     void OnRemovePassenger(Transport* /*transport*/, Player* player) override
     {
+        if (!player->IsInWorld())
+            return;
+
         if (Battleground const* bg = player->GetBattleground())
         {
             if (bg->GetStatus() != STATUS_IN_PROGRESS)
@@ -771,7 +773,7 @@ struct npc_bg_seething_shore_air_supply_ground_dummy : ScriptedAI
     {
         if (actionId == SeethingShore::Actions::SpawnBuff)
         {
-            _scheduler.Schedule(5s, [&](TaskContext)
+            _scheduler.Schedule(5s, [&](TaskContext const&)
             {
                 SpawnAirSupplyParachute();
             });
@@ -796,7 +798,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
         if (!groundDummy)
             return;
 
-        QuaternionData const rot = QuaternionData::fromEulerAnglesZYX(groundDummy->GetOrientation(), 0.f, 0.f);
+        QuaternionData const rot = QuaternionData::fromOrientation(groundDummy->GetOrientation());
         uint8 const action = urand(0, 3);
         switch (action)
         {
@@ -804,7 +806,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
             case 1:
             case 2:
                 // pretty sure some serverside spell is used, and we could drop this whole switch
-                if (GameObject* buff = GameObject::CreateGameObject(SeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, 255, GO_STATE_READY))
+                if (GameObject* buff = GameObject::CreateGameObject(SeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, InitialPhaseShift(), 255, GO_STATE_READY))
                 {
                     buff->SetSpawnedByDefault(false);
                     buff->SetRespawnTime(300); // this is equal to the haste rune buff area trigger
@@ -863,13 +865,13 @@ struct npc_bg_seething_shore_commander : ScriptedAI
         {
             case SeethingShore::Actions::CommanderText1:
                 Talk(SeethingShore::CommanderTexts::Intro1);
-                _scheduler.Schedule(30s, [this](TaskContext context)
+                _scheduler.Schedule(30s, [this](TaskContext& context)
                 {
                     Talk(SeethingShore::CommanderTexts::Intro2);
-                    context.Schedule(15s, [this](TaskContext context2)
+                    context.Schedule(15s, [this](TaskContext& context2)
                     {
                         Talk(SeethingShore::CommanderTexts::Intro3);
-                        context2.Schedule(12s, [this](TaskContext)
+                        context2.Schedule(12s, [this](TaskContext const&)
                         {
                             Talk(SeethingShore::CommanderTexts::Intro4);
                         });
@@ -899,7 +901,7 @@ struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(38s, [this](TaskContext)
+        _scheduler.Schedule(38s, [this](TaskContext const&)
         {
             if (Creature* fissure = me->FindNearestCreature(SeethingShore::Creatures::AzeriteFissure, 5.0f))
                 me->SendPlaySpellVisual(fissure, SeethingShore::SpellVisuals::AzeriteBirth, 0, 0, 0.0f);

@@ -24,6 +24,7 @@
 #include "LFGQueue.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
+#include <span>
 #include <unordered_map>
 
 class Group;
@@ -31,7 +32,7 @@ class Player;
 class Quest;
 class Map;
 struct LFGDungeonsEntry;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 namespace WorldPackets
 {
@@ -134,6 +135,8 @@ enum LfgJoinResult
     LFG_JOIN_ALREADY_USING_LFG_LIST                 = 0x3F, // You can't do that while using Premade Groups.
     LFG_JOIN_NOT_LEADER                             = 0x45, // You are not the party leader.
     LFG_JOIN_DEAD                                   = 0x49,
+    LFG_FARM_LIMIT                                  = 0x4D, // You or someone in your party has entered too many instances recently. Please wait awhile and try again.
+    LFG_NO_CROSS_FACTION_PARTIES                    = 0x4E, // Cross-faction groups can't queue for this instance
 
     LFG_JOIN_PARTY_NOT_MEET_REQS                    = 6,      // One or more party members do not meet the requirements for the chosen dungeons (FIXME)
 };
@@ -180,7 +183,7 @@ struct LfgJoinResultData
     LfgJoinResult result;
     LfgRoleCheckState state;
     LfgLockPartyMap lockmap;
-    std::vector<std::string const*> playersMissingRequirement;
+    std::vector<std::string_view> playersMissingRequirement;
 };
 
 // Data needed by SMSG_LFG_UPDATE_STATUS
@@ -331,13 +334,13 @@ class TC_GAME_API LFGMgr
 
         // World.cpp
         /// Check dungeon completion on encounter completion
-        void OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> const& dungeonEncounterId, Map const* currMap);
+        void OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap);
         /// Finish the dungeon for the given group. All check are performed using internal lfg data
         void FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map const* currMap);
         /// Loads rewards for random dungeons
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords
-        void LoadLFGDungeons(bool reload = false);
+        void LoadLFGDungeons();
 
         // Multiple files
         /// Check if given guid applied for random dungeon
@@ -407,7 +410,7 @@ class TC_GAME_API LFGMgr
         /// Gets the random dungeon reward corresponding to given dungeon and player level
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         /// Returns all random and seasonal dungeons for given level and expansion
-        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, uint32 contentTuningReplacementConditionMask);
+        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, std::span<uint32 const> contentTuningReplacementConditionMask);
         /// Teleport a player to/from selected dungeon
         void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
         /// Inits new proposal to boot a player
@@ -461,7 +464,7 @@ class TC_GAME_API LFGMgr
         void SetState(ObjectGuid guid, LfgState state);
         void SetVoteKick(ObjectGuid gguid, bool active);
         void RemovePlayerData(ObjectGuid guid);
-        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue);
+        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string_view>* playersMissingRequirement, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 

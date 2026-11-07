@@ -38,7 +38,7 @@ struct AchievementEntry
     int8 MinimumCriteria;                                           // need this count of completed criterias (own or referenced achievement criterias)
     int8 Points;
     int32 Flags;
-    int16 UiOrder;
+    uint16 UiOrder;
     int32 IconFileID;
     int32 RewardItemID;
     uint32 CriteriaTree;
@@ -53,7 +53,7 @@ struct Achievement_CategoryEntry
     LocalizedString Name;
     uint32 ID;
     int16 Parent;
-    int8 UiOrder;
+    uint8 UiOrder;
 };
 
 struct AdventureJournalEntry
@@ -102,7 +102,7 @@ struct AnimationDataEntry
 {
     uint32 ID;
     uint16 Fallback;
-    uint8 BehaviorTier;
+    int8 BehaviorTier;
     int16 BehaviorID;
     std::array<int32, 2> Flags;
 };
@@ -141,7 +141,7 @@ struct AreaTableEntry
     uint8 FactionGroupMask;
     float AmbientMultiplier;
     int32 MountFlags;
-    int16 PvpCombatWorldStateID;
+    int32 PvpCombatWorldStateID;
     uint8 WildBattlePetLevelMin;
     uint8 WildBattlePetLevelMax;
     uint8 WindSettingsID;
@@ -164,7 +164,7 @@ struct AreaTriggerEntry
 {
     DBCPosition3D Pos;
     uint32 ID;
-    int16 ContinentID;
+    uint16 ContinentID;
     int32 PhaseUseFlags;
     int16 PhaseID;
     int16 PhaseGroupID;
@@ -176,7 +176,7 @@ struct AreaTriggerEntry
     int8 ShapeType;
     int16 ShapeID;
     int32 AreaTriggerActionSetID;
-    int8 Flags;
+    int32 Flags;
 
     AreaTriggerShapeType GetShapeType() const { return static_cast<AreaTriggerShapeType>(ShapeType); }
 };
@@ -208,7 +208,7 @@ struct ArtifactEntry
     int32 UiBarOverlayColor;
     int32 UiBarBackgroundColor;
     uint16 ChrSpecializationID;
-    uint8 Flags;
+    int32 Flags;
     uint8 ArtifactCategoryID;
     uint32 UiModelSceneID;
     uint32 SpellVisualKitID;
@@ -229,7 +229,7 @@ struct ArtifactAppearanceEntry
     uint32 OverrideShapeshiftDisplayID;
     uint32 UiItemAppearanceID;
     uint32 UiAltItemAppearanceID;
-    uint8 Flags;
+    int32 Flags;
     uint16 UiCameraID;
     uint32 UsablePlayerConditionID;
 };
@@ -243,7 +243,7 @@ struct ArtifactAppearanceSetEntry
     uint16 UiCameraID;
     uint16 AltHandUICameraID;
     int8 ForgeAttachmentOverride;
-    uint8 Flags;
+    int32 Flags;
     uint32 ArtifactID;
 };
 
@@ -261,8 +261,8 @@ struct ArtifactPowerEntry
     uint8 ArtifactID;
     uint8 MaxPurchasableRank;
     int32 Label;
-    uint8 Flags;
-    int8 Tier;
+    int32 Flags;
+    uint8 Tier;
 };
 
 struct ArtifactPowerLinkEntry
@@ -393,10 +393,10 @@ struct AzeritePowerEntry
 struct AzeritePowerSetMemberEntry
 {
     uint32 ID;
-    int32 AzeritePowerSetID;
+    uint32 AzeritePowerSetID;
     int32 AzeritePowerID;
-    int32 Class;
-    int8 Tier;
+    int8 Class;
+    uint8 Tier;
     int32 OrderIndex;
 };
 
@@ -425,10 +425,18 @@ struct AzeriteUnlockMappingEntry
     uint32 AzeriteUnlockMappingSetID;
 };
 
-struct BankBagSlotPricesEntry
+struct BankTabEntry
 {
     uint32 ID;
-    uint32 Cost;
+    uint64 Cost;
+    uint8 BankType;
+    int8 OrderIndex;
+    int32 PlayerConditionID;
+    int32 PurchasePromptTitle;
+    int32 PurchasePromptBody;
+    int32 PurchasePromptConfirmation;
+    int32 TabCleanupConfirmation;
+    int32 TabNameEditBoxHeader;
 };
 
 struct BannedAddonsEntry
@@ -436,7 +444,7 @@ struct BannedAddonsEntry
     uint32 ID;
     char const* Name;
     char const* Version;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct BarberShopStyleEntry
@@ -446,8 +454,8 @@ struct BarberShopStyleEntry
     LocalizedString Description;
     uint8 Type;                                                     // value 0 -> hair, value 2 -> facialhair
     float CostModifier;
-    uint8 Race;
-    uint8 Sex;
+    int8 Race;
+    int8 Sex;
     uint8 Data;                                                     // real ID to hair/facial hair
 };
 
@@ -460,7 +468,7 @@ struct BattlePetAbilityEntry
     int8 PetTypeEnum;
     uint32 Cooldown;
     uint16 BattlePetVisualID;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct BattlePetBreedQualityEntry
@@ -468,7 +476,7 @@ struct BattlePetBreedQualityEntry
     uint32 ID;
     int32 MaxQualityRoll;
     float StateMultiplier;
-    int8 QualityEnum;
+    uint8 QualityEnum;
 };
 
 struct BattlePetBreedStateEntry
@@ -513,6 +521,7 @@ struct BattlemasterListEntry
     LocalizedString ShortDescription;
     LocalizedString LongDescription;
     int8 InstanceType;
+    int32 PvpType;
     int8 MinLevel;
     int8 MaxLevel;
     int8 RatedPlayers;
@@ -525,6 +534,7 @@ struct BattlemasterListEntry
     int32 IconFileDataID;
     int32 RequiredPlayerConditionID;
 
+    BattlemasterType GetType() const { return static_cast<BattlemasterType>(PvpType); }
     EnumFlag<BattlemasterListFlags> GetFlags() const { return static_cast<BattlemasterListFlags>(Flags); }
 };
 
@@ -545,7 +555,7 @@ struct BroadcastTextEntry
     int32 LanguageID;
     int32 ConditionID;
     uint16 EmotesID;
-    uint8 Flags;
+    int32 Flags;
     uint32 ChatBubbleDurationMs;
     int32 VoiceOverPriorityID;
     std::array<uint32, 2> SoundKitID;
@@ -556,9 +566,37 @@ struct BroadcastTextEntry
 struct BroadcastTextDurationEntry
 {
     uint32 ID;
-    int32 BroadcastTextID;
     int32 Locale;
     int32 Duration;
+    uint32 BroadcastTextID;
+};
+
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Stalled;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 SortAsNormalQuest;
+    int32 UseMinimalHeader;
+
+    bool HasFlag(CampaignFlags flag) const { return EnumFlag(static_cast<CampaignFlags>(Flags)).HasFlag(flag); }
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
 };
 
 struct Cfg_CategoriesEntry
@@ -568,7 +606,7 @@ struct Cfg_CategoriesEntry
     uint16 LocaleMask;
     uint8 CreateCharsetMask;
     uint8 ExistingCharsetMask;
-    uint8 Flags;
+    int32 Flags;
     int8 Order;
 
     EnumFlag<CfgCategoriesCharsets> GetCreateCharsetMask() const { return static_cast<CfgCategoriesCharsets>(CreateCharsetMask); }
@@ -584,6 +622,7 @@ struct Cfg_RegionsEntry
     uint32 Raidorigin;                                              // Date of first raid reset, all other resets are calculated as this date plus interval
     uint8 RegionGroupMask;
     uint32 ChallengeOrigin;
+    int32 TimeEventRegionGroupID;
 };
 
 struct ChallengeModeItemBonusOverrideEntry
@@ -593,6 +632,7 @@ struct ChallengeModeItemBonusOverrideEntry
     int32 DstItemBonusTreeID;
     int32 Value;
     int32 RequiredTimeEventPassed;
+    int32 RequiredTimeEventNotPassed;
     uint32 SrcItemBonusTreeID;
 };
 
@@ -601,7 +641,7 @@ struct CharBaseInfoEntry
     uint32 ID;
     int8 RaceID;
     int8 ClassID;
-    int32 OtherFactionRaceID;
+    int8 OtherFactionRaceID;
 };
 
 struct CharTitlesEntry
@@ -610,16 +650,16 @@ struct CharTitlesEntry
     LocalizedString Name;
     LocalizedString Name1;
     int16 MaskID;
-    int8 Flags;
+    int32 Flags;
 };
 
 struct CharacterLoadoutEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
     int8 ChrClassID;
     int32 Purpose;
-    int8 ItemContext;
+    uint8 ItemContext;
+    Trinity::RaceMask<int32, 2> RaceMask;
 
     bool IsForNewCharacter() const { return Purpose == 9; }
 };
@@ -637,7 +677,7 @@ struct ChatChannelsEntry
     LocalizedString Name;
     LocalizedString Shortcut;
     int32 Flags;
-    int8 FactionGroup;
+    uint8 FactionGroup;
     int32 Ruleset;
 
     EnumFlag<ChatChannelFlags> GetFlags() const { return static_cast<ChatChannelFlags>(Flags); }
@@ -647,7 +687,7 @@ struct ChatChannelsEntry
 struct ChrClassUIDisplayEntry
 {
     uint32 ID;
-    uint8 ChrClassesID;
+    int8 ChrClassesID;
     uint32 AdvGuidePlayerConditionID;
     uint32 SplashPlayerConditionID;
 };
@@ -664,12 +704,12 @@ struct ChrClassesEntry
     LocalizedString DisabledString;
     LocalizedString HyphenatedNameMale;
     LocalizedString HyphenatedNameFemale;
-    uint32 ID;
     uint32 CreateScreenFileDataID;
     uint32 SelectScreenFileDataID;
     uint32 IconFileDataID;
     uint32 LowResScreenFileDataID;
     int32 Flags;
+    int32 StartingLevel;
     uint32 SpellTextureBlobFileDataID;
     uint32 ArmorTypeMask;
     int32 CharStartKitUnknown901;
@@ -683,7 +723,9 @@ struct ChrClassesEntry
     int32 CharacterCreationAnimLoopWaitTimeMsFallback;
     uint16 CinematicSequenceID;
     uint16 DefaultSpec;
-    uint8 PrimaryStatPriority;
+    uint8 ID;
+    uint8 HasStrengthBonus;
+    int8 PrimaryStatPriority;
     int8 DisplayPower;
     uint8 RangedAttackPowerPerAgility;
     uint8 AttackPowerPerAgility;
@@ -693,6 +735,8 @@ struct ChrClassesEntry
     uint8 ClassColorG;
     uint8 ClassColorB;
     uint8 RolesMask;
+    uint8 DamageBonusStat;
+    uint8 HasRelicSlot;
 };
 
 struct ChrClassesXPowerTypesEntry
@@ -706,7 +750,7 @@ struct ChrCustomizationChoiceEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int32 ChrCustomizationOptionID;
+    uint32 ChrCustomizationOptionID;
     int32 ChrCustomizationReqID;
     int32 ChrCustomizationVisReqID;
     uint16 SortOrder;
@@ -751,9 +795,7 @@ struct ChrCustomizationOptionEntry
     uint32 ID;
     uint16 SecondaryID;
     int32 Flags;
-    int32 ChrRacesID;
-    int32 Sex;
-    int32 ChrModelID;
+    uint32 ChrModelID;
     int32 SortIndex;
     int32 ChrCustomizationCategoryID;
     int32 OptionType;
@@ -767,14 +809,15 @@ struct ChrCustomizationOptionEntry
 struct ChrCustomizationReqEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
     LocalizedString ReqSource;
     int32 Flags;
     int32 ClassMask;
+    int32 RegionGroupMask;
     int32 AchievementID;
     int32 QuestID;
     int32 OverrideArchive;                                          // -1: allow any, otherwise must match OverrideArchive cvar
     int32 ItemModifiedAppearanceID;
+    Trinity::RaceMask<int32, 2> RaceMask;
 
     EnumFlag<ChrCustomizationReqFlag> GetFlags() const { return static_cast<ChrCustomizationReqFlag>(Flags); }
 };
@@ -792,7 +835,7 @@ struct ChrModelEntry
     std::array<float, 3> CustomizeOffset;
     uint32 ID;
     int8 Sex;
-    int32 DisplayID;
+    uint32 DisplayID;
     int32 CharComponentTextureLayoutID;
     int32 Flags;
     int32 SkeletonFileDataID;
@@ -810,9 +853,9 @@ struct ChrModelEntry
 struct ChrRaceXChrModelEntry
 {
     uint32 ID;
-    int32 ChrRacesID;
+    uint8 ChrRacesID;
     int32 ChrModelID;
-    int32 Sex;
+    int8 Sex;
     int32 AllowedTransmogSlots;
 };
 
@@ -839,38 +882,37 @@ struct ChrRacesEntry
     int32 CinematicSequenceID;
     int32 ResSicknessSpellID;
     int32 SplashSoundID;
-    int32 Alliance;
-    int32 RaceRelated;
-    int32 UnalteredVisualRaceID;
-    int32 DefaultClassID;
     int32 CreateScreenFileDataID;
     int32 SelectScreenFileDataID;
-    int32 NeutralRaceID;
     int32 LowResScreenFileDataID;
     std::array<int32, 3> AlteredFormStartVisualKitID;
     std::array<int32, 3> AlteredFormFinishVisualKitID;
     int32 HeritageArmorAchievementID;
     int32 StartingLevel;
     int32 UiDisplayOrder;
-    int32 MaleModelFallbackRaceID;
-    int32 FemaleModelFallbackRaceID;
-    int32 MaleTextureFallbackRaceID;
-    int32 FemaleTextureFallbackRaceID;
     int32 PlayableRaceBit;
-    int32 HelmetAnimScalingRaceID;
     int32 TransmogrifyDisabledSlotMask;
-    int32 UnalteredVisualCustomizationRaceID;
     std::array<float, 3> AlteredFormCustomizeOffsetFallback;
     float AlteredFormCustomizeRotationFallback;
     std::array<float, 3> Unknown910_1;
     std::array<float, 3> Unknown910_2;
-    int32 Unknown1000;
     int8 BaseLanguage;
-    int8 CreatureType;
+    uint8 CreatureType;
+    int8 Alliance;
+    int8 RaceRelated;
+    int8 UnalteredVisualRaceID;
+    int8 DefaultClassID;
+    int8 NeutralRaceID;
+    int8 MaleModelFallbackRaceID;
     int8 MaleModelFallbackSex;
+    int8 FemaleModelFallbackRaceID;
     int8 FemaleModelFallbackSex;
+    int8 MaleTextureFallbackRaceID;
     int8 MaleTextureFallbackSex;
+    int8 FemaleTextureFallbackRaceID;
     int8 FemaleTextureFallbackSex;
+    int8 HelmetAnimScalingRaceID;
+    int8 UnalteredVisualCustomizationRaceID;
 
     EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
 };
@@ -883,11 +925,11 @@ struct ChrSpecializationEntry
     LocalizedString FemaleName;
     LocalizedString Description;
     uint32 ID;
-    int8 ClassID;
+    uint8 ClassID;
     int8 OrderIndex;
     int8 PetTalentType;
     int8 Role;
-    uint32 Flags;
+    int32 Flags;
     int32 SpellIconFileID;
     int8 PrimaryStatPriority;
     int32 AnimReplacements;
@@ -922,7 +964,7 @@ struct CinematicSequencesEntry
 struct ConditionalChrModelEntry
 {
     uint32 ID;
-    int32 ChrModelID;
+    uint32 ChrModelID;
     int32 ChrCustomizationReqID;
     int32 PlayerConditionID;
     int32 Flags;
@@ -935,6 +977,7 @@ struct ConditionalContentTuningEntry
     int32 OrderIndex;
     int32 RedirectContentTuningID;
     int32 RedirectFlag;
+    int32 RedirectEnum;
     uint32 ParentContentTuningID;
 };
 
@@ -945,6 +988,10 @@ struct ContentTuningEntry
     int32 ExpansionID;
     int32 HealthItemLevelCurveID;
     int32 DamageItemLevelCurveID;
+    int32 HealthPrimaryStatCurveID;
+    int32 DamagePrimaryStatCurveID;
+    int32 PrimaryStatScalingModPlayerDataElementCharacterID;
+    float PrimaryStatScalingModPlayerDataElementCharacterMultiplier;
     int32 MinLevel;
     int32 MaxLevel;
     int32 MinLevelType;
@@ -1010,6 +1057,13 @@ struct CorruptionEffectsEntry
     int32 Flags;
 };
 
+struct CraftingQualityEntry
+{
+    uint32 ID;
+    int32 QualityTier;
+    int32 CraftingQualityAtlasSetID;
+};
+
 //struct CreatureDifficultyEntry
 //{
 //    uint32 ID;
@@ -1017,7 +1071,7 @@ struct CorruptionEffectsEntry
 //    int32 LevelDeltaMax;
 //    uint16 FactionID;
 //    int32 ContentTuningID;
-//    int32 Flags[8];
+//    int32 Flags[9];
 //    uint32 CreatureID;
 //};
 
@@ -1059,7 +1113,7 @@ struct CreatureDisplayInfoExtraEntry
     int8 DisplayRaceID;
     int8 DisplaySexID;
     int8 DisplayClassID;
-    int8 Flags;
+    int32 Flags;
     int32 BakeMaterialResourcesID;
     int32 HDBakeMaterialResourcesID;
 };
@@ -1074,8 +1128,16 @@ struct CreatureFamilyEntry
     int8 MaxScaleLevel;
     int16 PetFoodMask;
     int8 PetTalentType;
+    int32 CategoryEnumID;
     int32 IconFileID;
     std::array<int16, 2> SkillLine;
+};
+
+struct CreatureLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 CreatureDifficultyID;
 };
 
 struct CreatureModelDataEntry
@@ -1095,7 +1157,7 @@ struct CreatureModelDataEntry
     uint32 FootstepCameraEffectID;
     uint32 DeathThudCameraEffectID;
     uint32 SoundID;
-    uint32 SizeClass;
+    int8 SizeClass;
     float CollisionWidth;
     float CollisionHeight;
     float WorldEffectScale;
@@ -1123,7 +1185,7 @@ struct CreatureTypeEntry
 {
     uint32 ID;
     LocalizedString Name;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct CriteriaEntry
@@ -1171,6 +1233,7 @@ struct CriteriaEntry
 
         // CriteriaType::CurrencyGained                             = 12
         // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
+        // CriteriaType::ReachRenownLevel                           = 261
         int32 CurrencyID;
 
         // CriteriaType::DieInInstance                              = 18
@@ -1327,16 +1390,22 @@ struct CriteriaEntry
 
         // CriteriaType::MythicPlusRatingAttained                   = 230
         int32 DungeonScore;
+
+        // CriteriaType::BankTabPurchased                           = 260
+        int32 BankType;
+
+        // CriteriaType::LearnTaxiNode                              = 262
+        int32 TaxiNodesID;
     } Asset;
-    uint32 ModifierTreeId;
+    int32 ModifierTreeId;
     int32 StartEvent;
     int32 StartAsset;
-    uint16 StartTimer;
+    int32 StartTimer;
     int32 FailEvent;
     int32 FailAsset;
     int32 Flags;
-    int16 EligibilityWorldStateID;
-    int8 EligibilityWorldStateValue;
+    int32 EligibilityWorldStateID;
+    int32 EligibilityWorldStateValue;
 
     EnumFlag<CriteriaFlags> GetFlags() const { return static_cast<CriteriaFlags>(Flags); }
 };
@@ -1388,6 +1457,10 @@ struct CurrencyTypesEntry
     uint32 RechargingAmountPerCycle;
     uint32 RechargingCycleDurationMS;
     float AccountTransferPercentage;
+    uint8 OrderIndex;
+    float RecraftReagentCountPercentage;
+    uint8 OrderSource;
+    int32 MCRCurrencyID;
     std::array<int32, 2> Flags;
 
     EnumFlag<CurrencyTypesFlags> GetFlags() const { return static_cast<CurrencyTypesFlags>(Flags[0]); }
@@ -1449,7 +1522,7 @@ struct CurveEntry
 {
     uint32 ID;
     uint8 Type;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct CurvePointEntry
@@ -1458,7 +1531,7 @@ struct CurvePointEntry
     DBCPosition2D PreSLSquishPos;
     uint32 ID;
     uint32 CurveID;
-    uint8 OrderIndex;
+    uint32 OrderIndex;
 };
 
 struct DestructibleModelDataEntry
@@ -1495,29 +1568,31 @@ struct DifficultyEntry
     uint8 InstanceType;
     uint8 OrderIndex;
     int8 OldEnumValue;
-    uint8 FallbackDifficultyID;
+    int16 FallbackDifficultyID;
     uint8 MinPlayers;
     uint8 MaxPlayers;
-    uint16 Flags;
-    int8 ItemContext;
-    uint8 ToggleDifficultyID;
+    int32 Flags;
+    uint8 ItemContext;
+    int16 ToggleDifficultyID;
     uint32 GroupSizeHealthCurveID;
     uint32 GroupSizeDmgCurveID;
     uint32 GroupSizeSpellPointsCurveID;
+    int32 Unknown1105;
 };
 
 struct DungeonEncounterEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int16 MapID;
-    int32 DifficultyID;
+    uint16 MapID;
+    int16 DifficultyID;
     int32 OrderIndex;
     int32 CompleteWorldStateID;
     int8 Bit;
     int32 Flags;
     int32 SpellIconFileID;
     int32 Faction;
+    int32 Unknown1115;
 };
 
 struct DurabilityCostsEntry
@@ -1536,7 +1611,6 @@ struct DurabilityQualityEntry
 struct EmotesEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
     char const* EmoteSlashCommand;
     int16 AnimID;
     int32 EmoteFlags;
@@ -1545,6 +1619,7 @@ struct EmotesEntry
     uint32 EventSoundID;
     uint32 SpellVisualKitID;
     int32 ClassMask;
+    Trinity::RaceMask<int32, 2> RaceMask;
 };
 
 struct EmotesTextEntry
@@ -1557,9 +1632,9 @@ struct EmotesTextEntry
 struct EmotesTextSoundEntry
 {
     uint32 ID;
-    uint8 RaceID;
-    uint8 ClassID;
-    uint8 SexID;
+    int8 RaceID;
+    int8 ClassID;
+    int8 SexID;
     uint32 SoundID;
     uint32 EmotesTextID;
 };
@@ -1577,6 +1652,7 @@ struct ExpectedStatEntry
     float PlayerSecondaryStat;
     float ArmorConstant;
     float CreatureSpellDamage;
+    int32 ContentSetID;
     uint32 Lvl;
 };
 
@@ -1597,7 +1673,6 @@ struct ExpectedStatModEntry
 struct FactionEntry
 {
     uint32 ID;
-    std::array<Trinity::RaceMask<int64>, 4> ReputationRaceMask;
     LocalizedString Name;
     LocalizedString Description;
     int16 ReputationIndex;
@@ -1614,6 +1689,10 @@ struct FactionEntry
     std::array<int32, 4> ReputationMax;
     std::array<float, 2> ParentFactionMod;            // Faction outputs rep * ParentFactionModOut as spillover reputation
     std::array<uint8, 2> ParentFactionCap;            // The highest rank the faction will profit from incoming spillover
+    Trinity::RaceMask<int32, 2> ReputationRaceMask1;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask2;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask3;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask4;
 
     // helpers
     bool CanHaveReputation() const
@@ -1679,11 +1758,41 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
+struct FlightCapabilityEntry
+{
+    uint32 ID;
+    float AirFriction;
+    float MaxVel;
+    float Unknown1000_2;
+    float DoubleJumpVelMod;
+    float LiftCoefficient;
+    float GlideStartMinHeight;
+    float AddImpulseMaxSpeed;
+    float BankingRateMin;
+    float BankingRateMax;
+    float PitchingRateDownMin;
+    float PitchingRateDownMax;
+    float PitchingRateUpMin;
+    float PitchingRateUpMax;
+    float TurnVelocityThresholdMin;
+    float TurnVelocityThresholdMax;
+    float SurfaceFriction;
+    float OverMaxDeceleration;
+    float Unknown1000_17;
+    float Unknown1000_18;
+    float Unknown1000_19;
+    float Unknown1000_20;
+    float Unknown1000_21;
+    float LaunchSpeedCoefficient;
+    float VigorRegenMaxVelCoefficient;
+    int32 SpellID;
+};
+
 struct FriendshipRepReactionEntry
 {
     uint32 ID;
     LocalizedString Reaction;
-    int32 FriendshipRepID;
+    uint32 FriendshipRepID;
     int32 ReactionThreshold;
     int32 OverrideColor;
 };
@@ -1723,14 +1832,22 @@ struct GameObjectDisplayInfoEntry
     uint16 Unknown1100;
 };
 
+struct GameObjectLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 GameObjectID;
+};
+
 struct GameObjectsEntry
 {
     LocalizedString Name;
     DBCPosition3D Pos;
     std::array<float, 4> Rot;
     uint32 ID;
-    int32 OwnerID;
+    uint32 OwnerID;
     int32 DisplayID;
+    int32 Flags;
     float Scale;
     int32 TypeID;
     int32 PhaseUseFlags;
@@ -1746,7 +1863,7 @@ struct GarrAbilityEntry
     LocalizedString Name;
     LocalizedString Description;
     uint8 GarrAbilityCategoryID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 IconFileDataID;
     uint16 FactionChangeGarrAbilityID;
     int32 Flags;
@@ -1760,7 +1877,7 @@ struct GarrBuildingEntry
     LocalizedString Description;
     LocalizedString Tooltip;
     int8 GarrTypeID;
-    int8 BuildingType;
+    uint8 BuildingType;
     int32 HordeGameObjectID;
     int32 AllianceGameObjectID;
     int32 GarrSiteID;
@@ -1809,7 +1926,7 @@ struct GarrFollowerEntry
     LocalizedString AllianceSourceText;
     LocalizedString TitleName;
     int8 GarrTypeID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 HordeCreatureID;
     int32 AllianceCreatureID;
     uint8 HordeGarrFollRaceID;
@@ -1835,7 +1952,7 @@ struct GarrFollowerEntry
     uint32 AllySlottingBroadcastTextID;
     uint8 ChrClassID;
     int32 Flags;
-    uint8 Gender;
+    int8 Gender;
     int32 AutoCombatantID;
     int32 CovenantID;
 };
@@ -1859,7 +1976,7 @@ struct GarrMissionEntry
     DBCPosition2D WorldPos;
     int8 GarrTypeID;
     uint8 GarrMissionTypeID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     uint8 MaxFollowers;
     uint32 MissionCost;
     uint16 MissionCostCurrencyTypesID;
@@ -1868,7 +1985,7 @@ struct GarrMissionEntry
     uint32 EnvGarrMechanicID;
     int32 EnvGarrMechanicTypeID;
     uint32 PlayerConditionID;
-    int32 GarrMissionSetID;
+    uint32 GarrMissionSetID;
     int8 TargetLevel;
     uint16 TargetItemLevel;
     int32 MissionDuration;
@@ -1889,11 +2006,10 @@ struct GarrPlotEntry
 {
     uint32 ID;
     char const* Name;
-    int8 PlotType;
+    uint8 PlotType;
     int32 HordeConstructObjID;
     int32 AllianceConstructObjID;
-    uint8 Flags;
-    uint8 UiCategoryID;
+    int32 Flags;
     std::array<uint32, 2> UpgradeRequirement;
 };
 
@@ -1947,7 +2063,7 @@ struct GarrTalentTreeEntry
     int32 GarrTalentTreeType;
     int32 PlayerConditionID;
     uint8 FeatureTypeIndex;
-    int8 FeatureSubtypeIndex;
+    uint8 FeatureSubtypeIndex;
     int32 CurrencyID;
 };
 
@@ -1976,7 +2092,7 @@ struct GlyphPropertiesEntry
 {
     uint32 ID;
     uint32 SpellID;
-    int8 GlyphType;
+    uint8 GlyphType;
     uint8 GlyphExclusiveCategoryID;
     int32 SpellIconFileDataID;
 };
@@ -1994,7 +2110,7 @@ struct GossipNPCOptionEntry
     int32 GossipNpcOption;
     int32 LFGDungeonsID;
     int32 TrainerID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 CharShipmentID;
     int32 GarrTalentTreeID;
     int32 UiMapID;
@@ -2006,6 +2122,8 @@ struct GossipNPCOptionEntry
     int32 TraitTreeID;
     int32 ProfessionID;
     int32 Unknown_1002_14;
+    int32 NeighborhoodMapID;
+    int32 SkillLineID;
 };
 
 struct GuildColorBackgroundEntry
@@ -2046,7 +2164,7 @@ struct HeirloomEntry
     int32 LegacyUpgradedItemID;
     int32 StaticUpgradedItemID;
     int8 SourceTypeEnum;
-    uint8 Flags;
+    int32 Flags;
     int32 LegacyItemID;
     std::array<int32, 6> UpgradeItemID;
     std::array<uint16, 6> UpgradeItemBonusListID;
@@ -2064,8 +2182,8 @@ struct HolidaysEntry
     uint32 HolidayNameID;
     uint32 HolidayDescriptionID;
     uint8 Priority;
-    int8 CalendarFilterType;
-    uint8 Flags;
+    uint8 CalendarFilterType;
+    int32 Flags;
     std::array<uint16, MAX_HOLIDAY_DURATIONS> Duration;
     std::array<uint32, MAX_HOLIDAY_DATES> Date;                     // dates in unix time starting at January, 1, 2000
     std::array<uint8, MAX_HOLIDAY_DURATIONS> CalendarFlags;
@@ -2102,17 +2220,21 @@ struct ImportPriceWeaponEntry
 struct ItemEntry
 {
     uint32 ID;
-    uint8 ClassID;
+    int32 ClassID;
     uint8 SubclassID;
     uint8 Material;
     int8 InventoryType;
     uint8 SheatheType;
     int8 SoundOverrideSubclassID;
     int32 IconFileDataID;
-    uint8 ItemGroupSoundsID;
+    uint32 ItemGroupSoundsID;
     int32 ContentTuningID;
     int32 ModifiedCraftingReagentItemID;
+    uint8 Unknown1200;
     int32 CraftingQualityID;
+    int32 ItemSquishEraID;
+    float RecraftReagentCountPercentage;
+    uint8 OrderSource;
 };
 
 struct ItemAppearanceEntry
@@ -2167,7 +2289,7 @@ struct ItemBonusEntry
 struct ItemBonusListGroupEntryEntry
 {
     uint32 ID;
-    int32 ItemBonusListGroupID;
+    uint32 ItemBonusListGroupID;
     int32 ItemBonusListID;
     int32 ItemLevelSelectorID;
     int32 SequenceValue;
@@ -2208,15 +2330,17 @@ struct ItemBonusTreeNodeEntry
     int32 IblGroupPointsModSetID;
     int32 MinMythicPlusLevel;
     int32 MaxMythicPlusLevel;
+    int32 ItemCreationContextGroupID;
+    int32 Flags;
     uint32 ParentItemBonusTreeID;
 };
 
 struct ItemChildEquipmentEntry
 {
     uint32 ID;
-    int32 ParentItemID;
+    uint32 ParentItemID;
     int32 ChildItemID;
-    uint8 ChildItemEquipSlot;
+    int32 ChildItemEquipSlot;
 };
 
 struct ItemClassEntry
@@ -2225,25 +2349,32 @@ struct ItemClassEntry
     LocalizedString ClassName;
     int8 ClassID;
     float PriceModifier;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct ItemContextPickerEntryEntry
 {
     uint32 ID;
-    int8 ItemCreationContext;
+    uint8 ItemCreationContext;
     uint8 OrderIndex;
     int32 PVal;
     int32 LabelID;
-    uint32 Flags;
+    int32 Flags;
     uint32 PlayerConditionID;
     uint32 ItemContextPickerID;
+};
+
+struct ItemCreationContextEntry
+{
+    uint32 ID;
+    uint8 ItemContext;
+    uint32 ItemCreationContextGroupID;
 };
 
 struct ItemCurrencyCostEntry
 {
     uint32 ID;
-    int32 ItemID;
+    uint32 ItemID;
 };
 
 struct ItemDamageAmmoEntry
@@ -2297,13 +2428,14 @@ struct ItemEffectEntry
 {
     uint32 ID;
     uint8 LegacySlotIndex;
-    int8 TriggerType;
+    uint8 TriggerType;
     int16 Charges;
     int32 CoolDownMSec;
     int32 CategoryCoolDownMSec;
     uint16 SpellCategoryID;
     int32 SpellID;
     uint16 ChrSpecializationID;
+    int32 PlayerConditionID;
 };
 
 #define MAX_ITEM_EXT_COST_ITEMS         5
@@ -2312,9 +2444,10 @@ struct ItemEffectEntry
 struct ItemExtendedCostEntry
 {
     uint32 ID;
+    uint64 Money;
     uint16 RequiredArenaRating;
     int8 ArenaBracket;                                             // arena slot restrictions (min slot value)
-    uint8 Flags;
+    int32 Flags;
     uint8 MinFactionID;
     int32 MinReputation;
     uint8 RequiredAchievement;                                      // required personal arena rating
@@ -2352,7 +2485,7 @@ struct ItemLimitCategoryEntry
     uint32 ID;
     LocalizedString Name;
     uint8 Quantity;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct ItemLimitCategoryConditionEntry
@@ -2366,7 +2499,7 @@ struct ItemLimitCategoryConditionEntry
 struct ItemModifiedAppearanceEntry
 {
     uint32 ID;
-    int32 ItemID;
+    uint32 ItemID;
     int32 ItemAppearanceModifierID;
     int32 ItemAppearanceID;
     int32 OrderIndex;
@@ -2391,6 +2524,13 @@ struct ItemNameDescriptionEntry
     int32 Color;
 };
 
+struct ItemOffsetCurveEntry
+{
+    uint32 ID;
+    int32 CurveID;
+    int32 Offset;
+};
+
 struct ItemPriceBaseEntry
 {
     uint32 ID;
@@ -2399,10 +2539,19 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
+struct ItemScalingConfigEntry
+{
+    uint32 ID;
+    int32 ItemOffsetCurveID;
+    int32 ItemLevel;
+    int32 RequiredLevel;
+    int32 ItemSquishEraID;
+    int32 Flags;
+};
+
 struct ItemSearchNameEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> AllowableRace;
     LocalizedString Display;
     uint8 OverallQualityID;
     int32 ExpansionID;
@@ -2415,6 +2564,7 @@ struct ItemSearchNameEntry
     uint32 RequiredAbility;
     uint16 ItemLevel;
     std::array<int32, 5> Flags;
+    Trinity::RaceMask<int32, 2> AllowableRace;
 };
 
 #define MAX_ITEM_SET_ITEMS 17
@@ -2423,7 +2573,7 @@ struct ItemSetEntry
 {
     uint32 ID;
     LocalizedString Name;
-    uint32 SetFlags;
+    int32 SetFlags;
     uint32 RequiredSkill;
     uint16 RequiredSkillRank;
     std::array<uint32, MAX_ITEM_SET_ITEMS> ItemID;
@@ -2434,6 +2584,7 @@ struct ItemSetSpellEntry
     uint32 ID;
     uint16 ChrSpecID;
     uint32 SpellID;
+    uint16 TraitSubTreeID;
     uint8 Threshold;
     uint32 ItemSetID;
 };
@@ -2441,7 +2592,6 @@ struct ItemSetSpellEntry
 struct ItemSparseEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> AllowableRace;
     LocalizedString Description;
     LocalizedString Display3;
     LocalizedString Display2;
@@ -2463,6 +2613,7 @@ struct ItemSparseEntry
     int32 MaxCount;
     int32 MinReputation;
     uint32 RequiredAbility;
+    Trinity::RaceMask<int32, 2> AllowableRace;
     uint32 SellPrice;
     uint32 BuyPrice;
     uint32 VendorStackCount;
@@ -2473,6 +2624,9 @@ struct ItemSparseEntry
     int32 ModifiedCraftingReagentItemID;
     int32 ContentTuningID;
     int32 PlayerLevelToItemLevelCurveID;
+    int32 ItemLevelOffsetCurveID;
+    int32 ItemLevelOffsetItemLevel;
+    int32 ItemSquishEraID;
     uint16 ItemNameDescriptionID;
     uint16 RequiredTransmogHoliday;
     uint16 RequiredHoliday;
@@ -2501,7 +2655,7 @@ struct ItemSparseEntry
     uint8 DamageDamageType;
     uint8 ContainerSlots;
     uint8 RequiredPVPMedal;
-    uint8 RequiredPVPRank;
+    int8 RequiredPVPRank;
     int8 RequiredLevel;
     int8 InventoryType;
     int8 OverallQualityID;
@@ -2523,6 +2677,14 @@ struct ItemSpecOverrideEntry
     uint32 ID;
     uint16 SpecID;
     uint32 ItemID;
+};
+
+struct ItemSquishEraEntry
+{
+    uint32 ID;
+    int32 Patch;
+    int32 CurveID;
+    int32 Flags;
 };
 
 struct ItemXBonusTreeEntry
@@ -2587,6 +2749,7 @@ struct JournalInstanceEntry
     int32 LoreFileDataID;
     int32 Flags;
     uint16 AreaID;
+    uint16 CovenantID;
 };
 
 struct JournalTierEntry
@@ -2636,14 +2799,14 @@ struct LFGDungeonsEntry
     LocalizedString Name;
     LocalizedString Description;
     uint8 TypeID;
-    int8 Subtype;
+    uint8 Subtype;
     int8 Faction;
     int32 IconTextureFileID;
     int32 RewardsBgTextureFileID;
     int32 PopupBgTextureFileID;
     uint8 ExpansionLevel;
     int16 MapID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     float MinGear;
     uint8 GroupID;
     uint8 OrderIndex;
@@ -2657,9 +2820,13 @@ struct LFGDungeonsEntry
     uint8 MinCountTank;
     uint8 MinCountHealer;
     uint8 MinCountDamage;
+    uint8 MaxPremadeCountTank;
+    uint8 MaxPremadeCountHealer;
+    uint8 MaxPremadeCountDamage;
     uint16 BonusReputationAmount;
     uint16 MentorItemLevel;
     uint8 MentorCharLevel;
+    uint8 MaxPremadeGroupSize;
     int32 ContentTuningID;
     std::array<int32, 2> Flags;
 
@@ -2682,7 +2849,7 @@ struct LiquidTypeEntry
     uint32 ID;
     char const* Name;
     std::array<char const*, 6> Texture;
-    uint16 Flags;
+    int32 Flags;
     uint8 SoundBank;                                                // used to be "type", maybe needs fixing (works well for now)
     uint32 SoundID;
     uint32 SpellID;
@@ -2697,8 +2864,8 @@ struct LiquidTypeEntry
     uint8 MaterialID;
     int32 MinimapStaticCol;
     std::array<uint8, 6> FrameCountTexture;
-    std::array<int32, 2> Color;
-    std::array<float, 18> Float;
+    std::array<int32, 3> Color;
+    std::array<float, 38> Float;
     std::array<uint32, 4> Int;
     std::array<float, 4> Coefficient;
 };
@@ -2796,6 +2963,7 @@ struct MapEntry
             case 1643:
             case 2222:
             case 2444:
+            case 2601:
                 return true;
             default:
                 return false;
@@ -2816,6 +2984,7 @@ struct MapEntry
 
     EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
     EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
+    EnumFlag<MapFlags3> GetFlags3() const { return static_cast<MapFlags3>(Flags[2]); }
 };
 
 struct MapChallengeModeEntry
@@ -2823,19 +2992,22 @@ struct MapChallengeModeEntry
     LocalizedString Name;
     uint32 ID;
     uint16 MapID;
-    uint8 Flags;
+    int32 Flags;
+    int32 MaxMedals;
     uint32 ExpansionLevel;
-    int32 RequiredWorldStateID; // maybe?
-    std::array<int16, 3> CriteriaCount;
+    int32 RequiredWorldStateID;
+    std::array<int16, 5> CriteriaCount;
+    std::array<int32, 6> FirstRewardQuestID;
+    std::array<int32, 6> RewardQuestID;
 };
 
 struct MapDifficultyEntry
 {
-    uint32 ID;
     LocalizedString Message;                                // m_message_lang (text showed when transfer to map failed)
-    int32 DifficultyID;
+    uint32 ID;
+    int16 DifficultyID;
     int32 LockID;
-    int8 ResetInterval;
+    uint8 ResetInterval;
     int32 MaxPlayers;
     uint8 ItemContext;
     int32 ItemContextPickerID;
@@ -2844,6 +3016,7 @@ struct MapDifficultyEntry
     int32 WorldStateExpressionID;
     uint32 MapID;
 
+    Difficulty GetDifficultyID() const { return static_cast<Difficulty>(DifficultyID); }
     bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
     bool IsUsingEncounterLocks() const { return GetFlags().HasFlag(MapDifficultyFlags::UseLootBasedLockInsteadOfInstanceLock); }
     bool IsRestoringDungeonState() const { return GetFlags().HasFlag(MapDifficultyFlags::ResumeDungeonProgressBasedOnLockout); }
@@ -2873,8 +3046,15 @@ struct MapDifficultyXConditionEntry
 struct MawPowerEntry
 {
     uint32 ID;
-    int32 SpellID;
+    uint32 SpellID;
     int32 MawPowerRarityID;
+};
+
+struct ModifiedCraftingItemEntry
+{
+    uint32 ID;
+    int32 ModifiedCraftingReagentItemID;
+    int32 CraftingQualityID;
 };
 
 struct ModifierTreeEntry
@@ -2905,7 +3085,7 @@ struct MountEntry
     int32 MountSpecialRiderAnimKitID;
     int32 MountSpecialSpellVisualKitID;
 
-    bool IsSelfMount() const { return (Flags & MOUNT_FLAG_SELF_MOUNT) != 0; }
+    EnumFlag<MountFlags> GetFlags() const { return static_cast<MountFlags>(Flags); }
 };
 
 struct MountCapabilityEntry
@@ -2920,6 +3100,16 @@ struct MountCapabilityEntry
     int16 ReqMapID;
     int32 PlayerConditionID;
     int32 FlightCapabilityID;
+    int32 DriveCapabilityID;
+};
+
+struct MountEquipmentEntry
+{
+    uint32 ID;
+    int32 Item;
+    int32 BuffSpell;
+    int32 Unknown820;
+    uint32 LearnedBySpell;
 };
 
 struct MountTypeXCapabilityEntry
@@ -2942,6 +3132,7 @@ struct MountXDisplayEntry
 struct MovieEntry
 {
     uint32 ID;
+    LocalizedString Summary;
     uint8 Volume;
     uint8 KeyID;
     uint32 AudioFileDataID;
@@ -2962,8 +3153,8 @@ struct NameGenEntry
 {
     uint32 ID;
     char const* Name;
-    uint8 RaceID;
-    uint8 Sex;
+    int8 RaceID;
+    int8 Sex;
 };
 
 struct NamesProfanityEntry
@@ -2992,6 +3183,7 @@ struct NumTalentsAtLevelEntry
     int32 NumTalents;
     int32 NumTalentsDeathKnight;
     int32 NumTalentsDemonHunter;
+    float Unknown1115;
 };
 
 #define MAX_OVERRIDE_SPELL 10
@@ -3001,7 +3193,7 @@ struct OverrideSpellDataEntry
     uint32 ID;
     std::array<int32, MAX_OVERRIDE_SPELL> Spells;
     int32 PlayerActionBarFileDataID;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct ParagonReputationEntry
@@ -3021,13 +3213,13 @@ struct PathEntry
     uint8 Green;
     uint8 Blue;
     uint8 Alpha;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct PathNodeEntry
 {
     uint32 ID;
-    uint16 PathID;
+    int32 PathID;
     int16 Sequence;
     int32 LocationID;
 };
@@ -3035,11 +3227,22 @@ struct PathNodeEntry
 struct PathPropertyEntry
 {
     uint32 ID;
-    uint16 PathID;
+    int32 PathID;
     uint8 PropertyIndex;
     int32 Value;
 
     PathPropertyIndex GetPropertyIndex() const { return static_cast<PathPropertyIndex>(PropertyIndex); }
+};
+
+struct PerksActivityEntry
+{
+    LocalizedString ActivityName;
+    LocalizedString Description;
+    uint32 ID;
+    int32 CriteriaTreeID;
+    int32 ThresholdContributionAmount;
+    int32 Supersedes;
+    int32 Priority;
 };
 
 struct PhaseEntry
@@ -3060,8 +3263,9 @@ struct PhaseXPhaseGroupEntry
 struct PlayerConditionEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
     LocalizedString FailureDescription;
+    uint16 MinLevel;
+    uint16 MaxLevel;
     int32 ClassMask;
     uint32 SkillLogic;
     int32 LanguageID;
@@ -3077,12 +3281,12 @@ struct PlayerConditionEntry
     uint32 CurrentCompletedQuestLogic;
     uint32 SpellLogic;
     uint32 ItemLogic;
-    uint8 ItemFlags;
+    int32 ItemFlags;
     uint32 AuraSpellLogic;
     uint16 WorldStateExpressionID;
     int32 WeatherID;
     uint8 PartyStatus;
-    uint8 LifetimeMaxPVPRank;
+    int8 LifetimeMaxPVPRank;
     uint32 AchievementLogic;
     int8 Gender;
     int8 NativeGender;
@@ -3105,15 +3309,16 @@ struct PlayerConditionEntry
     int8 ChrSpecializationRole;
     uint32 ModifierTreeID;
     int8 PowerType;
-    int8 PowerTypeComp;
-    uint8 PowerTypeValue;
+    uint8 PowerTypeComp;
+    int8 PowerTypeValue;
+    int32 MovementFlags;
     int32 WeaponSubclassMask;
     uint8 MaxGuildLevel;
     uint8 MinGuildLevel;
     int8 MaxExpansionTier;
     int8 MinExpansionTier;
-    uint8 MinPVPRank;
-    uint8 MaxPVPRank;
+    int8 MinPVPRank;
+    int8 MaxPVPRank;
     int32 ContentTuningID;
     int32 CovenantID;
     uint32 TraitNodeEntryLogic;
@@ -3132,7 +3337,7 @@ struct PlayerConditionEntry
     std::array<uint32, 2> Time;
     std::array<int32, 4> AuraSpellID;
     std::array<uint8, 4> AuraStacks;
-    std::array<uint16, 4> Achievement;
+    std::array<uint32, 4> Achievement;
     std::array<uint16, 4> AreaID;
     std::array<uint8, 4> LfgStatus;
     std::array<uint8, 4> LfgCompare;
@@ -3140,10 +3345,50 @@ struct PlayerConditionEntry
     std::array<uint32, 4> CurrencyID;
     std::array<uint32, 4> CurrencyCount;
     std::array<uint32, 6> QuestKillMonster;
-    std::array<int32, 2> MovementFlags;
+    Trinity::RaceMask<int32, 2> RaceMask;
     std::array<int32, 4> TraitNodeEntryID;
     std::array<uint16, 4> TraitNodeEntryMinRank;
     std::array<uint16, 4> TraitNodeEntryMaxRank;
+
+    EnumFlag<PlayerConditionFlags> GetFlags() const { return static_cast<PlayerConditionFlags>(Flags); }
+};
+
+struct PlayerDataElementAccountEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Type;
+    int32 Unknown1125;
+    int32 Unknown1215;
+
+    PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
+};
+
+struct PlayerDataElementCharacterEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Type;
+    int32 Unknown1125;
+    int32 Unknown1215;
+
+    PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
+};
+
+struct PlayerDataFlagAccountEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Unknown1107;
+    int32 Unknown1125;
+};
+
+struct PlayerDataFlagCharacterEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Unknown1107;
+    int32 Unknown1125;
 };
 
 struct PowerDisplayEntry
@@ -3199,18 +3444,11 @@ struct PVPDifficultyEntry
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(RangeIndex); }
 };
 
-struct PVPItemEntry
-{
-    uint32 ID;
-    int32 ItemID;
-    uint8 ItemLevelDelta;
-};
-
 struct PVPStatEntry
 {
     LocalizedString Description;
     uint32 ID;
-    int32 MapID;
+    uint32 MapID;
 };
 
 struct PvpSeasonEntry
@@ -3225,7 +3463,7 @@ struct PvpTalentEntry
 {
     LocalizedString Description;
     uint32 ID;
-    int32 SpecID;
+    uint32 SpecID;
     int32 SpellID;
     int32 OverridesSpellID;
     int32 Flags;
@@ -3258,7 +3496,7 @@ struct PvpTierEntry
     int16 MaxRating;
     int32 PrevTier;
     int32 NextTier;
-    int8 BracketID;
+    uint8 BracketID;
     int8 Rank;
     int32 RankIconFileDataID;
 };
@@ -3285,6 +3523,9 @@ struct QuestLineXQuestEntry
     uint32 QuestID;
     uint32 OrderIndex;
     int32 Flags;
+    int32 Unknown1110;
+
+    bool HasFlag(QuestLineXQuestFlags flag) const { return EnumFlag(static_cast<QuestLineXQuestFlags>(Flags)).HasFlag(flag); }
 };
 
 struct QuestMoneyRewardEntry
@@ -3313,7 +3554,7 @@ struct QuestSortEntry
 struct QuestV2Entry
 {
     uint32 ID;
-    uint16 UniqueBitFlag;
+    int32 UniqueBitFlag;
     int32 UiQuestDetailsTheme;
 };
 
@@ -3370,9 +3611,10 @@ struct ScenarioEntry
     uint32 ID;
     LocalizedString Name;
     uint16 AreaTableID;
-    uint8 Type;
-    uint8 Flags;
+    int32 Type;
+    int32 Flags;
     uint32 UiTextureKitID;
+    uint32 UiScenarioDisplayInfoID;
 };
 
 struct ScenarioStepEntry
@@ -3386,7 +3628,7 @@ struct ScenarioStepEntry
     int32 RelatedStep;                                              // Bonus step can only be completed if scenario is in the step specified in this field
     uint16 Supersedes;                                              // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
     uint8 OrderIndex;
-    uint8 Flags;
+    int32 Flags;
     uint32 VisibilityPlayerConditionID;
     uint16 WidgetSetID;
 
@@ -3400,8 +3642,8 @@ struct ScenarioStepEntry
 struct SceneScriptEntry
 {
     uint32 ID;
-    uint16 FirstSceneScriptID;
-    uint16 NextSceneScriptID;
+    uint32 FirstSceneScriptID;
+    uint32 NextSceneScriptID;
     int32 Unknown915;
 };
 
@@ -3416,6 +3658,7 @@ struct SceneScriptPackageEntry
 {
     uint32 ID;
     char const* Name;
+    int32 Flags;
     int32 Unknown915;
 };
 
@@ -3455,11 +3698,10 @@ struct SkillLineEntry
 
 struct SkillLineAbilityEntry
 {
-    Trinity::RaceMask<int64> RaceMask;
     LocalizedString AbilityVerb;
     LocalizedString AbilityAllVerb;
     uint32 ID;
-    int16 SkillLine;
+    uint16 SkillLine;
     int32 Spell;
     int16 MinSkillLineRank;
     int32 ClassMask;
@@ -3472,14 +3714,16 @@ struct SkillLineAbilityEntry
     int16 UniqueBit;
     int16 TradeSkillCategoryID;
     int16 SkillupSkillLineID;
+    Trinity::RaceMask<int32, 2> RaceMask;
 
+    SkillLineAbilityAcquireMethod GetAcquireMethod() const { return static_cast<SkillLineAbilityAcquireMethod>(AcquireMethod); }
     EnumFlag<SkillLineAbilityFlags> GetFlags() const { return static_cast<SkillLineAbilityFlags>(Flags); }
 };
 
 struct SkillLineXTraitTreeEntry
 {
     uint32 ID;
-    int32 SkillLineID;
+    uint32 SkillLineID;
     int32 TraitTreeID;
     int32 OrderIndex;
 };
@@ -3487,13 +3731,13 @@ struct SkillLineXTraitTreeEntry
 struct SkillRaceClassInfoEntry
 {
     uint32 ID;
-    Trinity::RaceMask<int64> RaceMask;
-    int16 SkillID;
+    uint16 SkillID;
     int32 ClassMask;
     int32 Flags;
     int32 Availability;
     int8 MinLevel;
     int16 SkillTierID;
+    Trinity::RaceMask<int32, 2> RaceMask;
 };
 
 struct SoulbindConduitRankEntry
@@ -3546,7 +3790,7 @@ struct SpecSetMemberEntry
 struct SpellAuraOptionsEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     uint16 CumulativeAura;
     int32 ProcCategoryRecovery;
     uint8 ProcChance;
@@ -3559,7 +3803,7 @@ struct SpellAuraOptionsEntry
 struct SpellAuraRestrictionsEntry
 {
     uint32 ID;
-    int32 DifficultyID;
+    int16 DifficultyID;
     int32 CasterAuraState;
     int32 TargetAuraState;
     int32 ExcludeCasterAuraState;
@@ -3568,10 +3812,10 @@ struct SpellAuraRestrictionsEntry
     int32 TargetAuraSpell;
     int32 ExcludeCasterAuraSpell;
     int32 ExcludeTargetAuraSpell;
-    int32 CasterAuraType;
-    int32 TargetAuraType;
-    int32 ExcludeCasterAuraType;
-    int32 ExcludeTargetAuraType;
+    int16 CasterAuraType;
+    int16 TargetAuraType;
+    int16 ExcludeCasterAuraType;
+    int16 ExcludeTargetAuraType;
     uint32 SpellID;
 };
 
@@ -3586,7 +3830,7 @@ struct SpellCastingRequirementsEntry
 {
     uint32 ID;
     int32 SpellID;
-    uint8 FacingCasterFlags;
+    int32 FacingCasterFlags;
     uint16 MinFactionID;
     int32 MinReputation;
     uint16 RequiredAreasID;
@@ -3597,12 +3841,13 @@ struct SpellCastingRequirementsEntry
 struct SpellCategoriesEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     int16 Category;
     int8 DefenseType;
+    int32 DiminishType;
     int8 DispelType;
     int8 Mechanic;
-    int8 PreventionType;
+    int32 PreventionType;
     int16 StartRecoveryCategory;
     int16 ChargeCategory;
     uint32 SpellID;
@@ -3613,10 +3858,12 @@ struct SpellCategoryEntry
     uint32 ID;
     LocalizedString Name;
     int32 Flags;
-    uint8 UsesPerWeek;
-    int8 MaxCharges;
+    int32 UsesPerWeek;
+    int32 MaxCharges;
     int32 ChargeRecoveryTime;
     int32 TypeMask;
+
+    EnumFlag<SpellCategoryFlags> GetFlags() const { return static_cast<SpellCategoryFlags>(Flags); }
 };
 
 struct SpellClassOptionsEntry
@@ -3624,14 +3871,14 @@ struct SpellClassOptionsEntry
     uint32 ID;
     int32 SpellID;
     uint32 ModalNextSpell;
-    uint8 SpellClassSet;
+    int32 SpellClassSet;
     flag128 SpellClassMask;
 };
 
 struct SpellCooldownsEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     int32 CategoryRecoveryTime;
     int32 RecoveryTime;
     int32 StartRecoveryTime;
@@ -3644,13 +3891,14 @@ struct SpellDurationEntry
     uint32 ID;
     int32 Duration;
     int32 MaxDuration;
+    int32 DurationPerResource;
 };
 
 struct SpellEffectEntry
 {
     uint32 ID;
     int16 EffectAura;
-    int32 DifficultyID;
+    int16 DifficultyID;
     int32 EffectIndex;
     uint32 Effect;
     float EffectAmplitude;
@@ -3673,6 +3921,7 @@ struct SpellEffectEntry
     float GroupSizeBasePointsCoefficient;
     float EffectBasePoints;
     int32 ScalingClass;
+    int32 TargetNodeGraph;
     std::array<int32, 2> EffectMiscValue;
     std::array<uint32, 2> EffectRadiusIndex;
     flag128 EffectSpellClassMask;
@@ -3701,7 +3950,7 @@ struct SpellEquippedItemsEntry
 {
     uint32 ID;
     int32 SpellID;
-    int8 EquippedItemClass;
+    int32 EquippedItemClass;
     int32 EquippedItemInvTypes;
     int32 EquippedItemSubclass;
 };
@@ -3715,8 +3964,8 @@ struct SpellFocusObjectEntry
 struct SpellInterruptsEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
-    int16 InterruptFlags;
+    int16 DifficultyID;
+    int32 InterruptFlags;
     std::array<int32, MAX_SPELL_AURA_INTERRUPT_FLAGS> AuraInterruptFlags;
     std::array<int32, MAX_SPELL_AURA_INTERRUPT_FLAGS> ChannelInterruptFlags;
     uint32 SpellID;
@@ -3730,26 +3979,27 @@ struct SpellItemEnchantmentEntry
     LocalizedString Name;
     LocalizedString HordeName;
     int32 Duration;
+    int32 Charges;
+    std::array<int32, MAX_ITEM_ENCHANTMENT_EFFECTS> Effect;
+    std::array<int32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectPointsMin;
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectArg;
     int32 Flags;
     std::array<float, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectScalingPoints;
-    uint32 IconFileDataID;
+    int32 ScalingClass;
+    int32 ScalingClassRestricted;
+    int32 ConditionID;
+    int32 RequiredSkillID;
+    int32 RequiredSkillRank;
+    int32 MinLevel;
+    int32 MaxLevel;
+    int32 IconFileDataID;
     int32 MinItemLevel;
     int32 MaxItemLevel;
-    uint32 TransmogUseConditionID;
-    uint32 TransmogCost;
-    std::array<int16, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectPointsMin;
+    int32 TransmogUseConditionID;
+    int32 TransmogCost;
+    int32 ItemSquishEraID;
     uint16 ItemVisual;
-    uint16 RequiredSkillID;
-    uint16 RequiredSkillRank;
     uint16 ItemLevel;
-    uint8 Charges;
-    std::array<uint8, MAX_ITEM_ENCHANTMENT_EFFECTS> Effect;
-    int8 ScalingClass;
-    int8 ScalingClassRestricted;
-    uint8 ConditionID;
-    uint8 MinLevel;
-    uint8 MaxLevel;
 
     EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
@@ -3784,7 +4034,7 @@ struct SpellLabelEntry
 struct SpellLearnSpellEntry
 {
     uint32 ID;
-    int32 SpellID;
+    uint32 SpellID;
     int32 LearnSpellID;
     int32 OverridesSpellID;
 };
@@ -3792,7 +4042,7 @@ struct SpellLearnSpellEntry
 struct SpellLevelsEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     int16 MaxLevel;
     uint8 MaxPassiveAuraLevel;
     int32 BaseLevel;
@@ -3803,8 +4053,8 @@ struct SpellLevelsEntry
 struct SpellMiscEntry
 {
     uint32 ID;
-    std::array<int32, 15> Attributes;
-    uint8 DifficultyID;
+    std::array<int32, 17> Attributes;
+    int16 DifficultyID;
     uint16 CastingTimeIndex;
     uint16 DurationIndex;
     uint16 PvPDurationIndex;
@@ -3851,7 +4101,7 @@ struct SpellPowerEntry
 struct SpellPowerDifficultyEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     uint8 OrderIndex;
 };
 
@@ -3859,15 +4109,16 @@ struct SpellProcsPerMinuteEntry
 {
     uint32 ID;
     float BaseProcRate;
-    uint8 Flags;
+    int32 Flags;
 };
 
 struct SpellProcsPerMinuteModEntry
 {
     uint32 ID;
-    uint8 Type;
+    int32 Type;
     int32 Param;
     float Coeff;
+    int32 PlayerConditionID;
     uint32 SpellProcsPerMinuteID;
 };
 
@@ -3885,7 +4136,7 @@ struct SpellRangeEntry
     uint32 ID;
     LocalizedString DisplayName;
     LocalizedString DisplayNameShort;
-    uint8 Flags;
+    int32 Flags;
     std::array<float, 2> RangeMin;
     std::array<float, 2> RangeMax;
 };
@@ -3905,9 +4156,11 @@ struct SpellReagentsEntry
 struct SpellReagentsCurrencyEntry
 {
     uint32 ID;
-    int32 SpellID;
-    uint16 CurrencyTypesID;
-    uint16 CurrencyCount;
+    uint32 SpellID;
+    int32 CurrencyTypesID;
+    int32 CurrencyCount;
+    int32 OverrideRecraftCurrencyCount;
+    uint8 OrderSource;
 };
 
 struct SpellScalingEntry
@@ -3916,7 +4169,6 @@ struct SpellScalingEntry
     int32 SpellID;
     uint32 MinScalingLevel;
     uint32 MaxScalingLevel;
-    int16 ScalesFromItemLevel;
 };
 
 struct SpellShapeshiftEntry
@@ -3935,7 +4187,7 @@ struct SpellShapeshiftFormEntry
     uint32 ID;
     LocalizedString Name;
     uint32 CreatureDisplayID;
-    int8 CreatureType;
+    uint8 CreatureType;
     int32 Flags;
     int32 AttackIconFileID;
     int8 BonusActionBar;
@@ -3950,7 +4202,7 @@ struct SpellShapeshiftFormEntry
 struct SpellTargetRestrictionsEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     float ConeDegrees;
     uint8 MaxTargets;
     uint32 MaxTargetLevel;
@@ -3975,6 +4227,7 @@ struct SpellVisualEntry
     uint32 ID;
     std::array<float, 3> MissileCastOffset;
     std::array<float, 3> MissileImpactOffset;
+    int32 StateKit;
     uint32 AnimEventSoundID;
     int32 Flags;
     int8 MissileAttachment;
@@ -4000,10 +4253,10 @@ struct SpellVisualEffectNameEntry
     float MinAllowedScale;
     float MaxAllowedScale;
     float Alpha;
-    uint32 Flags;
+    int32 Flags;
     int32 TextureFileDataID;
     float EffectRadius;
-    uint32 Type;
+    int32 Type;
     int32 GenericID;
     uint32 RibbonQualityID;
     int32 DissolveEffectID;
@@ -4019,6 +4272,10 @@ struct SpellVisualKitEntry
     int32 FallbackSpellVisualKitId;
     uint16 DelayMin;
     uint16 DelayMax;
+    int32 MinimumSpellVisualDensityFilterType;
+    int32 MinimumSpellVisualDensityFilterParam;
+    int32 ReducedSpellVisualDensityFilterType;
+    int32 ReducedSpellVisualDensityFilterParam;
     std::array<int32, 2> Flags;
 };
 
@@ -4036,19 +4293,23 @@ struct SpellVisualMissileEntry
     int32 FollowGroundHeight;
     uint32 FollowGroundDropSpeed;
     uint16 FollowGroundApproach;
-    uint32 Flags;
+    int32 Flags;
     uint16 SpellMissileMotionID;
     uint32 AnimKitID;
     int32 ClutterLevel;
     int32 DecayTimeAfterImpact;
     uint16 Unused1100;
+    int32 MinimumSpellVisualDensityFilterType;
+    int32 MinimumSpellVisualDensityFilterParam;
+    int32 ReducedSpellVisualDensityFilterType;
+    int32 ReducedSpellVisualDensityFilterParam;
     uint32 SpellVisualMissileSetID;
 };
 
 struct SpellXSpellVisualEntry
 {
     uint32 ID;
-    uint8 DifficultyID;
+    int16 DifficultyID;
     uint32 SpellVisualID;
     float Probability;
     int32 Flags;
@@ -4087,13 +4348,18 @@ struct TalentEntry
     uint32 ID;
     LocalizedString Description;
     uint8 TierID;
-    uint8 Flags;
+    int32 Flags;
     uint8 ColumnIndex;
-    uint8 ClassID;
+    uint16 TabID;
+    int8 ClassID;
     uint16 SpecID;
     uint32 SpellID;
     uint32 OverridesSpellID;
-    std::array<uint8, 2> CategoryMask;
+    uint32 RequiredSpellID;
+    std::array<int32, 2> CategoryMask;
+    std::array<uint32, 9> SpellRank;
+    std::array<uint32, 3> PrereqTalent;
+    std::array<uint8, 3> PrereqRank;
 };
 
 struct TaxiNodesEntry
@@ -4144,7 +4410,7 @@ struct TaxiPathNodeEntry
 {
     DBCPosition3D Loc;
     uint32 ID;
-    uint16 PathID;
+    uint32 PathID;
     int32 NodeIndex;
     uint16 ContinentID;
     int32 Flags;
@@ -4166,7 +4432,7 @@ struct ToyEntry
     LocalizedString SourceText;
     uint32 ID;
     int32 ItemID;
-    uint8 Flags;
+    int32 Flags;
     int8 SourceTypeEnum;
 };
 
@@ -4180,7 +4446,7 @@ struct TraitCondEntry
 {
     uint32 ID;
     int32 CondType;
-    int32 TraitTreeID;
+    uint32 TraitTreeID;
     int32 GrantedRanks;
     int32 QuestID;
     int32 AchievementID;
@@ -4200,12 +4466,23 @@ struct TraitCondEntry
     EnumFlag<TraitCondFlags> GetFlags() const { return static_cast<TraitCondFlags>(Flags); }
 };
 
+struct TraitCondAccountElementEntry
+{
+    int64 ElementValueInt;
+    uint32 ID;
+    uint32 PlayerDataElementAccountID;
+    uint8 Comparison;
+    int32 Unused1110;
+    int32 PlayerDataElementCharacterID;
+};
+
 struct TraitCostEntry
 {
     char const* InternalName;
     uint32 ID;
     int32 Amount;
     int32 TraitCurrencyID;
+    int32 CurveID;
 };
 
 struct TraitCurrencyEntry
@@ -4215,6 +4492,8 @@ struct TraitCurrencyEntry
     int32 CurrencyTypesID;
     int32 Flags;
     int32 Icon;
+    int32 PlayerDataElementAccountID;
+    int32 PlayerDataElementCharacterID;
 
     TraitCurrencyType GetType() const { return static_cast<TraitCurrencyType>(Type); }
 };
@@ -4223,7 +4502,7 @@ struct TraitCurrencySourceEntry
 {
     LocalizedString Requirement;
     uint32 ID;
-    int32 TraitCurrencyID;
+    uint32 TraitCurrencyID;
     int32 Amount;
     int32 QuestID;
     int32 AchievementID;
@@ -4247,7 +4526,7 @@ struct TraitDefinitionEntry
 struct TraitDefinitionEffectPointsEntry
 {
     uint32 ID;
-    int32 TraitDefinitionID;
+    uint32 TraitDefinitionID;
     int32 EffectIndex;
     int32 OperationType;
     int32 CurveID;
@@ -4259,15 +4538,15 @@ struct TraitEdgeEntry
 {
     uint32 ID;
     int32 VisualStyle;
-    int32 LeftTraitNodeID;
+    uint32 LeftTraitNodeID;
     int32 RightTraitNodeID;
-    int32 Type;
+    uint8 Type;
 };
 
 struct TraitNodeEntry
 {
     uint32 ID;
-    int32 TraitTreeID;
+    uint32 TraitTreeID;
     int32 PosX;
     int32 PosY;
     uint8 Type;
@@ -4292,20 +4571,20 @@ struct TraitNodeEntryXTraitCondEntry
 {
     uint32 ID;
     int32 TraitCondID;
-    int32 TraitNodeEntryID;
+    uint32 TraitNodeEntryID;
 };
 
 struct TraitNodeEntryXTraitCostEntry
 {
     uint32 ID;
-    int32 TraitNodeEntryID;
+    uint32 TraitNodeEntryID;
     int32 TraitCostID;
 };
 
 struct TraitNodeGroupEntry
 {
     uint32 ID;
-    int32 TraitTreeID;
+    uint32 TraitTreeID;
     int32 Flags;
 };
 
@@ -4313,20 +4592,20 @@ struct TraitNodeGroupXTraitCondEntry
 {
     uint32 ID;
     int32 TraitCondID;
-    int32 TraitNodeGroupID;
+    uint32 TraitNodeGroupID;
 };
 
 struct TraitNodeGroupXTraitCostEntry
 {
     uint32 ID;
-    int32 TraitNodeGroupID;
+    uint32 TraitNodeGroupID;
     int32 TraitCostID;
 };
 
 struct TraitNodeGroupXTraitNodeEntry
 {
     uint32 ID;
-    int32 TraitNodeGroupID;
+    uint32 TraitNodeGroupID;
     int32 TraitNodeID;
     int32 Index;
 };
@@ -4335,20 +4614,20 @@ struct TraitNodeXTraitCondEntry
 {
     uint32 ID;
     int32 TraitCondID;
-    int32 TraitNodeID;
+    uint32 TraitNodeID;
 };
 
 struct TraitNodeXTraitCostEntry
 {
     uint32 ID;
-    int32 TraitNodeID;
+    uint32 TraitNodeID;
     int32 TraitCostID;
 };
 
 struct TraitNodeXTraitNodeEntryEntry
 {
     uint32 ID;
-    int32 TraitNodeID;
+    uint32 TraitNodeID;
     int32 TraitNodeEntryID;
     int32 Index;
 };
@@ -4359,19 +4638,33 @@ struct TraitSubTreeEntry
     LocalizedString Description;
     uint32 ID;
     int32 UiTextureAtlasElementID;
-    int32 TraitTreeID;             // Parent tree
+    uint32 TraitTreeID;             // Parent tree
+};
+
+struct TraitSystemEntry
+{
+    uint32 ID;
+    int32 Flags;
+    int32 WidgetSetID;
+    int32 TraitChangeSpell;
+    int32 ItemID;
+    int32 VariationType;
+
+    TraitSystemVariationType GetVariationType() const { return static_cast<TraitSystemVariationType>(VariationType); }
 };
 
 struct TraitTreeEntry
 {
+    LocalizedString TitleText;
     uint32 ID;
-    int32 TraitSystemID;
-    int32 Unused1000_1;
+    uint32 TraitSystemID;
+    int32 BaseNodeGroup;
     int32 FirstTraitNodeID;
     int32 PlayerConditionID;
     int32 Flags;
-    float Unused1000_2;
-    float Unused1000_3;
+    float MinZoom;
+    float MaxZoom;
+    int32 UiTextureKitID;
 
     EnumFlag<TraitTreeFlag> GetFlags() const { return static_cast<TraitTreeFlag>(Flags); }
 };
@@ -4379,14 +4672,14 @@ struct TraitTreeEntry
 struct TraitTreeLoadoutEntry
 {
     uint32 ID;
-    int32 TraitTreeID;
+    uint32 TraitTreeID;
     int32 ChrSpecializationID;
 };
 
 struct TraitTreeLoadoutEntryEntry
 {
     uint32 ID;
-    int32 TraitTreeLoadoutID;
+    uint32 TraitTreeLoadoutID;
     int32 SelectedTraitNodeID;
     int32 SelectedTraitNodeEntryID;
     int32 NumPoints;
@@ -4404,7 +4697,7 @@ struct TraitTreeXTraitCurrencyEntry
 {
     uint32 ID;
     int32 Index;
-    int32 TraitTreeID;
+    uint32 TraitTreeID;
     int32 TraitCurrencyID;
 };
 
@@ -4419,6 +4712,58 @@ struct TransmogIllusionEntry
     EnumFlag<TransmogIllusionFlags> GetFlags() const { return static_cast<TransmogIllusionFlags>(Flags); }
 };
 
+struct TransmogOutfitEntryEntry
+{
+    uint64 Cost;
+    LocalizedString Name;
+    uint32 ID;
+    int32 OrderIndex;
+    uint8 Source;
+    int32 Flags;
+    uint8 SetType;
+    float OverrideCostModifier;
+    int32 OutfitIndex;
+
+    TransmogOutfitEntrySource GetSource() const { return static_cast<TransmogOutfitEntrySource>(Source); }
+    bool HasFlag(TransmogOutfitEntryFlags flag) const { return EnumFlag(static_cast<TransmogOutfitEntryFlags>(Flags)).HasFlag(flag); }
+    TransmogOutfitSetType GetSetType() const { return static_cast<TransmogOutfitSetType>(SetType); }
+};
+
+struct TransmogOutfitSlotInfoEntry
+{
+    char const* InventorySlotName;
+    uint32 ID;
+    int8 TransmogOutfitSlotEnum;
+    int32 InventorySlotEnum;
+    int32 Flags;
+    uint8 Unused1200;
+    uint8 TransmogCollectionType;
+    int32 SecondarySlotID;
+    int32 InventorySlotID;
+    int32 UnassignedAtlasID;
+    int32 UnassignedDisplayAtlasID;
+    float ItemCostMultiplier;
+    float IllusionCostMultiplier;
+
+    TransmogOutfitSlot GetSlot() const { return static_cast<TransmogOutfitSlot>(TransmogOutfitSlotEnum); }
+    bool HasFlag(TransmogOutfitSlotFlags flag) const { return EnumFlag(static_cast<TransmogOutfitSlotFlags>(Flags)).HasFlag(flag); }
+};
+
+struct TransmogOutfitSlotOptionEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint8 OptionEnum;
+    uint32 TransmogOutfitSlotInfoID;
+    int32 Flags;
+    int32 SecondaryOptionID;
+    float ItemCostMultiplier;
+    float IllusionCostMultiplier;
+
+    TransmogOutfitSlotOption GetOption() const { return static_cast<TransmogOutfitSlotOption>(OptionEnum); }
+    bool HasFlag(TransmogOutfitSlotOptionFlags flag) const { return EnumFlag(static_cast<TransmogOutfitSlotOptionFlags>(Flags)).HasFlag(flag); }
+};
+
 struct TransmogSetEntry
 {
     LocalizedString Name;
@@ -4428,7 +4773,7 @@ struct TransmogSetEntry
     int32 Flags;
     int32 TransmogSetGroupID;
     int32 ItemNameDescriptionID;
-    int32 ParentTransmogSetID;
+    uint32 ParentTransmogSetID;
     int32 Unknown810;
     int32 ExpansionID;
     int32 PatchID;
@@ -4448,6 +4793,39 @@ struct TransmogSetItemEntry
     uint32 TransmogSetID;
     uint32 ItemModifiedAppearanceID;
     int32 Flags;
+};
+
+struct TransmogSituationEntry
+{
+    LocalizedString Name;
+    uint32 ID;
+    int8 SituationEnum;
+    int32 Flags;
+    uint32 TransmogSituationGroupID;
+    int32 OrderIndex;
+
+    TransmogSituation GetSituation() const { return static_cast<TransmogSituation>(SituationEnum); }
+    bool HasFlag(TransmogSituationFlags flag) const { return EnumFlag(static_cast<TransmogSituationFlags>(Flags)).HasFlag(flag); }
+};
+
+struct TransmogSituationGroupEntry
+{
+    uint32 ID;
+    uint32 TransmogSituationTriggerID;
+    int32 OrderIndex;
+    int32 Flags;
+};
+
+struct TransmogSituationTriggerEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    uint32 ID;
+    uint8 TriggerEnum;
+    int32 Flags;
+
+    TransmogSituationTrigger GetTrigger() const { return static_cast<TransmogSituationTrigger>(TriggerEnum); }
+    bool HasFlag(TransmogSituationTriggerFlags flag) const { return EnumFlag(static_cast<TransmogSituationTriggerFlags>(Flags)).HasFlag(flag); }
 };
 
 struct TransportAnimationEntry
@@ -4471,14 +4849,13 @@ struct UiMapEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int32 ParentUiMapID;
+    uint32 ParentUiMapID;
     int32 Flags;
-    int8 System;
+    uint8 System;
     uint8 Type;
     int32 BountySetID;
     uint32 BountyDisplayLocation;
-    int32 VisibilityPlayerConditionID2; // if not met then map is skipped when evaluating UiMapAssignment
-    int32 VisibilityPlayerConditionID;  // if not met then client checks other maps with the same AlternateUiMapGroup, not re-evaluating UiMapAssignment for them
+    int32 VisibilityPlayerConditionID;
     int8 HelpTextPosition;
     int32 BkgAtlasID;
     int32 AlternateUiMapGroup;
@@ -4495,12 +4872,13 @@ struct UiMapAssignmentEntry
     DBCPosition2D UiMax;
     std::array<DBCPosition3D, 2> Region;
     uint32 ID;
-    int32 UiMapID;
+    uint32 UiMapID;
     int32 OrderIndex;
     int32 MapID;
     int32 AreaID;
     int32 WmoDoodadPlacementID;
     int32 WmoGroupID;
+    int32 Unknown1125;
 };
 
 struct UiMapLinkEntry
@@ -4508,7 +4886,7 @@ struct UiMapLinkEntry
     DBCPosition2D UiMin;
     DBCPosition2D UiMax;
     uint32 ID;
-    int32 ParentUiMapID;
+    uint32 ParentUiMapID;
     int32 OrderIndex;
     int32 ChildUiMapID;
     int32 PlayerConditionID;
@@ -4537,7 +4915,7 @@ struct UISplashScreenEntry
     LocalizedString RightFeatureDesc;
     int32 AllianceQuestID;
     int32 HordeQuestID;
-    int8 ScreenType;
+    uint8 ScreenType;
     int32 TextureKitID;
     int32 SoundKitID;
     int32 PlayerConditionID;
@@ -4572,7 +4950,7 @@ struct UnitPowerBarEntry
     float RegenerationPeace;
     float RegenerationCombat;
     uint8 BarType;
-    uint16 Flags;
+    int32 Flags;
     float StartInset;
     float EndInset;
     std::array<int32, 6> FileDataID;
@@ -4661,16 +5039,17 @@ struct VehicleSeatEntry
     float CameraEnteringZoom;
     float CameraSeatZoomMin;
     float CameraSeatZoomMax;
-    int16 EnterAnimKitID;
-    int16 RideAnimKitID;
-    int16 ExitAnimKitID;
-    int16 VehicleEnterAnimKitID;
-    int16 VehicleRideAnimKitID;
-    int16 VehicleExitAnimKitID;
+    int32 EnterAnimKitID;
+    int32 RideAnimKitID;
+    int32 ExitAnimKitID;
+    int32 VehicleEnterAnimKitID;
+    int32 VehicleRideAnimKitID;
+    int32 VehicleExitAnimKitID;
     int16 CameraModeID;
 
     inline bool HasFlag(VehicleSeatFlags flag) const { return !!(Flags & flag); }
     inline bool HasFlag(VehicleSeatFlagsB flag) const { return !!(FlagsB & flag); }
+    inline bool HasFlag(VehicleSeatFlagsC flag) const { return EnumFlag(static_cast<VehicleSeatFlagsC>(FlagsC)).HasFlag(flag); }
 
     inline bool CanEnterOrExit() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT | VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT)); }
     inline bool CanSwitchFromSeat() const { return HasFlag(VEHICLE_SEAT_FLAG_CAN_SWITCH); }
@@ -4695,9 +5074,30 @@ struct VignetteEntry
     int8 VignetteType;
     int32 RewardQuestID;
     int32 UiWidgetSetID;
+    int32 UiMapPinInfoID;
+    int8 ObjectiveType;
 
     EnumFlag<VignetteFlags> GetFlags() const { return static_cast<VignetteFlags>(Flags); }
     bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }
+};
+
+struct WarbandSceneEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    DBCPosition3D Position;
+    DBCPosition3D LookAt;
+    uint32 ID;
+    uint32 MapID;
+    float Fov;
+    int32 TimeOfDay;
+    int32 Flags;
+    int32 SoundAmbienceID;
+    int8 Quality;
+    int32 TextureKit;
+    int32 DefaultScenePriority;
+
+    EnumFlag<WarbandSceneFlags> GetFlags() const { return static_cast<WarbandSceneFlags>(Flags); }
 };
 
 struct WMOAreaTableEntry
@@ -4716,14 +5116,16 @@ struct WMOAreaTableEntry
     uint16 IntroSound;
     uint16 UwIntroSound;
     uint16 AreaTableID;
-    uint8 Flags;
+    int32 Flags;
+
+    bool HasFlag(WMOAreaTableFlags flag) const { return EnumFlag(static_cast<WMOAreaTableFlags>(Flags)).HasFlag(flag); }
 };
 
 struct WorldEffectEntry
 {
     uint32 ID;
     uint32 QuestFeedbackEffectID;
-    uint8 WhenToDisplay;
+    int32 WhenToDisplay;
     uint8 TargetType;
     int32 TargetAsset;
     uint32 PlayerConditionID;
@@ -4745,7 +5147,7 @@ struct WorldMapOverlayEntry
     int32 HitRectLeft;
     int32 HitRectRight;
     uint32 PlayerConditionID;
-    uint32 Flags;
+    int32 Flags;
     std::array<uint32, MAX_WORLD_MAP_OVERLAY_AREA_IDX> AreaID;
 };
 

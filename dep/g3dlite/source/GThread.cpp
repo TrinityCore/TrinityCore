@@ -91,6 +91,11 @@ typedef struct tagTHREADNAME_INFO {
 } THREADNAME_INFO;
 #pragma pack(pop)
 
+static LONG ExceptionIgnorer(PEXCEPTION_POINTERS ex)
+{
+   return ex->ExceptionRecord->ExceptionCode == MS_VC_EXCEPTION ? EXCEPTION_CONTINUE_EXECUTION : EXCEPTION_CONTINUE_SEARCH;
+}
+
 static void SetThreadName(DWORD dwThreadID, const char* threadName) {
    THREADNAME_INFO info;
    info.dwType = 0x1000;
@@ -98,9 +103,9 @@ static void SetThreadName(DWORD dwThreadID, const char* threadName) {
    info.dwThreadID = dwThreadID;
    info.dwFlags = 0;
 
-   __try {
-      RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
-   } __except(EXCEPTION_EXECUTE_HANDLER) {}
+   PVOID handler = AddVectoredExceptionHandler(1, &ExceptionIgnorer);
+   RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+   RemoveVectoredExceptionHandler(handler);
 }
 #endif
 

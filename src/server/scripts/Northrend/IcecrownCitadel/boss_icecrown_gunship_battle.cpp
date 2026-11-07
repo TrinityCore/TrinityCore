@@ -39,7 +39,7 @@
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
 
-enum Texts
+enum GunshipTexts
 {
     // High Overlord Saurfang
     SAY_SAURFANG_INTRO_1                = 0,
@@ -80,7 +80,7 @@ enum Texts
     SAY_OVERHEAT                        = 0
 };
 
-enum Events
+enum GunshipEvents
 {
     // High Overlord Saurfang
     EVENT_INTRO_H_1                 = 1,
@@ -113,7 +113,7 @@ enum Events
     EVENT_WOUNDING_STRIKE           = 17
 };
 
-enum Spells
+enum GunshipSpells
 {
     // Applied on friendly transport NPCs
     SPELL_FRIENDLY_BOSS_DAMAGE_MOD          = 70339,
@@ -194,7 +194,7 @@ enum Spells
     SPELL_EJECT_ALL_PASSENGERS_WIPE         = 50630
 };
 
-enum MiscData
+enum GunshipMisc
 {
     ITEM_GOBLIN_ROCKET_PACK    = 49278,
     SPELL_CREATE_ROCKET_PACK   = 70055,
@@ -205,7 +205,7 @@ enum MiscData
     MUSIC_ENCOUNTER            = 17289
 };
 
-enum EncounterActions
+enum GunshipActions
 {
     ACTION_SPAWN_MAGE       = 1,
     ACTION_SPAWN_ALL_ADDS   = 2,
@@ -225,8 +225,7 @@ Position const OrgrimsHammerTeleportExit = { 7.461699f, 0.158853f, 35.72989f, 0.
 Position const OrgrimsHammerTeleportPortal = { 47.550990f, -0.101778f, 37.61111f, 0.0f };
 Position const SkybreakerTeleportExit      = { -17.55738f, -0.090421f, 21.18366f, 0.0f };
 
-uint32 const MuradinExitPathSize = 10;
-G3D::Vector3 const MuradinExitPath[MuradinExitPathSize] =
+G3D::Vector3 const MuradinExitPath[] =
 {
     { 8.130936f, -0.2699585f, 20.31728f },
     { 6.380936f, -0.2699585f, 20.31728f },
@@ -240,8 +239,7 @@ G3D::Vector3 const MuradinExitPath[MuradinExitPathSize] =
     { -14.88477f, 25.20844f, 21.59985f },
 };
 
-uint32 const SaurfangExitPathSize = 13;
-G3D::Vector3 const SaurfangExitPath[SaurfangExitPathSize] =
+G3D::Vector3 const SaurfangExitPath[] =
 {
     { 30.43987f, 0.1475817f, 36.10674f },
     { 21.36141f, -3.056458f, 35.42970f },
@@ -258,7 +256,7 @@ G3D::Vector3 const SaurfangExitPath[SaurfangExitPathSize] =
     { 15.33203f, -30.42621f, 35.93796f }
 };
 
-enum PassengerSlots
+enum GunshipPassengerSlots
 {
     // Freezing the cannons
     SLOT_FREEZE_MAGE    = 0,
@@ -400,7 +398,7 @@ public:
         _slotInfo = team == HORDE ? OrgrimsHammerSlotInfo : SkybreakerSlotInfo;
     }
 
-    bool SummonCreatures(PassengerSlots first, PassengerSlots last)
+    bool SummonCreatures(GunshipPassengerSlots first, GunshipPassengerSlots last)
     {
         if (!_transport)
             return false;
@@ -431,13 +429,13 @@ public:
         return summoned;
     }
 
-    void ClearSlot(PassengerSlots slot)
+    void ClearSlot(GunshipPassengerSlots slot)
     {
         _controlledSlots[slot].Clear();
         _respawnCooldowns[slot] = GameTime::GetGameTime() + _slotInfo[slot].Cooldown;
     }
 
-    bool SlotsNeedRefill(PassengerSlots first, PassengerSlots last) const
+    bool SlotsNeedRefill(GunshipPassengerSlots first, GunshipPassengerSlots last) const
     {
         for (int32 i = first; i <= last; ++i)
             if (!_controlledSlots[i])
@@ -567,18 +565,13 @@ struct gunship_npc_AI : public ScriptedAI
 
             me->SetReactState(REACT_PASSIVE);
 
-            float x, y, z, o;
-            Slot->TargetPosition.GetPosition(x, y, z, o);
-
             me->SetTransportHomePosition(Slot->TargetPosition);
-            float hx = x, hy = y, hz = z, ho = o;
-            me->GetTransport()->CalculatePassengerPosition(hx, hy, hz, &ho);
-            me->SetHomePosition(hx, hy, hz, ho);
+            me->SetHomePosition(me->GetTransport()->GetPositionWithOffset(Slot->TargetPosition));
 
-            std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+            std::function<void(Movement::MoveSplineInit&)> initializer = [pos = Slot->TargetPosition](Movement::MoveSplineInit& init)
             {
                 init.DisableTransportPathTransformations();
-                init.MoveTo(x, y, z, false);
+                init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
         }
@@ -671,6 +664,8 @@ protected:
     uint32 BurningPitchId;
 };
 
+// 37215 - Orgrim's Hammer
+// 37540 - The Skybreaker
 class npc_gunship : public CreatureScript
 {
     public:
@@ -845,6 +840,7 @@ class npc_gunship : public CreatureScript
         }
 };
 
+// 36939 - High Overlord Saurfang
 struct npc_high_overlord_saurfang_igb : public ScriptedAI
 {
     npc_high_overlord_saurfang_igb(Creature* creature) : ScriptedAI(creature),
@@ -940,9 +936,8 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         {
             std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
             {
-                Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
                 init.DisableTransportPathTransformations();
-                init.MovebyPath(path, 0);
+                init.MovebyPath(SaurfangExitPath);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
@@ -954,7 +949,7 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
     {
         if (type == ACTION_CLEAR_SLOT)
         {
-            _controller.ClearSlot(PassengerSlots(data));
+            _controller.ClearSlot(GunshipPassengerSlots(data));
             if (data == SLOT_FREEZE_MAGE)
                 _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
         }
@@ -1102,6 +1097,7 @@ private:
     time_t _rocketeersYellCooldown;
 };
 
+// 36948 - Muradin Bronzebeard
 struct npc_muradin_bronzebeard_igb : public ScriptedAI
 {
     npc_muradin_bronzebeard_igb(Creature* creature) : ScriptedAI(creature),
@@ -1197,9 +1193,8 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         {
             std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
             {
-                Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
                 init.DisableTransportPathTransformations();
-                init.MovebyPath(path, 0);
+                init.MovebyPath(MuradinExitPath);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
@@ -1211,7 +1206,7 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
     {
         if (type == ACTION_CLEAR_SLOT)
         {
-            _controller.ClearSlot(PassengerSlots(data));
+            _controller.ClearSlot(GunshipPassengerSlots(data));
             if (data == SLOT_FREEZE_MAGE)
                 _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
         }
@@ -1363,6 +1358,7 @@ private:
     time_t _mortarYellCooldown;
 };
 
+// 37184 - Zafod Boombox
 struct npc_zafod_boombox : public gunship_npc_AI
 {
     npc_zafod_boombox(Creature* creature) : gunship_npc_AI(creature) { }
@@ -1417,23 +1413,21 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         if (pointId == EVENT_CHARGE_PREPATH && Slot)
         {
             Position const& otherTransportPos = Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? OrgrimsHammerTeleportExit : SkybreakerTeleportExit;
-            float x, y, z, o;
-            otherTransportPos.GetPosition(x, y, z, o);
-
-            TransportBase* myTransport = me->GetTransport();
+            TransportBase const* myTransport = me->GetTransport();
             if (!myTransport)
                 return;
 
-            if (Transport* destTransport = ObjectAccessor::GetTransport(*me, Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
-                destTransport->CalculatePassengerPosition(x, y, z, &o);
+            if (Transport const* destTransport = ObjectAccessor::GetTransport(*me, Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+            {
+                Position globalPosition = destTransport->GetPositionWithOffset(otherTransportPos);
 
-            float angle = frand(0, float(M_PI) * 2.0f);
-            x += 2.0f * std::cos(angle);
-            y += 2.0f * std::sin(angle);
+                float angle = frand(0, float(M_PI) * 2.0f);
+                globalPosition.m_positionX += 2.0f * std::cos(angle);
+                globalPosition.m_positionY += 2.0f * std::sin(angle);
 
-            me->SetHomePosition(x, y, z, o);
-            myTransport->CalculatePassengerOffset(x, y, z, &o);
-            me->SetTransportHomePosition(x, y, z, o);
+                me->SetHomePosition(globalPosition);
+                me->SetTransportHomePosition(myTransport->GetPositionOffsetTo(globalPosition));
+            }
 
             me->m_Events.AddEvent(new BattleExperienceEvent(me), me->m_Events.CalculateTime(BattleExperienceEvent::ExperiencedTimes[0]));
             DoCast(me, SPELL_BATTLE_EXPERIENCE, true);
@@ -1520,6 +1514,8 @@ private:
     bool _usedDesperateResolve;
 };
 
+// 36960 - Kor'kron Sergeant
+// 36961 - Skybreaker Sergeant
 struct npc_gunship_boarding_leader : public npc_gunship_boarding_addAI
 {
     npc_gunship_boarding_leader(Creature* creature) : npc_gunship_boarding_addAI(creature) { }
@@ -1569,6 +1565,8 @@ private:
     EventMap _events;
 };
 
+// 36950 - Skybreaker Marine
+// 36957 - Kor'kron Reaver
 class npc_gunship_boarding_add : public CreatureScript
 {
     public:
@@ -1580,6 +1578,8 @@ class npc_gunship_boarding_add : public CreatureScript
         }
 };
 
+// 36968 - Kor'kron Axethrower
+// 36969 - Skybreaker Rifleman
 struct npc_gunship_gunner : public gunship_npc_AI
 {
     npc_gunship_gunner(Creature* creature) : gunship_npc_AI(creature)
@@ -1611,6 +1611,8 @@ struct npc_gunship_gunner : public gunship_npc_AI
     }
 };
 
+// 36978 - Skybreaker Mortar Soldier
+// 36982 - Kor'kron Rocketeer
 struct npc_gunship_rocketeer : public gunship_npc_AI
 {
     npc_gunship_rocketeer(Creature* creature) : gunship_npc_AI(creature)
@@ -1642,6 +1644,8 @@ struct npc_gunship_rocketeer : public gunship_npc_AI
     }
 };
 
+// 37116 - Skybreaker Sorcerer
+// 37117 - Kor'kron Battle-Mage
 struct npc_gunship_mage : public gunship_npc_AI
 {
     npc_gunship_mage(Creature* creature) : gunship_npc_AI(creature)
@@ -1708,6 +1712,8 @@ Transport Seat: 255
 Fall Time: 824
 */
 
+// 36838 - Alliance Gunship Cannon
+// 36839 - Horde Gunship Cannon
 struct npc_gunship_cannon : public PassiveAI
 {
     npc_gunship_cannon(Creature* creature) : PassiveAI(creature) { }
@@ -1841,7 +1847,7 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_COST);
     }
 
     void Register() override
@@ -1888,7 +1894,7 @@ class spell_igb_incinerating_blast : public SpellScript
         GetCaster()->SetPower(POWER_ENERGY, 0);
     }
 
-    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         flatMod += _energyLeft * _energyLeft * 8;
     }
@@ -1974,10 +1980,7 @@ class spell_igb_teleport_to_enemy_ship : public SpellScript
         if (!dest || !target || !target->GetTransport())
             return;
 
-        float x, y, z, o;
-        dest->GetPosition(x, y, z, o);
-        target->GetTransport()->CalculatePassengerOffset(x, y, z, &o);
-        target->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+        target->m_movementInfo.transport.pos.Relocate(target->GetTransport()->GetPositionOffsetTo(*dest));
     }
 
     void Register() override
@@ -2013,7 +2016,7 @@ class spell_igb_burning_pitch_selector : public SpellScript
     void HandleDummy(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), TRIGGERED_NONE);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), TRIGGERED_NONE);
     }
 
     void Register() override
@@ -2031,7 +2034,7 @@ class spell_igb_burning_pitch : public SpellScript
         PreventHitDefaultEffect(effIndex);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(8000);
-        GetCaster()->CastSpell(nullptr, GetEffectValue(), args);
+        GetCaster()->CastSpell(nullptr, GetEffectValueAsInt(), args);
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BURNING_PITCH, TRIGGERED_FULL_MASK);
     }
 
@@ -2057,7 +2060,7 @@ class spell_igb_rocket_artillery : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), TRIGGERED_NONE);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), TRIGGERED_NONE);
     }
 
     void Register() override

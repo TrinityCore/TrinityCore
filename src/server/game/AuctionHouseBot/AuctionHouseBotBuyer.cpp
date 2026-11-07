@@ -169,7 +169,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     Item const* item = auction->Items[0];
     float itemBuyPrice = float(auction->BuyoutOrUnitPrice);
     float itemPrice;
-    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0, 0)))
         itemPrice = float(itemSellPrice);
     else
         itemPrice = float(GetVendorPrice(item->GetQuality()));
@@ -214,7 +214,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     Item const* item = auction->Items[0];
     float itemBidPrice = float(bidPrice);
     float itemPrice;
-    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0, 0)))
         itemPrice = float(itemSellPrice);
     else
         itemPrice = float(GetVendorPrice(item->GetQuality()));
@@ -415,12 +415,12 @@ void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auct
     // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
     // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
     // we need to RemoveAuction before sending mails
-    AuctionPosting copy = *auction;
-    auctionHouse->RemoveAuction(trans, auction);
+    std::map<uint32, AuctionPosting>::node_type removedAuctionNode = auctionHouse->RemoveAuction(trans, auction);
+    auction = &removedAuctionNode.mapped();
 
     // Mails must be under transaction control too to prevent data loss
-    auctionHouse->SendAuctionSold(&copy, nullptr, trans);
-    auctionHouse->SendAuctionWon(&copy, nullptr, trans);
+    auctionHouse->SendAuctionSold(auction, nullptr, trans);
+    auctionHouse->SendAuctionWon(auction, nullptr, trans);
 
     // Run SQLs
     CharacterDatabase.CommitTransaction(trans);

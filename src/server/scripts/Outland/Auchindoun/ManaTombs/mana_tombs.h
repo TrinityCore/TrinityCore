@@ -23,7 +23,7 @@
 #define MTScriptName "instance_mana_tombs"
 #define DataHeader "MT"
 
-uint32 const EncounterCount = 4;
+uint32 constexpr EncounterCount = 4;
 
 enum MTDataTypes
 {
@@ -36,7 +36,7 @@ enum MTDataTypes
 
 enum MTCreatureIds
 {
-    NPC_TAVAROK = 18343
+    NPC_TAVAROK                 = 18343
 };
 
 template <class AI, class T>

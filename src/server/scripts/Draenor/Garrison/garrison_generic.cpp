@@ -57,7 +57,7 @@ struct at_garrison_exit : AreaTriggerAI
         at->setActive(true); // has to be active, otherwise the at is no longer updated before we are able to leave it
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         Player* player = unit->ToPlayer();
         if (!player)

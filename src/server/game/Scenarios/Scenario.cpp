@@ -157,12 +157,12 @@ ScenarioStepState Scenario::GetStepState(ScenarioStepEntry const* step) const
 
 void Scenario::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
 {
-    DoForAllPlayers([=](Player const* receiver)
+    DoForAllPlayers([=, this](Player const* receiver)
     {
         WorldPackets::Scenario::ScenarioProgressUpdate progressUpdate;
         progressUpdate.CriteriaProgress.Id = criteria->ID;
         progressUpdate.CriteriaProgress.Quantity = progress->Counter;
-        progressUpdate.CriteriaProgress.Player = progress->PlayerGUID;
+        progressUpdate.CriteriaProgress.Player = _guid;
         progressUpdate.CriteriaProgress.Date.SetUtcTimeFromUnixTime(progress->Date);
         progressUpdate.CriteriaProgress.Date += receiver->GetSession()->GetTimezoneOffset();
         if (criteria->Entry->StartTimer)
@@ -348,7 +348,7 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
         criteriaProgress.Quantity = progress.Counter;
         criteriaProgress.Date.SetUtcTimeFromUnixTime(progress.Date);
         criteriaProgress.Date += player->GetSession()->GetTimezoneOffset();
-        criteriaProgress.Player = progress.PlayerGUID;
+        criteriaProgress.Player = _guid;
     }
 
     return criteriasProgress;

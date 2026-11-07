@@ -1011,6 +1011,13 @@ class TC_PROTO_API StreamMessage : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 destroy_time() const;
   inline void set_destroy_time(::google::protobuf::uint64 value);
 
+  // optional uint32 author_external_network = 18;
+  inline bool has_author_external_network() const;
+  inline void clear_author_external_network();
+  static const int kAuthorExternalNetworkFieldNumber = 18;
+  inline ::google::protobuf::uint32 author_external_network() const;
+  inline void set_author_external_network(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.client.StreamMessage)
  private:
   inline void set_has_id();
@@ -1023,6 +1030,8 @@ class TC_PROTO_API StreamMessage : public ::google::protobuf::Message {
   inline void clear_has_destroyed();
   inline void set_has_destroy_time();
   inline void clear_has_destroy_time();
+  inline void set_has_author_external_network();
+  inline void clear_has_author_external_network();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1034,6 +1043,7 @@ class TC_PROTO_API StreamMessage : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::client::MemberDescription* destroyer_;
   ::google::protobuf::uint64 destroy_time_;
   bool destroyed_;
+  ::google::protobuf::uint32 author_external_network_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fstream_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fstream_2eproto();
   friend void protobuf_ShutdownFile_api_2fclient_2fv1_2fclub_5fstream_2eproto();
@@ -3274,6 +3284,30 @@ inline void StreamMessage::set_destroy_time(::google::protobuf::uint64 value) {
   set_has_destroy_time();
   destroy_time_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.client.StreamMessage.destroy_time)
+}
+
+// optional uint32 author_external_network = 18;
+inline bool StreamMessage::has_author_external_network() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void StreamMessage::set_has_author_external_network() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void StreamMessage::clear_has_author_external_network() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void StreamMessage::clear_author_external_network() {
+  author_external_network_ = 0u;
+  clear_has_author_external_network();
+}
+inline ::google::protobuf::uint32 StreamMessage::author_external_network() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.client.StreamMessage.author_external_network)
+  return author_external_network_;
+}
+inline void StreamMessage::set_author_external_network(::google::protobuf::uint32 value) {
+  set_has_author_external_network();
+  author_external_network_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.client.StreamMessage.author_external_network)
 }
 
 // -------------------------------------------------------------------

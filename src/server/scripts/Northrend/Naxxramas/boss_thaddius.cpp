@@ -1043,7 +1043,7 @@ class spell_thaddius_polarity_shift : public SpellScript
         if (Unit* target = GetHitUnit())
             if (target->GetTypeId() == TYPEID_PLAYER)
             {
-                if (roll_chance_i(50))
+                if (roll_chance(50))
                 { // positive
                     target->CastSpell(target, SPELL_POSITIVE_CHARGE_APPLY, true);
                     target->RemoveAura(SPELL_POSITIVE_CHARGE_AMP);

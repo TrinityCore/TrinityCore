@@ -33,7 +33,7 @@
 #include "RBAC.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -44,9 +44,9 @@ class group_commandscript : public CommandScript
 public:
     group_commandscript() : CommandScript("group_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> groupSetCommandTable =
+        static ChatCommandTable groupSetCommandTable =
         {
             { "leader",     rbac::RBAC_PERM_COMMAND_GROUP_LEADER,     false, &HandleGroupLeaderCommand,     "" },
             { "assistant",  rbac::RBAC_PERM_COMMAND_GROUP_ASSISTANT,  false, &HandleGroupAssistantCommand,  "" },
@@ -54,7 +54,7 @@ public:
             { "mainassist", rbac::RBAC_PERM_COMMAND_GROUP_MAINASSIST, false, &HandleGroupMainAssistCommand, "" }
         };
 
-        static std::vector<ChatCommand> groupCommandTable =
+        static ChatCommandTable groupCommandTable =
         {
             { "set",     rbac::RBAC_PERM_COMMAND_GROUP_SET,       false, nullptr,                    "", groupSetCommandTable },
             { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,    false, &HandleGroupLeaderCommand,  "" },
@@ -68,7 +68,7 @@ public:
             { "level",   rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL, true,  &HandleGroupLevelCommand,   "" }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
@@ -92,27 +92,24 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        for (GroupReference const& it : groupTarget->GetMembers())
         {
-            target = it->GetSource();
-            if (target)
+            target = it.GetSource();
+            uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+
+            if (level != oldlevel)
             {
-                uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+                target->SetLevel(static_cast<uint8>(level));
+                target->InitTalentForLevel();
+                target->SetXP(0);
+            }
 
-                if (level != oldlevel)
-                {
-                    target->SetLevel(static_cast<uint8>(level));
-                    target->InitTalentForLevel();
-                    target->SetXP(0);
-                }
-
-                if (handler->needReportToTarget(target))
-                {
-                    if (oldlevel < static_cast<uint8>(level))
-                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), level);
-                    else                                                // if (oldlevel > newlevel)
-                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), level);
-                }
+            if (handler->needReportToTarget(target))
+            {
+                if (oldlevel < static_cast<uint8>(level))
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), level);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), level);
             }
         }
         return true;
@@ -128,15 +125,12 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        for (GroupReference const& it : groupTarget->GetMembers())
         {
-            Player* target = it->GetSource();
-            if (target)
-            {
-                target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
-                target->SpawnCorpseBones();
-                target->SaveToDB();
-            }
+            Player* target = it.GetSource();
+            target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+            target->SpawnCorpseBones();
+            target->SaveToDB();
         }
 
         return true;
@@ -153,14 +147,8 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
-        {
-            Player* target = it->GetSource();
-            if (target)
-            {
-                target->DurabilityRepairAll(false, 0, false);
-            }
-        }
+        for (GroupReference const& it : groupTarget->GetMembers())
+            it.GetSource()->DurabilityRepairAll(false, 0, false);
 
         return true;
     }
@@ -204,11 +192,11 @@ public:
             }
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            Player* player = itr->GetSource();
+            Player* player = itr.GetSource();
 
-            if (!player || player == gmPlayer || !player->GetSession())
+            if (player == gmPlayer)
                 continue;
 
             // check online security

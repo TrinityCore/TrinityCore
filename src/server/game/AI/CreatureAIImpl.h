@@ -22,7 +22,7 @@
 #include <functional>
 
 class WorldObject;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 template<typename First, typename Second, typename... Rest>
 inline First const& RAND(First const& first, Second const& second, Rest const&... rest)

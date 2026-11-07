@@ -1,26 +1,28 @@
 #ifndef JEMALLOC_INTERNAL_ATOMIC_H
 #define JEMALLOC_INTERNAL_ATOMIC_H
 
-#define ATOMIC_INLINE JEMALLOC_ALWAYS_INLINE
+#include "jemalloc/internal/jemalloc_preamble.h"
 
 #define JEMALLOC_U8_ATOMICS
 #if defined(JEMALLOC_GCC_ATOMIC_ATOMICS)
-#  include "jemalloc/internal/atomic_gcc_atomic.h"
-#  if !defined(JEMALLOC_GCC_U8_ATOMIC_ATOMICS)
-#    undef JEMALLOC_U8_ATOMICS
-#  endif
+#	include "jemalloc/internal/atomic_gcc_atomic.h"
+#	if !defined(JEMALLOC_GCC_U8_ATOMIC_ATOMICS)
+#		undef JEMALLOC_U8_ATOMICS
+#	endif
 #elif defined(JEMALLOC_GCC_SYNC_ATOMICS)
-#  include "jemalloc/internal/atomic_gcc_sync.h"
-#  if !defined(JEMALLOC_GCC_U8_SYNC_ATOMICS)
-#    undef JEMALLOC_U8_ATOMICS
-#  endif
+#	include "jemalloc/internal/atomic_gcc_sync.h"
+#	if !defined(JEMALLOC_GCC_U8_SYNC_ATOMICS)
+#		undef JEMALLOC_U8_ATOMICS
+#	endif
 #elif defined(_MSC_VER)
-#  include "jemalloc/internal/atomic_msvc.h"
+#	include "jemalloc/internal/atomic_msvc.h"
 #elif defined(JEMALLOC_C11_ATOMICS)
-#  include "jemalloc/internal/atomic_c11.h"
+#	include "jemalloc/internal/atomic_c11.h"
 #else
-#  error "Don't have atomics implemented on this platform."
+#	error "Don't have atomics implemented on this platform."
 #endif
+
+#define ATOMIC_INLINE JEMALLOC_ALWAYS_INLINE
 
 /*
  * This header gives more or less a backport of C11 atomics. The user can write
@@ -52,11 +54,29 @@
 #define ATOMIC_SEQ_CST atomic_memory_order_seq_cst
 
 /*
+ * Another convenience -- simple atomic helper functions.
+ */
+#define JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(type, short_type, lg_size)      \
+	JEMALLOC_GENERATE_INT_ATOMICS(type, short_type, lg_size)               \
+	ATOMIC_INLINE void atomic_load_add_store_##short_type(                 \
+	    atomic_##short_type##_t *a, type inc) {                            \
+		type oldval = atomic_load_##short_type(a, ATOMIC_RELAXED);     \
+		type newval = oldval + inc;                                    \
+		atomic_store_##short_type(a, newval, ATOMIC_RELAXED);          \
+	}                                                                      \
+	ATOMIC_INLINE void atomic_load_sub_store_##short_type(                 \
+	    atomic_##short_type##_t *a, type inc) {                            \
+		type oldval = atomic_load_##short_type(a, ATOMIC_RELAXED);     \
+		type newval = oldval - inc;                                    \
+		atomic_store_##short_type(a, newval, ATOMIC_RELAXED);          \
+	}
+
+/*
  * Not all platforms have 64-bit atomics.  If we do, this #define exposes that
  * fact.
  */
 #if (LG_SIZEOF_PTR == 3 || LG_SIZEOF_INT == 3)
-#  define JEMALLOC_ATOMIC_U64
+#	define JEMALLOC_ATOMIC_U64
 #endif
 
 JEMALLOC_GENERATE_ATOMICS(void *, p, LG_SIZEOF_PTR)
@@ -67,18 +87,20 @@ JEMALLOC_GENERATE_ATOMICS(void *, p, LG_SIZEOF_PTR)
  */
 JEMALLOC_GENERATE_ATOMICS(bool, b, 0)
 
-JEMALLOC_GENERATE_INT_ATOMICS(unsigned, u, LG_SIZEOF_INT)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(unsigned, u, LG_SIZEOF_INT)
 
-JEMALLOC_GENERATE_INT_ATOMICS(size_t, zu, LG_SIZEOF_PTR)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(int, i, LG_SIZEOF_INT)
 
-JEMALLOC_GENERATE_INT_ATOMICS(ssize_t, zd, LG_SIZEOF_PTR)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(size_t, zu, LG_SIZEOF_PTR)
 
-JEMALLOC_GENERATE_INT_ATOMICS(uint8_t, u8, 0)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(ssize_t, zd, LG_SIZEOF_PTR)
 
-JEMALLOC_GENERATE_INT_ATOMICS(uint32_t, u32, 2)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(uint8_t, u8, 0)
+
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(uint32_t, u32, 2)
 
 #ifdef JEMALLOC_ATOMIC_U64
-JEMALLOC_GENERATE_INT_ATOMICS(uint64_t, u64, 3)
+JEMALLOC_GENERATE_EXPANDED_INT_ATOMICS(uint64_t, u64, 3)
 #endif
 
 #undef ATOMIC_INLINE

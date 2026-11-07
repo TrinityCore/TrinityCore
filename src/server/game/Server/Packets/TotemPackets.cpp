@@ -16,31 +16,35 @@
  */
 
 #include "TotemPackets.h"
+#include "PacketOperators.h"
 
-void WorldPackets::Totem::TotemDestroyed::Read()
+namespace WorldPackets::Totem
+{
+void TotemDestroyed::Read()
 {
     _worldPacket >> Slot;
     _worldPacket >> TotemGUID;
 }
 
-WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
+WorldPacket const* TotemCreated::Write()
 {
     _worldPacket << uint8(Slot);
     _worldPacket << Totem;
     _worldPacket << Duration;
     _worldPacket << int32(SpellID);
     _worldPacket << float(TimeMod);
-    _worldPacket.WriteBit(CannotDismiss);
+    _worldPacket << Bits<1>(CannotDismiss);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Totem::TotemMoved::Write()
+WorldPacket const* TotemMoved::Write()
 {
     _worldPacket << uint8(Slot);
     _worldPacket << uint8(NewSlot);
     _worldPacket << Totem;
 
     return &_worldPacket;
+}
 }

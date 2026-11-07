@@ -19,15 +19,16 @@
 #define TRINITY_FUZZYFIND_H
 
 #include <map>
-#include <string>
 #include <type_traits>
+
+struct StringContainsStringI_T;
 
 namespace Trinity
 {
     namespace Containers
     {
-        template <typename Container, typename NeedleContainer, typename ContainsOperator = bool(std::string const&, std::string const&), typename T = void>
-        auto FuzzyFindIn(Container const& container, NeedleContainer const& needles, ContainsOperator const& contains = StringContainsStringI, int(*bonus)(decltype((*std::begin(std::declval<Container>())))) = nullptr)
+        template <typename Container, typename NeedleContainer, typename ContainsOperator = StringContainsStringI_T, typename T = void>
+        auto FuzzyFindIn(Container const& container, NeedleContainer const& needles, ContainsOperator const& contains = {}, int(*bonus)(decltype((*std::begin(std::declval<Container>())))) = nullptr)
         {
             using IteratorResult = decltype((*std::begin(container)));
             using MappedType = std::conditional_t<std::is_reference_v<IteratorResult>, std::reference_wrapper<std::remove_reference_t<IteratorResult>>, IteratorResult>;

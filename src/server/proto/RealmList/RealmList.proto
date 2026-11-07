@@ -62,6 +62,8 @@ message RealmEntry {
   required string name = 8;
   required uint32 cfgConfigsID = 9;
   required uint32 cfgLanguagesID = 10;
+  required uint32 cfgContentSetID = 11;
+  required float useBleepChance = 12;
 }
 
 message RealmListUpdatePart {
@@ -74,9 +76,22 @@ message RealmListUpdates {
   repeated RealmListUpdatePart updates = 1;
 }
 
+message UtilityInfo {
+  required uint64 realmPermissions = 1;
+  repeated int32 entitlements = 2;
+}
+
+message BleepToken {
+  required int64 tokenLifespanNanoSecs = 1;
+  required string address = 2;
+  required string token = 3;
+  required string proxy_id = 4;
+}
+
 message IPAddress {
   required string ip = 1;
   required uint32 port = 2;
+  optional BleepToken token = 3;
 }
 
 message RealmIPAddressFamily {
@@ -93,4 +108,17 @@ message RealmJoinTicket {
   required fixed32 platform = 2;
   required fixed32 type = 3;
   required fixed32 clientArch = 4;
+}
+
+message BleepProxy {
+  required int64 ping_token_valid_duration = 1;
+  required int64 ping_port = 2;
+  required string address = 3;
+  required string ping_token = 4;
+  required int64 port = 5;
+  required string proxy_id = 6;
+}
+
+message BleepProxyList {
+  repeated BleepProxy proxies = 1;
 }

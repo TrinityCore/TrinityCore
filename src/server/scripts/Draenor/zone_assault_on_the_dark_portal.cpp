@@ -430,7 +430,7 @@ struct at_altar_altercation_reach_altar : AreaTriggerAI
         player->CastSpell(nullptr, SPELL_ON_ALTAR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_ON_ALTAR);
     }
@@ -453,4 +453,4 @@ void AddSC_assault_on_the_dark_portal()
     RegisterCreatureAI(npc_altar_altercation_blood_ritual_orb);
     RegisterAreaTriggerAI(at_altar_altercation_kilrogg_talk);
     RegisterAreaTriggerAI(at_altar_altercation_reach_altar);
-};
+}

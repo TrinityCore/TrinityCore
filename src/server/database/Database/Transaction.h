@@ -35,6 +35,11 @@ struct TransactionData
 
     template<typename... Args>
     TransactionData(Args&&... args) : query(std::forward<Args>(args)...) { }
+    TransactionData(TransactionData const&) = delete;
+    TransactionData(TransactionData&&) noexcept = default;
+    TransactionData& operator=(TransactionData const&) = delete;
+    TransactionData& operator=(TransactionData&&) noexcept = default;
+    ~TransactionData();
 
     static PreparedStatementBase* ToExecutable(std::unique_ptr<PreparedStatementBase> const& stmt) { return stmt.get(); }
     static char const* ToExecutable(std::string const& sql) { return sql.c_str(); }
@@ -116,5 +121,7 @@ public:
     std::future<bool> m_future;
     std::function<void(bool)> m_callback;
 };
+
+inline bool InvokeAsyncCallbackIfReady(TransactionCallback& callback) { return callback.InvokeIfReady(); }
 
 #endif

@@ -44,7 +44,8 @@ void ThreatReference::AddThreat(float amount)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
-    _mgr._needClientUpdate = true;
+
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::ScaleThreat(float factor)
@@ -56,7 +57,8 @@ void ThreatReference::ScaleThreat(float factor)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
-    _mgr._needClientUpdate = true;
+
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::UpdateOffline()
@@ -76,6 +78,7 @@ void ThreatReference::UpdateOffline()
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
         _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
+        _mgr._updateFlags |= ThreatListClientUpdateFlags::ForceHighestUpdate;
     }
 }
 
@@ -136,7 +139,7 @@ void ThreatReference::UpdateTauntState(TauntState state)
     else
         HeapNotifyIncreased();
 
-    _mgr._needClientUpdate = true;
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::ClearThreat()
@@ -186,10 +189,14 @@ void ThreatReference::HeapNotifyDecreased()
             if (tWho->GetSummonerGUID().IsPlayer())
                 return false;
 
+    // accessories are fully treated as components of the parent and cannot have threat
+    if (cWho->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+        return false;
+
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _needThreatClearUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL),
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _updateFlags(ThreatListClientUpdateFlags::None), _updateTimer(THREAT_UPDATE_INTERVAL),
     _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -215,10 +222,10 @@ void ThreatManager::Update(uint32 tdiff)
 
     if (_updateTimer <= tdiff)
     {
-        if (_needThreatClearUpdate)
+        if (_updateFlags.HasAllFlags(ThreatListClientUpdateFlags::ClearNeeded))
         {
             SendClearAllThreatToClients();
-            _needThreatClearUpdate = false;
+            _updateFlags.RemoveFlag(ThreatListClientUpdateFlags::ClearNeeded);
         }
 
         if (!IsThreatListEmpty(true))
@@ -288,6 +295,17 @@ float ThreatManager::GetThreat(Unit const* who, bool includeOffline) const
 size_t ThreatManager::GetThreatListSize() const
 {
     return _sortedThreatList->size();
+}
+
+uint32 ThreatManager::GetThreatListPlayerCount(bool includeOffline/* = false*/) const
+{
+    if (includeOffline)
+        return uint32(_sortedThreatList->size());
+    uint32 returnValue = 0;
+    for (ThreatReference const* ref : *_sortedThreatList)
+        if (ref->IsAvailable() && ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+            ++returnValue;
+    return returnValue;
 }
 
 Trinity::IteratorPair<ThreatManager::ThreatListIterator, std::nullptr_t> ThreatManager::GetUnsortedThreatList() const
@@ -373,25 +391,6 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
         if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT))
             return;
-    }
-
-    // while riding a vehicle, all threat goes to the vehicle, not the pilot
-    if (Unit* vehicle = target->GetVehicleBase())
-    {
-        AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
-        if (target->HasUnitTypeMask(UNIT_MASK_ACCESSORY)) // accessories are fully treated as components of the parent and cannot have threat
-            return;
-        amount = 0.0f;
-    }
-
-    // If victim is personal spawn, redirect all aggro to summoner
-    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
-    {
-        if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
-        {
-            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
-            amount = 0.0f;
-        }
     }
 
     // if we cannot actually have a threat list, we instead just set combat state and avoid creating threat refs altogether
@@ -553,7 +552,7 @@ void ThreatManager::ClearAllThreat()
 {
     if (!_myThreatListEntries.empty())
     {
-        _needThreatClearUpdate = true;
+        _updateFlags |= ThreatListClientUpdateFlags::ClearNeeded;
         do
             _myThreatListEntries.begin()->second->UnregisterAndFree();
         while (!_myThreatListEntries.empty());
@@ -585,13 +584,13 @@ Unit* ThreatManager::GetFixateTarget() const
 void ThreatManager::UpdateVictim()
 {
     ThreatReference const* const newVictim = ReselectVictim();
-    bool const newHighest = newVictim && (newVictim != _currentVictimRef);
+    bool const newHighest = newVictim && ((newVictim != _currentVictimRef) || _updateFlags.HasFlag(ThreatListClientUpdateFlags::ForceHighestUpdate));
 
     _currentVictimRef = newVictim;
-    if (newHighest || _needClientUpdate)
+    if (newHighest || _updateFlags.HasFlag(ThreatListClientUpdateFlags::UpdateNeeded))
     {
         SendThreatListToClients(newHighest);
-        _needClientUpdate = false;
+        _updateFlags.RemoveFlag(ThreatListClientUpdateFlags::UpdateNeeded | ThreatListClientUpdateFlags::ForceHighestUpdate);
     }
 
     ProcessAIUpdates();
@@ -661,6 +660,11 @@ void ThreatManager::ProcessAIUpdates()
     for (ObjectGuid const& guid : v)
         if (ThreatReference const* ref = Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
             ai->JustStartedThreateningMe(ref->GetVictim());
+}
+
+void ThreatManager::RegisterForAIUpdate(ObjectGuid const& guid)
+{
+    _needsAIUpdate.push_back(guid);
 }
 
 // returns true if a is LOWER on the threat list than b
@@ -771,7 +775,7 @@ void ThreatManager::RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* other
 
 void ThreatManager::UpdateMyTempModifiers()
 {
-    int32 mod = 0;
+    SpellEffectValue mod = 0;
     for (AuraEffect const* eff : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_THREAT))
         mod += eff->GetAmount();
 
@@ -797,7 +801,7 @@ void ThreatManager::UpdateMySpellSchoolModifiers()
     _multiSchoolModifiers.clear();
 }
 
-void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, uint32 pct)
+void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, float pct)
 {
     _redirectRegistry[spellId][victim] = pct;
     UpdateRedirectInfo();
@@ -883,7 +887,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
 
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
 {
-    _needClientUpdate = true;
+    _updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
     auto& inMap = _myThreatListEntries[guid];
     ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
@@ -922,11 +926,11 @@ void ThreatManager::PurgeThreatenedByMeRef(ObjectGuid const& guid)
 void ThreatManager::UpdateRedirectInfo()
 {
     _redirectInfo.clear();
-    uint32 totalPct = 0;
+    float totalPct = 0;
     for (auto const& pair : _redirectRegistry) // (spellid, victim -> pct)
         for (auto const& victimPair : pair.second) // (victim,pct)
         {
-            uint32 thisPct = std::min<uint32>(100 - totalPct, victimPair.second);
+            float thisPct = std::min(100.0f - totalPct, victimPair.second);
             if (thisPct > 0)
             {
                 _redirectInfo.push_back({ victimPair.first, thisPct });

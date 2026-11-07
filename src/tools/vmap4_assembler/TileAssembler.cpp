@@ -27,18 +27,20 @@
 #include "VMapDefinitions.h"
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <mutex>
 #include <set>
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
-    static void getBounds(VMAP::ModelSpawn const* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
+    static void getBounds(VMAP::ModelSpawn const* obj, G3D::AABox& out) { out = obj->getBounds(); }
+    void operator()(VMAP::ModelSpawn const* obj, G3D::AABox& out) const { getBounds(obj, out); }
 };
 
 namespace VMAP
 {
     static auto OpenFile(boost::filesystem::path const& p, char const* mode)
     {
-        return Trinity::make_unique_ptr_with_deleter(fopen(p.string().c_str(), mode), &::fclose);
+        return Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(p.string().c_str(), mode));
     }
 
     G3D::Vector3 ModelPosition::transform(G3D::Vector3 const& pIn) const
@@ -196,7 +198,7 @@ namespace VMAP
 
         try
         {
-            pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+            pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>());
         }
         catch (std::exception& e)
         {
@@ -240,8 +242,8 @@ namespace VMAP
         {
             uint32 x, y;
             StaticMapTree::unpackTileID(tileId, x, y);
-            auto tileFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtile", data.MapId, y, x), "wb");
-            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, y, x), "wb");
+            auto tileFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtile", data.MapId, x, y), "wb");
+            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, x, y), "wb");
             if (tileFile && tileSpawnIndicesFile)
             {
                 std::set<uint32> const& parentTileEntries = data.ParentTileEntries[tileId];
@@ -286,7 +288,7 @@ namespace VMAP
 
             uint32 x, y;
             StaticMapTree::unpackTileID(tileId, x, y);
-            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, y, x), "wb");
+            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, x, y), "wb");
             if (tileSpawnIndicesFile)
             {
                 uint32 nSpawns = spawns.size();
@@ -347,7 +349,7 @@ namespace VMAP
         if (groups != 1)
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.string().c_str());
 
-        G3D::AABox rotated_bounds;
+        G3D::AABox rotated_bounds = G3D::AABox::empty();
         for (int i = 0; i < 8; ++i)
             rotated_bounds.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.corner(i)));
 
@@ -439,7 +441,7 @@ namespace VMAP
                 continue;
 
             spawnedModelFiles.insert(model_name);
-            G3D::AABox bounds;
+            G3D::AABox bounds = G3D::AABox::empty();
             for (GroupModel_Raw const& groupModel : raw_model.groupsArray)
                 for (G3D::Vector3 const& vertice : groupModel.vertexArray)
                     bounds.merge(vertice);

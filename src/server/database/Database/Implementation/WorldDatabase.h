@@ -49,13 +49,14 @@ enum WorldDatabaseStatements : uint32
     WORLD_UPD_CREATURE_WANDER_DISTANCE,
     WORLD_UPD_CREATURE_SPAWN_TIME_SECS,
     WORLD_INS_CREATURE_FORMATION,
-    WORLD_SEL_WAYPOINT_PATH_BY_PATHID,
+    WORLD_SEL_WAYPOINT_PATH,
+    WORLD_INS_WAYPOINT_PATH,
+    WORLD_SEL_WAYPOINT_PATH_NODE,
     WORLD_INS_WAYPOINT_PATH_NODE,
     WORLD_DEL_WAYPOINT_PATH_NODE,
     WORLD_UPD_WAYPOINT_PATH_NODE,
     WORLD_UPD_WAYPOINT_PATH_NODE_POSITION,
     WORLD_SEL_WAYPOINT_PATH_NODE_MAX_PATHID,
-    WORLD_SEL_WAYPOINT_PATH_NODE_BY_PATHID,
     WORLD_SEL_WAYPOINT_PATH_NODE_POS_BY_PATHID,
     WORLD_SEL_WAYPOINT_PATH_NODE_POS_FIRST_BY_PATHID,
     WORLD_SEL_WAYPOINT_PATH_NODE_POS_LAST_BY_PATHID,
@@ -94,7 +95,7 @@ class TC_DATABASE_API WorldDatabaseConnection : public MySQLConnection
 public:
     typedef WorldDatabaseStatements Statements;
 
-    WorldDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
+    WorldDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags);
     ~WorldDatabaseConnection();
 
     //- Loads database type specific prepared statements

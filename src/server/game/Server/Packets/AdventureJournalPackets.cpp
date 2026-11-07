@@ -16,10 +16,9 @@
  */
 
 #include "AdventureJournalPackets.h"
+#include "PacketOperators.h"
 
-namespace WorldPackets
-{
-namespace AdventureJournal
+namespace WorldPackets::AdventureJournal
 {
 void AdventureJournalOpenQuest::Read()
 {
@@ -28,7 +27,7 @@ void AdventureJournalOpenQuest::Read()
 
 void AdventureJournalUpdateSuggestions::Read()
 {
-    OnLevelUp = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(OnLevelUp);
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, AdventureJournalEntry const& adventureJournalEntry)
@@ -41,14 +40,12 @@ ByteBuffer& operator<<(ByteBuffer& data, AdventureJournalEntry const& adventureJ
 
 WorldPacket const* AdventureJournalDataResponse::Write()
 {
-    _worldPacket.WriteBit(OnLevelUp);
-    _worldPacket.FlushBits();
-    _worldPacket << uint32(Entries.size());
+    _worldPacket << Bits<1>(OnLevelUp);
+    _worldPacket << Size<uint32>(Entries);
 
     for (AdventureJournalEntry const& adventureJournalEntry : Entries)
         _worldPacket << adventureJournalEntry;
 
     return &_worldPacket;
-}
 }
 }
