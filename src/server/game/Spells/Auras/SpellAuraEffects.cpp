@@ -498,7 +498,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //426
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_SCALE_PLAYER_LEVEL
     &AuraEffect::HandleLinkedSummon,                              //428 SPELL_AURA_LINKED_SUMMON
-    &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_MOD_SUMMON_DAMAGE
+    &AuraEffect::HandleNoImmediateEffect,                         //429 SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE Implemented in Unit::MeleeDamageBonusDone and Unit::SpellDamagePctDone
     &AuraEffect::HandlePlayScene,                                 //430 SPELL_AURA_PLAY_SCENE
     &AuraEffect::HandleModOverrideZonePVPType,                    //431 SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE
     &AuraEffect::HandleNULL,                                      //432

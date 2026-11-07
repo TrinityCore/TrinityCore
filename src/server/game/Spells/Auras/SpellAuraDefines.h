@@ -513,7 +513,7 @@ enum AuraType : uint32
     SPELL_AURA_426                                          = 426,
     SPELL_AURA_SCALE_PLAYER_LEVEL                           = 427,  // NYI
     SPELL_AURA_LINKED_SUMMON                                = 428,
-    SPELL_AURA_MOD_SUMMON_DAMAGE                            = 429,  // NYI - increases damage done by all summons, not just controlled pets
+    SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE                   = 429,
     SPELL_AURA_PLAY_SCENE                                   = 430,
     SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,
     SPELL_AURA_432                                          = 432,
