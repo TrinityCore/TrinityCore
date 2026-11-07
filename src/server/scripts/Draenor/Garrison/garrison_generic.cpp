@@ -39,11 +39,7 @@ struct at_garrison_enter : AreaTriggerAI
         if (!player)
             return;
 
-        Garrison* garrison = player->GetGarrison();
-        if (!garrison)
-            return;
-
-        garrison->Enter();
+        player->GetGarrison()->Enter();
     }
 };
 
@@ -63,11 +59,7 @@ struct at_garrison_exit : AreaTriggerAI
         if (!player)
             return;
 
-        Garrison* garrison = player->GetGarrison();
-        if (!garrison)
-            return;
-
-        garrison->Leave();
+        player->GetGarrison()->Leave();
     }
 };
 
