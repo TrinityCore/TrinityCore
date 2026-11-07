@@ -27,6 +27,7 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "G3DPosition.hpp"
 #include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -134,7 +135,7 @@ enum DruidSpells
     SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
     SPELL_DRUID_NEW_MOON                       = 274281,
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
-    SPELL_DRUID_ORBITAL_STRIKE_TALENT          = 390378,
+    SPELL_DRUID_ORBITAL_STRIKE_AREATRIGGER     = 390381,
     SPELL_DRUID_ORBITAL_STRIKE_DAMAGE          = 361237,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
@@ -1889,27 +1890,77 @@ class spell_dru_omen_of_clarity_restoration : public AuraScript
 // 390414 - Incarnation: Chosen of Elune
 class spell_dru_orbital_strike : public SpellScript
 {
+public:
+    struct Data
+    {
+        Position Dest;
+    };
+
+private:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ORBITAL_STRIKE_TALENT, SPELL_DRUID_ORBITAL_STRIKE_DAMAGE });
+        return ValidateSpellInfo({ SPELL_DRUID_ORBITAL_STRIKE_AREATRIGGER, SPELL_DRUID_ORBITAL_STRIKE_DAMAGE });
     }
 
-    bool Load() override
+    void HandleDamage(SpellEffIndex /*effIndex*/) const
     {
-        return GetCaster()->HasAura(SPELL_DRUID_ORBITAL_STRIKE_TALENT);
-    }
-
-    void HandleDamage(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, CastSpellExtraArgs()
-            .SetTriggeringSpell(GetSpell())
-            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD));
+        GetCaster()->CastSpell(GetCaster(), SPELL_DRUID_ORBITAL_STRIKE_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .CustomArg = Data{ .Dest = static_cast<Position>(*GetHitDest()) }
+        });
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_orbital_strike::HandleDamage, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_dru_orbital_strike::HandleDamage, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
     }
+};
+
+// 390381 - Celestial Alignment
+struct at_dru_orbital_strike : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* creatingSpell) override
+    {
+        if (!creatingSpell)
+            return;
+
+        spell_dru_orbital_strike::Data const* data = std::any_cast<spell_dru_orbital_strike::Data>(&creatingSpell->m_customArg);
+        if (!data)
+            return;
+
+        std::array<G3D::Vector3, 2> path =
+        {
+            PositionToVector3(*at),
+            PositionToVector3(data->Dest)
+        };
+        at->InitSplines(path);
+
+        _scheduler.Schedule(0ms, [this](TaskContext& context)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                });
+
+            context.Repeat(133ms); // areatrigger travels with speed 45, cast spell every 6 yards
+        });
+    }
+
+    void OnDestinationReached() override
+    {
+        at->Remove();
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 361237 - Orbital Strike
@@ -1920,7 +1971,7 @@ class spell_dru_orbital_strike_damage : public SpellScript
         return ValidateSpellInfo({ SPELL_DRUID_STELLAR_FLARE });
     }
 
-    void HandleStellarFlare(SpellEffIndex /*effIndex*/)
+    void HandleStellarFlare(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_STELLAR_FLARE, CastSpellExtraArgs()
             .SetTriggeringSpell(GetSpell())
@@ -3222,6 +3273,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_orbital_strike);
+    RegisterAreaTriggerAI(at_dru_orbital_strike);
     RegisterSpellScript(spell_dru_orbital_strike_damage);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
