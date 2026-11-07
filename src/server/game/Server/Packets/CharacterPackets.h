@@ -28,6 +28,14 @@ namespace WorldPackets
 {
     namespace Character
     {
+        class EnumCharacters final : public ClientPacket
+        {
+        public:
+            explicit EnumCharacters(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_ENUM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         struct CharacterCreateInfo
         {
             /// User specified variables
@@ -223,7 +231,7 @@ namespace WorldPackets
         class ShowingCloak final : public ClientPacket
         {
         public:
-            ShowingCloak(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_CLOAK, std::move(packet)) { }
+            explicit ShowingCloak(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_CLOAK, std::move(packet)) { }
 
             void Read() override;
 
@@ -233,7 +241,7 @@ namespace WorldPackets
         class ShowingHelm final : public ClientPacket
         {
         public:
-            ShowingHelm(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_HELM, std::move(packet)) { }
+            explicit ShowingHelm(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_HELM, std::move(packet)) { }
 
             void Read() override;
 
@@ -243,7 +251,7 @@ namespace WorldPackets
         class LoginVerifyWorld final : public ServerPacket
         {
         public:
-            LoginVerifyWorld() : ServerPacket(SMSG_LOGIN_VERIFY_WORLD, 4 + 4 * 4) { }
+            explicit LoginVerifyWorld() : ServerPacket(SMSG_LOGIN_VERIFY_WORLD, 4 + 4 * 4) { }
 
             WorldPacket const* Write() override;
 
@@ -254,7 +262,7 @@ namespace WorldPackets
         class LogoutRequest final : public ClientPacket
         {
         public:
-            LogoutRequest(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit LogoutRequest(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override { }
         };
@@ -262,7 +270,7 @@ namespace WorldPackets
         class LogoutResponse final : public ServerPacket
         {
         public:
-            LogoutResponse() : ServerPacket(SMSG_LOGOUT_RESPONSE, 4 + 1) { }
+            explicit LogoutResponse() : ServerPacket(SMSG_LOGOUT_RESPONSE, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -273,7 +281,7 @@ namespace WorldPackets
         class LogoutComplete final : public ServerPacket
         {
         public:
-            LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 0) { }
+            explicit LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -281,7 +289,7 @@ namespace WorldPackets
         class LogoutCancel final : public ClientPacket
         {
         public:
-            LogoutCancel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit LogoutCancel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override { }
         };
@@ -289,7 +297,7 @@ namespace WorldPackets
         class LogoutCancelAck final : public ServerPacket
         {
         public:
-            LogoutCancelAck() : ServerPacket(SMSG_LOGOUT_CANCEL_ACK, 0) { }
+            explicit LogoutCancelAck() : ServerPacket(SMSG_LOGOUT_CANCEL_ACK, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -297,15 +305,25 @@ namespace WorldPackets
         class PlayerLogout final : public ClientPacket
         {
         public:
-            PlayerLogout(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit PlayerLogout(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class SetActionBarToggles final : public ClientPacket
+        {
+        public:
+            explicit SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIONBAR_TOGGLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Mask = 0;
         };
 
         class PlayedTimeClient final : public ClientPacket
         {
         public:
-            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+            explicit PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
 
             void Read() override;
 
@@ -315,13 +333,23 @@ namespace WorldPackets
         class PlayedTime final : public ServerPacket
         {
         public:
-            PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
+            explicit PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
 
             WorldPacket const* Write() override;
 
             uint32 TotalTime = 0;
             uint32 LevelTime = 0;
             bool TriggerScriptEvent = false;
+        };
+
+        class SetTitle final : public ClientPacket
+        {
+        public:
+            explicit SetTitle(WorldPacket&& packet) : ClientPacket(CMSG_SET_TITLE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TitleID = 0;
         };
     }
 }

@@ -26,7 +26,6 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IPLocation.h"
-#include "IoContext.h"
 #include "IpBanCheckConnectionInitializer.h"
 #include "Log.h"
 #include "RealmList.h"
@@ -36,7 +35,6 @@
 #include <boost/endian/arithmetic.hpp>
 #include <boost/lexical_cast.hpp>
 
-using boost::asio::ip::tcp;
 using boost::endian::little_uint16_t;
 using boost::endian::little_uint32_t;
 
@@ -72,9 +70,9 @@ typedef struct AUTH_LOGON_CHALLENGE_C
     little_uint32_t timezone_bias;
     little_uint32_t ip;
     uint8   I_len;
-    char    I[1];
+    std::string_view GetLogin() const { return { reinterpret_cast<char const*>(this + 1), I_len }; }
 } sAuthLogonChallenge_C;
-static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4 + 4 + 4 + 1 + 1));
+static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4 + 4 + 4 + 1));
 
 typedef struct AUTH_LOGON_PROOF_C
 {
@@ -118,9 +116,9 @@ static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
 
 #pragma pack(pop)
 
-std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
+static constexpr std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
 
-#define MAX_ACCEPTED_CHALLENGE_SIZE (sizeof(AUTH_LOGON_CHALLENGE_C) + 16)
+#define MAX_ACCEPTED_CHALLENGE_SIZE (sizeof(AUTH_LOGON_CHALLENGE_C) + 255)
 
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
@@ -296,10 +294,10 @@ bool AuthSession::HandleLogonChallenge()
     _status = STATUS_CLOSED;
 
     sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
-    if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
+    if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE) != challenge->I_len)
         return false;
 
-    std::string_view login(challenge->I, challenge->I_len);
+    std::string_view login = challenge->GetLogin();
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] '{}'", login);
 
     _build = challenge->build;
@@ -627,10 +625,10 @@ bool AuthSession::HandleReconnectChallenge()
     _status = STATUS_CLOSED;
 
     sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
-    if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
+    if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE) != challenge->I_len)
         return false;
 
-    std::string_view login(challenge->I, challenge->I_len);
+    std::string_view login = challenge->GetLogin();
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] '{}'", login);
 
     _build = challenge->build;

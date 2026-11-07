@@ -78,7 +78,7 @@ namespace WorldPackets
         class MailGetList final : public ClientPacket
         {
         public:
-            MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_GET_MAIL_LIST, std::move(packet)) { }
+            explicit MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_GET_MAIL_LIST, std::move(packet)) { }
 
             void Read() override;
 
@@ -88,7 +88,7 @@ namespace WorldPackets
         class MailListResult final : public ServerPacket
         {
         public:
-            MailListResult();
+            explicit MailListResult();
 
             WorldPacket const* Write() override;
 
@@ -104,7 +104,7 @@ namespace WorldPackets
         class MailCreateTextItem final : public ClientPacket
         {
         public:
-            MailCreateTextItem(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_CREATE_TEXT_ITEM, std::move(packet)) { }
+            explicit MailCreateTextItem(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_CREATE_TEXT_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -131,10 +131,10 @@ namespace WorldPackets
                 std::string Target;
                 String<255, Strings::NoHyperlinks> Subject;
                 String<7999, Strings::NoHyperlinks> Body;
-                Array<MailAttachment, MAX_MAIL_ITEMS> Attachments;
+                std::vector<MailAttachment> Attachments;
             };
 
-            SendMail(WorldPacket&& packet) : ClientPacket(CMSG_SEND_MAIL, std::move(packet)) { }
+            explicit SendMail(WorldPacket&& packet) : ClientPacket(CMSG_SEND_MAIL, std::move(packet)) { }
 
             void Read() override;
 
@@ -144,7 +144,7 @@ namespace WorldPackets
         class MailCommandResult final : public ServerPacket
         {
         public:
-            MailCommandResult() : ServerPacket(SMSG_SEND_MAIL_RESULT) { }
+            explicit MailCommandResult() : ServerPacket(SMSG_SEND_MAIL_RESULT) { }
 
             WorldPacket const* Write() override;
 
@@ -159,7 +159,7 @@ namespace WorldPackets
         class MailReturnToSender final : public ClientPacket
         {
         public:
-            MailReturnToSender(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_RETURN_TO_SENDER, std::move(packet)) { }
+            explicit MailReturnToSender(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_RETURN_TO_SENDER, std::move(packet)) { }
 
             void Read() override;
 
@@ -171,7 +171,7 @@ namespace WorldPackets
         class MailMarkAsRead final : public ClientPacket
         {
         public:
-            MailMarkAsRead(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_MARK_AS_READ, std::move(packet)) { }
+            explicit MailMarkAsRead(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_MARK_AS_READ, std::move(packet)) { }
 
             void Read() override;
 
@@ -182,7 +182,7 @@ namespace WorldPackets
         class MailDelete final : public ClientPacket
         {
         public:
-            MailDelete(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_DELETE, std::move(packet)) { }
+            explicit MailDelete(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_DELETE, std::move(packet)) { }
 
             void Read() override;
 
@@ -194,7 +194,7 @@ namespace WorldPackets
         class MailTakeItem final : public ClientPacket
         {
         public:
-            MailTakeItem(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_TAKE_ITEM, std::move(packet)) { }
+            explicit MailTakeItem(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_TAKE_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -206,7 +206,7 @@ namespace WorldPackets
         class MailTakeMoney final : public ClientPacket
         {
         public:
-            MailTakeMoney(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_TAKE_MONEY, std::move(packet)) { }
+            explicit MailTakeMoney(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_TAKE_MONEY, std::move(packet)) { }
 
             void Read() override;
 
@@ -217,7 +217,7 @@ namespace WorldPackets
         class MailQueryNextMailTime final : public ClientPacket
         {
         public:
-            MailQueryNextMailTime(WorldPacket&& packet) : ClientPacket(MSG_QUERY_NEXT_MAIL_TIME, std::move(packet)) { }
+            explicit MailQueryNextMailTime(WorldPacket&& packet) : ClientPacket(MSG_QUERY_NEXT_MAIL_TIME, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -236,7 +236,7 @@ namespace WorldPackets
                 int32 StationeryID = 0;
             };
 
-            MailQueryNextTimeResult() : ServerPacket(MSG_QUERY_NEXT_MAIL_TIME, 8) { }
+            explicit MailQueryNextTimeResult() : ServerPacket(MSG_QUERY_NEXT_MAIL_TIME, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -247,7 +247,7 @@ namespace WorldPackets
         class NotifyReceivedMail : ServerPacket
         {
         public:
-            NotifyReceivedMail() : ServerPacket(SMSG_RECEIVED_MAIL, 4) { }
+            explicit NotifyReceivedMail() : ServerPacket(SMSG_RECEIVED_MAIL, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -257,7 +257,7 @@ namespace WorldPackets
         class ShowMailbox final : public ServerPacket
         {
         public:
-            ShowMailbox() : ServerPacket(SMSG_SHOW_MAILBOX, 16) { }
+            explicit ShowMailbox() : ServerPacket(SMSG_SHOW_MAILBOX, 16) { }
 
             WorldPacket const* Write() override;
 

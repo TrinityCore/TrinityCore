@@ -28,7 +28,7 @@ namespace WorldPackets
         class TotemDestroyed final : public ClientPacket
         {
         public:
-            TotemDestroyed(WorldPacket&& packet) : ClientPacket(CMSG_TOTEM_DESTROYED, std::move(packet)) { }
+            explicit TotemDestroyed(WorldPacket&& packet) : ClientPacket(CMSG_TOTEM_DESTROYED, std::move(packet)) { }
 
             void Read() override;
 
@@ -38,7 +38,7 @@ namespace WorldPackets
         class TotemCreated final : public ServerPacket
         {
         public:
-            TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
+            explicit TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

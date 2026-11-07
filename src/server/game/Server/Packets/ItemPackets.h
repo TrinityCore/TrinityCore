@@ -26,6 +26,115 @@ namespace WorldPackets
 {
     namespace Item
     {
+        class BuyBackItem final : public ClientPacket
+        {
+        public:
+            explicit BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Slot = 0;
+        };
+
+        class BuyItem final : public ClientPacket
+        {
+        public:
+            explicit BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            uint32 ItemID = 0u;
+            uint32 Muid = 0u;
+            int32 Quantity = 0;
+        };
+
+        class BuyItemInSlot final : public ClientPacket
+        {
+        public:
+            explicit BuyItemInSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM_IN_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            uint32 ItemID = 0u;
+            uint32 Muid = 0u;
+            uint8 Slot = 0u;
+            int32 Quantity = 0;
+            ObjectGuid ContainerGUID;
+        };
+
+        class BuySucceeded final : ServerPacket
+        {
+        public:
+            explicit BuySucceeded() : ServerPacket(SMSG_BUY_ITEM, 8 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            uint32 QuantityBought = 0u;
+            int32 NewQuantity = 0;
+        };
+
+        class BuyFailed final : ServerPacket
+        {
+        public:
+            explicit BuyFailed() : ServerPacket(SMSG_BUY_FAILED, 8 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            BuyResult Reason = BUY_ERR_CANT_FIND_ITEM;
+        };
+
+        class GetItemPurchaseData final : public ClientPacket
+        {
+        public:
+            explicit GetItemPurchaseData(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGUID;
+        };
+
+        class RepairItem final : public ClientPacket
+        {
+        public:
+            explicit RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            ObjectGuid ItemGUID;
+            bool UseGuildBank = false;
+        };
+
+        class SellItem final : public ClientPacket
+        {
+        public:
+            explicit SellItem(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            ObjectGuid ItemGUID;
+            uint32 Amount = 0;
+        };
+
+        class ItemTimeUpdate final : public ServerPacket
+        {
+        public:
+            explicit ItemTimeUpdate() : ServerPacket(SMSG_ITEM_TIME_UPDATE, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGuid;
+            uint32 DurationLeft = 0;
+        };
+
         class SetProficiency final : public ServerPacket
         {
         public:
@@ -103,6 +212,18 @@ namespace WorldPackets
             uint8 PackSlot = 0;
         };
 
+        class AutoStoreBagItem final : public ClientPacket
+        {
+        public:
+            explicit AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BAG_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 ContainerSlotB = 0;
+            uint8 ContainerSlotA = 0;
+            uint8 SlotA = 0;
+        };
+
         class DestroyItem final : public ClientPacket
         {
         public:
@@ -113,6 +234,18 @@ namespace WorldPackets
             uint32 Count = 0;
             uint8 SlotNum = 0;
             uint8 ContainerId = 0;
+        };
+
+        class SellResponse final : public ServerPacket
+        {
+        public:
+            explicit SellResponse() : ServerPacket(SMSG_SELL_ITEM, 8 + 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            ObjectGuid ItemGUID;
+            SellResult Reason = SELL_ERR_UNK;
         };
     }
 }

@@ -17,11 +17,14 @@
 
 /*
  * Timers requires to be revisited
- * Is Dark Shell cast really delayed?
+ * Is Dark Shell cast really delayed? Currently we have to delay it to not interrupt Void Blast sequence
+ * Spell 32326 is NYI. Not sure what it does. Don't know if it is used or not
  */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "mana_tombs.h"
@@ -37,40 +40,35 @@ enum PandemoniusTexts
 enum PandemoniusSpells
 {
     SPELL_VOID_BLAST          = 32325,
-    SPELL_VOID_BLAST_SCRIPT   = 32326,    // NYI. Is it used? What it does?
     SPELL_DARK_SHELL          = 32358
 };
 
 enum PandemoniusEvents
 {
     EVENT_VOID_BLAST          = 1,
-    EVENT_DARK_SHELL
-};
+    EVENT_DARK_SHELL,
 
-uint32 constexpr DARK_SHELL_EVENT_GROUP = 1;
+    DARK_SHELL_EVENT_GROUP
+};
 
 // 18341 - Pandemonius
 struct boss_pandemonius : public BossAI
 {
-    boss_pandemonius(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS), _voidBlastCounter(0) { }
-
-    void Reset() override
-    {
-        _Reset();
-        _voidBlastCounter = 0;
-    }
+    boss_pandemonius(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_DARK_SHELL, 20s, DARK_SHELL_EVENT_GROUP);
-        events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);
+
+        events.ScheduleEvent(EVENT_VOID_BLAST, 10s, 25s);
+        events.ScheduleEvent(EVENT_DARK_SHELL, 15s, 20s, DARK_SHELL_EVENT_GROUP);
     }
 
-    void OnSpellStart(SpellInfo const* spell) override
+    void OnSpellStart(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_SHELL, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_SHELL, me))
             Talk(EMOTE_DARK_SHELL);
     }
 
@@ -81,8 +79,8 @@ struct boss_pandemonius : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        Talk(SAY_DEATH);
         _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -90,37 +88,52 @@ struct boss_pandemonius : public BossAI
         switch (eventId)
         {
             case EVENT_VOID_BLAST:
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
-                {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f))
                     DoCast(target, SPELL_VOID_BLAST);
-                    ++_voidBlastCounter;
-                }
-
-                if (_voidBlastCounter == 5)
-                {
-                    _voidBlastCounter = 0;
-                    events.ScheduleEvent(EVENT_VOID_BLAST, 15s, 25s);
-                }
-                else
-                {
-                    events.ScheduleEvent(EVENT_VOID_BLAST, 500ms);
-                    events.DelayEvents(500ms, DARK_SHELL_EVENT_GROUP);
-                }
+                events.Repeat(25s, 35s);
+                events.DelayEvents(2500ms, DARK_SHELL_EVENT_GROUP);
                 break;
             case EVENT_DARK_SHELL:
                 DoCastSelf(SPELL_DARK_SHELL);
-                events.ScheduleEvent(EVENT_DARK_SHELL, 20s, DARK_SHELL_EVENT_GROUP);
+                events.Repeat(20s, 30s);
                 break;
             default:
                 break;
         }
     }
+};
 
-private:
-    uint32 _voidBlastCounter;
+// 32325, 38760 - Void Blast
+class spell_pandemonius_void_blast : public SpellScript
+{
+    PrepareSpellScript(spell_pandemonius_void_blast);
+
+    void TriggerNext()
+    {
+        int32 castIndex = GetCastIndex();
+        if (castIndex >= 4)
+            return;
+
+        if (Creature* caster = GetCaster()->ToCreature())
+            if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f))
+                caster->CastSpell(target, GetSpellInfo()->Id, CastSpellExtraArgs()
+                    .AddSpellMod(SPELLVALUE_BASE_POINT2, castIndex + 1));
+    }
+
+    int32 GetCastIndex() const
+    {
+        // We are storing number of casts in a non-effect SPELLVALUE_BASE_POINT2
+        return GetSpellValue()->EffectBasePoints[EFFECT_2];
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pandemonius_void_blast::TriggerNext);
+    }
 };
 
 void AddSC_boss_pandemonius()
 {
     RegisterManaTombsCreatureAI(boss_pandemonius);
+    RegisterSpellScript(spell_pandemonius_void_blast);
 }

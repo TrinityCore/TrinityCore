@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
-#include "Spell.h"
-#include "SpellScript.h"
-#include "SpellInfo.h"
 #include "auchenai_crypts.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum ShirrakTexts
 {
@@ -29,18 +33,19 @@ enum ShirrakTexts
 
 enum ShirrakSpells
 {
-    SPELL_INHIBIT_MAGIC            = 33460,
-
+    // Shirrak
     SPELL_ATTRACT_MAGIC            = 32265,
     SPELL_CARNIVOROUS_BITE         = 36383,
     SPELL_FOCUS_FIRE_AURA          = 32291,
 
+    // Focus Fire
     SPELL_BIRTH                    = 26262,
     SPELL_FOCUS_TARGET_VISUAL      = 32286,
+    SPELL_PING_SHIRRAK             = 32301,
     SPELL_FIERY_BLAST              = 32302,
 
-    SPELL_FOCUS_FIRE_DUMMY         = 32300,
-    SPELL_PING_SHIRRAK             = 32301
+    // Scripts
+    SPELL_FOCUS_FIRE_DUMMY         = 32300
 };
 
 enum ShirrakEvents
@@ -55,17 +60,11 @@ struct boss_shirrak_the_dead_watcher : public BossAI
 {
     boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER) { }
 
-    void Reset() override
-    {
-        DoCastSelf(SPELL_INHIBIT_MAGIC);
-        _Reset();
-    }
-
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
 
-        events.ScheduleEvent(EVENT_ATTRACT_MAGIC, 30s);
+        events.ScheduleEvent(EVENT_ATTRACT_MAGIC, 20s, 30s);
         events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, 5s, 10s);
         events.ScheduleEvent(EVENT_FOCUS_FIRE, 20s, 30s);
     }
@@ -86,18 +85,15 @@ struct boss_shirrak_the_dead_watcher : public BossAI
             {
                 case EVENT_ATTRACT_MAGIC:
                     DoCastSelf(SPELL_ATTRACT_MAGIC);
-                    events.Repeat(30s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_CARNIVOROUS_BITE:
                     DoCastSelf(SPELL_CARNIVOROUS_BITE);
                     events.Repeat(5s, 10s);
                     break;
                 case EVENT_FOCUS_FIRE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 50, true))
-                    {
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 50.0f, true))
                         DoCast(target, SPELL_FOCUS_FIRE_AURA);
-                        Talk(EMOTE_FOCUSED, target);
-                    }
                     events.Repeat(15s, 25s);
                     break;
                 default:
@@ -115,7 +111,7 @@ struct boss_shirrak_the_dead_watcher : public BossAI
 // 18374 - Focus Fire
 struct npc_focus_fire : public ScriptedAI
 {
-    npc_focus_fire(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void InitializeAI() override
     {
@@ -158,6 +154,23 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 32291 - Focus Fire
+class spell_shirrak_focus_fire : public SpellScript
+{
+    PrepareSpellScript(spell_shirrak_focus_fire);
+
+    void HandleAfterHit()
+    {
+        if (Creature* creature = GetCaster()->ToCreature())
+            creature->AI()->Talk(EMOTE_FOCUSED, GetHitUnit());
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_shirrak_focus_fire::HandleAfterHit);
+    }
+};
+
 // 32301 - Ping Shirrak
 class spell_shirrak_ping_shirrak : public SpellScript
 {
@@ -170,7 +183,7 @@ class spell_shirrak_ping_shirrak : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_FOCUS_FIRE_DUMMY);
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_FOCUS_FIRE_DUMMY, true);
     }
 
     void Register() override
@@ -222,6 +235,7 @@ void AddSC_boss_shirrak_the_dead_watcher()
 {
     RegisterAuchenaiCryptsCreatureAI(boss_shirrak_the_dead_watcher);
     RegisterAuchenaiCryptsCreatureAI(npc_focus_fire);
+    RegisterSpellScript(spell_shirrak_focus_fire);
     RegisterSpellScript(spell_shirrak_ping_shirrak);
     RegisterSpellScript(spell_shirrak_inhibit_magic);
 }

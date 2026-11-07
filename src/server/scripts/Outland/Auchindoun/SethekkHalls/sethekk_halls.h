@@ -23,7 +23,7 @@
 #define SHScriptName "instance_sethekk_halls"
 #define DataHeader "SH"
 
-uint32 const EncounterCount             = 3;
+uint32 constexpr EncounterCount         = 3;
 
 enum SHDataTypes
 {

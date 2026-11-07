@@ -19,14 +19,12 @@
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "WorldPacket.h"
 
 SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH));
 SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelayCheck = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH / 2));
@@ -341,9 +339,11 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         {
             if (Player* playerOwner = GetPlayerOwner())
             {
-                WorldPacket spellCooldown;
-                BuildCooldownPacket(spellCooldown, SPELL_COOLDOWN_FLAG_NONE, spellInfo->Id, cooldown);
-                playerOwner->SendDirectMessage(&spellCooldown);
+                WorldPackets::Spells::SpellCooldown spellCooldown;
+                spellCooldown.Caster = _owner->GetGUID();
+                spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+                spellCooldown.SpellCooldowns.emplace_back(spellInfo->Id, uint32(cooldown));
+                playerOwner->SendDirectMessage(spellCooldown.Write());
             }
         }
     }
@@ -360,19 +360,13 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         auto categoryItr = _categoryCooldowns.find(category);
         if (categoryItr != _categoryCooldowns.end() && categoryItr->second->SpellId != spellInfo->Id)
         {
-            WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-            data << uint32(categoryItr->second->SpellId);
-            data << _owner->GetGUID();
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(_owner->GetGUID(), categoryItr->second->SpellId).Write());
 
             if (startCooldown)
                 StartCooldown(sSpellMgr->AssertSpellInfo(categoryItr->second->SpellId), itemId, spell);
         }
 
-        WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-        data << uint32(spellInfo->Id);
-        data << _owner->GetGUID();
-        player->SendDirectMessage(&data);
+        player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(_owner->GetGUID(), spellInfo->Id).Write());
     }
 
     // start cooldowns at server side, if any
@@ -409,11 +403,11 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
 
     if (Player* playerOwner = GetPlayerOwner())
     {
-        WorldPacket modifyCooldown(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
-        modifyCooldown << uint32(spellId);
-        modifyCooldown << _owner->GetGUID();
-        modifyCooldown << int32(cooldownModMs);
-        playerOwner->SendDirectMessage(&modifyCooldown);
+        WorldPackets::Spells::ModifyCooldown modifyCooldown;
+        modifyCooldown.SpellID = spellId;
+        modifyCooldown.CasterGUID = _owner->GetGUID();
+        modifyCooldown.DeltaTime = cooldownModMs;
+        playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 }
 
@@ -432,10 +426,10 @@ void SpellHistory::ResetCooldown(CooldownStorageType::iterator& itr, bool update
     {
         if (Player* playerOwner = GetPlayerOwner())
         {
-            WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
-            data << uint32(itr->first);
-            data << _owner->GetGUID();
-            playerOwner->SendDirectMessage(&data);
+            WorldPackets::Spells::ClearCooldown clearCooldown;
+            clearCooldown.SpellID = itr->first;
+            clearCooldown.CasterGUID = _owner->GetGUID();
+            playerOwner->SendDirectMessage(clearCooldown.Write());
         }
     }
 
@@ -477,6 +471,13 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
 bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
     return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
+}
+
+bool SpellHistory::HasCooldownOnHold(uint32 spellId) const
+{
+    // TODO: Delete this function and make SpellHistory::IsReady return enum with reason instead of bool
+    auto itr = _spellCooldowns.find(spellId);
+    return itr != _spellCooldowns.end() && itr->second.OnHold;
 }
 
 uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
@@ -531,8 +532,9 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
                 knownSpells.insert(creatureOwner->m_spells[i]);
     }
 
-    PacketCooldowns cooldowns;
-    WorldPacket spellCooldowns;
+    WorldPackets::Spells::SpellCooldown spellCooldown;
+    spellCooldown.Caster = _owner->GetGUID();
+    spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
     for (uint32 spellId : knownSpells)
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(spellId);
@@ -544,19 +546,14 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
 
         if ((schoolMask & spellInfo->GetSchoolMask()) && GetRemainingCooldown(spellInfo) < lockoutTime)
         {
-            cooldowns[spellId] = lockoutTime;
+            spellCooldown.SpellCooldowns.emplace_back(spellId, lockoutTime);
             AddCooldown(spellId, 0, lockoutEnd, 0, now);
         }
     }
 
     if (Player* player = GetPlayerOwner())
-    {
-        if (!cooldowns.empty())
-        {
-            BuildCooldownPacket(spellCooldowns, SPELL_COOLDOWN_FLAG_NONE, cooldowns);
-            player->SendDirectMessage(&spellCooldowns);
-        }
-    }
+        if (!spellCooldown.SpellCooldowns.empty())
+            player->SendDirectMessage(spellCooldown.Write());
 }
 
 bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
@@ -597,32 +594,11 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
     {
         for (int32 spell : cooldowns)
         {
-            WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
-            data << uint32(spell);
-            data << _owner->GetGUID();
-            playerOwner->SendDirectMessage(&data);
+            WorldPackets::Spells::ClearCooldown clearCooldown;
+            clearCooldown.SpellID = spell;
+            clearCooldown.CasterGUID = _owner->GetGUID();
+            playerOwner->SendDirectMessage(clearCooldown.Write());
         }
-    }
-}
-
-void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const
-{
-    data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + 4 + 4);
-    data << _owner->GetGUID();
-    data << uint8(flags);
-    data << uint32(spellId);
-    data << uint32(cooldown);
-}
-
-void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns) const
-{
-    data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + (4 + 4) * cooldowns.size());
-    data << _owner->GetGUID();
-    data << uint8(flags);
-    for (auto const& cooldown : cooldowns)
-    {
-        data << cooldown.first;
-        data << cooldown.second;
     }
 }
 
@@ -696,7 +672,9 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         }
 
         // update the client: restore old cooldowns
-        PacketCooldowns cooldowns;
+        WorldPackets::Spells::SpellCooldown spellCooldown;
+        spellCooldown.Caster = _owner->GetGUID();
+        spellCooldown.Flags = SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS;
 
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
         {
@@ -707,12 +685,10 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
             if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || itr->second.OnHold)
                 continue;
 
-            cooldowns[itr->first] = cooldownDuration;
+            spellCooldown.SpellCooldowns.emplace_back(itr->first, cooldownDuration);
         }
 
-        WorldPacket data;
-        BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS, cooldowns);
-        player->SendDirectMessage(&data);
+        player->SendDirectMessage(spellCooldown.Write());
     }
 }
 

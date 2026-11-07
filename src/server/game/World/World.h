@@ -178,6 +178,7 @@ enum WorldBoolConfigs : uint32
     CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
     CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
     CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE,
+    CONFIG_EXTENDED_ACCOUNT_NAME_LENGTH_LIMIT,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -579,9 +580,9 @@ class TC_GAME_API World
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
         SessionMap const& GetAllSessions() const { return m_sessions; }
-        uint32 GetActiveAndQueuedSessionCount() const { return m_sessions.size(); }
-        uint32 GetActiveSessionCount() const { return m_sessions.size() - m_QueuedPlayer.size(); }
-        uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+        uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size()); }
+        uint32 GetActiveSessionCount() const { return uint32(m_sessions.size() - m_QueuedPlayer.size()); }
+        uint32 GetQueuedSessionCount() const { return uint32(m_QueuedPlayer.size()); }
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
         uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount; }

@@ -169,30 +169,30 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
 
                 switch (talkWing)
                 {
-                case 0: // Pinnacle of Naxxramas
+                    case 0: // Pinnacle of Naxxramas
                     {
-                        switch (urand (0, 1))
+                        switch (urand(0, 1))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_KELTHUZAD, MODEL_IMAGE_OF_KELTHUZAD, SAY_KELTHUZAD_1);
-                                    _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
+                                _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_SAPPHIRON, MODEL_IMAGE_OF_SAPPHIRON, SAY_SAPPHIRON); break;
                         }
                     }
                     break;
-                case 1: // Death knight wing of Naxxramas
+                    case 1: // Death knight wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_RAZUVIOUS, MODEL_IMAGE_OF_RAZUVIOUS, SAY_RAZUVIOUS); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_GOTHIK, MODEL_IMAGE_OF_GOTHIK, SAY_GOTHIK); break;
                             case 2: ChangeImage(NPC_IMAGE_OF_THANE, MODEL_IMAGE_OF_THANE, SAY_DEATH_KNIGHTS_1);
-                                    _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
+                                _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
                         }
                     }
                     break;
-                case 2: // Blighted abomination wing of Naxxramas
+                    case 2: // Blighted abomination wing of Naxxramas
                     {
-                        switch (urand (0, 3))
+                        switch (urand(0, 3))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_PATCHWERK, MODEL_IMAGE_OF_PATCHWERK, SAY_PATCHWERK); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_GROBBULUS, MODEL_IMAGE_OF_GROBBULUS, SAY_GROBBULUS); break;
@@ -201,9 +201,9 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                         }
                     }
                     break;
-                case 3: // Accursed spider wing of Naxxramas
+                    case 3: // Accursed spider wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_ANUBREKHAN, MODEL_IMAGE_OF_ANUBREKHAN, SAY_ANUBREKHAN); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_FAERLINA, MODEL_IMAGE_OF_FAERLINA, SAY_FAERLINA); break;
@@ -211,20 +211,20 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                         }
                     }
                     break;
-                case 4: // Dread plague wing of Naxxramas
+                    case 4: // Dread plague wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_NOTH, MODEL_IMAGE_OF_NOTH, SAY_NOTH); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_HEIGAN, MODEL_IMAGE_OF_HEIGAN, SAY_HEIGAN_1);
-                                    _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
+                                _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
                             case 2: ChangeImage(NPC_IMAGE_OF_LOATHEB, MODEL_IMAGE_OF_LOATHEB, SAY_LOATHEB); break;
                         }
                     }
                     break;
-                case 5: // Home
-                    _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
-                    break;
+                    case 5: // Home
+                        _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
+                        break;
                 }
             }
         }

@@ -15,15 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "BankPackets.h"
 #include "Item.h"
 #include "DBCStores.h"
 #include "Log.h"
 #include "NPCPackets.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 
 bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
 {
@@ -120,7 +118,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
         if (Item const* storedItem = _player->StoreItem(dest, item, true))
             _player->ItemAddedQuestCheck(storedItem->GetEntry(), storedItem->GetCount());
     }
-    else                                                    // moving from inventory to bank
+    else                                                                // moving from inventory to bank
     {
         ItemPosCountVec dest;
         InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
@@ -183,6 +181,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyB
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     m_currentBankerGUID = guid;
+
     WorldPackets::Bank::ShowBank packet;
     packet.Banker = guid;
     SendPacket(packet.Write());

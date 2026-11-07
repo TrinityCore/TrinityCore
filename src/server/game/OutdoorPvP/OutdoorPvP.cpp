@@ -534,21 +534,6 @@ bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, Creature* /*guid*/, uint32 /*id*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::CanTalkTo(Player* /*player*/, Creature* /*c*/, GossipMenuItems const& /*gso*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 /*id*/)
-{
-    return false;
-}
-
 int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, GameObject* go)
 {
     std::map<ObjectGuid::LowType, uint32>::iterator itr = m_ObjectTypes.find(go->GetSpawnId());
@@ -558,18 +543,32 @@ int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, GameObject* go)
     return -1;
 }
 
-bool OutdoorPvP::HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/)
-{
-    return false;
-}
-
-void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
+void OutdoorPvP::BroadcastPacket(WorldPacket const* data) const
 {
     // This is faster than sWorld->SendZoneMessage
     for (uint32 team = 0; team < PVP_TEAMS_COUNT; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* const player = ObjectAccessor::FindPlayer(*itr))
-                player->SendDirectMessage(&data);
+                player->SendDirectMessage(data);
+}
+
+void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
+{
+    OPvPCapturePointMap::iterator i = m_capturePoints.find(cp->m_capturePointSpawnId);
+    if (i != m_capturePoints.end())
+    {
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint {} already exists!", cp->m_capturePointSpawnId);
+        delete i->second;
+    }
+    m_capturePoints[cp->m_capturePointSpawnId] = cp;
+}
+
+OPvPCapturePoint* OutdoorPvP::GetCapturePoint(ObjectGuid::LowType guid) const
+{
+    OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(guid);
+    if (itr != m_capturePoints.end())
+        return itr->second;
+    return nullptr;
 }
 
 void OutdoorPvP::RegisterZone(uint32 zoneId)

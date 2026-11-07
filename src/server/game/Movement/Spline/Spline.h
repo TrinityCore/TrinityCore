@@ -112,9 +112,9 @@ public:
     EvaluationMode mode() const { return (EvaluationMode)m_mode;}
     bool isCyclic() const { return cyclic;}
 
-    ControlArray const& getPoints() const { return points;}
-    index_type getPointCount() const { return points.size();}
-    Vector3 const& getPoint(index_type i) const { return points[i];}
+    ControlArray const& getPoints() const { return points; }
+    index_type getPointCount() const { return index_type(points.size()); }
+    Vector3 const& getPoint(index_type i) const { return points[i]; }
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation);

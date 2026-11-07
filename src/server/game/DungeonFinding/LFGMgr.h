@@ -286,7 +286,7 @@ struct LFGDungeonData
 
     uint32 id;
     std::string name;
-    uint16 map;
+    uint32 map;
     uint8 type;
     uint8 expansion;
     uint8 group;

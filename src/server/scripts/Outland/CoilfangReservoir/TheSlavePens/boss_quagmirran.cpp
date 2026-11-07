@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_slave_pens.h"
@@ -43,10 +47,11 @@ struct boss_quagmirran : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_ACID_SPRAY, 25s);
-        events.ScheduleEvent(EVENT_CLEAVE, 9s);
-        events.ScheduleEvent(EVENT_UPPERCUT, 20s);
-        events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31s);
+
+        events.ScheduleEvent(EVENT_ACID_SPRAY, 20s, 35s);
+        events.ScheduleEvent(EVENT_CLEAVE, 8s, 20s);
+        events.ScheduleEvent(EVENT_UPPERCUT, 20s, 35s);
+        events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 20s, 30s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -64,21 +69,21 @@ struct boss_quagmirran : public BossAI
             switch (eventId)
             {
                 case EVENT_ACID_SPRAY:
-                    DoCastAOE(SPELL_ACID_SPRAY);
-                    events.Repeat(20s, 25s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f))
+                        DoCast(target, SPELL_ACID_SPRAY);
+                    events.Repeat(40s, 50s);
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(18s, 34s);
+                    events.Repeat(20s, 25s);
                     break;
                 case EVENT_UPPERCUT:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 10.0f, true))
-                    DoCast(target, SPELL_UPPERCUT);
-                    events.Repeat(22s);
+                    DoCastVictim(SPELL_UPPERCUT);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_POISON_BOLT_VOLLEY:
                     DoCastSelf(SPELL_POISON_BOLT_VOLLEY);
-                    events.Repeat(24s);
+                    events.Repeat(20s, 35s);
                     break;
                 default:
                     break;

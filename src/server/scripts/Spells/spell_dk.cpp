@@ -2713,7 +2713,7 @@ class spell_dk_dancing_rune_weapon : public AuraScript
         if (!caster)
             return;
 
-        std::list<Creature*> runeWeapons;
+        std::list<TempSummon*> runeWeapons;
         caster->GetAllMinionsByEntry(runeWeapons, NPC_DK_DANCING_RUNE_WEAPON);
         for (Creature* temp : runeWeapons)
         {

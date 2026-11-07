@@ -50,7 +50,7 @@ namespace WorldPackets
         class UpdateWorldState final : public ServerPacket
         {
         public:
-            UpdateWorldState() : ServerPacket(SMSG_UPDATE_WORLD_STATE, 4 + 4) { }
+            explicit UpdateWorldState() : ServerPacket(SMSG_UPDATE_WORLD_STATE, 4 + 4) { }
 
             WorldPacket const* Write() override;
 

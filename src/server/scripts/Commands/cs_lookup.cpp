@@ -648,9 +648,9 @@ public:
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
             {
-                if (questLocale->Title.size() > localeIndex && !questLocale->Title[localeIndex].empty())
+                if (questLocale->LogTitle.size() > localeIndex && !questLocale->LogTitle[localeIndex].empty())
                 {
-                    std::string const& title = questLocale->Title[localeIndex];
+                    std::string const& title = questLocale->LogTitle[localeIndex];
 
                     if (Utf8FitTo(title, wNamePart))
                     {
@@ -693,7 +693,7 @@ public:
                 }
             }
 
-            std::string const& title = questTemplatePair.second->GetTitle();
+            std::string const& title = questTemplatePair.second->GetLogTitle();
             if (title.empty())
                 continue;
 
@@ -753,7 +753,7 @@ public:
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(id))
         {
-            std::string title = quest->GetTitle();
+            std::string title = quest->GetLogTitle();
             if (title.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOQUESTFOUND);
@@ -945,7 +945,7 @@ public:
 
                     uint32 talentCost = GetTalentSpellCost(id);
 
-                    bool talent = (talentCost > 0);
+                    bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                     bool passive = spellInfo->IsPassive();
                     bool active = target && target->HasAura(id);
 
@@ -1022,7 +1022,7 @@ public:
 
             uint32 talentCost = GetTalentSpellCost(id);
 
-            bool talent = (talentCost > 0);
+            bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
             bool passive = spellInfo->IsPassive();
             bool active = target && target->HasAura(id);
 
@@ -1084,52 +1084,48 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in TaxiNodes.dbc
-        for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
+        for (TaxiNodesEntry const* nodeEntry : sTaxiNodesStore)
         {
-            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
-            if (nodeEntry)
+            uint8 locale = handler->GetSessionDbcLocale();
+            std::string name = nodeEntry->Name[locale];
+            if (name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wNamePart))
             {
-                uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = nodeEntry->Name[locale];
-                if (name.empty())
-                    continue;
-
-                if (!Utf8FitTo(name, wNamePart))
+                locale = 0;
+                for (; locale < TOTAL_LOCALES; ++locale)
                 {
-                    locale = 0;
-                    for (; locale < TOTAL_LOCALES; ++locale)
-                    {
-                        if (locale == handler->GetSessionDbcLocale())
-                            continue;
+                    if (locale == handler->GetSessionDbcLocale())
+                        continue;
 
-                        name = nodeEntry->Name[locale];
-                        if (name.empty())
-                            continue;
+                    name = nodeEntry->Name[locale];
+                    if (name.empty())
+                        continue;
 
-                        if (Utf8FitTo(name, wNamePart))
-                            break;
-                    }
+                    if (Utf8FitTo(name, wNamePart))
+                        break;
+                }
+            }
+
+            if (locale < TOTAL_LOCALES)
+            {
+                if (maxResults && count++ == maxResults)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
                 }
 
-                if (locale < TOTAL_LOCALES)
-                {
-                    if (maxResults && count++ == maxResults)
-                    {
-                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                        return true;
-                    }
+                // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
+                if (handler->GetSession())
+                    handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, nodeEntry->ID, nodeEntry->ID, name.c_str(), localeNames[locale],
+                        nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
+                else
+                    handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, nodeEntry->ID, name.c_str(), localeNames[locale],
+                        nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
 
-                    // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
-                    if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), localeNames[locale],
-                            nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
-                    else
-                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), localeNames[locale],
-                            nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
-
-                    if (!found)
-                        found = true;
-                }
+                if (!found)
+                    found = true;
             }
         }
         if (!found)

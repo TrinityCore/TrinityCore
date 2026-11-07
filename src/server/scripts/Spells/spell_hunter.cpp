@@ -1331,6 +1331,25 @@ class spell_hun_viper_attack_speed : public AuraScript
     }
 };
 
+// 3034 Viper Sting
+class spell_hun_viper_sting : public AuraScript
+{
+    PrepareAuraScript(spell_hun_viper_sting);
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        int32 pct = amount;
+        amount = CalculatePct(GetUnitOwner()->GetMaxPower(POWER_MANA), pct);
+        if (Unit const* caster = GetCaster())
+            amount = std::min(amount, CalculatePct(int32(caster->GetMaxPower(POWER_MANA)), pct * 2));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_viper_sting::CalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
+    }
+};
+
 // -19386 - Wyvern Sting
 class spell_hun_wyvern_sting : public AuraScript
 {
@@ -1400,5 +1419,6 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_thrill_of_the_hunt);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_viper_attack_speed);
+    RegisterSpellScript(spell_hun_viper_sting);
     RegisterSpellScript(spell_hun_wyvern_sting);
 }

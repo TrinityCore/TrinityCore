@@ -42,6 +42,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 
@@ -828,37 +829,6 @@ class spell_gen_chains_of_ice : public AuraScript
     }
 };
 
-enum ChaosBlast
-{
-    SPELL_CHAOS_BLAST   = 37675
-};
-
-class spell_gen_chaos_blast : public SpellScript
-{
-    PrepareSpellScript(spell_gen_chaos_blast);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_CHAOS_BLAST });
-    }
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        int32 basepoints0 = 100;
-        Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
-        {
-            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.AddSpellBP0(basepoints0);
-            caster->CastSpell(target, SPELL_CHAOS_BLAST, args);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_chaos_blast::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum ChokingVines
 {
     SPELL_CHOKING_WOUND = 35247
@@ -1603,7 +1573,7 @@ class spell_ethereal_pet_aura : public AuraScript
     {
         PreventDefaultAction();
 
-        std::list<Creature*> minionList;
+        std::list<TempSummon*> minionList;
         GetUnitOwner()->GetAllMinionsByEntry(minionList, NPC_ETHEREAL_SOUL_TRADER);
         for (Creature* minion : minionList)
         {
@@ -2242,7 +2212,6 @@ class spell_gen_lifeblood_aura : public AuraScript
 
 enum GenericLifebloom
 {
-    SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL        = 43422,
     SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
     SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
     SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
@@ -2536,6 +2505,8 @@ class spell_gen_mounted_charge : public SpellScript
                 }
                 break;
             }
+            default:
+                break;
         }
     }
 
@@ -4679,9 +4650,11 @@ class spell_gen_charmed_unit_spell_cooldown : public SpellScript
         Unit* caster = GetCaster();
         if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
-            WorldPacket data;
-            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
-            owner->SendDirectMessage(&data);
+            WorldPackets::Spells::SpellCooldown spellCooldown;
+            spellCooldown.Caster = caster->GetGUID();
+            spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+            spellCooldown.SpellCooldowns.emplace_back(GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(spellCooldown.Write());
         }
     }
 
@@ -4760,7 +4733,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_cast_target_to_target);
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_chains_of_ice);
-    RegisterSpellScript(spell_gen_chaos_blast);
     RegisterSpellScript(spell_gen_choking_vines);
     RegisterSpellScript(spell_gen_clear_fear_poly);
     RegisterSpellScript(spell_gen_clone);
@@ -4806,7 +4778,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_50", 50);     // 18670, 18945
     RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_25", 25);     // 18813, 25778
     RegisterSpellAndAuraScriptPair(spell_gen_lifeblood, spell_gen_lifeblood_aura);
-    RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);

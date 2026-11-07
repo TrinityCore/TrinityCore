@@ -205,7 +205,7 @@ public:
 
                 if (killer->GetGUID() == legoso->GetGUID() ||
                     (group && group->IsMember(killer->GetGUID())) ||
-                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
+                    killer->GetGUID() == legoso->AI()->GetGUID(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -249,13 +249,9 @@ public:
                 {
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
-                    _beamGuidList.clear();
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
                     for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                    {
-                        _beamGuidList.push_back((*itr)->GetGUID());
                         (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
-                    }
                     break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
@@ -263,11 +259,8 @@ public:
                     me->InterruptNonMeleeSpells(true, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
-                    if (!creatureList.empty())
-                    {
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                            (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
-                    }
+                    for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 default:
@@ -276,7 +269,6 @@ public:
         }
 
     private:
-        GuidList _beamGuidList;
         EventMap _events;
     };
 
@@ -304,44 +296,41 @@ public:
             Initialize();
         }
 
+        void Initialize()
+        {
+            _phase = PHASE_NONE;
+            _moveTimer = 0;
+            _eventStarterGuid.Clear();
+        }
+
         void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
-                SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
+                SetGUID(player->GetGUID(), DATA_EVENT_STARTER_GUID);
                 LoadPath(PATH_ESCORT_LEGOSO);
                 Start(true, player->GetGUID(), quest);
             }
         }
 
-        uint32 GetData(uint32 id) const override
+        ObjectGuid GetGUID(int32 type) const override
         {
-            switch (id)
-            {
-                case DATA_EVENT_STARTER_GUID:
-                    return _eventStarterGuidLow;
-                default:
-                    return 0;
-            }
+            if (type == DATA_EVENT_STARTER_GUID)
+                return _eventStarterGuid;
+
+            return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 data, uint32 value) override
+        void SetGUID(ObjectGuid const& guid, int32 type) override
         {
-            switch (data)
+            switch (type)
             {
                 case DATA_EVENT_STARTER_GUID:
-                    _eventStarterGuidLow = value;
+                    _eventStarterGuid = guid;
                     break;
                 default:
                     break;
             }
-        }
-
-        void Initialize()
-        {
-            _phase = PHASE_NONE;
-            _moveTimer = 0;
-            _eventStarterGuidLow = 0;
         }
 
         void Reset() override
@@ -750,7 +739,7 @@ public:
     private:
         int8 _phase;
         uint32 _moveTimer;
-        ObjectGuid::LowType _eventStarterGuidLow;
+        ObjectGuid _eventStarterGuid;
         GuidList _explosivesGuids;
         EventMap _events;
     };

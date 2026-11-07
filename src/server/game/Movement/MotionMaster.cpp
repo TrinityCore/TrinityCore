@@ -1168,9 +1168,9 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
         {
             if (!_generators.empty())
             {
-                auto where = _generators.find(movement); // find movement with equal priority
+                auto where = _generators.lower_bound(movement); // find movement with equal priority
                 bool replacesExisting = !movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE)
-                    && where != _generators.end();
+                    && where != _generators.end() && !_generators.key_comp()(movement, *where);
                 auto top = _generators.begin();
                 if (replacesExisting)
                     Remove(where, where == top, false);

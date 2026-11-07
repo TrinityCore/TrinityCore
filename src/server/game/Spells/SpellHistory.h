@@ -122,6 +122,7 @@ public:
     void ResetAllCooldowns();
     bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasCooldownOnHold(uint32 spellId) const;
     uint32 GetRemainingCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
@@ -132,8 +133,6 @@ public:
     bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
-
-    void BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const;
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, int32* cooldown, uint32* categoryId, int32* categoryCooldown);
 
@@ -149,9 +148,6 @@ private:
         _categoryCooldowns.erase(itr->second.CategoryId);
         return _spellCooldowns.erase(itr);
     }
-
-    typedef std::unordered_map<uint32, uint32> PacketCooldowns;
-    void BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns) const;
 
     Unit* _owner;
     CooldownStorageType _spellCooldowns;

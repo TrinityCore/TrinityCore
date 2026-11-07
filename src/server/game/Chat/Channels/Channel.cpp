@@ -812,7 +812,15 @@ void Channel::SilenceAll(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
+void Channel::SilenceVoice(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
 void Channel::UnsilenceAll(Player const* /*player*/, std::string const& /*name*/)
+{
+}
+
+void Channel::UnsilenceVoice(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
@@ -857,6 +865,23 @@ void Channel::LeaveNotify(ObjectGuid const& guid) const
         SendToAllButOne(builder, guid);
     else
         SendToAll(builder);
+}
+
+void Channel::SendMemberCount(Player const* player) const
+{
+    WorldPackets::Channel::ChannelMemberCount channelMemberCount;
+    channelMemberCount.ChannelName = GetName(player->GetSession()->GetSessionDbcLocale());
+    channelMemberCount._ChannelFlags = GetFlags();
+    channelMemberCount.MemberCount = GetNumPlayers();
+    player->SendDirectMessage(channelMemberCount.Write());
+}
+
+void Channel::VoiceOn(Player const* /*player*/)
+{
+}
+
+void Channel::VoiceOff(Player const* /*player*/)
+{
 }
 
 template <class Builder>

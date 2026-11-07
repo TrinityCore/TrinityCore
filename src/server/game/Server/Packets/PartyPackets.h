@@ -29,7 +29,7 @@ namespace WorldPackets
         class PartyInviteClient final : public ClientPacket
         {
         public:
-            PartyInviteClient(WorldPacket&& packet) : ClientPacket(CMSG_GROUP_INVITE, std::move(packet)) { }
+            explicit PartyInviteClient(WorldPacket&& packet) : ClientPacket(CMSG_GROUP_INVITE, std::move(packet)) { }
 
             void Read() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class PartyInvite final : public ServerPacket
         {
         public:
-            PartyInvite() : ServerPacket(SMSG_GROUP_INVITE, 55) { }
+            explicit PartyInvite() : ServerPacket(SMSG_GROUP_INVITE, 55) { }
 
             WorldPacket const* Write() override;
 

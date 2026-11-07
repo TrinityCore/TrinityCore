@@ -15,8 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
+/*
+ * Timers requires to be revisited
+ * What does SPELL_NOTIFY_OF_DEATH is unknown
+ * What does Script Effect of spell SPELL_HUNTERS_MARK is unknown
+ */
+
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
 #include "MotionMaster.h"
@@ -33,19 +39,26 @@ enum MuselekTexts
 
 enum MuselekSpells
 {
+    // Musel'ek - Combat - Ranged
     SPELL_SHOOT                 = 22907,
     SPELL_MULTI_SHOT            = 34974,
-    SPELL_AIMED_SHOT            = 31623,
 
+    // Musel'ek - Combat - Melee
     SPELL_KNOCK_AWAY            = 18813,
     SPELL_BEAR_COMMAND          = 34662,
+    SPELL_RAPTOR_STRIKE         = 31566,
     SPELL_DETERRENCE            = 31567,
 
+    // Musel'ek - Combat - Sequence
     SPELL_HUNTERS_MARK          = 31615,
     SPELL_FREEZING_TRAP         = 31946,
     SPELL_PACIFY_SELF           = 19951,
     SPELL_MOVE_AWAY_PRIMER      = 31564,
     SPELL_FACE_HIGHEST_THREAT   = 32425,
+    SPELL_AIMED_SHOT            = 31623,
+
+    // Musel'ek - Combat - Death
+    SPELL_NOTIFY_OF_DEATH       = 31547,
 
     // Claw
     SPELL_ECHOING_ROAR          = 31429,
@@ -56,16 +69,19 @@ enum MuselekSpells
 
 enum MuselekEvents
 {
+    // Ranged
     EVENT_SHOOT                 = 1,
     EVENT_MULTI_SHOT,
 
+    // Melee
     EVENT_KNOCK_AWAY,
     EVENT_BEAR_COMMAND,
+    EVENT_RAPTOR_STRIKE,
 
+    // Sequence
     EVENT_COMBAT_SEQUENCE_1,
     EVENT_COMBAT_SEQUENCE_2,
     EVENT_COMBAT_SEQUENCE_3,
-    EVENT_COMBAT_SEQUENCE_4,
 
     // Claw
     EVENT_ECHOING_ROAR,
@@ -81,10 +97,18 @@ enum MuselekEvents
 enum MuselekMisc
 {
     FACTION_CENARION_EXP        = 1660,
+    NPC_CLAW                    = 17827,
     NPC_WINDCALLER_CLAW         = 17894,
     POINT_OUTRO_1               = 1,
     POINT_OUTRO_2               = 2,
     POINT_MOVE_AWAY             = 1
+};
+
+enum MuselekPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_70,
+    PHASE_HEALTH_30
 };
 
 Position const OutroPos[2] =
@@ -96,21 +120,27 @@ Position const OutroPos[2] =
 // 17826 - Swamplord Musel'ek
 struct boss_swamplord_muselek : public BossAI
 {
-    boss_swamplord_muselek(Creature* creature) : BossAI(creature, DATA_SWAMPLORD_MUSELEK) { }
+    boss_swamplord_muselek(Creature* creature) : BossAI(creature, DATA_SWAMPLORD_MUSELEK), _phase(PHASE_NONE) { }
+
+    void Reset() override
+    {
+        _Reset();
+        _phase = PHASE_NONE;
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
-        me->SetReactState(REACT_AGGRESSIVE);
+
+        Talk(SAY_AGGRO);
 
         events.ScheduleEvent(EVENT_SHOOT, 0s);
         events.ScheduleEvent(EVENT_MULTI_SHOT, 20s, 30s);
 
         events.ScheduleEvent(EVENT_KNOCK_AWAY, 35s, 40s);
         events.ScheduleEvent(EVENT_BEAR_COMMAND, 10s);
-
-        events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_1, 15s, 20s);
+        events.ScheduleEvent(EVENT_RAPTOR_STRIKE, 10s, 20s);
     }
 
     void AttackStart(Unit* who) override
@@ -118,9 +148,24 @@ struct boss_swamplord_muselek : public BossAI
         ScriptedAI::AttackStartCaster(who, 30.0f);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (spell->Id == SPELL_BEAR_COMMAND)
+        if (_phase < PHASE_HEALTH_70 && me->HealthBelowPctDamaged(70, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_1, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_30 && me->HealthBelowPctDamaged(30, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_1, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BEAR_COMMAND)
             Talk(SAY_COMMAND);
     }
 
@@ -133,6 +178,13 @@ struct boss_swamplord_muselek : public BossAI
             events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_3, 1s);
     }
 
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_FACE_HIGHEST_THREAT)
+            if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))
+                me->SetFacingToObject(target);
+    }
+
     void KilledUnit(Unit* /*victim*/) override
     {
         Talk(SAY_SLAY);
@@ -140,8 +192,11 @@ struct boss_swamplord_muselek : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        Talk(SAY_DEATH);
         _JustDied();
+        Talk(SAY_DEATH);
+
+        if (Creature* claw = me->FindNearestCreature(NPC_CLAW, 100.0f))
+            DoCast(claw, SPELL_NOTIFY_OF_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -158,6 +213,7 @@ struct boss_swamplord_muselek : public BossAI
         {
             switch (eventId)
             {
+                // Ranged
                 case EVENT_SHOOT:
                     DoCastVictim(SPELL_SHOOT);
                     events.Repeat(2s, 4s);
@@ -166,6 +222,8 @@ struct boss_swamplord_muselek : public BossAI
                     DoCastVictim(SPELL_MULTI_SHOT);
                     events.Repeat(25s, 35s);
                     break;
+
+                // Melee
                 case EVENT_KNOCK_AWAY:
                     DoCastVictim(SPELL_KNOCK_AWAY);
                     events.Repeat(30s, 40s);
@@ -174,8 +232,12 @@ struct boss_swamplord_muselek : public BossAI
                     DoCastSelf(SPELL_BEAR_COMMAND);
                     events.Repeat(25s);
                     break;
+                case EVENT_RAPTOR_STRIKE:
+                    DoCastVictim(SPELL_RAPTOR_STRIKE);
+                    events.Repeat(10s, 20s);
+                    break;
 
-                // This part requires additional research
+                // Sequence
                 case EVENT_COMBAT_SEQUENCE_1:
                     DoCastSelf(SPELL_HUNTERS_MARK);
 
@@ -184,27 +246,22 @@ struct boss_swamplord_muselek : public BossAI
 
                     me->SetReactState(REACT_PASSIVE);
                     events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_2, 2s);
-                    events.Repeat(25s, 50s);
                     break;
                 case EVENT_COMBAT_SEQUENCE_2:
                     DoCastSelf(SPELL_PACIFY_SELF);
                     DoCastSelf(SPELL_MOVE_AWAY_PRIMER);
 
-                    // This is based only on one cast in sniff, need more info
+                    // Not always? Or wrong place? This is based only on one cast in sniff, need more info
                     if (roll_chance_i(50))
                         DoCastSelf(SPELL_DETERRENCE);
                     break;
                 case EVENT_COMBAT_SEQUENCE_3:
-                    // NYI
                     DoCastSelf(SPELL_FACE_HIGHEST_THREAT);
                     me->RemoveAurasDueToSpell(SPELL_PACIFY_SELF);
                     me->SetReactState(REACT_AGGRESSIVE);
 
-                    // On next update, otherwise it will not work
-                    events.ScheduleEvent(EVENT_COMBAT_SEQUENCE_4, 1ms);
-                    break;
-                case EVENT_COMBAT_SEQUENCE_4:
-                    DoCastVictim(SPELL_AIMED_SHOT);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))
+                        DoCast(target, SPELL_AIMED_SHOT);
                     break;
                 default:
                     break;
@@ -216,6 +273,9 @@ struct boss_swamplord_muselek : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    uint8 _phase;
 };
 
 // 17827 - Claw
@@ -379,9 +439,7 @@ class spell_swamplord_muselek_move_away_primer : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        // This should be more tricky. More like random position but with min and max distance, not just random
-        Position pos = GetCaster()->GetRandomNearPosition(30.0f);
-        GetCaster()->GetMotionMaster()->MovePoint(POINT_MOVE_AWAY, pos);
+        GetCaster()->GetMotionMaster()->MovePoint(POINT_MOVE_AWAY, GetCaster()->GetNearPosition(frand(15.0f, 35.0f), frand(0.0f, 2.0f * float(M_PI))));
     }
 
     void Register() override

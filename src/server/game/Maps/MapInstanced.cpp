@@ -143,7 +143,9 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
     }
     else
     {
-        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
+        Group* group = player->GetGroup();
+        Difficulty diff = group ? group->GetDifficultyID(GetEntry()) : player->GetDifficultyID(GetEntry());
+        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), diff);
         InstanceSave* pSave = pBind ? pBind->save : nullptr;
 
         // priority:
@@ -157,12 +159,11 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             {
                 map = FindInstanceMap(loginInstanceId);
                 if (!map && pSave && pSave->GetInstanceId() == loginInstanceId)
-                    map = CreateInstance(loginInstanceId, pSave, pSave->GetDifficulty(), player->GetTeamId());
+                    map = CreateInstance(loginInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
                 return map;
             }
 
             InstanceGroupBind* groupBind = nullptr;
-            Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
             if (group)
             {
@@ -170,7 +171,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
                 if (groupBind)
                 {
                     // solo saves should be reset when entering a group's instance
-                    player->UnbindInstance(GetId(), player->GetDifficulty(IsRaid()));
+                    player->UnbindInstance(GetId(), diff);
                     pSave = groupBind->save;
                 }
             }
@@ -182,7 +183,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             map = FindInstanceMap(newInstanceId);
             // it is possible that the save exists but the map doesn't
             if (!map)
-                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficulty(), player->GetTeamId());
+                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
         }
         else
         {
@@ -190,7 +191,6 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             // the instance will be created for the first time
             newInstanceId = sMapMgr->GenerateInstanceId();
 
-            Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty(IsRaid()) : player->GetDifficulty(IsRaid());
             //Seems it is now possible, but I do not know if it should be allowed
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);

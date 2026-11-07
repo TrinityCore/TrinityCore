@@ -413,7 +413,7 @@ public:
 
                 // if the player or the player's group is bound to another instance
                 // the player will not be bound to another one
-                InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(map->IsRaid()));
+                InstancePlayerBind* bind = _player->GetBoundInstance(map->GetId(), map->GetDifficultyID());
                 if (!bind)
                 {
                     Group* group = _player->GetGroup();
@@ -425,9 +425,9 @@ public:
                 }
 
                 if (map->IsRaid())
-                    _player->SetRaidDifficulty(target->GetRaidDifficulty());
+                    _player->SetRaidDifficultyID(target->GetRaidDifficultyID());
                 else
-                    _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
+                    _player->SetDungeonDifficultyID(target->GetDungeonDifficultyID());
             }
 
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
@@ -456,7 +456,7 @@ public:
             target->GetClosePoint(x, y, z, _player->GetCombatReach(), 1.0f);
 
             _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAbsoluteAngle(target), TELE_TO_GM_MODE);
-            _player->SetPhaseMask(target->GetPhaseMask(), true);
+            _player->CopyPhaseFrom(target, true);
         }
         else
         {
@@ -585,7 +585,7 @@ public:
             float x, y, z;
             _player->GetClosePoint(x, y, z, target->GetCombatReach());
             target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation());
-            target->SetPhaseMask(_player->GetPhaseMask(), true);
+            target->CopyPhaseFrom(_player, true);
         }
         else
         {

@@ -146,9 +146,7 @@ std::string _SpellScript::EffectNameCheck::ToString()
         case SPELL_EFFECT_ANY:
             return "SPELL_EFFECT_ANY";
         default:
-            char num[10];
-            sprintf (num, "%u", effName);
-            return num;
+            return Trinity::StringFormat("SPELL_EFFECT_{}", effName);
     }
 }
 
@@ -169,9 +167,7 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
         case SPELL_AURA_ANY:
             return "SPELL_AURA_ANY";
         default:
-            char num[10];
-            sprintf (num, "%u", effAurName);
-            return num;
+            return Trinity::StringFormat("SPELL_AURA_{}", effAurName);
     }
 }
 

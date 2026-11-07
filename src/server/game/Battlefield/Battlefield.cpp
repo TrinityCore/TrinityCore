@@ -467,6 +467,25 @@ void Battlefield::SendUpdateWorldState(uint32 variable, uint32 value)
     BroadcastPacketToZone(worldstate.Write());
 }
 
+void Battlefield::AddCapturePoint(BfCapturePoint* cp)
+{
+    Battlefield::BfCapturePointMap::iterator i = m_capturePoints.find(cp->GetCapturePointEntry());
+    if (i != m_capturePoints.end())
+    {
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint {} already exists!", cp->GetCapturePointEntry());
+        delete i->second;
+    }
+    m_capturePoints[cp->GetCapturePointEntry()] = cp;
+}
+
+BfCapturePoint* Battlefield::GetCapturePoint(uint32 entry) const
+{
+    Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(entry);
+    if (itr != m_capturePoints.end())
+        return itr->second;
+    return nullptr;
+}
+
 void Battlefield::RegisterZone(uint32 zoneId)
 {
     sBattlefieldMgr->AddZone(zoneId, this);
@@ -815,7 +834,6 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template {} could not be found in the database! Battlefield has not been created!", entry);
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template {}! Battlefield has not been created!", entry);
         delete go;
         return nullptr;
     }
@@ -914,6 +932,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     TC_LOG_DEBUG("bg.battlefield", "Creating capture point {}", capturePoint->GetEntry());
 
     m_capturePointGUID = capturePoint->GetGUID();
+    m_capturePointEntry = capturePoint->GetEntry();
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
@@ -928,7 +947,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
     m_neutralValuePct = goinfo->capturePoint.neutralPercent;
     m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
-    m_capturePointEntry = capturePoint->GetEntry();
+
     if (m_team == TEAM_ALLIANCE)
     {
         m_value = m_maxValue;

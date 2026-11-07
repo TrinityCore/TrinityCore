@@ -233,7 +233,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     stmt->setUInt64(++index, uint64(deliver_time));
     stmt->setUInt32(++index, m_money);
     stmt->setUInt32(++index, m_COD);
-    stmt->setUInt8 (++index, uint8(checked));
+    stmt->setUInt32(++index, checked);
     trans->Append(stmt);
 
     for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)

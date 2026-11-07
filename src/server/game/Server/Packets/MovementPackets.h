@@ -32,6 +32,12 @@ namespace WorldPackets
 {
     namespace Movement
     {
+        struct MovementAck
+        {
+            MovementInfo Status;
+            int32 AckIndex = 0;
+        };
+
         class ClientPlayerMovement final : public ClientPacket
         {
         public:
@@ -123,7 +129,7 @@ namespace WorldPackets
             float SplineDist = 0.0f;
         };
 
-        class MoveSplineSetSpeed : public ServerPacket
+        class MoveSplineSetSpeed final : public ServerPacket
         {
         public:
             explicit MoveSplineSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4) { }
@@ -134,7 +140,7 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
-        class MoveSetSpeed : public ServerPacket
+        class MoveSetSpeed final : public ServerPacket
         {
         public:
             explicit MoveSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4 + 1 + 4) { }
@@ -147,7 +153,7 @@ namespace WorldPackets
             bool Unknown = true;
         };
 
-        class MoveUpdateSpeed : public ServerPacket
+        class MoveUpdateSpeed final : public ServerPacket
         {
         public:
             explicit MoveUpdateSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 30 + 4) { }
@@ -258,6 +264,27 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             int32 AckIndex = 0;
             int32 MoveTime = 0;
+        };
+
+        class MovementSpeedAck final : public ClientPacket
+        {
+        public:
+            explicit MovementSpeedAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            float Speed = 0.0f;
+        };
+
+        class SetActiveMover final : public ClientPacket
+        {
+        public:
+            explicit SetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ActiveMover;
         };
     }
 }

@@ -81,42 +81,46 @@ enum GuildDefaultRanks
 
 enum GuildRankRights
 {
-    GR_RIGHT_EMPTY                      = 0x00000040,
-    GR_RIGHT_GCHATLISTEN                = GR_RIGHT_EMPTY | 0x00000001,
-    GR_RIGHT_GCHATSPEAK                 = GR_RIGHT_EMPTY | 0x00000002,
-    GR_RIGHT_OFFCHATLISTEN              = GR_RIGHT_EMPTY | 0x00000004,
-    GR_RIGHT_OFFCHATSPEAK               = GR_RIGHT_EMPTY | 0x00000008,
-    GR_RIGHT_INVITE                     = GR_RIGHT_EMPTY | 0x00000010,
-    GR_RIGHT_REMOVE                     = GR_RIGHT_EMPTY | 0x00000020,
-    GR_RIGHT_PROMOTE                    = GR_RIGHT_EMPTY | 0x00000080,
-    GR_RIGHT_DEMOTE                     = GR_RIGHT_EMPTY | 0x00000100,
-    GR_RIGHT_SETMOTD                    = GR_RIGHT_EMPTY | 0x00001000,
-    GR_RIGHT_EPNOTE                     = GR_RIGHT_EMPTY | 0x00002000,
-    GR_RIGHT_VIEWOFFNOTE                = GR_RIGHT_EMPTY | 0x00004000,
-    GR_RIGHT_EOFFNOTE                   = GR_RIGHT_EMPTY | 0x00008000,
-    GR_RIGHT_MODIFY_GUILD_INFO          = GR_RIGHT_EMPTY | 0x00010000,
+    GR_RIGHT_NONE                       = 0x00000000,
+    GR_RIGHT_GCHATLISTEN                = 0x00000001,
+    GR_RIGHT_GCHATSPEAK                 = 0x00000002,
+    GR_RIGHT_OFFCHATLISTEN              = 0x00000004,
+    GR_RIGHT_OFFCHATSPEAK               = 0x00000008,
+    GR_RIGHT_INVITE                     = 0x00000010,
+    GR_RIGHT_REMOVE                     = 0x00000020,
+    GR_RIGHT_LEAVE                      = 0x00000040,
+    GR_RIGHT_PROMOTE                    = 0x00000080,
+    GR_RIGHT_DEMOTE                     = 0x00000100,
+    GR_RIGHT_UNK_200                    = 0x00000200,
+    GR_RIGHT_UNK_400                    = 0x00000400,
+    GR_RIGHT_UNK_800                    = 0x00000800,
+    GR_RIGHT_SETMOTD                    = 0x00001000,
+    GR_RIGHT_EPNOTE                     = 0x00002000,
+    GR_RIGHT_VIEWOFFNOTE                = 0x00004000,
+    GR_RIGHT_EOFFNOTE                   = 0x00008000,
+    GR_RIGHT_MODIFY_GUILD_INFO          = 0x00010000,
     GR_RIGHT_WITHDRAW_GOLD_LOCK         = 0x00020000,                   // remove money withdraw capacity
     GR_RIGHT_WITHDRAW_REPAIR            = 0x00040000,                   // withdraw for repair
     GR_RIGHT_WITHDRAW_GOLD              = 0x00080000,                   // withdraw gold
     GR_RIGHT_CREATE_GUILD_EVENT         = 0x00100000,                   // wotlk
-    GR_RIGHT_ALL                        = 0x001DF1FF
+    GR_RIGHT_ALL                        = 0x001DFFFF
 };
 
 enum GuildCommandType
 {
-    GUILD_COMMAND_CREATE                = 0,
-    GUILD_COMMAND_INVITE                = 1,
-    GUILD_COMMAND_QUIT                  = 3,
-    GUILD_COMMAND_ROSTER                = 5,
-    GUILD_COMMAND_PROMOTE               = 6,
-    GUILD_COMMAND_DEMOTE                = 7,
-    GUILD_COMMAND_REMOVE                = 8,
+    GUILD_COMMAND_CREATE_GUILD          = 0,
+    GUILD_COMMAND_INVITE_PLAYER         = 1,
+    GUILD_COMMAND_LEAVE_GUILD           = 3,
+    GUILD_COMMAND_GET_ROSTER            = 5,
+    GUILD_COMMAND_PROMOTE_PLAYER        = 6,
+    GUILD_COMMAND_DEMOTE_PLAYER         = 7,
+    GUILD_COMMAND_REMOVE_PLAYER         = 8,
     GUILD_COMMAND_CHANGE_LEADER         = 10,
     GUILD_COMMAND_EDIT_MOTD             = 11,
     GUILD_COMMAND_GUILD_CHAT            = 13,
     GUILD_COMMAND_FOUNDER               = 14,
     GUILD_COMMAND_CHANGE_RANK           = 16,
-    GUILD_COMMAND_PUBLIC_NOTE           = 19,
+    GUILD_COMMAND_EDIT_PUBLIC_NOTE      = 19,
     GUILD_COMMAND_VIEW_TAB              = 21,
     GUILD_COMMAND_MOVE_ITEM             = 22,
     GUILD_COMMAND_REPAIR                = 25,
@@ -465,8 +469,8 @@ class TC_GAME_API Guild
         class RankInfo
         {
             public:
-                RankInfo(): m_guildId(0), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-                RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
+                RankInfo(): m_guildId(0), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
+                RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
                 RankInfo(ObjectGuid::LowType guildId, uint8 rankId, std::string_view name, uint32 rights, uint32 money) :
                     m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights),
                     m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
@@ -640,7 +644,6 @@ class TC_GAME_API Guild
         std::string const& GetName() const { return m_name; }
         std::string const& GetMOTD() const { return m_motd; }
         std::string const& GetInfo() const { return m_info; }
-        uint32 GetMemberCount() const { return m_members.size(); }
         time_t GetCreatedDate() const { return m_createdDate; }
         uint64 GetBankMoney() const { return m_bankMoney; }
 
@@ -668,7 +671,7 @@ class TC_GAME_API Guild
         void HandleMemberDepositMoney(WorldSession* session, uint32 amount);
         bool HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair = false);
         void HandleMemberLogout(WorldSession* session);
-        void HandleDisband(WorldSession* session);
+        void HandleDelete(WorldSession* session);
 
         void UpdateMemberData(Player* player, uint8 dataid, uint32 value);
         void OnPlayerStatusChange(Player* player, uint32 flag, bool state);
@@ -683,6 +686,13 @@ class TC_GAME_API Guild
         void SendPermissions(WorldSession* session) const;
         void SendMoneyInfo(WorldSession* session) const;
         void SendLoginInfo(WorldSession* session);
+
+        // Send events
+        void SendEventBankMoneyChanged() const;
+        void SendEventMOTD(WorldSession* session, bool broadcast = false) const;
+        void SendEventNewLeader(Member* newLeader, Member* oldLeader) const;
+        void SendEventPlayerLeft(Member const* leaver, Member const* remover = nullptr, bool isRemoved = false) const;
+        void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false) const;
 
         // Load from DB
         bool LoadFromDB(Field* fields);

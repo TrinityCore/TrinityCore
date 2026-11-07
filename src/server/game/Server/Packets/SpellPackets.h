@@ -32,7 +32,7 @@ namespace WorldPackets
         class CancelAura final : public ClientPacket
         {
         public:
-            CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
+            explicit CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
 
             void Read() override;
 
@@ -42,7 +42,7 @@ namespace WorldPackets
         class CancelAutoRepeatSpell final : public ClientPacket
         {
         public:
-            CancelAutoRepeatSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AUTO_REPEAT_SPELL, std::move(packet)) { }
+            explicit CancelAutoRepeatSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AUTO_REPEAT_SPELL, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -50,7 +50,7 @@ namespace WorldPackets
         class CancelChannelling final : public ClientPacket
         {
         public:
-            CancelChannelling(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CHANNELLING, std::move(packet)) { }
+            explicit CancelChannelling(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CHANNELLING, std::move(packet)) { }
 
             void Read() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class CancelGrowthAura final : public ClientPacket
         {
         public:
-            CancelGrowthAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_GROWTH_AURA, std::move(packet)) { }
+            explicit CancelGrowthAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_GROWTH_AURA, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -68,7 +68,7 @@ namespace WorldPackets
         class CancelMountAura final : public ClientPacket
         {
         public:
-            CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
+            explicit CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -76,7 +76,7 @@ namespace WorldPackets
         class PetCancelAura final : public ClientPacket
         {
         public:
-            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+            explicit PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
 
             void Read() override;
 
@@ -244,6 +244,20 @@ namespace WorldPackets
             SpellCastRequest Cast;
         };
 
+        class UseItem final : public ClientPacket
+        {
+        public:
+            explicit UseItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PackSlot = 0;
+            uint8 Slot = 0;
+            ObjectGuid CastItem;
+            SpellCastRequest Cast;
+            uint32 Misc = 0;
+        };
+
         struct SpellMissStatus
         {
             ObjectGuid TargetGUID;
@@ -299,7 +313,7 @@ namespace WorldPackets
         class SpellStart final : public ServerPacket
         {
         public:
-            SpellStart() : ServerPacket(SMSG_SPELL_START) { }
+            explicit SpellStart() : ServerPacket(SMSG_SPELL_START) { }
 
             WorldPacket const* Write() override;
 
@@ -309,7 +323,7 @@ namespace WorldPackets
         class SpellGo final : public ServerPacket
         {
         public:
-            SpellGo() : ServerPacket(SMSG_SPELL_GO)
+            explicit SpellGo() : ServerPacket(SMSG_SPELL_GO)
             {
                 Cast.HitTargets.emplace();
                 Cast.MissStatus.emplace();
@@ -405,17 +419,83 @@ namespace WorldPackets
         class UnlearnedSpell final : public ServerPacket
         {
         public:
-            UnlearnedSpell() : ServerPacket(SMSG_REMOVED_SPELL, 4) { }
+            explicit UnlearnedSpell() : ServerPacket(SMSG_REMOVED_SPELL, 4) { }
 
             WorldPacket const* Write() override;
 
             uint32 SpellID = 0;
         };
 
+        class CooldownEvent final : public ServerPacket
+        {
+        public:
+            explicit CooldownEvent() : ServerPacket(SMSG_COOLDOWN_EVENT, 4 + 8) { }
+            explicit CooldownEvent(ObjectGuid casterGuid, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 4 + 8), SpellID(spellId), CasterGUID(casterGuid) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ObjectGuid CasterGUID;
+        };
+
+        class ClearCooldown final : public ServerPacket
+        {
+        public:
+            explicit ClearCooldown() : ServerPacket(SMSG_CLEAR_COOLDOWN, 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ObjectGuid CasterGUID;
+        };
+
+        class ModifyCooldown final : public ServerPacket
+        {
+        public:
+            explicit ModifyCooldown() : ServerPacket(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DeltaTime = 0;
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+        };
+
+        struct SpellCooldownStruct
+        {
+            SpellCooldownStruct() { }
+            SpellCooldownStruct(uint32 spellId, uint32 forcedCooldown) : SrecID(spellId), ForcedCooldown(forcedCooldown) { }
+
+            uint32 SrecID = 0;
+            uint32 ForcedCooldown = 0;
+        };
+
+        class TC_GAME_API SpellCooldown : public ServerPacket
+        {
+        public:
+            explicit SpellCooldown() : ServerPacket(SMSG_SPELL_COOLDOWN, 8 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellCooldownStruct> SpellCooldowns;
+            ObjectGuid Caster;
+            uint8 Flags = 0;
+        };
+
+        class ClearTarget final : public ServerPacket
+        {
+        public:
+            explicit ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:
-            PlaySpellVisualKit(int32 kitType) : ServerPacket(kitType ? SMSG_PLAY_SPELL_IMPACT : SMSG_PLAY_SPELL_VISUAL, 8 + 4) { }
+            explicit PlaySpellVisualKit(int32 kitType) : ServerPacket(kitType ? SMSG_PLAY_SPELL_IMPACT : SMSG_PLAY_SPELL_VISUAL, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -426,12 +506,23 @@ namespace WorldPackets
         class CancelCast final : public ClientPacket
         {
         public:
-            CancelCast(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CAST, std::move(packet)) { }
+            explicit CancelCast(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CAST, std::move(packet)) { }
 
             void Read() override;
 
             uint8 CastID = 0;
             uint32 SpellID = 0;
+        };
+
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            explicit OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
         };
 
         struct ResyncRune
@@ -443,7 +534,7 @@ namespace WorldPackets
         class ResyncRunes final : public ServerPacket
         {
         public:
-            ResyncRunes() : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * MAX_RUNES) { }
+            explicit ResyncRunes() : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * MAX_RUNES) { }
 
             WorldPacket const* Write() override;
 
@@ -454,7 +545,7 @@ namespace WorldPackets
         class MountResult final : public ServerPacket
         {
         public:
-            MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
+            explicit MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
 
             WorldPacket const* Write() override;
 

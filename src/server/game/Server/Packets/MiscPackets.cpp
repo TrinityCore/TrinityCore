@@ -108,6 +108,34 @@ void WorldPackets::Misc::TutorialSetFlag::Read()
     _worldPacket >> TutorialBit;
 }
 
+void WorldPackets::Misc::SetDungeonDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+void WorldPackets::Misc::SetRaidDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << int32(ChangeCurrentDifficulyID);
+    _worldPacket << int32(ChangeGroupDifficulyID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << int32(ChangeCurrentDifficulyID);
+    _worldPacket << int32(ChangeGroupDifficulyID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
 {
     _worldPacket << uint32(Remaining);
@@ -160,6 +188,21 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::StandStateChange::Read()
+{
+    uint32 state;
+    _worldPacket >> state;
+
+    StandState = UnitStandStateType(state);
+}
+
+WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
+{
+    _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
 {
     _worldPacket << uint32(Timer);
@@ -183,6 +226,14 @@ WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
 WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
 {
     _worldPacket << uint32(Timer);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ExplorationExperience::Write()
+{
+    _worldPacket << int32(AreaID);
+    _worldPacket << int32(Experience);
 
     return &_worldPacket;
 }

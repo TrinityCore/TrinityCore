@@ -15,8 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Containers.h"
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
@@ -29,16 +33,22 @@ enum HungarfenTexts
 
 enum HungarfenSpells
 {
-    SPELL_FOUL_SPORES                = 31673,
-    SPELL_SUMMON_UNDERBOG_MUSHROOM   = 31692,
+    // Hungarfen - Combat
     SPELL_PUTRID_MUSHROOM_PRIMER     = 31693,
-    SPELL_DESPAWN_UNDERBOG_MUSHROOMS = 34874,
+    SPELL_FOUL_SPORES                = 31673,
     SPELL_ACID_GEYSER                = 38739,
 
-    SPELL_SPORE_CLOUD                = 34168,
-    SPELL_PUTRID_MUSHROOM            = 31690,
+    // Hungarfen - Combat - Misc
+    SPELL_DESPAWN_UNDERBOG_MUSHROOMS = 34874,
+
+    // Underbog Mushroom
     SPELL_SHRINK                     = 31691,
-    SPELL_GROW                       = 31698
+    SPELL_PUTRID_MUSHROOM            = 31690,
+    SPELL_GROW                       = 31698,
+    SPELL_SPORE_CLOUD                = 34168,
+
+    // Scripts
+    SPELL_SUMMON_UNDERBOG_MUSHROOM   = 31692
 };
 
 // 17770 - Hungarfen
@@ -56,6 +66,7 @@ struct boss_hungarfen : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext task)
         {
             DoCastSelf(SPELL_PUTRID_MUSHROOM_PRIMER);
@@ -69,6 +80,32 @@ struct boss_hungarfen : public BossAI
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ACID_GEYSER);
                 task.Repeat(10s, 15s);
+            });
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_roared && me->HealthBelowPctDamaged(20, damage))
+        {
+            _roared = true;
+
+            scheduler.Schedule(0s, [this](TaskContext task)
+            {
+                switch (task.GetRepeatCounter())
+                {
+                    case 0:
+                        Talk(EMOTE_ROARS);
+                        me->SetReactState(REACT_PASSIVE);
+                        task.Repeat(2s);
+                        break;
+                    case 1:
+                        DoCastSelf(SPELL_FOUL_SPORES);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    default:
+                        break;
+                }
             });
         }
     }
@@ -94,19 +131,6 @@ struct boss_hungarfen : public BossAI
         {
             DoMeleeAttackIfReady();
         });
-
-        if (!HealthAbovePct(20) && !_roared)
-        {
-            Talk(EMOTE_ROARS);
-            _roared = true;
-            me->SetReactState(REACT_PASSIVE);
-
-            scheduler.Schedule(2s, [this](TaskContext /*task*/)
-            {
-                DoCastSelf(SPELL_FOUL_SPORES);
-                me->SetReactState(REACT_AGGRESSIVE);
-            });
-        }
     }
 
 private:
@@ -157,7 +181,7 @@ struct npc_underbog_mushroom : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    uint32 _counter;
+    uint8 _counter;
 };
 
 // 31693 - Putrid Mushroom Primer
@@ -170,20 +194,14 @@ class spell_hungarfen_putrid_mushroom_primer : public SpellScript
         return ValidateSpellInfo({ SPELL_SUMMON_UNDERBOG_MUSHROOM });
     }
 
-    /// @todo: Check if something else should be done here
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
+        Trinity::Containers::RandomResize(targets, 1);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+        GetHitUnit()->CastSpell(nullptr, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
     }
 
     void Register() override

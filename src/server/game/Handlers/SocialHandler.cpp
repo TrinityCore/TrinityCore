@@ -26,27 +26,24 @@
 #include "RBAC.h"
 #include "Realm.h"
 #include "SocialMgr.h"
+#include "SocialPackets.h"
 #include "World.h"
 
-void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
+void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
-    uint32 flags;
-    recvData >> flags;
-    _player->GetSocial()->SendSocialList(_player, flags);
+    TC_LOG_DEBUG("network", "WorldSession::HandleContactListOpcode: Flags: {}", packet.Flags);
+    _player->GetSocial()->SendSocialList(_player, packet.Flags);
 }
 
-void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet)
 {
-    std::string friendName, friendNote;
-    recvData >> friendName >> friendNote;
-
-    if (!normalizePlayerName(friendName))
+    if (!normalizePlayerName(packet.Name))
         return;
 
     TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: {} asked to add friend: {}",
-        GetPlayer()->GetName(), friendName);
+        GetPlayerInfo(), packet.Name);
 
-    CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(friendName);
+    CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name);
     if (!friendCharacterInfo)
     {
         sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
@@ -57,7 +54,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
         playerGuid = _player->GetGUID(),
         friendGuid = friendCharacterInfo->Guid,
         team = Player::TeamForRace(friendCharacterInfo->Race),
-        friendNote = std::move(friendNote)]()
+        friendNote = std::move(packet.Notes)]()
     {
         if (playerGuid.GetCounter() != m_GUIDLow)
             return; // not the player initiating request, do nothing
@@ -118,32 +115,29 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
     }));
 }
 
-void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
+void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)
 {
-    ObjectGuid friendGuid;
-    recvData >> friendGuid;
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: {}", friendGuid.ToString());
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: {}", packet.Player.ToString());
 
-    _player->GetSocial()->RemoveFromSocialList(friendGuid, SOCIAL_FLAG_FRIEND);
+    GetPlayer()->GetSocial()->RemoveFromSocialList(packet.Player, SOCIAL_FLAG_FRIEND);
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, friendGuid);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, packet.Player);
 }
 
-void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet)
 {
-    std::string ignoreName;
-    recvData >> ignoreName;
-
-    if (!normalizePlayerName(ignoreName))
+    if (!normalizePlayerName(packet.Name))
         return;
 
     TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: {} asked to Ignore: {}",
-        GetPlayer()->GetName(), ignoreName);
+        GetPlayer()->GetName(), packet.Name);
 
-    ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(ignoreName);
+    ObjectGuid ignoreGuid;
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
-    if (!ignoreGuid.IsEmpty())
+
+    if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name))
     {
+        ignoreGuid = characterInfo->Guid;
         if (ignoreGuid == GetPlayer()->GetGUID())              //not add yourself
             ignoreResult = FRIEND_IGNORE_SELF;
         else if (GetPlayer()->GetSocial()->HasIgnore(ignoreGuid))
@@ -161,25 +155,17 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
     sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ignoreGuid);
 }
 
-void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
+void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet)
 {
-    ObjectGuid ignoreGuid;
-    recvData >> ignoreGuid;
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: {}", packet.Player.ToString());
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: {}", ignoreGuid.ToString());
+    GetPlayer()->GetSocial()->RemoveFromSocialList(packet.Player, SOCIAL_FLAG_IGNORED);
 
-    _player->GetSocial()->RemoveFromSocialList(ignoreGuid, SOCIAL_FLAG_IGNORED);
-
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, ignoreGuid);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, packet.Player);
 }
 
-void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet)
 {
-    ObjectGuid guid;
-    std::string note;
-    recvData >> guid >> note;
-
-    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: {}, Notes: {}", guid.ToString(), note);
-
-    _player->GetSocial()->SetFriendNote(guid, note);
+    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: {}, Notes: {}", packet.Player.ToString(), packet.Notes);
+    _player->GetSocial()->SetFriendNote(packet.Player, packet.Notes);
 }

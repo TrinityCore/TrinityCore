@@ -57,7 +57,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
 
     if (packet.Slots.empty())
     {
-        TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN {} no dungeons selected", GetPlayerInfo());
+        TC_LOG_DEBUG("lfg", "CMSG_DF_JOIN {} no dungeons selected", GetPlayerInfo());
         return;
     }
 
@@ -69,7 +69,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
             newDungeons.insert(dungeon);
     }
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN {} roles: {}, Dungeons: {}, Comment: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_JOIN {} roles: {}, Dungeons: {}, Comment: {}",
                  GetPlayerInfo(), packet.Roles, newDungeons.size(), packet.Comment);
 
     sLFGMgr->JoinLfg(GetPlayer(), uint8(packet.Roles), newDungeons, packet.Comment);
@@ -109,12 +109,12 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     Group* group = GetPlayer()->GetGroup();
     if (!group)
     {
-        TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES {} Not in group",
+        TC_LOG_DEBUG("lfg", "CMSG_DF_SET_ROLES {} Not in group",
             GetPlayerInfo());
         return;
     }
     ObjectGuid gguid = group->GetGUID();
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES: Group {}, Player {}, Roles: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_SET_ROLES: Group {}, Player {}, Roles: {}",
         gguid.ToString(), GetPlayerInfo(), roles);
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
@@ -146,7 +146,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     bool out;
     recvData >> out;
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_TELEPORT {} out: {}",
+    TC_LOG_DEBUG("lfg", "CMSG_DF_TELEPORT {} out: {}",
         GetPlayerInfo(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
@@ -166,7 +166,7 @@ void WorldSession::SendLfgPlayerLockInfo()
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = GetPlayer()->GetLevel();
     lfg::LfgDungeonSet const& randomDungeons =
-        sLFGMgr->GetRandomAndSeasonalDungeons(level, GetPlayer()->GetSession()->Expansion());
+        sLFGMgr->GetRandomAndSeasonalDungeons(level, GetExpansion());
 
     // Get player locked Dungeons
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
@@ -198,19 +198,19 @@ void WorldSession::SendLfgPlayerLockInfo()
         {
             data << uint8(done);
             data << uint32(quest->GetRewOrReqMoney(GetPlayer()));
-            data << uint32(quest->GetXPReward(GetPlayer()));
+            data << uint32(GetPlayer()->GetQuestXPReward(quest));
             data << uint32(0);
             data << uint32(0);
             data << uint8(quest->GetRewItemsCount());
             if (quest->GetRewItemsCount())
             {
-                for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
                     if (uint32 itemId = quest->RewardItemId[i])
                     {
                         ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                         data << uint32(itemId);
                         data << uint32(item ? item->GetDisplayId() : 0);
-                        data << uint32(quest->RewardItemIdCount[i]);
+                        data << uint32(quest->RewardItemCount[i]);
                     }
             }
         }
@@ -503,19 +503,19 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
     data << uint8(rewardData.done);
     data << uint32(1);
     data << uint32(rewardData.quest->GetRewOrReqMoney(GetPlayer()));
-    data << uint32(rewardData.quest->GetXPReward(GetPlayer()));
+    data << uint32(GetPlayer()->GetQuestXPReward(rewardData.quest));
     data << uint32(0);
     data << uint32(0);
     data << uint8(itemNum);
     if (itemNum)
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
             if (uint32 itemId = rewardData.quest->RewardItemId[i])
             {
                 ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                 data << uint32(itemId);
                 data << uint32(item ? item->GetDisplayId() : 0);
-                data << uint32(rewardData.quest->RewardItemIdCount[i]);
+                data << uint32(rewardData.quest->RewardItemCount[i]);
             }
     }
     SendPacket(&data);

@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "Group.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -34,6 +35,15 @@ namespace DisableMgr
 
 namespace
 {
+    constexpr std::string_view MapTypeNames[] =
+    {
+        "World",
+        "Dungeon",
+        "Raid",
+        "Battleground",
+        "Arena"
+    };
+
     struct DisableData
     {
         uint16 flags;
@@ -208,28 +218,18 @@ void LoadDisables()
                 {
                     case MAP_COMMON:
                         if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
-                            TC_LOG_INFO("misc", "Areaflag disabled for world map {}.", entry);
+                            TC_LOG_INFO("misc", "Areaflag disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
-                            TC_LOG_INFO("misc", "Liquid status disabled for world map {}.", entry);
+                            TC_LOG_INFO("misc", "Liquid status disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for instance map {}.", entry);
-                        if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for instance map {}.", entry);
-                        break;
                     case MAP_BATTLEGROUND:
-                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for battleground map {}.", entry);
-                        if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for battleground map {}.", entry);
-                        break;
                     case MAP_ARENA:
                         if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                            TC_LOG_INFO("misc", "Height disabled for arena map {}.", entry);
+                            TC_LOG_INFO("misc", "Height disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         if (flags & VMAP::VMAP_DISABLE_LOS)
-                            TC_LOG_INFO("misc", "LoS disabled for arena map {}.", entry);
+                            TC_LOG_INFO("misc", "LoS disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
                     default:
                         break;
@@ -244,24 +244,8 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->InstanceType)
-                {
-                    case MAP_COMMON:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for world map {}.", entry);
-                        break;
-                    case MAP_INSTANCE:
-                    case MAP_RAID:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for instance map {}.", entry);
-                        break;
-                    case MAP_BATTLEGROUND:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for battleground map {}.", entry);
-                        break;
-                    case MAP_ARENA:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for arena map {}.", entry);
-                        break;
-                    default:
-                        break;
-                }
+                if (mapEntry->InstanceType <= std::ssize(MapTypeNames))
+                    TC_LOG_INFO("misc", "Pathfinding disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                 break;
             }
             default:
@@ -378,7 +362,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
+                    Group const* group = player->GetGroup();
+                    Difficulty targetDifficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {

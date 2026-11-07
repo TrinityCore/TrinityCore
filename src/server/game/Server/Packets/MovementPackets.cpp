@@ -420,4 +420,24 @@ void MoveTeleportAck::Read()
     _worldPacket >> AckIndex;
     _worldPacket >> MoveTime;
 }
+
+ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack)
+{
+    data >> ack.Status.guid.ReadAsPacked();
+    data >> ack.AckIndex;
+    data >> ack.Status;
+
+    return data;
+}
+
+void MovementSpeedAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> Speed;
+}
+
+void SetActiveMover::Read()
+{
+    _worldPacket >> ActiveMover;
+}
 }

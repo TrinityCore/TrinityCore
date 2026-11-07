@@ -83,12 +83,36 @@ WorldPacket const* CriteriaUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* CriteriaDeleted::Write()
+{
+    _worldPacket << uint32(CriteriaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* AchievementDeleted::Write()
+{
+    _worldPacket << uint32(AchievementID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* AchievementEarned::Write()
 {
     _worldPacket << Earner.WriteAsPacked();
     _worldPacket << uint32(AchievementID);
     _worldPacket << Time;
     _worldPacket << uint32(Initial);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* BroadcastAchievement::Write()
+{
+    _worldPacket << Name;
+    _worldPacket << PlayerGUID;
+    _worldPacket << uint32(AchievementID);
+    _worldPacket << uint32(DisplayLink ? 1 : 0);
 
     return &_worldPacket;
 }

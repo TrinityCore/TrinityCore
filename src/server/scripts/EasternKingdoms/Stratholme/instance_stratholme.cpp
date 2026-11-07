@@ -32,9 +32,9 @@ EndScriptData */
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Pet.h"
 #include "Player.h"
 #include "stratholme.h"
-#include "Pet.h"
 
 enum InstanceEvents
 {

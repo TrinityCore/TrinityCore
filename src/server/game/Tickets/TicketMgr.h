@@ -20,11 +20,12 @@
 
 #include "ObjectGuid.h"
 #include "DatabaseEnvFwd.h"
+#include "Position.h"
 #include <map>
+#include <span>
 
 class ChatHandler;
 class Player;
-class WorldPacket;
 class WorldSession;
 
 // from blizzard lua
@@ -100,11 +101,13 @@ public:
     bool IsAssigned() const { return !_assignedTo.IsEmpty(); }
     bool IsAssignedTo(ObjectGuid guid) const { return guid == _assignedTo; }
     bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
+    bool IsViewed() const { return _viewed; }
 
     uint32 GetId() const { return _id; }
     Player* GetPlayer() const;
     std::string const& GetPlayerName() const { return _playerName; }
-    std::string const& GetMessage() const { return _message; }
+    std::string const& GetMessage() const { return _description; }
+    bool GetNeedMoreHelp() const { return _needMoreHelp; }
     Player* GetAssignedPlayer() const;
     ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const;
@@ -123,11 +126,11 @@ public:
     void SetClosedBy(ObjectGuid value) { _closedBy = value; _type = TICKET_TYPE_CLOSED; }
     void SetResolvedBy(ObjectGuid value) { _resolvedBy = value; }
     void SetCompleted() { _completed = true; }
-    void SetMessage(std::string const& message);
+    void SetDescription(std::string const& message);
     void SetComment(std::string const& comment) { _comment = comment; }
     void SetViewed() { _viewed = true; }
     void SetUnassigned();
-    void SetPosition(uint32 mapId, float x, float y, float z);
+    void SetPosition(uint32 mapId, Position const& pos);
     void SetGmAction(uint32 needResponse, bool needMoreHelp);
 
     void AppendResponse(std::string const& response) { _response += response; }
@@ -136,14 +139,13 @@ public:
     void SaveToDB(CharacterDatabaseTransaction trans) const;
     void DeleteFromDB();
 
-    void WritePacket(WorldPacket& data) const;
     void SendResponse(WorldSession* session) const;
 
     void TeleportTo(Player* player) const;
     std::string FormatMessageString(ChatHandler& handler, bool detailed = false) const;
-    std::string FormatMessageString(ChatHandler& handler, char const* szClosedName, char const* szAssignedToName, char const* szUnassignedName, char const* szDeletedName, char const* szCompletedName) const;
+    std::string FormatMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName, char const* completedName) const;
 
-    void SetChatLog(std::list<uint32> time, std::string const& log);
+    void SetChatLog(std::span<uint32 const> times, std::string const& log);
     std::string const& GetChatLog() const { return _chatLog; }
 
 private:
@@ -151,11 +153,9 @@ private:
     TicketType _type; // 0 = Open, 1 = Closed, 2 = Character deleted
     ObjectGuid _playerGuid;
     std::string _playerName;
-    float _posX;
-    float _posY;
-    float _posZ;
     uint16 _mapId;
-    std::string _message;
+    Position _pos;
+    std::string _description;
     uint64 _createTime;
     uint64 _lastModifiedTime;
     ObjectGuid _closedBy; // 0 = Open or Closed by Console (if type = 1), playerGuid = GM who closed it or player abandoned ticket or read the GM response message.

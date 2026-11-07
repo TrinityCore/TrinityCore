@@ -201,7 +201,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
         if (!remover.IsEmpty() && invite->GetInviteeGUID() != remover)
         {
             MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody(ObjectAccessor::FindConnectedPlayer(invite->GetInviteeGUID())));
-            mail.SendMailTo(trans, MailReceiver(invite->GetInviteeGUID().GetCounter()), calendarEvent, MAIL_CHECK_MASK_COPIED);
+            mail.SendMailTo(trans, MailReceiver(invite->GetInviteeGUID().GetCounter()), calendarEvent, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_CALENDAR_INVITE);
         }
 
         delete invite;

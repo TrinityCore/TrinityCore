@@ -222,8 +222,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, owner->GetPhaseMask(), petInfo->CreatureId, petInfo->PetNumber))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, petInfo->CreatureId, petInfo->PetNumber))
         return false;
+
+    CopyPhaseFrom(owner);
 
     setPetType(petInfo->Type);
     SetFaction(owner->GetFaction());
@@ -791,7 +793,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 {
     ASSERT(creature);
 
-    if (!CreateBaseAtTamed(creature->GetCreatureTemplate(), creature->GetMap(), creature->GetPhaseMask()))
+    if (!CreateBaseAtTamed(creature->GetCreatureTemplate(), creature->GetMap()))
         return false;
 
     Relocate(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
@@ -822,7 +824,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 
 bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 {
-    if (!CreateBaseAtTamed(cinfo, owner->GetMap(), owner->GetPhaseMask()))
+    if (!CreateBaseAtTamed(cinfo, owner->GetMap()))
         return false;
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
@@ -833,10 +835,10 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
     return true;
 }
 
-bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
+bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, phaseMask, cinfo->Entry, sObjectMgr->GeneratePetNumber()))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, cinfo->Entry, sObjectMgr->GeneratePetNumber()))
         return false;
 
     SetMaxPower(POWER_HAPPINESS, GetCreatePowerValue(POWER_HAPPINESS));
@@ -1226,67 +1228,68 @@ void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
     }
 }
 
-void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
+void Pet::_LoadAuras(PreparedQueryResult auraResult, uint32 timediff)
 {
     TC_LOG_DEBUG("entities.pet", "Loading auras for pet {}", GetGUID().ToString());
 
-    ObjectGuid casterGuid;
-    if (result)
+    ObjectGuid casterGuid, itemGuid;
+    if (auraResult)
     {
         do
         {
-            int32 damage[3];
-            int32 baseDamage[3];
-            Field* fields = result->Fetch();
-            casterGuid.SetRawValue(fields[0].GetUInt64());
+            Field* fields = auraResult->Fetch();
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            if (!casterGuid)
+            casterGuid.SetRawValue(fields[0].GetUInt64());
+            if (casterGuid.IsEmpty())
                 casterGuid = GetGUID();
-            uint32 spellid = fields[1].GetUInt32();
-            uint8 effmask = fields[2].GetUInt8();
-            uint8 recalculatemask = fields[3].GetUInt8();
-            uint8 stackcount = fields[4].GetUInt8();
-            damage[0] = fields[5].GetInt32();
-            damage[1] = fields[6].GetInt32();
-            damage[2] = fields[7].GetInt32();
-            baseDamage[0] = fields[8].GetInt32();
-            baseDamage[1] = fields[9].GetInt32();
-            baseDamage[2] = fields[10].GetInt32();
-            int32 maxduration = fields[11].GetInt32();
-            int32 remaintime = fields[12].GetInt32();
-            uint8 remaincharges = fields[13].GetUInt8();
+
+            AuraKey key{ casterGuid, itemGuid, fields[1].GetUInt32(), fields[2].GetUInt8() };
+            AuraLoadEffectInfo info;
+            uint8 recalculateMask = fields[3].GetUInt8();
+            uint8 stackCount = fields[4].GetUInt8();
+            info.Amounts[0] = fields[5].GetInt32();
+            info.Amounts[1] = fields[6].GetInt32();
+            info.Amounts[2] = fields[7].GetInt32();
+            info.BaseAmounts[0] = fields[8].GetInt32();
+            info.BaseAmounts[1] = fields[9].GetInt32();
+            info.BaseAmounts[2] = fields[10].GetInt32();
+            int32 maxDuration = fields[11].GetInt32();
+            int32 remainTime = fields[12].GetInt32();
+            uint8 remainCharges = fields[13].GetUInt8();
             float critChance = fields[14].GetFloat();
             bool applyResilience = fields[15].GetBool();
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.pet", "Unknown aura (spellid {}), ignore.", spellid);
+                TC_LOG_ERROR("entities.pet", "Unknown aura (spellid {}), ignore.", key.SpellId);
                 continue;
             }
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT)))
+            if (remainTime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT)))
             {
-                if (remaintime/IN_MILLISECONDS <= int32(timediff))
+                if (remainTime/IN_MILLISECONDS <= int32(timediff))
                     continue;
 
-                remaintime -= timediff*IN_MILLISECONDS;
+                remainTime -= timediff*IN_MILLISECONDS;
             }
 
-            // prevent wrong values of remaincharges
+            // prevent wrong values of remainCharges
             if (spellInfo->ProcCharges)
             {
-                if (remaincharges <= 0 || remaincharges > spellInfo->ProcCharges)
-                    remaincharges = spellInfo->ProcCharges;
+                // we have no control over the order of applying auras and modifiers allow auras
+                // to have more charges than value in SpellInfo
+                if (remainCharges <= 0/* || remainCharges > spellproto->procCharges*/)
+                    remainCharges = spellInfo->ProcCharges;
             }
             else
-                remaincharges = 0;
+                remainCharges = 0;
 
-            AuraCreateInfo createInfo(spellInfo, effmask, this);
+            AuraCreateInfo createInfo(spellInfo, key.EffectMask, this);
             createInfo
                 .SetCasterGUID(casterGuid)
-                .SetBaseAmount(baseDamage);
+                .SetBaseAmount(info.BaseAmounts.data());
 
             if (Aura* aura = Aura::TryCreate(createInfo))
             {
@@ -1295,12 +1298,13 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
                     aura->Remove();
                     continue;
                 }
-                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, critChance, applyResilience, &damage[0]);
+
+                aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, critChance, applyResilience, info.Amounts.data());
                 aura->ApplyForTargets();
-                TC_LOG_DEBUG("entities.pet", "Added aura spellid {}, effectmask {}", spellInfo->Id, effmask);
+                TC_LOG_DEBUG("entities.pet", "Added aura spellid {}, effectmask {}", spellInfo->Id, key.EffectMask);
             }
         }
-        while (result->NextRow());
+        while (auraResult->NextRow());
     }
 }
 
@@ -1318,24 +1322,19 @@ void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 
         Aura* aura = itr->second;
 
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        std::array<int32, MAX_SPELL_EFFECTS> damage = { };
+        std::array<int32, MAX_SPELL_EFFECTS> baseDamage = { };
         uint8 effMask = 0;
         uint8 recalculateMask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (aura->GetEffect(i))
+            if (AuraEffect const* effect = aura->GetEffect(i))
             {
-                baseDamage[i] = aura->GetEffect(i)->GetBaseAmount();
-                damage[i] = aura->GetEffect(i)->GetAmount();
-                effMask |= (1<<i);
-                if (aura->GetEffect(i)->CanBeRecalculated())
-                    recalculateMask |= (1<<i);
-            }
-            else
-            {
-                baseDamage[i] = 0;
-                damage[i] = 0;
+                baseDamage[i] = effect->GetBaseAmount();
+                damage[i] = effect->GetAmount();
+                effMask |= 1 << i;
+                if (effect->CanBeRecalculated())
+                    recalculateMask |= 1 << i;
             }
         }
 
@@ -1712,7 +1711,7 @@ bool Pet::resetTalents(bool involuntarily /*= false*/)
         player->PetSpellInitialize();
 
     if (involuntarily)
-        player->SendDirectMessage(WorldPackets::Talent::InvoluntarilyReset(true).Write());
+        player->SendDirectMessage(WorldPackets::Talent::TalentsInvoluntarilyReset(true).Write());
 
     return true;
 }
@@ -1751,7 +1750,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= nullptr*/, 
         return;
 
     if (!onlinePet)
-        owner->SendDirectMessage(WorldPackets::Talent::InvoluntarilyReset(true).Write());
+        owner->SendDirectMessage(WorldPackets::Talent::TalentsInvoluntarilyReset(true).Write());
 
     bool need_comma = false;
     std::ostringstream ss;
@@ -1871,12 +1870,11 @@ bool Pet::IsPermanentPetFor(Player* owner) const
     }
 }
 
-bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 petId)
+bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry, uint32 petId)
 {
     ASSERT(map);
     SetMap(map);
 
-    SetPhaseMask(phaseMask, false);
     Object::_Create(ObjectGuid::Create<HighGuid::Pet>(petId, guidlow));
 
     m_originalEntry = Entry;

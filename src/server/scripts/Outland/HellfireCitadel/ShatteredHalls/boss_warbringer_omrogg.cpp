@@ -18,6 +18,7 @@
 /* Timers requires to be revisited */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -108,6 +109,7 @@ struct boss_warbringer_omrogg : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         events.ScheduleEvent(EVENT_FEAR, 20s, 30s);
         events.ScheduleEvent(EVENT_THUNDERCLAP, 15s, 25s);
         events.ScheduleEvent(EVENT_BEATDOWN, 25s, 30s);
@@ -117,22 +119,14 @@ struct boss_warbringer_omrogg : public BossAI
             leftHead->AI()->DoAction(RAND(ACTION_AGGRO_1, ACTION_AGGRO_2, ACTION_AGGRO_3));
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        /// @todo: Threat reset and AttackStart should be in spell script
-        if (spell->Id == SPELL_BEATDOWN)
-        {
-            ResetThreatList();
-
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                AttackStart(target);
-
-            // Apparently this and all other are handled by GameEvents since this spell sends GameEvent
+        // Apparently this and all other are handled by GameEvents since this spell sends GameEvent
+        if (spellInfo->Id == SPELL_BEATDOWN)
             if (Creature* leftHead = instance->GetCreature(DATA_LEFT_HEAD))
                 leftHead->AI()->DoAction(RAND(ACTION_ATTACK_1, ACTION_ATTACK_2, ACTION_ATTACK_3, ACTION_ATTACK_4));
-        }
 
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_BURNING_MAUL, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_BURNING_MAUL, me))
             Talk(EMOTE_ROAR);
     }
 
@@ -401,8 +395,6 @@ private:
     InstanceScript* _instance;
 };
 
-/// @todo: This requires additional research. Is it handled correctly? Isn't it too over-powered?
-// That's a lot of damage if all melee attacks are successful so we cast it not always for now. No ProcCategoryRecovery for both spells
 // 30598, 36056 - Burning Maul
 class spell_omrogg_burning_maul : public AuraScript
 {
@@ -427,8 +419,10 @@ class spell_omrogg_burning_maul : public AuraScript
 
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        if (roll_chance_i(50))
-            GetTarget()->CastSpell(GetTarget(), SPELL_BLAST_WAVE);
+        /// @todo: This requires additional research. Is it handled correctly? Isn't it too over-powered?
+        /// That's a lot of damage if all melee attacks are successful so we cast it not always for now. No ProcCategoryRecovery for both spells
+        if (roll_chance_i(30))
+            GetTarget()->CastSpell(nullptr, SPELL_BLAST_WAVE);
     }
 
     void Register() override
@@ -439,9 +433,51 @@ class spell_omrogg_burning_maul : public AuraScript
     }
 };
 
+// 30618 - Beatdown
+class spell_omrogg_beatdown : public SpellScript
+{
+    PrepareSpellScript(spell_omrogg_beatdown);
+
+    bool Load() override
+    {
+        return GetCaster()->IsCreature();
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+        _selectedTargetGuid = target->GetGUID();
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (target->GetGUID() != _selectedTargetGuid)
+            return;
+
+        Unit* caster = GetCaster();
+        caster->GetThreatManager().ResetAllThreat();
+        caster->GetAI()->AttackStart(target);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omrogg_beatdown::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_omrogg_beatdown::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    ObjectGuid _selectedTargetGuid;
+};
+
 void AddSC_boss_warbringer_omrogg()
 {
     RegisterShatteredHallsCreatureAI(boss_warbringer_omrogg);
     RegisterShatteredHallsCreatureAI(npc_omrogg_heads);
     RegisterSpellScript(spell_omrogg_burning_maul);
+    RegisterSpellScript(spell_omrogg_beatdown);
 }

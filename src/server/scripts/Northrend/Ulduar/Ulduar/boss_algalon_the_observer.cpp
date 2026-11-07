@@ -642,7 +642,7 @@ struct boss_algalon_the_observer : public BossAI
                     me->RemoveAllAuras();
                     ResetThreatList();
                     me->SetFaction(FACTION_FRIENDLY);
-                    me->SetUnitFlag(UNIT_FLAG_RENAME);
+                    me->SetUnitFlag(UNIT_FLAG_EVADING_HOME);
                     events.ScheduleEvent(EVENT_OUTRO_2, 2s);
                     break;
                 case EVENT_OUTRO_2:

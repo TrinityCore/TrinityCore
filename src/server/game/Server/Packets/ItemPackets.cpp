@@ -19,6 +19,76 @@
 
 namespace WorldPackets::Item
 {
+void BuyBackItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> Slot;
+}
+
+void BuyItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemID;
+    _worldPacket >> Muid;
+    _worldPacket >> Quantity;
+}
+
+void BuyItemInSlot::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemID;
+    _worldPacket >> Muid;
+    _worldPacket >> ContainerGUID;
+    _worldPacket >> Slot;
+    _worldPacket >> Quantity;
+}
+
+WorldPacket const* BuySucceeded::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << int32(NewQuantity);
+    _worldPacket << uint32(QuantityBought);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* BuyFailed::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+void GetItemPurchaseData::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
+void RepairItem::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> UseGuildBank;
+}
+
+void SellItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> Amount;
+}
+
+WorldPacket const* ItemTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(DurationLeft);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* SetProficiency::Write()
 {
     _worldPacket << uint8(ProficiencyClass);
@@ -89,10 +159,26 @@ void AutoEquipItem::Read()
     _worldPacket >> Slot;
 }
 
+void AutoStoreBagItem::Read()
+{
+    _worldPacket >> ContainerSlotA;
+    _worldPacket >> SlotA;
+    _worldPacket >> ContainerSlotB;
+}
+
 void DestroyItem::Read()
 {
     _worldPacket >> ContainerId;
     _worldPacket >> SlotNum;
     _worldPacket >> Count;
 }
+}
+
+WorldPacket const* WorldPackets::Item::SellResponse::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << ItemGUID;
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
 }

@@ -73,12 +73,20 @@ enum MaulgarMisc
     ACTION_OGRE_DEATH           = 0
 };
 
-static constexpr std::array<uint32, 4> OgreData =
+enum MaulgarSpawnGroups
 {
-    DATA_KROSH_FIREHAND,
-    DATA_OLM_THE_SUMMONER,
-    DATA_KIGGLER_THE_CRAZED,
-    DATA_BLINDEYE_THE_SEER
+    SPAWN_GROUP_KROSH           = 419,
+    SPAWN_GROUP_OLM             = 420,
+    SPAWN_GROUP_KIGGLER         = 421,
+    SPAWN_GROUP_BLINDEYE        = 422
+};
+
+static constexpr std::array<uint32, 4> OgreSpawnGroupsData =
+{
+    SPAWN_GROUP_KROSH,
+    SPAWN_GROUP_OLM,
+    SPAWN_GROUP_KIGGLER,
+    SPAWN_GROUP_BLINDEYE
 };
 
 // 18831 - High King Maulgar
@@ -92,8 +100,8 @@ struct boss_high_king_maulgar : public BossAI
         _enraged = false;
         SetEquipmentSlots(true);
 
-        for (uint32 data : OgreData)
-            me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(data));
+        for (uint32 group : OgreSpawnGroupsData)
+            me->GetMap()->SpawnGroupSpawn(group, true);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -190,7 +198,7 @@ private:
 
 struct OgreBaseAI : public ScriptedAI
 {
-    OgreBaseAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+    OgreBaseAI(Creature* creature) : ScriptedAI(creature), Instance(creature->GetInstanceScript()) { }
 
     void InitializeAI() override
     {
@@ -200,8 +208,8 @@ struct OgreBaseAI : public ScriptedAI
 
     void Reset() override
     {
-        scheduler.CancelAll();
-        scheduler.SetValidator([this]
+        Scheduler.CancelAll();
+        Scheduler.SetValidator([this]
         {
             return !me->HasUnitState(UNIT_STATE_CASTING);
         });
@@ -216,7 +224,7 @@ struct OgreBaseAI : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* maulgar = instance->GetCreature(DATA_MAULGAR))
+        if (Creature* maulgar = Instance->GetCreature(DATA_MAULGAR))
             maulgar->AI()->DoAction(ACTION_OGRE_DEATH);
     }
 
@@ -225,24 +233,24 @@ struct OgreBaseAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff);
+        Scheduler.Update(diff);
 
         DoMeleeAttackIfReady();
     }
 
 protected:
-    InstanceScript* instance;
-    TaskScheduler scheduler;
+    InstanceScript* Instance;
+    TaskScheduler Scheduler;
 };
 
 // 18834 - Olm the Summoner
 struct boss_olm_the_summoner : public OgreBaseAI
 {
-    boss_olm_the_summoner(Creature* creature) : OgreBaseAI(creature) { }
+    using OgreBaseAI::OgreBaseAI;
 
     void ScheduleEvents() override
     {
-        scheduler
+        Scheduler
             .Schedule(5s, 10s, [this](TaskContext task)
             {
                 DoCastVictim(SPELL_DARK_DECAY);
@@ -264,26 +272,26 @@ struct boss_olm_the_summoner : public OgreBaseAI
 // 18835 - Kiggler the Crazed
 struct boss_kiggler_the_crazed : public OgreBaseAI
 {
-    boss_kiggler_the_crazed(Creature* creature) : OgreBaseAI(creature) { }
+    using OgreBaseAI::OgreBaseAI;
 
     void AttackStart(Unit* who) override
     {
-        ScriptedAI::AttackStartCaster(who, 40.0f);
+        if (me->GetDistance(who) > 10.0f)
+            ScriptedAI::AttackStartCaster(who, 40.0f);
+        else if (me->GetDistance(who) < 10.0f)
+            ScriptedAI::AttackStart(who);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        Unit* unitTarget = target->ToUnit();
-        if (!unitTarget)
-            return;
-
         if (spellInfo->Id == SPELL_ARCANE_EXPLOSION)
-            ModifyThreatByPercent(unitTarget, -100);
+            if (Unit* unit = target->ToUnit())
+                ModifyThreatByPercent(unit, -100);
     }
 
     void ScheduleEvents() override
     {
-        scheduler
+        Scheduler
             .Schedule(0s, [this](TaskContext task)
             {
                 DoCastVictim(SPELL_LIGHTNING_BOLT);
@@ -311,7 +319,7 @@ struct boss_kiggler_the_crazed : public OgreBaseAI
 // 18836 - Blindeye the Seer
 struct boss_blindeye_the_seer : public OgreBaseAI
 {
-    boss_blindeye_the_seer(Creature* creature) : OgreBaseAI(creature) { }
+    using OgreBaseAI::OgreBaseAI;
 
     void OnSpellCast(SpellInfo const* spellInfo) override
     {
@@ -321,7 +329,7 @@ struct boss_blindeye_the_seer : public OgreBaseAI
 
     void ScheduleEvents() override
     {
-        scheduler
+        Scheduler
             .Schedule(7s, [this](TaskContext task)
             {
                 if (Unit* target = DoSelectLowestHpFriendly(250.0f))
@@ -339,11 +347,11 @@ struct boss_blindeye_the_seer : public OgreBaseAI
 // 18832 - Krosh Firehand
 struct boss_krosh_firehand : public OgreBaseAI
 {
-    boss_krosh_firehand(Creature* creature) : OgreBaseAI(creature) { }
+    using OgreBaseAI::OgreBaseAI;
 
     void ScheduleEvents() override
     {
-        scheduler
+        Scheduler
             .Schedule(0s, 5s, [this](TaskContext task)
             {
                 DoCastVictim(SPELL_GREATER_FIREBALL);

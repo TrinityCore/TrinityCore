@@ -38,7 +38,7 @@ namespace WorldPackets
         class Hello final : public ClientPacket
         {
         public:
-            Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
@@ -81,6 +81,27 @@ namespace WorldPackets
             int32 GossipID = 0;
         };
 
+        class GossipSelectOption final : public ClientPacket
+        {
+        public:
+            explicit GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GossipUnit;
+            int32 GossipIndex = 0;
+            int32 GossipID = 0;
+            std::string PromotionCode;
+        };
+
+        class GossipComplete final : public ServerPacket
+        {
+        public:
+            explicit GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         struct VendorItem
         {
             int32 MuID = 0;
@@ -120,7 +141,7 @@ namespace WorldPackets
         class TrainerList final : public ServerPacket
         {
         public:
-            TrainerList() : ServerPacket(SMSG_TRAINER_LIST) { }
+            explicit TrainerList() : ServerPacket(SMSG_TRAINER_LIST) { }
 
             WorldPacket const* Write() override;
 
@@ -133,7 +154,7 @@ namespace WorldPackets
         class GossipPOI final : public ServerPacket
         {
         public:
-            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 32) { }
+            explicit GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 32) { }
 
             WorldPacket const* Write() override;
 
@@ -147,7 +168,7 @@ namespace WorldPackets
         class TrainerBuySpell final : public ClientPacket
         {
         public:
-            TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
+            explicit TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
 
             void Read() override;
 
@@ -158,7 +179,7 @@ namespace WorldPackets
         class TrainerBuyFailed final : public ServerPacket
         {
         public:
-            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 8 + 4 + 4) { }
+            explicit TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -170,7 +191,7 @@ namespace WorldPackets
         class TrainerBuySucceeded final : public ServerPacket
         {
         public:
-            TrainerBuySucceeded() : ServerPacket(SMSG_TRAINER_BUY_SUCCEEDED, 8 + 4) { }
+            explicit TrainerBuySucceeded() : ServerPacket(SMSG_TRAINER_BUY_SUCCEEDED, 8 + 4) { }
 
             WorldPacket const* Write() override;
 

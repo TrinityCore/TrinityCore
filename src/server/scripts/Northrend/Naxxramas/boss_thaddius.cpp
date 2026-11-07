@@ -980,7 +980,7 @@ class spell_thaddius_polarity_charge : public SpellScript
 
         uint8 maxStacks = 0;
         if (GetCaster())
-            switch (GetCaster()->GetMap()->GetDifficulty())
+            switch (GetCaster()->GetMap()->GetDifficultyID())
             {
                 case RAID_DIFFICULTY_10MAN_NORMAL:
                     maxStacks = MAX_POLARITY_10M;

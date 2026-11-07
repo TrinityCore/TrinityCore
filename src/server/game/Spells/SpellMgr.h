@@ -525,9 +525,9 @@ typedef std::unordered_map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
 
 struct SpellLearnSpellNode
 {
-    uint32 spell;
-    bool active;                                            // show in spellbook or not
-    bool autoLearned;
+    uint32 Spell;
+    bool Active;                    // show in spellbook or not
+    bool AutoLearned;               // This marks the spell as automatically learned from another source that - will only be used for unlearning
 };
 
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
@@ -665,7 +665,7 @@ class TC_GAME_API SpellMgr
             ASSERT(spellInfo);
             return spellInfo;
         }
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
+        uint32 GetSpellInfoStoreSize() const { return uint32(mSpellInfoMap.size()); }
 
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : nullptr; }

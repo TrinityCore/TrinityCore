@@ -186,6 +186,22 @@ void PetCastSpell::Read()
     _worldPacket >> Cast;
 }
 
+void UseItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> Cast.CastID;
+    _worldPacket >> Cast.SpellID;
+    _worldPacket >> CastItem;
+    _worldPacket >> Misc;
+    _worldPacket >> Cast.SendCastFlags;
+
+    _worldPacket >> Cast.Target;
+
+    if (Cast.SendCastFlags & 0x2)
+        _worldPacket >> Cast.MissileTrajectory.emplace();
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, InitialSpell const& initialSpell)
 {
     data << uint32(initialSpell.SpellID);
@@ -462,6 +478,56 @@ WorldPacket const* UnlearnedSpell::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* CooldownEvent::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ClearCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ModifyCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(DeltaTime);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpellCooldownStruct const& cooldown)
+{
+    data << uint32(cooldown.SrecID);
+    data << uint32(cooldown.ForcedCooldown);
+
+    return data;
+}
+
+WorldPacket const* SpellCooldown::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint8(Flags);
+    for (SpellCooldownStruct const& cooldown : SpellCooldowns)
+        _worldPacket << cooldown;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ClearTarget::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
@@ -474,6 +540,12 @@ void CancelCast::Read()
 {
     _worldPacket >> CastID;
     _worldPacket >> SpellID;
+}
+
+void OpenItem::Read()
+{
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
 }
 
 WorldPacket const* ResyncRunes::Write()

@@ -25,6 +25,7 @@
 #include "DBCStores.h"
 #include "GossipDef.h"
 #include "Item.h"
+#include "ItemPackets.h"
 #include "Log.h"
 #include "MailPackets.h"
 #include "Map.h"
@@ -700,19 +701,15 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM: Npc {}, Item {}, UseGuildBank: {}",
+        packet.NpcGUID.ToString(), packet.ItemGUID.ToString(), packet.UseGuildBank);
 
-    ObjectGuid npcGUID, itemGUID;
-    uint8 guildBank;                                        // new in 2.3.2, bool that means from guild bank money
-
-    recvData >> npcGUID >> itemGUID >> guildBank;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - {} not found or you can not interact with him.", npcGUID.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - {} not found or you can not interact with him.", packet.NpcGUID.ToString());
         return;
     }
 
@@ -723,17 +720,17 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     // reputation discount
     float discountMod = _player->GetReputationPriceDiscount(unit);
 
-    if (!itemGUID.IsEmpty())
+    if (!packet.ItemGUID.IsEmpty())
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair {}, at {}", itemGUID.ToString(), npcGUID.ToString());
+        TC_LOG_DEBUG("network", "ITEM: Repair {}, at {}", packet.ItemGUID.ToString(), packet.NpcGUID.ToString());
 
-        Item* item = _player->GetItemByGuid(itemGUID);
+        Item* item = _player->GetItemByGuid(packet.ItemGUID);
         if (item)
             _player->DurabilityRepair(item->GetPos(), true, discountMod);
     }
     else
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair all items at {}", npcGUID.ToString());
-        _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
+        TC_LOG_DEBUG("network", "ITEM: Repair all items at {}", packet.NpcGUID.ToString());
+        _player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
     }
 }

@@ -329,6 +329,7 @@ struct npc_hive_zara_swarmer : public ScriptedAI
             case SPELL_SWARMERS_SWARM:
                 me->SetDisableGravity(false);
                 me->GetMotionMaster()->MoveFall();
+                me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
                 break;
             case SPELL_SWARMER_LOOP_1:
