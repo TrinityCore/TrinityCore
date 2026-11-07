@@ -5147,6 +5147,21 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Fel Rush
+    ApplySpellFix({ 199737, 346123 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx12 |= SPELL_ATTR12_IGNORE_CASTING_DISABLED;
+    });
+
+    // Fel Rush
+    ApplySpellFix({ 197923 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_6, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
+        });
+    });
+
     // Headless Horseman Climax - Return Head (Hallow End)
     // Headless Horseman Climax - Body Regen (confuse only - removed on death)
     // Headless Horseman Climax - Head Is Dead
