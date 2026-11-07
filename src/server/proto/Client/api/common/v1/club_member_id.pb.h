@@ -84,15 +84,6 @@ class TC_PROTO_API MemberId : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId account_id_deprecated = 1;
-  inline bool has_account_id_deprecated() const;
-  inline void clear_account_id_deprecated();
-  static const int kAccountIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& account_id_deprecated() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_account_id_deprecated();
-  inline ::bgs::protocol::account::v1::AccountId* release_account_id_deprecated();
-  inline void set_allocated_account_id_deprecated(::bgs::protocol::account::v1::AccountId* account_id_deprecated);
-
   // optional uint64 unique_id = 2;
   inline bool has_unique_id() const;
   inline void clear_unique_id();
@@ -109,8 +100,6 @@ class TC_PROTO_API MemberId : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.MemberId)
  private:
-  inline void set_has_account_id_deprecated();
-  inline void clear_has_account_id_deprecated();
   inline void set_has_unique_id();
   inline void clear_has_unique_id();
   inline void set_has_account_id();
@@ -120,7 +109,6 @@ class TC_PROTO_API MemberId : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* account_id_deprecated_;
   ::google::protobuf::uint64 unique_id_;
   ::google::protobuf::uint64 account_id_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fcommon_2fv1_2fclub_5fmember_5fid_2eproto();
@@ -138,56 +126,15 @@ class TC_PROTO_API MemberId : public ::google::protobuf::Message {
 
 // MemberId
 
-// optional .bgs.protocol.account.v1.AccountId account_id_deprecated = 1;
-inline bool MemberId::has_account_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void MemberId::set_has_account_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void MemberId::clear_has_account_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void MemberId::clear_account_id_deprecated() {
-  if (account_id_deprecated_ != NULL) account_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_account_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& MemberId::account_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.MemberId.account_id_deprecated)
-  return account_id_deprecated_ != NULL ? *account_id_deprecated_ : *default_instance_->account_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* MemberId::mutable_account_id_deprecated() {
-  set_has_account_id_deprecated();
-  if (account_id_deprecated_ == NULL) account_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.MemberId.account_id_deprecated)
-  return account_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* MemberId::release_account_id_deprecated() {
-  clear_has_account_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = account_id_deprecated_;
-  account_id_deprecated_ = NULL;
-  return temp;
-}
-inline void MemberId::set_allocated_account_id_deprecated(::bgs::protocol::account::v1::AccountId* account_id_deprecated) {
-  delete account_id_deprecated_;
-  account_id_deprecated_ = account_id_deprecated;
-  if (account_id_deprecated) {
-    set_has_account_id_deprecated();
-  } else {
-    clear_has_account_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.MemberId.account_id_deprecated)
-}
-
 // optional uint64 unique_id = 2;
 inline bool MemberId::has_unique_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void MemberId::set_has_unique_id() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void MemberId::clear_has_unique_id() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void MemberId::clear_unique_id() {
   unique_id_ = GOOGLE_ULONGLONG(0);
@@ -205,13 +152,13 @@ inline void MemberId::set_unique_id(::google::protobuf::uint64 value) {
 
 // optional uint64 account_id = 3;
 inline bool MemberId::has_account_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void MemberId::set_has_account_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void MemberId::clear_has_account_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void MemberId::clear_account_id() {
   account_id_ = GOOGLE_ULONGLONG(0);

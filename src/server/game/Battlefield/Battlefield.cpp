@@ -31,6 +31,7 @@
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include <G3D/g3dmath.h>
 
 Battlefield::Battlefield(Map* map)
@@ -243,11 +244,8 @@ void Battlefield::InvitePlayerToWar(Player* player)
     if (player->IsInFlight())
         return;
 
-    if (player->InArena() || player->GetBattleground())
-    {
-        m_PlayersInQueue[player->GetTeamId()].erase(player->GetGUID());
+    if (player->GetBattleground())
         return;
-    }
 
     // If the player does not match minimal level requirements for the battlefield, kick him
     if (player->GetLevel() < m_MinLevel)
@@ -551,6 +549,11 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
 //--------------------
 //-Battlefield Method-
 //--------------------
+void Battlefield::SetGraveyardNumber(uint32 number)
+{
+    m_GraveyardList.resize(number);
+}
+
 BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
 {
     if (id < m_GraveyardList.size())
@@ -595,12 +598,14 @@ WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
 // ----------------------
 // - BfGraveyard Method -
 // ----------------------
-BfGraveyard::BfGraveyard(Battlefield* battlefield)
+BfGraveyard::BfGraveyard(Battlefield* bf)
 {
-    m_Bf = battlefield;
+    m_Bf = bf;
     m_GraveyardId = 0;
     m_ControlTeam = TEAM_NEUTRAL;
 }
+
+BfGraveyard::~BfGraveyard() = default;
 
 void BfGraveyard::Initialize(TeamId startControl, uint32 graveyardId)
 {
@@ -668,7 +673,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
         return nullptr;
     }
 
-    Creature* creature = Creature::CreateCreature(entry, m_Map, pos);
+    Creature* creature = Creature::CreateCreature(entry, m_Map, pos, InitialPhaseShift());
     if (!creature)
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: {}", entry);
@@ -695,7 +700,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     }
 
     // Create gameobject
-    GameObject* go = GameObject::CreateGameObject(entry, m_Map, pos, rot, 255, GO_STATE_READY);
+    GameObject* go = GameObject::CreateGameObject(entry, m_Map, pos, rot, InitialPhaseShift(), 255, GO_STATE_READY);
     if (!go)
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template {}! Battlefield has not been created!", entry);
@@ -731,6 +736,8 @@ GameObject* Battlefield::GetGameObject(ObjectGuid guid)
 BattlefieldControlZoneHandler::BattlefieldControlZoneHandler(Battlefield* bf) : _battlefield(bf)
 {
 }
+
+BattlefieldControlZoneHandler::~BattlefieldControlZoneHandler() = default;
 
 Battlefield* BattlefieldControlZoneHandler::GetBattlefield()
 {

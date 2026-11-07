@@ -32,7 +32,11 @@ class TC_GAME_API ConversationAI
     protected:
         Conversation* const conversation;
     public:
-        explicit ConversationAI(Conversation* c, uint32 scriptId = {});
+        explicit ConversationAI(Conversation* c, uint32 scriptId = {}) noexcept;
+        ConversationAI(ConversationAI const&) = delete;
+        ConversationAI(ConversationAI&&) = delete;
+        ConversationAI& operator=(ConversationAI const&) = delete;
+        ConversationAI& operator=(ConversationAI&&) = delete;
         virtual ~ConversationAI();
 
         // Called when the Conversation has just been initialized, just before added to map

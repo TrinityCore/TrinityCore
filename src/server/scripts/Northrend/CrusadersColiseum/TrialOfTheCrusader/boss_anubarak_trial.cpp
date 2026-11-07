@@ -855,7 +855,7 @@ class spell_anubarak_leeching_swarm : public AuraScript
         Unit* caster = GetCaster();
         if (Unit* target = GetTarget())
         {
-            int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
+            SpellEffectValue lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
             if (lifeLeeched < 250)
                 lifeLeeched = 250;
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);

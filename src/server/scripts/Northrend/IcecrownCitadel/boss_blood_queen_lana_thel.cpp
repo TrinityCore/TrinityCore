@@ -29,7 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Texts
+enum LanathelTexts
 {
     SAY_AGGRO                   = 0,
     SAY_VAMPIRIC_BITE           = 1,
@@ -46,7 +46,7 @@ enum Texts
     EMOTE_BERSERK_RAID          = 12
 };
 
-enum Spells
+enum LanathelSpells
 {
     SPELL_SHROUD_OF_SORROW                  = 70986,
     SPELL_FRENZIED_BLOODTHIRST_VISUAL       = 71949,
@@ -76,7 +76,7 @@ enum Spells
     SPELL_BLOOD_INFUSION_CREDIT             = 72934
 };
 
-enum Shadowmourne
+enum LanathelMisc
 {
     QUEST_BLOOD_INFUSION                    = 24756,
 
@@ -97,7 +97,7 @@ uint32 const vampireAuras[3][4] =
 #define DELIRIOUS_SLASH            RAID_MODE<uint32>(71623, 71624, 71625, 71626)
 #define PRESENCE_OF_THE_DARKFALLEN RAID_MODE<uint32>(70994, 71962, 71963, 71964)
 
-enum Events
+enum LanathelEvents
 {
     EVENT_BERSERK                   = 1,
     EVENT_VAMPIRIC_BITE             = 2,
@@ -114,13 +114,13 @@ enum Events
     EVENT_GROUP_CANCELLABLE         = 2,
 };
 
-enum Guids
+enum LanathelGuids
 {
     GUID_VAMPIRE    = 1,
     GUID_BLOODBOLT  = 2,
 };
 
-enum Points
+enum LanathelPoints
 {
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
@@ -138,6 +138,7 @@ bool IsVampire(Unit const* unit)
     return false;
 }
 
+// 37955 - Blood-Queen Lana'thel
 struct boss_blood_queen_lana_thel : public BossAI
 {
     boss_blood_queen_lana_thel(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
@@ -676,9 +677,9 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, GetCastDifficulty());
-        int32 damage = damageSpell->GetEffect(EFFECT_0).CalcValue();
+        SpellEffectValue damage = damageSpell->GetEffect(EFFECT_0).CalcValue();
         float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-        damage = int32(damage * multiplier);
+        damage = damage * multiplier;
 
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(damage);

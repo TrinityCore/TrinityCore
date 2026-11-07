@@ -40,21 +40,22 @@ class TC_GAME_API DynamicObject final : public WorldObject, public GridObject<Dy
         ~DynamicObject();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const;
+            UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(DynamicObject const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(DynamicObject const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             DynamicObject const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::DynamicObjectData::Base DynamicObjectMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

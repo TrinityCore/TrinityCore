@@ -32,7 +32,7 @@ class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraS
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         if (Unit* caster = GetCaster())
         {
@@ -187,7 +187,7 @@ class spell_item_bracing_chill_proc : public AuraScript
             return;
 
         if (AuraEffect const* trait = caster->GetAuraEffect(SPELL_BRACING_CHILL_TRAIT, EFFECT_0, caster->GetGUID()))
-            caster->CastSpell(procInfo.GetProcTarget(), SPELL_BRACING_CHILL_HEAL,
+            caster->CastSpell(procInfo.GetActionTarget(), SPELL_BRACING_CHILL_HEAL,
                 CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, trait->GetAmount()));
 
         if (GetStackAmount() > 1)
@@ -344,7 +344,7 @@ class spell_item_divine_right : public AuraScript
 {
     bool CheckHealthPct(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget()->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT, eventInfo.GetSpellInfo(), eventInfo.GetActor());
+        return eventInfo.GetActionTarget()->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT, eventInfo.GetSpellInfo(), eventInfo.GetActor());
     }
 
     void Register() override
@@ -467,7 +467,7 @@ class spell_item_echoing_blades_damage : public SpellScript
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
         if (AuraEffect const* trait = GetCaster()->GetAuraEffect(SPELL_ECHOING_BLADES_TRAIT, EFFECT_2))
-            damage = trait->GetAmount() * 2;
+            damage = trait->GetAmountAsInt() * 2;
     }
 
     void ForceCritical(Unit const* /*victim*/, float& critChance)
@@ -604,7 +604,7 @@ class spell_item_corruption_grasping_tendrils : public AuraScript
         return GetUnitOwner()->IsPlayer();
     }
 
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         Player* player = GetUnitOwner()->ToPlayer();
         amount = std::clamp(10.0f + player->GetRatingBonusValue(CR_CORRUPTION) - player->GetRatingBonusValue(CR_CORRUPTION_RESISTANCE), 0.0f, 99.0f);

@@ -25,7 +25,6 @@
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
-#include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
 #include "advstd.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -68,7 +67,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 {
     _updateInterval = updateInterval;
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
+    _resolver = std::make_unique<Trinity::Net::Resolver>(ioContext);
 
     ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -124,16 +123,16 @@ void RealmList::UpdateRealms()
 
             for (std::size_t i = 0; i < 4; ++i)
             {
-                if (fields[2 + i].IsNull())
-                    continue;
-
-                for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(fields[2 + i].GetStringView(), ""))
+                if (Optional<std::string_view> addressStr = fields[2 + i].GetStringViewOrNull())
                 {
-                    boost::asio::ip::address address = endpoint.address();
-                    if (advstd::ranges::contains(addresses, address))
-                        continue;
+                    for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(*addressStr, ""))
+                    {
+                        boost::asio::ip::address address = endpoint.address();
+                        if (advstd::ranges::contains(addresses, address))
+                            continue;
 
-                    addresses.push_back(std::move(address));
+                        addresses.push_back(std::move(address));
+                    }
                 }
             }
 
@@ -187,7 +186,7 @@ void RealmList::UpdateRealms()
         TC_LOG_INFO("realmlist", "Removed realm \"{}\".", itr->second);
 
     {
-        std::unique_lock<std::shared_mutex> lock(_realmsMutex);
+        std::scoped_lock lock(_realmsMutex);
 
         _subRegions.swap(newSubRegions);
         _realms.swap(newRealms);
@@ -213,7 +212,7 @@ void RealmList::UpdateRealms()
 
 std::shared_ptr<Realm const> RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    std::shared_lock lock(_realmsMutex);
     return Trinity::Containers::MapGetValuePtr(_realms, id);
 }
 
@@ -234,11 +233,10 @@ std::shared_ptr<Realm const> RealmList::GetCurrentRealm() const
     return nullptr;
 }
 
-void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
+std::vector<std::string> RealmList::GetSubRegions() const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
-    for (std::string const& subRegion : _subRegions)
-        response->add_attribute_value()->set_string_value(subRegion);
+    std::shared_lock lock(_realmsMutex);
+    return { _subRegions.begin(), _subRegions.end() };
 }
 
 void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTypes accountSecurityLevel, JSON::RealmList::RealmEntry* realmEntry) const
@@ -277,31 +275,30 @@ void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTy
     realmEntry->set_name(realm.Name);
     realmEntry->set_cfgconfigsid(realm.GetConfigId());
     realmEntry->set_cfglanguagesid(1);
+    realmEntry->set_cfgcontentsetid(0);
+    realmEntry->set_usebleepchance(0.0f);
 }
 
-std::vector<uint8> RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
+std::string RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
 {
-    std::vector<uint8> compressed;
     if (std::shared_ptr<Realm const> realm = GetRealm(id))
     {
         if (realm->PopulationLevel != RealmPopulationState::Offline && realm->Build == build && accountSecurityLevel >= realm->AllowedSecurityLevel)
         {
             JSON::RealmList::RealmEntry realmEntry;
             FillRealmEntry(*realm, build, accountSecurityLevel, &realmEntry);
-
-            std::string json = "JamJSONRealmEntry:" + JSON::Serialize(realmEntry);
-            CompressJson(json, &compressed);
+            return JSON::Serialize(realmEntry);
         }
     }
 
-    return compressed;
+    return { };
 }
 
 std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSecurityLevel, std::string const& subRegion) const
 {
     JSON::RealmList::RealmListUpdates realmList;
     {
-        std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+        std::shared_lock lock(_realmsMutex);
         for (auto const& [_, realm] : _realms)
         {
             if (realm->Id.GetSubRegionAddress() != subRegion)
@@ -329,14 +326,14 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSec
     return compressed;
 }
 
-uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
+RealmJoinResult RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
     std::array<uint8, 32> const& clientSecret, LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
-    AccountTypes accountSecurityLevel, bgs::protocol::game_utilities::v1::ClientResponse* response) const
+    AccountTypes accountSecurityLevel) const
 {
     if (std::shared_ptr<Realm const> realm = GetRealm(realmAddress))
     {
         if (realm->PopulationLevel == RealmPopulationState::Offline || realm->Build != build || accountSecurityLevel < realm->AllowedSecurityLevel)
-            return ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM;
+            return { .Result = ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM };
 
         boost::asio::ip::address addressForClient = realm->GetAddressForClient(clientAddress);
 
@@ -349,12 +346,13 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::Vari
         address->set_port(realm->Port);
 
         std::string json = "JSONRealmListServerIPAddresses:" + JSON::Serialize(serverAddresses);
-        std::vector<uint8> compressed;
+        std::vector<uint8> serverAddressesCompressed;
 
-        if (!CompressJson(json, &compressed))
-            return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
+        if (!CompressJson(json, &serverAddressesCompressed))
+            return { .Result = ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE };
 
-        std::array<uint8, 32> serverSecret = Trinity::Crypto::GetRandomBytes<32>();
+        std::vector<uint8> serverSecret(32);
+        Trinity::Crypto::GetRandomBytes(serverSecret);
 
         std::array<uint8, 64> keyData;
         auto keyDestItr = keyData.begin();
@@ -377,19 +375,15 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::Vari
         joinTicket.set_clientarch(buildVariant.Arch);
         joinTicket.set_type(buildVariant.Type);
 
-        bgs::protocol::Attribute* attribute = response->add_attribute();
-        attribute->set_name("Param_RealmJoinTicket");
-        attribute->mutable_value()->set_blob_value(JSON::Serialize(joinTicket));
+        std::string joinTicketJson = JSON::Serialize(joinTicket);
 
-        attribute = response->add_attribute();
-        attribute->set_name("Param_ServerAddresses");
-        attribute->mutable_value()->set_blob_value(compressed.data(), compressed.size());
-
-        attribute = response->add_attribute();
-        attribute->set_name("Param_JoinSecret");
-        attribute->mutable_value()->set_blob_value(serverSecret.data(), serverSecret.size());
-        return ERROR_OK;
+        return {
+            .Result = ERROR_OK,
+            .JoinTicket = { joinTicketJson.begin(), joinTicketJson.end() },
+            .ServerAddresses = std::move(serverAddressesCompressed),
+            .JoinSecret = std::move(serverSecret)
+        };
     }
 
-    return ERROR_UTIL_SERVER_UNKNOWN_REALM;
+    return { .Result = ERROR_UTIL_SERVER_UNKNOWN_REALM };
 }

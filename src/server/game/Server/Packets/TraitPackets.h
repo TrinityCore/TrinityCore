@@ -38,7 +38,7 @@ public:
 class TraitConfigCommitFailed final : public ServerPacket
 {
 public:
-    TraitConfigCommitFailed(int32 configId = 0, int32 spellId = 0, int32 reason = 0) : ServerPacket(SMSG_TRAIT_CONFIG_COMMIT_FAILED, 4 + 4 + 1),
+    explicit TraitConfigCommitFailed(int32 configId = 0, int32 spellId = 0, int32 reason = 0) : ServerPacket(SMSG_TRAIT_CONFIG_COMMIT_FAILED, 4 + 4 + 1),
         ConfigID(configId), SpellID(spellId), Reason(reason) { }
 
     WorldPacket const* Write() override;

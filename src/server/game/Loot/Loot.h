@@ -328,7 +328,7 @@ struct TC_GAME_API Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const& item);
 
-    bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool createdByPlayer = false);
+    bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool pushed = false, bool createdByPlayer = false);
     void AutoStoreTrackingQuests(Player* player, NotNormalLootItemList& ffaItems);
 
     void LootMoney();

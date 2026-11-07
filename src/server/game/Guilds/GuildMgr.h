@@ -32,10 +32,15 @@ class TC_GAME_API GuildMgr
 private:
     GuildMgr();
     ~GuildMgr();
-    GuildMgr(GuildMgr const&) = delete;
-    GuildMgr& operator=(GuildMgr const&) = delete;
 
 public:
+    typedef std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> GuildContainer;
+
+    GuildMgr(GuildMgr const&) = delete;
+    GuildMgr(GuildMgr&&) = delete;
+    GuildMgr& operator=(GuildMgr const&) = delete;
+    GuildMgr& operator=(GuildMgr&&) = delete;
+
     static GuildMgr* instance();
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
@@ -43,6 +48,8 @@ public:
     Guild* GetGuildByGuid(ObjectGuid guid) const;
     Guild* GetGuildByName(std::string_view guildName) const;
     std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
+
+    GuildContainer const& GetGuildStore() const { return GuildStore; }
 
     void LoadGuildRewards();
 
@@ -61,7 +68,6 @@ public:
 
     void ResetTimes(bool week);
 protected:
-    typedef std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> GuildContainer;
     ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
     std::vector<GuildReward> GuildRewards;

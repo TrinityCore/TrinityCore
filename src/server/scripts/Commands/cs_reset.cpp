@@ -37,18 +37,20 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+using namespace Trinity::ChatCommands;
 
 class reset_commandscript : public CommandScript
 {
 public:
     reset_commandscript() : CommandScript("reset_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> resetCommandTable =
+        static ChatCommandTable resetCommandTable =
         {
             { "achievements", rbac::RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS, true, &HandleResetAchievementsCommand, "" },
             { "honor",        rbac::RBAC_PERM_COMMAND_RESET_HONOR,        true, &HandleResetHonorCommand,        "" },
@@ -58,7 +60,7 @@ public:
             { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "" },
             { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "" },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, nullptr, "", resetCommandTable },
         };
@@ -218,10 +220,9 @@ public:
                 Unit* owner = creature->GetOwner();
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
                 {
-                    creature->ToPet()->resetTalents();
+                    creature->ToPet()->resetTalents(true);
                     owner->ToPlayer()->SendTalentsInfoData(true);
 
-                    ChatHandler(owner->ToPlayer()->GetSession()).SendSysMessage(LANG_RESET_PET_TALENTS);
                     if (!handler->GetSession() || handler->GetSession()->GetPlayer() != owner->ToPlayer())
                         handler->PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, handler->GetNameLink(owner->ToPlayer()).c_str());
                 }
@@ -239,13 +240,12 @@ public:
             target->ResetTalents(true);
             target->ResetTalentSpecialization();
             target->SendTalentsInfoData();
-            ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
                 handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
 
             /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();
-            Pet::resetTalentsForAllPetsOf(target, pet);
+            Pet::resetTalentsForAllPetsOf(target, pet, true);
             if (pet)
                 target->SendTalentsInfoData(true);
             */

@@ -38,9 +38,17 @@ enum AtalDazarCreatureIds
 {
     // Bosses
     BOSS_PRIESTESS_ALUNZA = 129614,
-    BOSS_VOLKAAL          = 129399,
+    BOSS_VOLKAAL          = 122965,
     BOSS_REZAN            = 122963,
     BOSS_YAZMA            = 129412
+};
+
+enum AtalDazarGameObjectIds
+{
+    GO_VOLKAAL_DOOR_1     = 292399,
+    GO_VOLKAAL_DOOR_2     = 292400,
+    GO_VOLKAAL_DOOR_3     = 292401,
+    GO_VOLKAAL_DOOR_4     = 292402
 };
 
 template <class AI, class T>

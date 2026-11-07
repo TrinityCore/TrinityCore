@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Random_h__
-#define Random_h__
+#ifndef TRINITYCORE_RANDOM_H
+#define TRINITYCORE_RANDOM_H
 
 #include "Define.h"
 #include "Duration.h"
+#include <concepts>
 #include <limits>
 
 /* Return a random number in the range min..max. */
@@ -50,21 +51,30 @@ TC_COMMON_API float rand_chance();
 TC_COMMON_API uint32 urandweighted(size_t count, double const* chances);
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
-inline bool roll_chance_f(float chance)
+template <std::floating_point T>
+inline bool roll_chance(T chance)
 {
     return chance > rand_chance();
 }
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
-inline bool roll_chance_i(int chance)
+template <std::signed_integral T>
+inline bool roll_chance(T chance)
 {
     return chance > irand(0, 99);
+}
+
+/* Return true if a random roll fits in the specified chance (range 0-100). */
+template <std::unsigned_integral T>
+inline bool roll_chance(T chance)
+{
+    return chance > urand(0, 99);
 }
 
 /*
 * Wrapper satisfying UniformRandomNumberGenerator concept for use in <random> algorithms
 */
-class TC_COMMON_API RandomEngine
+class RandomEngine
 {
 public:
     typedef uint32 result_type;
@@ -72,8 +82,18 @@ public:
     static constexpr result_type min() { return std::numeric_limits<result_type>::min(); }
     static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() const { return rand32(); }
-
-    static RandomEngine& Instance();
 };
 
-#endif // Random_h__
+struct PseudoRandomDistributionState
+{
+    float AccumulateChance(float progress) { return _progress += progress; }
+    void Reset() { _progress = 0; }
+
+private:
+    float _progress = 0.0f;
+};
+
+/* Return true if a random roll fits in the specified chance (range 0-100) using pseudo random distribution that minimizes long good/bad luck streaks. */
+TC_COMMON_API bool roll_chance(float chance, PseudoRandomDistributionState& state);
+
+#endif // TRINITYCORE_RANDOM_H

@@ -211,10 +211,7 @@ class spell_waycrest_manor_wildfire : public AuraScript
     {
         static constexpr Position CircleCenterPos = { -422.13f, -258.28f, 233.8286f, 0.0f };
 
-        Position randomPos = CircleCenterPos;
-        GetTarget()->MovePosition(randomPos, 30.0f * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
-
-        return randomPos;
+        return GetTarget()->GetRandomPoint(CircleCenterPos, 30.0f);
     }
 
     Position GetRandomPositionInRectangle()
@@ -234,7 +231,7 @@ class spell_waycrest_manor_wildfire : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (aurEff->GetTickNumber() % 6 == 0)
-            GetTarget()->CastSpell(roll_chance_i(50) ? GetRandomPositionInCircle() : GetRandomPositionInRectangle(), SPELL_WILDFIRE_MISSILE, TRIGGERED_FULL_MASK);
+            GetTarget()->CastSpell(roll_chance(50) ? GetRandomPositionInCircle() : GetRandomPositionInRectangle(), SPELL_WILDFIRE_MISSILE, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
@@ -272,22 +269,10 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE);
         unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE_NPC);
-    }
-
-    void OnRemove() override
-    {
-        for (ObjectGuid const& guid : at->GetInsideUnits())
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-            if (!unit)
-                continue;
-
-            OnUnitExit(unit);
-        }
     }
 };
 
@@ -298,7 +283,7 @@ struct at_waycrest_manor_organ_missiles : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(100ms, 300ms, [this](TaskContext task)
+        _scheduler.Schedule(100ms, 300ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetPosition(), SPELL_ORGAN_MISSILES, TRIGGERED_IGNORE_CAST_IN_PROGRESS);

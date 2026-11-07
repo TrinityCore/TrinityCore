@@ -33,19 +33,13 @@
 #include "Errors.h"
 #include "TypeContainerVisitor.h"
 
-// forward declaration
-template<class A, class T, class O> class GridLoader;
-
 template
 <
-class ACTIVE_OBJECT,
 class WORLD_OBJECT_CONTAINER,
 class GRID_OBJECT_CONTAINER
 >
 class Grid
 {
-    // allows the GridLoader to access its internals
-    template<class A, class T, class O> friend class GridLoader;
     public:
 
         /** destructor to clean up its resources. This includes unloading the
@@ -55,7 +49,8 @@ class Grid
 
         /** an object of interested enters the grid
          */
-        template<class SPECIFIC_OBJECT> void AddWorldObject(SPECIFIC_OBJECT *obj)
+        template<class SPECIFIC_OBJECT>
+        void AddWorldObject(SPECIFIC_OBJECT *obj)
         {
             i_objects.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
@@ -64,24 +59,13 @@ class Grid
         /** an object of interested exits the grid
          */
         //Actually an unlink is enough, no need to go through the container
-        //template<class SPECIFIC_OBJECT> void RemoveWorldObject(SPECIFIC_OBJECT *obj)
+        //template<class SPECIFIC_OBJECT>
+        //void RemoveWorldObject(SPECIFIC_OBJECT *obj)
         //{
         //    ASSERT(obj->GetGridRef().isValid());
-        //    i_objects.template remove<SPECIFIC_OBJECT>(obj);
+        //    i_objects.template Remove<SPECIFIC_OBJECT>(obj);
         //    ASSERT(!obj->GetGridRef().isValid());
         //}
-
-        /** Refreshes/update the grid. This required for remote grids.
-         */
-        //void RefreshGrid(void) { /* TBI */}
-
-        /** Locks a grid.  Any object enters must wait until the grid is unlock.
-         */
-        //void LockGrid(void) { /* TBI */ }
-
-        /** Unlocks the grid.
-         */
-        //void UnlockGrid(void) { /* TBI */ }
 
         // Visit grid objects
         template<class T>
@@ -99,16 +83,16 @@ class Grid
 
         /** Returns the number of object within the grid.
          */
-        //unsigned int ActiveObjectsInGrid(void) const { return i_objects.template Count<ACTIVE_OBJECT>(); }
         template<class T>
-        uint32 GetWorldObjectCountInGrid() const
+        std::size_t GetWorldObjectCountInGrid() const
         {
-            return uint32(i_objects.template Size<T>());
+            return i_objects.template Size<T>();
         }
 
         /** Inserts a container type object into the grid.
          */
-        template<class SPECIFIC_OBJECT> void AddGridObject(SPECIFIC_OBJECT *obj)
+        template<class SPECIFIC_OBJECT>
+        void AddGridObject(SPECIFIC_OBJECT *obj)
         {
             i_container.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
@@ -116,28 +100,25 @@ class Grid
 
         /** Removes a containter type object from the grid
          */
-        //template<class SPECIFIC_OBJECT> void RemoveGridObject(SPECIFIC_OBJECT *obj)
+        //template<class SPECIFIC_OBJECT>
+        //void RemoveGridObject(SPECIFIC_OBJECT *obj)
         //{
         //    ASSERT(obj->GetGridRef().isValid());
-        //    i_container.template remove<SPECIFIC_OBJECT>(obj);
+        //    i_container.template Remove<SPECIFIC_OBJECT>(obj);
         //    ASSERT(!obj->GetGridRef().isValid());
         //}
 
-        /*bool NoWorldObjectInGrid() const
+        /** Returns the number of container type object within the grid.
+         */
+        template<class T>
+        std::size_t GetGridObjectCountInGrid() const
         {
-            return i_objects.GetElements().isEmpty();
+            return i_container.template Size<T>();
         }
 
-        bool NoGridObjectInGrid() const
-        {
-            return i_container.GetElements().isEmpty();
-        }*/
     private:
-
         GRID_OBJECT_CONTAINER i_container;
         WORLD_OBJECT_CONTAINER i_objects;
-        //typedef std::set<void*> ActiveGridObjects;
-        //ActiveGridObjects m_activeGridObjects;
 };
 
 #endif

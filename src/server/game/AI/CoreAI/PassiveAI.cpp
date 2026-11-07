@@ -19,18 +19,18 @@
 #include "Creature.h"
 #include "World.h"
 
-PassiveAI::PassiveAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+PassiveAI::PassiveAI(Creature* c, uint32 scriptId) noexcept : CreatureAI(c, scriptId)
 {
     me->SetReactState(REACT_PASSIVE);
     me->SetCanMelee(false);
 }
 
-PossessedAI::PossessedAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+PossessedAI::PossessedAI(Creature* c, uint32 scriptId) noexcept : CreatureAI(c, scriptId)
 {
     me->SetReactState(REACT_PASSIVE);
 }
 
-NullCreatureAI::NullCreatureAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+NullCreatureAI::NullCreatureAI(Creature* c, uint32 scriptId) noexcept : CreatureAI(c, scriptId)
 {
     me->SetReactState(REACT_PASSIVE);
     me->SetCanMelee(false);
@@ -73,7 +73,7 @@ void PossessedAI::JustDied(Unit* /*u*/)
     me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
-CritterAI::CritterAI(Creature* creature, uint32 scriptId) : PassiveAI(creature, scriptId)
+CritterAI::CritterAI(Creature* creature, uint32 scriptId) noexcept : PassiveAI(creature, scriptId)
 {
     me->SetCanMelee(false, true);
 }

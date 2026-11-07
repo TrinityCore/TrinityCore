@@ -20,7 +20,6 @@
 
 #include "Object.h"
 #include "GridObject.h"
-#include "Hash.h"
 
 class ConversationAI;
 class Unit;
@@ -34,21 +33,22 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         ~Conversation();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
+            UF::ConversationData::Mask const& requestedConversationMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Conversation const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::ConversationData::Base ConversationMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
@@ -71,10 +71,7 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
-        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+        Position const& GetStationaryPosition() const override { return _stationaryPosition; }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
@@ -100,7 +97,7 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         Milliseconds _duration;
         uint32 _textureKitId;
 
-        std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
+        std::unordered_map<int32 /*lineId*/, std::array<Milliseconds, TOTAL_LOCALES> /*startTime*/> _lineStartTimes;
         std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
 
         std::unique_ptr<ConversationAI> _ai;

@@ -22,19 +22,19 @@
 
 /// Milliseconds shorthand typedef.
 using Milliseconds = std::chrono::milliseconds;
-using FloatMilliseconds = std::chrono::duration<float, Milliseconds::period>;
+using FloatMilliseconds = std::chrono::duration<double, Milliseconds::period>;
 
 /// Seconds shorthand typedef.
 using Seconds = std::chrono::seconds;
-using FloatSeconds = std::chrono::duration<float, Seconds::period>;
+using FloatSeconds = std::chrono::duration<double, Seconds::period>;
 
 /// Minutes shorthand typedef.
 using Minutes = std::chrono::minutes;
-using FloatMinutes = std::chrono::duration<float, Minutes::period>;
+using FloatMinutes = std::chrono::duration<double, Minutes::period>;
 
 /// Hours shorthand typedef.
 using Hours = std::chrono::hours;
-using FloatHours = std::chrono::duration<float, Hours::period>;
+using FloatHours = std::chrono::duration<double, Hours::period>;
 
 /// time_point shorthand typedefs
 typedef std::chrono::steady_clock::time_point TimePoint;

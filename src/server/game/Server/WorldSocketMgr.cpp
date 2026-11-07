@@ -17,32 +17,21 @@
 
 #include "WorldSocketMgr.h"
 #include "Config.h"
-#include "NetworkThread.h"
 #include "ScriptMgr.h"
-#include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketThread::SocketAdded(std::shared_ptr<WorldSocket> const& sock)
 {
-    sWorldSocketMgr.OnSocketOpen(std::move(sock), threadIndex);
+    sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
+    sScriptMgr->OnSocketOpen(sock);
 }
 
-class WorldSocketThread : public NetworkThread<WorldSocket>
+void WorldSocketThread::SocketRemoved(std::shared_ptr<WorldSocket>const& sock)
 {
-public:
-    void SocketAdded(std::shared_ptr<WorldSocket> sock) override
-    {
-        sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
-        sScriptMgr->OnSocketOpen(sock);
-    }
+    sScriptMgr->OnSocketClose(sock);
+}
 
-    void SocketRemoved(std::shared_ptr<WorldSocket> sock) override
-    {
-        sScriptMgr->OnSocketClose(sock);
-    }
-};
-
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
+WorldSocketMgr::WorldSocketMgr() : _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
 }
 
@@ -72,10 +61,8 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
         return false;
     }
 
-    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
+    if (!SocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
-
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -83,12 +70,12 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
 
 void WorldSocketMgr::StopNetwork()
 {
-    BaseSocketMgr::StopNetwork();
+    SocketMgr::StopNetwork();
 
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -114,10 +101,5 @@ void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 th
         }
     }
 
-    BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
-}
-
-NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
-{
-    return new WorldSocketThread[GetNetworkThreadCount()];
+    SocketMgr::OnSocketOpen(std::move(sock));
 }

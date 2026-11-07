@@ -24,10 +24,11 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "WorldStateMgr.h"
 
-BattlegroundScript::BattlegroundScript(BattlegroundMap* map) : battlegroundMap(map), battleground(map->GetBG())
+BattlegroundScript::BattlegroundScript(BattlegroundMap* map) noexcept : battlegroundMap(map), battleground(map->GetBG())
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     BattlegroundScriptTemplate const* scriptTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(battlegroundMap->GetId(), battlegroundMap->GetBG()->GetTypeID());
@@ -64,7 +65,7 @@ void BattlegroundScript::TriggerGameEvent(uint32 gameEventId, WorldObject* sourc
 
 void BattlegroundScript::UpdateWorldState(int32 worldStateId, int32 value, bool hidden) const
 {
-    sWorldStateMgr->SetValue(worldStateId, value, hidden, battlegroundMap);
+    WorldStateMgr::SetValue(worldStateId, value, hidden, battlegroundMap);
 }
 
 ArenaScript::ArenaScript(BattlegroundMap* map) : BattlegroundScript(map)
@@ -81,13 +82,13 @@ GameObject* ArenaScript::CreateObject(uint32 entry, float x, float y, float z, f
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: {}] for BG (map: {}) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, battlegroundMap->GetId());
 
-        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
+        rot = QuaternionData::fromOrientation(o);
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
-    GameObject* go = GameObject::CreateGameObject(entry, battlegroundMap, Position(x, y, z, o), rot, 255, goState);
+    GameObject* go = GameObject::CreateGameObject(entry, battlegroundMap, Position(x, y, z, o), rot, InitialPhaseShift(), 255, goState);
     if (!go)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
@@ -115,7 +116,7 @@ Creature* ArenaScript::CreateCreature(uint32 entry, float x, float y, float z, f
 
     Position pos = { x, y, z, o };
 
-    Creature* creature = Creature::CreateCreature(entry, battlegroundMap, pos);
+    Creature* creature = Creature::CreateCreature(entry, battlegroundMap, pos, InitialPhaseShift());
     if (!creature)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: {}) for BG (map: {}, instance id: {})!",

@@ -782,7 +782,7 @@ class boss_flame_leviathan_overload_device : public CreatureScript
                     if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
                         me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                        player->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
+                        player->KnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
                         player->ExitVehicle();
                     }
                 }
@@ -1628,7 +1628,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector() { };
+        explicit FlameLeviathanPursuedTargetSelector() { }
 
         bool operator()(WorldObject* target) const
         {
@@ -1717,14 +1717,14 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
             {
                 Spell* baseSpell = GetSpell();
                 SpellCastTargets targets = baseSpell->m_targets;
-                int32 damage = GetEffectValue();
+                int32 damage = GetEffectValueAsInt();
                 if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                            Trinity::WorldObjectSpellAreaTargetCheck check({ .Min = 0.0f, .Max = 99.0f }, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
@@ -1746,12 +1746,13 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                                         }
                                                     }
                             }
-                            if (target && target->IsWithinDist2d(targets.GetDstPos(), GetEffectInfo().CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
+                            SpellRange radius = GetEffectInfo().CalcRadius();
+                            if (target && target->IsInRange2d(targets.GetDstPos(), radius.Min, radius.Max * 2)) // now we use *2 because the location of the seat is not correct
                                 passenger->EnterVehicle(target, 0);
                             else
                             {
                                 passenger->ExitVehicle();
-                                passenger->GetMotionMaster()->MoveJump(*targets.GetDstPos(), targets.GetSpeedXY(), targets.GetSpeedZ());
+                                passenger->GetMotionMaster()->MoveJump(EVENT_JUMP, *targets.GetDstPos(), targets.GetSpeedXY());
                             }
                         }
             }

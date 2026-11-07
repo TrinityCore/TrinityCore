@@ -33,20 +33,17 @@ static constexpr ObjectData creatureData[] =
     { BOSS_NEXUS_PRINCESS_KYVEZA, DATA_NEXUS_PRINCESS_KYVEZA },
     { BOSS_ANUBARASH,             DATA_THE_SILKEN_COURT      },
     { BOSS_QUEEN_ANSUREK,         DATA_QUEEN_ANSUREK         },
-    { 0,                          0                          }  // END
 };
 
 static constexpr DoorData doorData[] =
 {
     { GO_WEB_BRIDGE_ULGRAX_INTRO, DATA_WEB_BRIDGE_ULGRAX_INTRO, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                          0,                            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 static constexpr ObjectData objectData[] =
 {
     { GO_NERUBAR_PALACE_DOOR_INTRO, DATA_NERUBAR_PALACE_DOOR_INTRO },
     { GO_WEB_BRIDGE_ULGRAX_INTRO,   DATA_WEB_BRIDGE_ULGRAX_INTRO   },
-    { 0,                            0                              }  // END
 };
 
 static BossBoundaryData const boundaries =

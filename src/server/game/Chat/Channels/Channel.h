@@ -27,14 +27,6 @@
 class Player;
 struct AreaTableEntry;
 
-namespace WorldPackets
-{
-    namespace Channel
-    {
-        class ChannelNotify;
-    }
-}
-
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
 {
@@ -161,6 +153,13 @@ class TC_GAME_API Channel
         Channel(ObjectGuid const& guid, uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
         Channel(ObjectGuid const& guid, std::string const& name, uint32 team = 0, std::string const& banList = "");     // custom player channel ctor
 
+        Channel(Channel const&) = delete;
+        Channel(Channel&&) = delete;
+        Channel& operator=(Channel const&) = delete;
+        Channel& operator=(Channel&&) = delete;
+
+        ~Channel();
+
         static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableEntry const* zoneEntry);
         std::string GetName(LocaleConstant locale = DEFAULT_LOCALE) const;
 
@@ -211,14 +210,14 @@ class TC_GAME_API Channel
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void SilenceAll(Player const* player, std::string const& name);
         void UnsilenceAll(Player const* player, std::string const& name);
-        void List(Player const* player);
+        void List(Player const* player) const;
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
         void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void JoinNotify(Player const* player);
-        void LeaveNotify(Player const* player);
+        void JoinNotify(ObjectGuid const& guid) const;
+        void LeaveNotify(ObjectGuid const& guid) const;
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
 
     private:

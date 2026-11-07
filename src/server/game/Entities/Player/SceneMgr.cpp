@@ -238,6 +238,16 @@ uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/) const
     return activeSceneCount;
 }
 
+Optional<uint32> SceneMgr::GetInstanceIdBySceneId(uint32 sceneId) const
+{
+    for (auto const& itr : _scenesByInstance)
+    {
+        if (itr.second->SceneId == sceneId)
+            return itr.first;
+    }
+    return std::nullopt;
+}
+
 void SceneMgr::TriggerDelayedScenes()
 {
     for (WorldPacket& playScene : _delayedScenes)

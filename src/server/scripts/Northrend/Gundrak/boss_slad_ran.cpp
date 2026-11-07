@@ -110,18 +110,18 @@ struct boss_slad_ran : public BossAI
     void ScheduleTasks() override
     {
         scheduler
-            .Schedule(10s, [this](TaskContext task)
+            .Schedule(10s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_POISON_NOVA);
                 Talk(EMOTE_NOVA);
                 task.Repeat(15s);
             })
-            .Schedule(3s, [this](TaskContext task)
+            .Schedule(3s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_POWERFULL_BITE);
                 task.Repeat(10s);
             })
-            .Schedule(15s, [this](TaskContext task)
+            .Schedule(15s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_VENOM_BOLT);
                 task.Repeat(10s);
@@ -143,7 +143,7 @@ struct boss_slad_ran : public BossAI
             Talk(SAY_SUMMON_SNAKES);
             _phase = Phase::PHASE_SNAKES;
 
-            scheduler.Schedule(5s, GROUP_SNAKES, [this](TaskContext task)
+            scheduler.Schedule(5s, GROUP_SNAKES, [this](TaskContext& task)
             {
                 for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
                     me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
@@ -158,7 +158,7 @@ struct boss_slad_ran : public BossAI
             _phase = Phase::PHASE_CONSTRICTORS;
 
             scheduler.CancelGroup(GROUP_SNAKES);
-            scheduler.Schedule(5s, [this](TaskContext task)
+            scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
                     me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
@@ -214,7 +214,7 @@ struct npc_slad_ran_constrictor : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(2s, [this](TaskContext task)
+        _scheduler.Schedule(2s, [this](TaskContext& task)
         {
             Unit* target = me->GetVictim();
 
@@ -260,7 +260,7 @@ struct npc_slad_ran_viper : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(2s, [this](TaskContext task)
+        _scheduler.Schedule(2s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_VENOMOUS_BITE);
             task.Repeat(10s);

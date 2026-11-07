@@ -31,6 +31,7 @@ void AddSC_event_zalazane_fall();
 
 // Anniversary
 void AddSC_boss_doomwalker_anniversary();
+void AddSC_boss_lord_kazzak_anniversary();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -51,4 +52,5 @@ void AddEventsScripts()
 
     // Anniversary
     AddSC_boss_doomwalker_anniversary();
+    AddSC_boss_lord_kazzak_anniversary();
 }

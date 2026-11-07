@@ -15,304 +15,388 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
-#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Yells
+enum BroggokTexts
 {
-    SAY_AGGRO                   = 0
+    SAY_INTRO                        = 0,
+    SAY_AGGRO                        = 1,
+
+    SAY_PRISONER_AGGRO               = 0
 };
 
-enum Spells
+enum BroggokSpells
 {
-    SPELL_SLIME_SPRAY             = 30913,
-    SPELL_POISON_CLOUD            = 30916,
-    SPELL_POISON_BOLT             = 30917,
-    SPELL_POISON_CLOUD_PASSIVE    = 30914,
-    SPELL_SUMMON_INCOMBAT_TRIGGER = 26837,
+    // Broggok - Combat
+    SPELL_SLIME_SPRAY                = 30913,
+    SPELL_POISON_BOLT                = 30917,
+    SPELL_POISON_CLOUD               = 30916,
 
-    // Prisioners
-    SPELL_STOMP                   = 31900,
-    SPELL_CONCUSSION_BLOW         = 22427,
-    SPELL_FRENZY                  = 8269,
-    SPELL_CHARGE                  = 22120
+    // Broggok - Misc
+    SPELL_SUMMON_INCOMBAT_TRIGGER    = 26837,
+    SPELL_DESPAWN_INCOMBAT_TRIGGER   = 26838,
+
+    // Nascent Fel Orc
+    SPELL_CONCUSSION_BLOW            = 22427,
+    SPELL_STOMP                      = 31900,
+
+    // Fel Orc Neophyte
+    SPELL_CHARGE                     = 22120,
+    SPELL_FRENZY                     = 8269
 };
 
-enum Events
+enum BroggokEvents
 {
-    EVENT_SLIME_SPRAY = 1,
+    EVENT_SLIME_SPRAY                = 1,
     EVENT_POISON_BOLT,
     EVENT_POISON_CLOUD,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+
+    EVENT_RELEASE_1,
+    EVENT_RELEASE_2
 };
 
-class boss_broggok : public CreatureScript
+enum BroggokMisc
 {
-    public:
-        boss_broggok() : CreatureScript("boss_broggok") { }
+    PATH_ROOM                        = 1381150
+};
 
-        struct boss_broggokAI : public BossAI
+// 17380 - Broggok
+struct boss_broggok : public BossAI
+{
+    boss_broggok(Creature* creature) : BossAI(creature, DATA_BROGGOK) { }
+
+    void JustAppeared() override
+    {
+        me->SetUninteractible(true);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        DoCastSelf(SPELL_DESPAWN_INCOMBAT_TRIGGER);
+
+        events.ScheduleEvent(EVENT_SLIME_SPRAY, 5s, 15s);
+        events.ScheduleEvent(EVENT_POISON_BOLT, 0s, 5s);
+        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 20s);
+    }
+
+    // Do nothing, don't store summons, don't despawn them in case of wipe or death - correct behavior
+    void JustSummoned(Creature* /*summoned*/) override { }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        DoZoneInCombat();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            boss_broggokAI(Creature* creature) : BossAI(creature, DATA_BROGGOK) { }
-
-            void Reset() override
-            {
-                _Reset();
-                DoAction(ACTION_RESET_BROGGOK);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-            }
-
-            void JustSummoned(Creature* summoned) override
-            {
-                if (summoned->GetEntry() == NPC_BROGGOK_POISON_CLOUD)
-                {
-                    summoned->SetReactState(REACT_PASSIVE);
-                    summoned->CastSpell(summoned, SPELL_POISON_CLOUD_PASSIVE, true);
-                    summons.Summon(summoned);
-                }
-                else if (summoned->GetEntry() == NPC_INCOMBAT_TRIGGER)
-                {
-                    summoned->SetReactState(REACT_PASSIVE);
-                    DoZoneInCombat(summoned);
-                    summons.Summon(summoned);
-                }
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_SLIME_SPRAY:
-                        DoCastVictim(SPELL_SLIME_SPRAY);
-                        events.ScheduleEvent(EVENT_SLIME_SPRAY, 4s, 12s);
-                        break;
-                    case EVENT_POISON_BOLT:
-                        DoCastVictim(SPELL_POISON_BOLT);
-                        events.ScheduleEvent(EVENT_POISON_BOLT, 4s, 12s);
-                        break;
-                    case EVENT_POISON_CLOUD:
-                        DoCast(me, SPELL_POISON_CLOUD);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, 20s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_PREPARE_BROGGOK:
-                        DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
-                        break;
-                    case ACTION_ACTIVATE_BROGGOK:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetUninteractible(false);
-                        DoZoneInCombat();
-                        events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
-                        events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s);
-                        break;
-                    case ACTION_RESET_BROGGOK:
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetUninteractible(true);
-                        summons.DespawnAll();
-                        instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
-                        if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
-                        {
-                            lever->RemoveFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
-                            lever->SetGoState(GO_STATE_READY);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBloodFurnaceAI<boss_broggokAI>(creature);
+            case ACTION_PERFORM_INTRO:
+                events.ScheduleEvent(EVENT_INTRO_1, 0s);
+                break;
+            case ACTION_RELEASE_BROGGOK:
+                events.ScheduleEvent(EVENT_RELEASE_1, 0s);
+                break;
+            case ACTION_DESPAWN_TRIGGER:
+                DoCastSelf(SPELL_DESPAWN_INCOMBAT_TRIGGER);
+                break;
+            default:
+                break;
         }
+    }
+
+    void UpdateOutOfCombatEvents(uint32 diff)
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRO_1:
+                    DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
+                    events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                    break;
+                case EVENT_INTRO_2:
+                    Talk(SAY_INTRO);
+                    break;
+
+                case EVENT_RELEASE_1:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetUninteractible(false);
+                    events.ScheduleEvent(EVENT_RELEASE_2, 5s);
+                    break;
+                case EVENT_RELEASE_2:
+                    Talk(SAY_AGGRO);
+                    me->GetMotionMaster()->MovePath(PATH_ROOM, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+        {
+            UpdateOutOfCombatEvents(diff);
+            return;
+        }
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SLIME_SPRAY:
+                    DoCastSelf(SPELL_SLIME_SPRAY);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_POISON_BOLT:
+                    DoCastSelf(SPELL_POISON_BOLT);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_POISON_CLOUD:
+                    DoCastSelf(SPELL_POISON_CLOUD);
+                    events.Repeat(10s, 25s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
 };
 
-static Emote const PrisionersEmotes[] =
+struct BroggokPrisionerBaseAI : public ScriptedAI
 {
-    EMOTE_ONESHOT_ROAR,
-    EMOTE_ONESHOT_SHOUT,
-    EMOTE_ONESHOT_BATTLE_ROAR
-};
+    BroggokPrisionerBaseAI(Creature* creature) : ScriptedAI(creature), Instance(creature->GetInstanceScript()) { }
 
-struct BroggokPrisionersAI : public ScriptedAI
-{
-    BroggokPrisionersAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+    void JustAppeared() override
+    {
+        if (IsHighCellPrisoner())
+        {
+            me->SetUninteractible(true);
+            me->SetReactState(REACT_PASSIVE);
+            me->SetImmuneToNPC(true);
+        }
+        else if (IsCellPrisoner())
+        {
+            me->SetUninteractible(true);
+            me->SetReactState(REACT_PASSIVE);
+            DoStartEmotesTask();
+        }
+    }
 
     void Reset() override
     {
-        scheduler.CancelAll();
-        scheduler.Schedule(1s, 5s, [this](TaskContext emote)
-        {
-            me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(PrisionersEmotes));
-            emote.Repeat(6s, 9s);
-        });
+        Scheduler.CancelAll();
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        scheduler.CancelAll();
+        if (IsCellPrisoner())
+            Scheduler.CancelAll();
+
         ScheduleEvents();
+
+        if (roll_chance(15))
+            Talk(SAY_PRISONER_AGGRO);
+    }
+
+    bool IsHighCellPrisoner()
+    {
+        return me->HasStringId("BroggokPrisonerHighCell");
+    }
+
+    bool IsCellPrisoner()
+    {
+        return me->HasStringId("BroggokPrisonerCell1") || me->HasStringId("BroggokPrisonerCell2") || me->HasStringId("BroggokPrisonerCell3") || me->HasStringId("BroggokPrisonerCell4");
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_PRISONER_ENGAGE)
+        {
+            me->SetUninteractible(false);
+            me->SetReactState(REACT_AGGRESSIVE);
+            DoZoneInCombat();
+        }
+    }
+
+    void DoStartEmotesTask()
+    {
+        // Timer is random but all prisoners from the same cell plays emote at the same time,
+        // meaning they are in same spawn group and event is linked to all spawn group members.
+        // We can't support that for now in an easy way
+        Scheduler.Schedule(6s, 12s, [this](TaskContext& task)
+        {
+            switch (task.GetRepeatCounter() % 3)
+            {
+                case 0:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
+                    break;
+                case 1:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                    break;
+                case 2:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
+                    break;
+                default:
+                    break;
+            }
+
+            task.Repeat(6s, 12s);
+        });
     }
 
     virtual void ScheduleEvents() = 0;
 
     void JustReachedHome() override
     {
-        if (instance->GetBossState(DATA_BROGGOK) == IN_PROGRESS)
-        {
-            if (Creature* broggok = instance->GetCreature(DATA_BROGGOK))
-                broggok->AI()->DoAction(ACTION_RESET_BROGGOK);
-        }
-
         ScriptedAI::JustReachedHome();
+
+        if (!IsCellPrisoner())
+            return;
+
+        Instance->SetData(DATA_PRISONERS_EVENT, FAIL);
+
+        // This is not correct in case of wipe. Flags aren't set back. We do it for safety reasons
+        me->SetUninteractible(true);
+        me->SetReactState(REACT_PASSIVE);
+        DoStartEmotesTask();
     }
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
+        Scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
     }
 
 protected:
-    InstanceScript* instance;
-    TaskScheduler scheduler;
+    InstanceScript* Instance;
+    TaskScheduler Scheduler;
 };
 
-struct npc_nascent_fel_orc : public BroggokPrisionersAI
+// 17398 - Nascent Fel Orc
+struct npc_nascent_fel_orc : public BroggokPrisionerBaseAI
 {
-    npc_nascent_fel_orc(Creature* creature) : BroggokPrisionersAI(creature) { }
+    using BroggokPrisionerBaseAI::BroggokPrisionerBaseAI;
 
     void ScheduleEvents() override
     {
-        scheduler.Schedule(15s, [this](TaskContext concussionBlow)
-        {
-            DoCastVictim(SPELL_CONCUSSION_BLOW);
-            concussionBlow.Repeat(8s, 11s);
-        }).Schedule(7s, [this](TaskContext stomp)
-        {
-            DoCastVictim(SPELL_STOMP);
-            stomp.Repeat(16s, 21s);
-        });
-    }
-
-};
-
-struct npc_fel_orc_neophyte : public BroggokPrisionersAI
-{
-    npc_fel_orc_neophyte(Creature* creature) : BroggokPrisionersAI(creature) { }
-
-    void ScheduleEvents() override
-    {
-        scheduler.Schedule(5s, [this](TaskContext charge)
-        {
-            DoCastVictim(SPELL_CHARGE);
-            charge.Repeat(20s);
-        }).Schedule(1s, [this](TaskContext frenzy)
-        {
-            DoCastSelf(SPELL_FRENZY);
-            frenzy.Repeat(12s, 13s);
-        });
-    }
-
-};
-
-class go_broggok_lever : public GameObjectScript
-{
-    public:
-        go_broggok_lever() : GameObjectScript("go_broggok_lever") { }
-
-        struct go_broggok_leverAI : public GameObjectAI
-        {
-            go_broggok_leverAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-            InstanceScript* instance;
-
-            bool OnGossipHello(Player* /*player*/) override
+        Scheduler
+            .Schedule(5s, 15s, [this](TaskContext& task)
             {
-                if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
-                {
-                    instance->SetBossState(DATA_BROGGOK, IN_PROGRESS);
-                    if (Creature* broggok = instance->GetCreature(DATA_BROGGOK))
-                        broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
-                }
+                DoCastVictim(SPELL_CONCUSSION_BLOW);
+                task.Repeat(20s, 30s);
+            })
+            .Schedule(0s, 10s, [this](TaskContext& task)
+            {
+                DoCastSelf(SPELL_STOMP);
+                task.Repeat(10s, 20s);
+            });
+    }
+};
 
-                me->SetFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
-                me->SetGoState(GO_STATE_ACTIVE);
+// 17429 - Fel Orc Neophyte
+struct npc_fel_orc_neophyte : public BroggokPrisionerBaseAI
+{
+    using BroggokPrisionerBaseAI::BroggokPrisionerBaseAI;
 
-                return true;
-            }
-        };
+    void ScheduleEvents() override
+    {
+        Scheduler
+            .Schedule(5s, 10s, [this](TaskContext& task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_CHARGE);
+                task.Repeat(20s, 30s);
+            })
+            .Schedule(0s, 10s, [this](TaskContext& task)
+            {
+                DoCastSelf(SPELL_FRENZY);
+                task.Repeat(120s);
+            });
+    }
+};
 
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetBloodFurnaceAI<go_broggok_leverAI>(go);
-        }
+// 181982 - Cell Door Lever
+struct go_broggok_lever : public GameObjectAI
+{
+    go_broggok_lever(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        if (_instance->GetBossState(DATA_BROGGOK) != DONE)
+            _instance->SetData(DATA_PRISONERS_EVENT, IN_PROGRESS);
+
+        me->ActivateObject(GameObjectActions::MakeInert, 0);
+
+        return false;
+    }
+
+private:
+    InstanceScript* _instance;
 };
 
 // 30914, 38462 - Poison
-class spell_broggok_poison_cloud : public SpellScriptLoader
+class spell_broggok_poison_cloud : public AuraScript
 {
-    public:
-        spell_broggok_poison_cloud() : SpellScriptLoader("spell_broggok_poison_cloud") { }
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
 
-        class spell_broggok_poison_cloud_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
-            }
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (!aurEff->GetTotalTicks())
+            return;
 
-            void PeriodicTick(AuraEffect const* aurEff)
-            {
-                PreventDefaultAction();
-                if (!aurEff->GetTotalTicks())
-                    return;
+        uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
+        float mod = ((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 2 / 3;
+        GetTarget()->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_RADIUS_MOD, mod));
+    }
 
-                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-                float mod = ((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 2 / 3;
-                GetTarget()->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_RADIUS_MOD, mod));
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_broggok_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_broggok_poison_cloud_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_broggok_poison_cloud::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 void AddSC_boss_broggok()
 {
-    new boss_broggok();
+    RegisterBloodFurnaceCreatureAI(boss_broggok);
     RegisterBloodFurnaceCreatureAI(npc_nascent_fel_orc);
     RegisterBloodFurnaceCreatureAI(npc_fel_orc_neophyte);
-    new go_broggok_lever();
-    new spell_broggok_poison_cloud();
+    RegisterBloodFurnaceGameObjectAI(go_broggok_lever);
+    RegisterSpellScript(spell_broggok_poison_cloud);
 }

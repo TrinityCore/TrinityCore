@@ -43,22 +43,23 @@ public:
     int64 GetRespecCost() const;
 
 protected:
-    void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void ClearUpdateMask(bool remove) override;
+    void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void ClearValuesChangesMask() override;
 
 public:
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
-        UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask, Player const* target) const;
+        UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask, Player const* target, bool ignoreNestedChangesMask) const;
 
     struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
     {
-        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem const* owner) : Owner(owner) { }
+        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
         AzeriteEmpoweredItem const* Owner;
         UF::ObjectData::Base ObjectMask;
         UF::ItemData::Base ItemMask;
         UF::AzeriteEmpoweredItemData::Base AzeriteEmpoweredItemMask;
+        bool IgnoreNestedChangesMask;
 
         void operator()(Player const* player) const;
     };

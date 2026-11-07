@@ -18,7 +18,9 @@
 #ifndef TRINITYSERVER_MOVESPLINEINIT_H
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
+#include "Duration.h"
 #include "MoveSplineInitArgs.h"
+#include <span>
 #include <variant>
 
 class ObjectGuid;
@@ -29,20 +31,6 @@ enum class AnimTier : uint8;
 
 namespace Movement
 {
-
-    // Transforms coordinates from global to transport offsets
-    class TC_GAME_API TransportPathTransform
-    {
-    public:
-        TransportPathTransform(Unit* owner, bool transformForTransport)
-            : _owner(owner), _transformForTransport(transformForTransport) { }
-        Vector3 operator()(Vector3 input);
-
-    private:
-        Unit* _owner;
-        bool _transformForTransport;
-    };
-
     /*  Initializes and launches spline movement
      */
     class TC_GAME_API MoveSplineInit
@@ -64,31 +52,30 @@ namespace Movement
 
         /*  Final pass of initialization that stops movement.
          */
-        void Stop();
+        void Stop(bool force = false);
 
-        /* Adds movement by parabolic trajectory
-         * @param amplitude  - the maximum height of parabola, value could be negative and positive
-         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
-         * can't be combined with final animation
+        /** Adds movement by parabolic trajectory
+         * @param amplitude   the maximum height of parabola, value could be negative and positive
+         * @param start_point point index on the path where parabolic movement starts
+         * can't be combined with final animation or fade object
          */
-        void SetParabolic(float amplitude, float start_time);
-        /* Adds movement by parabolic trajectory
-         * @param vertical_acceleration - vertical acceleration
-         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
-         * can't be combined with final animation
-         */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift);
+        void SetParabolic(float amplitude, int32 start_point);
         /* Plays animation after movement done
-         * can't be combined with parabolic movement
+         * can't be combined with parabolic movement or fade object
          */
-        void SetAnimation(AnimTier anim, uint32 tierTransitionId = 0, Milliseconds transitionStartTime = 0ms);
+        void SetAnimation(AnimTier anim, uint32 tierTransitionId = 0, int32 transitionStartPoint = 0);
+
+        /* Plays fading animation while moving
+         * can't be combined with parabolic|animation movement
+         */
+        void SetFadeObject(Milliseconds fadeDuration = 1s);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
          * you can have only one final facing: previous will be overriden
          */
         void SetFacing(float angle);
-        void SetFacing(Vector3 const& point);
+        void SetFacing(Vector3 const& spot);
         void SetFacing(float x, float y, float z);
         void SetFacing(Unit const* target);
 
@@ -96,7 +83,7 @@ namespace Movement
          * @param path - array of points, shouldn't be empty
          * @param pointId - Id of fisrt point of the path. Example: when third path point will be done it will notify that pointId + 3 done
          */
-        void MovebyPath(PointsArray const& path, int32 pointId = 0);
+        void MovebyPath(std::span<Vector3 const> path, int32 pointId = 0);
 
         /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
@@ -169,7 +156,11 @@ namespace Movement
          */
         void SetVelocity(float velocity);
 
+        void SetSwim();
+
         void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
+
+        void SetTurning(float startFacing, float totalTurnRads, float radsPerSec);
 
         PointsArray& Path() { return args.path; }
 
@@ -193,34 +184,33 @@ namespace Movement
     inline void MoveSplineInit::SetTransportExit() { args.flags.TransportExit = true; }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.OrientationFixed = enable; }
     inline void MoveSplineInit::SetJumpOrientationFixed(bool enable) { args.flags.JumpOrientationFixed = enable; }
+    inline void MoveSplineInit::SetSwim() { args.flags.CanSwim = true; }
     inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
-    inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
+    inline void MoveSplineInit::SetParabolic(float amplitude, int32 start_point)
     {
-        args.effect_start_time_percent = time_shift;
+        args.effect_start_point = start_point;
         args.parabolic_amplitude = amplitude;
-        args.vertical_acceleration = 0.0f;
         args.flags.Parabolic = true;
+        args.animTier.reset();
     }
 
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, int32 transitionStartPoint /*= 0*/)
     {
-        args.effect_start_time_percent = time_shift;
-        args.parabolic_amplitude = 0.0f;
-        args.vertical_acceleration = vertical_acceleration;
-        args.flags.Parabolic = true;
+        args.effect_start_point = transitionStartPoint;
+        AnimTierTransition& animTier = args.animTier.emplace();
+        animTier.TierTransitionId = tierTransitionId;
+        animTier.AnimTier = anim;
+        args.flags.Raw &= ~args.flags.Animation.DisallowedFlag;
+        args.flags.Animation = tierTransitionId == 0;
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, Milliseconds transitionStartTime /*= 0ms*/)
+    inline void MoveSplineInit::SetFadeObject(Milliseconds fadeDuration)
     {
-        args.effect_start_time_percent = 0.f;
-        args.effect_start_time = transitionStartTime;
-        args.animTier.emplace();
-        args.animTier->TierTransitionId = tierTransitionId;
-        args.animTier->AnimTier = anim;
-        if (!tierTransitionId)
-            args.flags.Animation = true;
+        args.fade_object_duration_ms = fadeDuration.count();
+        args.flags.FadeObject = true;
+        args.animTier.reset();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
@@ -230,7 +220,17 @@ namespace Movement
         args.spellEffectExtra = spellEffectExtraData;
     }
 
-    struct TC_GAME_API MoveSplineInitFacingVisitor
+    inline void MoveSplineInit::SetTurning(float startFacing, float totalTurnRads, float radsPerSec)
+    {
+        args.flags.Turning = true;
+
+        TurnData& turn = args.turnData.emplace();
+        turn.StartFacing = startFacing;
+        turn.TotalTurnRads = totalTurnRads;
+        turn.RadsPerSec = radsPerSec;
+    }
+
+    struct MoveSplineInitFacingVisitor
     {
         explicit MoveSplineInitFacingVisitor(MoveSplineInit& init) : _init(init) { }
 
@@ -242,4 +242,5 @@ namespace Movement
         MoveSplineInit& _init;
     };
 }
+
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

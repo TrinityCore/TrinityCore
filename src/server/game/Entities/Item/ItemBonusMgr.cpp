@@ -36,6 +36,7 @@ std::unordered_multimap<int32 /*azeriteUnlockMappingSetId*/, AzeriteUnlockMappin
 std::unordered_multimap<uint32 /*itemBonusTreeId*/, ChallengeModeItemBonusOverrideEntry const*> _challengeModeItemBonusOverrides;
 std::unordered_map<uint32 /*itemBonusListId*/, std::vector<ItemBonusEntry const*>> _itemBonusLists;
 std::unordered_multimap<uint32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
+std::unordered_map<uint32 /*itemCreationContextGroupId*/, std::vector<ItemContext>> _itemContextByGroup;
 std::unordered_map<int16 /*itemLevelDelta*/, uint32 /*itemBonusListId*/> _itemLevelDeltaToBonusListContainer;
 std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
 std::unordered_map<uint32 /*itemBonusTreeId*/, std::set<ItemBonusTreeNodeEntry const*>> _itemBonusTrees;
@@ -60,6 +61,9 @@ void Load()
 
     for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
         _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->ItemLevelDelta] = itemBonusListLevelDelta->ID;
+
+    for (ItemCreationContextEntry const* itemCreationContext : sItemCreationContextStore)
+        _itemContextByGroup[itemCreationContext->ItemCreationContextGroupID].push_back(ItemContext(itemCreationContext->ItemContext));
 
     for (ItemLevelSelectorQualityEntry const* itemLevelSelectorQuality : sItemLevelSelectorQualityStore)
         _itemLevelQualitySelectorQualities[itemLevelSelectorQuality->ParentILSQualitySetID].insert(itemLevelSelectorQuality);
@@ -253,7 +257,22 @@ void ApplyBonusTreeHelper(ItemTemplate const* itemTemplate, uint32 itemBonusTree
         ItemContext nodeContext = ItemContext(bonusTreeNode->ItemContext);
         ItemContext requiredContext = nodeContext != ItemContext::Force_to_NONE ? nodeContext : ItemContext::NONE;
         if (nodeContext != ItemContext::NONE && params.Context != requiredContext)
+        {
+            if (!(bonusTreeNode->Flags & 0x1))
+                continue;
+        }
+        else if (bonusTreeNode->Flags & 0x1 && nodeContext != ItemContext::NONE)
             continue;
+
+        if (bonusTreeNode->ItemCreationContextGroupID)
+        {
+            bool hasContextFromGroup = false;
+            if (std::vector<ItemContext> const* itemContexts = Trinity::Containers::MapGetValuePtr(_itemContextByGroup, bonusTreeNode->ItemCreationContextGroupID))
+                hasContextFromGroup = advstd::ranges::contains(*itemContexts, params.Context);
+
+            if (!!(bonusTreeNode->Flags & 0x1) == hasContextFromGroup)
+                continue;
+        }
 
         if (params.MythicPlusKeystoneLevel)
         {

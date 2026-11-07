@@ -288,7 +288,7 @@ struct go_kings_rest_serpentine_seal : public GameObjectAI
     bool OnGossipHello(Player* /*player*/) override
     {
         me->UseDoorOrButton();
-        _scheduler.Schedule(3s, [this](TaskContext)
+        _scheduler.Schedule(3s, [this](TaskContext const&)
         {
             if (TempSummon* zul = me->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulSerpentBossEventSpawnPosition))
                 zul->SetScriptStringId("SerpentBossEvent");
@@ -320,7 +320,7 @@ struct npc_kings_rest_shadow_of_zul : public ScriptedAI
     {
         Seconds delay = 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_ZUL_PRE_BOSS_EVENT_SPAWN);
             me->CastSpell(nullptr, SPELL_ZUL_TRASH_EVENT_STATE, false);
@@ -334,7 +334,7 @@ struct npc_kings_rest_shadow_of_zul : public ScriptedAI
 
         delay += 9s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             std::vector<WorldObject*> spawnedCreatures;
             me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_PRE_FIRST_BOSS, false, false, &spawnedCreatures);
@@ -350,14 +350,14 @@ struct npc_kings_rest_shadow_of_zul : public ScriptedAI
 
         delay += 5s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             me->RemoveAurasDueToSpell(SPELL_ZUL_SHADOWFORM);
         });
 
         delay += 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             me->SetDisplayId(DISPLAY_INVISIBLE_ZUL);
             me->DespawnOrUnsummon(1s);

@@ -229,7 +229,7 @@ struct npc_animated_gold : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_LUCRES_CALL)
         {
-            _scheduler.Schedule(3s, [this](TaskContext)
+            _scheduler.Schedule(3s, [this](TaskContext const&)
             {
                 if (!me->HasAura(SPELL_MOLTEN_GOLD_AURA))
                 {
@@ -306,7 +306,7 @@ struct at_kings_rest_molten_gold : AreaTriggerAI
         unit->CastSpell(nullptr, SPELL_MOLTEN_GOLD_DAMAGE, false);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_MOLTEN_GOLD_DAMAGE);
     }

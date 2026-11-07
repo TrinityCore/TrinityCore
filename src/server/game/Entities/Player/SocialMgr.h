@@ -105,6 +105,13 @@ class TC_GAME_API PlayerSocial
     friend class SocialMgr;
 
     public:
+        PlayerSocial();
+        PlayerSocial(PlayerSocial const&);
+        PlayerSocial(PlayerSocial&&) noexcept;
+        PlayerSocial& operator=(PlayerSocial const&);
+        PlayerSocial& operator=(PlayerSocial&&) noexcept;
+        ~PlayerSocial();
+
         // adding/removing
         bool AddToSocialList(ObjectGuid const& guid, ObjectGuid const& accountGuid, SocialFlag flag);
         void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
@@ -135,10 +142,15 @@ class TC_GAME_API PlayerSocial
 class SocialMgr
 {
     private:
-        SocialMgr() { }
-        ~SocialMgr() { }
+        SocialMgr();
+        ~SocialMgr();
 
     public:
+        SocialMgr(SocialMgr const&) = delete;
+        SocialMgr(SocialMgr&&) = delete;
+        SocialMgr& operator=(SocialMgr const&) = delete;
+        SocialMgr& operator=(SocialMgr&&) = delete;
+
         static SocialMgr* instance();
 
         // Misc

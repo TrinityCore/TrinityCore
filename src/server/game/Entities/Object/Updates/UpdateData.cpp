@@ -18,18 +18,36 @@
 #include "UpdateData.h"
 #include "Errors.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
+#include <utility>
 
 UpdateData::UpdateData(uint32 map) : m_map(map), m_blockCount(0) { }
+
+UpdateData::UpdateData(UpdateData&& right) noexcept :
+    m_map(right.m_map), m_blockCount(std::exchange(right.m_blockCount, 0)),
+    m_destroyGUIDs(std::move(right.m_destroyGUIDs)),
+    m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
+    m_data(std::move(right.m_data))
+{
+}
+
+UpdateData& UpdateData::operator=(UpdateData&& right) noexcept
+{
+    if (this != &right)
+    {
+        m_map = right.m_map;
+        m_blockCount = std::exchange(right.m_blockCount, 0);
+        m_destroyGUIDs = std::move(right.m_destroyGUIDs);
+        m_outOfRangeGUIDs = std::move(right.m_outOfRangeGUIDs);
+        m_data = std::move(right.m_data);
+    }
+    return *this;
+}
+
+UpdateData::~UpdateData() = default;
 
 void UpdateData::AddDestroyObject(ObjectGuid guid)
 {
     m_destroyGUIDs.insert(guid);
-}
-
-void UpdateData::AddOutOfRangeGUID(GuidSet& guids)
-{
-    m_outOfRangeGUIDs.insert(guids.begin(), guids.end());
 }
 
 void UpdateData::AddOutOfRangeGUID(ObjectGuid guid)

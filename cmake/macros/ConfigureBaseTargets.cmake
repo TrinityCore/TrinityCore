@@ -18,7 +18,8 @@ set(CMAKE_CXX_STANDARD 20)
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    _BUILD_DIRECTIVE="$<CONFIG>")
+    TRINITY_BUILD_TYPE="$<CONFIG>"
+    TRINITY_BUILD_HAS_DEBUG_INFO=$<CONFIG:Debug,RelWithDebInfo>)
 
 # An interface library to make the target features available to other targets
 add_library(trinity-feature-interface INTERFACE)

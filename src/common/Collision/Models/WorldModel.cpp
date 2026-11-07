@@ -16,9 +16,8 @@
  */
 
 #include "WorldModel.h"
-#include "VMapDefinitions.h"
 #include "MapTree.h"
-#include "ModelIgnoreFlags.h"
+#include "VMapDefinitions.h"
 #include <array>
 #include <cstring>
 
@@ -32,7 +31,7 @@ template<> struct BoundsTrait<VMAP::GroupModel>
 
 namespace VMAP
 {
-    bool IntersectTriangle(MeshTriangle const& tri, std::vector<Vector3>::const_iterator points, G3D::Ray const& ray, float& distance)
+    bool IntersectTriangle(MeshTriangle const& tri, G3D::Vector3 const* points, G3D::Ray const& ray, float& distance)
     {
         static const float EPS = 1e-5f;
 
@@ -85,19 +84,14 @@ namespace VMAP
     class TriBoundFunc
     {
         public:
-            TriBoundFunc(std::vector<Vector3>& vert): vertices(vert.begin()) { }
+            TriBoundFunc(std::vector<G3D::Vector3> const& vert): vertices(vert.data()) { }
             void operator()(MeshTriangle const& tri, G3D::AABox& out) const
             {
-                G3D::Vector3 lo = vertices[tri.idx0];
-                G3D::Vector3 hi = lo;
-
-                lo = (lo.min(vertices[tri.idx1])).min(vertices[tri.idx2]);
-                hi = (hi.max(vertices[tri.idx1])).max(vertices[tri.idx2]);
-
-                out = G3D::AABox(lo, hi);
+                G3D::Vector3 const& p1 = vertices[tri.idx0], & p2 = vertices[tri.idx1], & p3 = vertices[tri.idx2];
+                out = { p1.min(p2).min(p3), p1.max(p2).max(p3) };
             }
         protected:
-            const std::vector<Vector3>::const_iterator vertices;
+            G3D::Vector3 const* vertices;
     };
 
     // ===================== WmoLiquid ==================================
@@ -395,15 +389,14 @@ namespace VMAP
 
     struct GModelRayCallback
     {
-        GModelRayCallback(std::vector<MeshTriangle> const& tris, const std::vector<Vector3> &vert):
-            vertices(vert.begin()), triangles(tris.begin()), hit(false) { }
+        GModelRayCallback(std::vector<MeshTriangle> const& tris, std::vector<G3D::Vector3> const& vert) :
+            vertices(vert.data()), triangles(tris.data()), hit(false) { }
         bool operator()(G3D::Ray const& ray, uint32 entry, float& distance, bool /*pStopAtFirstHit*/)
         {
-            hit = IntersectTriangle(triangles[entry], vertices, ray, distance) || hit;
-            return hit;
+            return hit |= IntersectTriangle(triangles[entry], vertices, ray, distance);
         }
-        std::vector<Vector3>::const_iterator vertices;
-        std::vector<MeshTriangle>::const_iterator triangles;
+        G3D::Vector3 const* vertices;
+        MeshTriangle const* triangles;
         bool hit;
     };
 
@@ -417,7 +410,7 @@ namespace VMAP
         return callback.hit;
     }
 
-    inline bool IsInsideOrAboveBound(G3D::AABox const& bounds, const G3D::Point3& point)
+    inline bool IsInsideOrAboveBound(G3D::AABox const& bounds, G3D::Point3 const& point)
     {
         return point.x >= bounds.low().x
             && point.y >= bounds.low().y
@@ -483,15 +476,12 @@ namespace VMAP
 
     struct WModelRayCallBack
     {
-        WModelRayCallBack(std::vector<GroupModel> const& mod): models(mod.begin()), hit(false) { }
+        WModelRayCallBack(std::vector<GroupModel> const& mod) : models(mod.data()), hit(false) { }
         bool operator()(G3D::Ray const& ray, uint32 entry, float& distance, bool pStopAtFirstHit)
         {
-            bool result = models[entry].IntersectRay(ray, distance, pStopAtFirstHit);
-            if (result)
-                hit = true;
-            return hit;
+            return hit |= models[entry].IntersectRay(ray, distance, pStopAtFirstHit);
         }
-        std::vector<GroupModel>::const_iterator models;
+        GroupModel const* models;
         bool hit;
     };
 
@@ -544,7 +534,7 @@ namespace VMAP
         }
     };
 
-    bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, GroupLocationInfo& info) const
+    bool WorldModel::GetLocationInfo(G3D::Vector3 const& p, G3D::Vector3 const& down, WorldModelLocationInfoQueryResult& info) const
     {
         if (groupModels.empty())
             return false;
@@ -555,9 +545,9 @@ namespace VMAP
         groupTree.intersectRay(r, callback, zDist, false);
         if (callback.hit[GroupModel::INSIDE])
         {
-            info.rootId = RootWMOID;
             info.hitModel = callback.hit[GroupModel::INSIDE];
-            dist = zDist;
+            info.distanceToModel = zDist;
+            info.rootId = RootWMOID;
             return true;
         }
 
@@ -566,9 +556,9 @@ namespace VMAP
         // then find back where we originated from (GroupModel::MAYBE_INSIDE)
         if (callback.hit[GroupModel::MAYBE_INSIDE] && callback.hit[GroupModel::ABOVE])
         {
-            info.rootId = RootWMOID;
             info.hitModel = callback.hit[GroupModel::MAYBE_INSIDE];
-            dist = zDist;
+            info.distanceToModel = zDist;
+            info.rootId = RootWMOID;
             return true;
         }
         return false;

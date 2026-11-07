@@ -1,23 +1,7 @@
-set(HEADER_FILES
-    src/CascCommon.h
-    src/CascLib.h
-    src/CascPort.h
-    src/common/Array.h
-    src/common/Common.h
-    src/common/Csv.h
-    src/common/Directory.h
-    src/common/FileStream.h
-    src/common/FileTree.h
-    src/common/ListFile.h
-    src/common/Map.h
-    src/common/Mime.h
-    src/common/Path.h
-    src/common/RootHandler.h
-    src/common/Sockets.h
-    src/jenkins/lookup.h
-)
+add_library(casc STATIC)
 
-set(SRC_FILES
+target_sources(casc
+  PRIVATE
     src/common/Common.cpp
     src/common/Directory.cpp
     src/common/Csv.cpp
@@ -48,18 +32,36 @@ set(SRC_FILES
     src/CascRootFile_Text.cpp
     src/CascRootFile_TVFS.cpp
     src/CascRootFile_OW.cpp
-    src/CascRootFile_WoW.cpp
-)
+    src/CascRootFile_WoW.cpp)
 
-add_library(casc STATIC ${SRC_FILES} ${HEADER_FILES})
+target_sources(casc
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS src
+    FILES
+      src/CascLib.h
+  PRIVATE
+    FILE_SET casc_private_headers
+    TYPE HEADERS
+    BASE_DIRS src
+    FILES
+      src/CascCommon.h
+      src/CascPort.h
+      src/common/Array.h
+      src/common/Common.h
+      src/common/Csv.h
+      src/common/Directory.h
+      src/common/FileStream.h
+      src/common/FileTree.h
+      src/common/ListFile.h
+      src/common/Map.h
+      src/common/Mime.h
+      src/common/Path.h
+      src/common/RootHandler.h
+      src/common/Sockets.h
+      src/jenkins/lookup.h)
 
-target_include_directories(casc
-    PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
-    PRIVATE
-      ${CMAKE_SOURCE_DIR}/dep)
-
-target_compile_definitions(casc PUBLIC __SYS_ZLIB CASCLIB_NO_AUTO_LINK_LIBRARY CASCLIB_NODEBUG)
+target_compile_definitions(casc PUBLIC CASC_USE_SYSTEM_ZLIB CASCLIB_NO_AUTO_LINK_LIBRARY CASCLIB_NODEBUG)
 
 target_link_libraries(casc
   PRIVATE

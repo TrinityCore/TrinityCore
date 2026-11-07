@@ -185,7 +185,7 @@ void Serializer::WriteRepeatedMessageField(google::protobuf::Message const& valu
 class Deserializer : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Deserializer>
 {
 public:
-    bool ReadMessage(std::string const& json, google::protobuf::Message* message);
+    bool ReadMessage(std::string_view json, google::protobuf::Message* message);
 
     bool Key(Ch const* str, rapidjson::SizeType length, bool copy);
     bool Null();
@@ -212,7 +212,7 @@ private:
     std::vector<std::string> _errors;
 };
 
-bool Deserializer::ReadMessage(std::string const& json, google::protobuf::Message* message)
+bool Deserializer::ReadMessage(std::string_view json, google::protobuf::Message* message)
 {
     rapidjson::MemoryStream ms(json.data(), json.length());
     rapidjson::EncodedInputStream<rapidjson::UTF8<>, rapidjson::MemoryStream> is(ms);
@@ -443,7 +443,7 @@ std::string JSON::Serialize(google::protobuf::Message const& message)
     return serializer.GetString();
 }
 
-bool JSON::Deserialize(std::string const& json, google::protobuf::Message* message)
+bool JSON::Deserialize(std::string_view json, google::protobuf::Message* message)
 {
     Deserializer deserializer;
     if (!deserializer.ReadMessage(json, message))

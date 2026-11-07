@@ -86,20 +86,20 @@ class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return sBroadcastTextStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue())) &&
-            sSoundKitStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+        return sBroadcastTextStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt())) &&
+            sSoundKitStore.HasRecord(uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()));
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
-            GetCaster()->Unit::Whisper(uint32(GetEffectValue()), player, false);
+            GetCaster()->Unit::Whisper(uint32(GetEffectValueAsInt()), player, false);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitPlayer())
-            player->PlayDistanceSound(uint32(GetEffectValue()), player);
+            player->PlayDistanceSound(uint32(GetEffectValueAsInt()), player);
     }
 
     void Register() override

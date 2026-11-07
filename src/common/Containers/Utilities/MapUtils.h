@@ -40,7 +40,7 @@ inline auto MapGetValuePtr(M& map, typename M::key_type const& key)
 
     auto itr = map.find(key);
     if constexpr (std::is_pointer_v<mapped_type>)
-        return itr != map.end() ? std::to_address(itr->second) : nullptr;       // raw pointer
+        return itr != map.end() ? itr->second : nullptr;                        // raw pointer
     else if constexpr (requires(mapped_type const& p) { p.operator->(); })
     {
         // smart pointers
@@ -65,5 +65,16 @@ void MultimapErasePair(M& multimap, typename M::key_type const& key, typename M:
             ++itr;
     }
 }
+
+/**
+ * Map key projection for various std::ranges algorithms
+ */
+inline constexpr auto MapKey = []<typename Pair>(Pair&& pair) constexpr -> decltype(auto) { return (std::forward<Pair>(pair).first); /*Parentheses required for decltype(auto) to deduce a reference*/ };
+
+/**
+ * Map value projection for various std::ranges algorithms
+ */
+inline constexpr auto MapValue = []<typename Pair>(Pair&& pair) constexpr -> decltype(auto) { return (std::forward<Pair>(pair).second); /*Parentheses required for decltype(auto) to deduce a reference*/
+};
 }
 #endif // TRINITYCORE_MAP_UTILS_H

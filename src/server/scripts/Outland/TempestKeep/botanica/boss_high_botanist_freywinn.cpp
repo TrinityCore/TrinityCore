@@ -20,7 +20,7 @@
 #include "SpellInfo.h"
 #include "the_botanica.h"
 
-enum Texts
+enum FreywinnTexts
 {
     SAY_AGGRO                  = 0,
     SAY_SLAY                   = 1,
@@ -29,25 +29,26 @@ enum Texts
     SAY_OOC_RANDOM             = 4
 };
 
-enum Spells
+enum FreywinnSpells
 {
-    SPELL_TRANQUILITY          = 34550,
-    SPELL_TREE_FORM            = 34551,
-    SPELL_SUMMON_FRAYER        = 34557,
     SPELL_PLANT_WHITE          = 34759,
     SPELL_PLANT_GREEN          = 34761,
     SPELL_PLANT_BLUE           = 34762,
     SPELL_PLANT_RED            = 34763,
+    SPELL_TREE_FORM            = 34551,
+    SPELL_SUMMON_FRAYER        = 34557,
+    SPELL_TRANQUILITY          = 34550,
     SPELL_CANCEL_TRANQUILITY   = 34777
 };
 
-enum Events
+enum FreywinnEvents
 {
     EVENT_PLANT_SEEDLING       = 1,
     EVENT_TREE_FORM,
     EVENT_TRANQUILITY
 };
 
+// 17975 - High Botanist Freywinn
 struct boss_high_botanist_freywinn : public BossAI
 {
     boss_high_botanist_freywinn(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN), _frayersKilled(0) { }
@@ -61,20 +62,11 @@ struct boss_high_botanist_freywinn : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_PLANT_SEEDLING, 6s);
         events.ScheduleEvent(EVENT_TREE_FORM, 30s);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
     }
 
     // Do not despawn them
@@ -82,6 +74,17 @@ struct boss_high_botanist_freywinn : public BossAI
     {
         if (me->IsEngaged())
             DoZoneInCombat(summon);
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_TREE_FORM)
+        {
+            _frayersKilled = 0;
+            Talk(SAY_TREE);
+            DoCastSelf(SPELL_SUMMON_FRAYER);
+            events.ScheduleEvent(EVENT_TRANQUILITY, 1s);
+        }
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -98,6 +101,17 @@ struct boss_high_botanist_freywinn : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_TREE_FORM);
             }
         }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -119,14 +133,8 @@ struct boss_high_botanist_freywinn : public BossAI
                     events.Repeat(6s);
                     break;
                 case EVENT_TREE_FORM:
-                    // Reset counter in case not all frayers were killed and tree phase was ended, otherwise next time it will be enough to
-                    // kill only 1 or 2 to stop phase. It's an edge case, quite possible it was not even supported
-                    _frayersKilled = 0;
-                    Talk(SAY_TREE);
-                    DoCastSelf(SPELL_SUMMON_FRAYER);
                     DoCastSelf(SPELL_TREE_FORM);
                     events.Repeat(60s);
-                    events.ScheduleEvent(EVENT_TRANQUILITY, 1s);
                     break;
                 case EVENT_TRANQUILITY:
                     DoCastSelf(SPELL_TRANQUILITY);

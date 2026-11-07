@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ReferAFriendPackets_h__
-#define ReferAFriendPackets_h__
+#ifndef TRINITYCORE_REFER_A_FRIEND_PACKETS_H
+#define TRINITYCORE_REFER_A_FRIEND_PACKETS_H
 
 #include "Packet.h"
 
@@ -37,4 +37,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ReferAFriendPackets_h__
+#endif // TRINITYCORE_REFER_A_FRIEND_PACKETS_H

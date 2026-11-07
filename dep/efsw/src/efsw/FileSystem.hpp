@@ -3,7 +3,6 @@
 
 #include <efsw/FileInfo.hpp>
 #include <efsw/base.hpp>
-#include <map>
 
 namespace efsw {
 
@@ -34,6 +33,9 @@ class FileSystem {
 	static bool changeWorkingDirectory( const std::string& path );
 
 	static std::string getCurrentWorkingDirectory();
+
+	static std::string getRealPath( const std::string& path );
+
 };
 
 } // namespace efsw

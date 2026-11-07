@@ -140,7 +140,6 @@ class TC_PROTO_API Filter : public ::google::protobuf::Message {
 
   enum TypeCase {
     kTitleId = 1,
-    kDeprecatedHandle = 2,
     kGameAccount = 3,
     TYPE_NOT_SET = 0,
   };
@@ -169,15 +168,6 @@ class TC_PROTO_API Filter : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 title_id() const;
   inline void set_title_id(::google::protobuf::uint32 value);
 
-  // optional .bgs.protocol.account.v1.GameAccountHandle deprecated_handle = 2 [deprecated = true];
-  inline bool has_deprecated_handle() const PROTOBUF_DEPRECATED;
-  inline void clear_deprecated_handle() PROTOBUF_DEPRECATED;
-  static const int kDeprecatedHandleFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::GameAccountHandle& deprecated_handle() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_deprecated_handle() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::GameAccountHandle* release_deprecated_handle() PROTOBUF_DEPRECATED;
-  inline void set_allocated_deprecated_handle(::bgs::protocol::account::v1::GameAccountHandle* deprecated_handle) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.account.v2.GameAccountHandle game_account = 3;
   inline bool has_game_account() const;
   inline void clear_game_account();
@@ -191,7 +181,6 @@ class TC_PROTO_API Filter : public ::google::protobuf::Message {
   // @@protoc_insertion_point(class_scope:bgs.protocol.notification.v2.client.Filter)
  private:
   inline void set_has_title_id();
-  inline void set_has_deprecated_handle();
   inline void set_has_game_account();
 
   inline bool has_type();
@@ -204,7 +193,6 @@ class TC_PROTO_API Filter : public ::google::protobuf::Message {
   mutable int _cached_size_;
   union TypeUnion {
     ::google::protobuf::uint32 title_id_;
-    ::bgs::protocol::account::v1::GameAccountHandle* deprecated_handle_;
     ::bgs::protocol::account::v2::GameAccountHandle* game_account_;
   } type_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -501,49 +489,6 @@ inline void Filter::set_title_id(::google::protobuf::uint32 value) {
     set_has_title_id();
   }
   type_.title_id_ = value;
-}
-
-// optional .bgs.protocol.account.v1.GameAccountHandle deprecated_handle = 2 [deprecated = true];
-inline bool Filter::has_deprecated_handle() const {
-  return type_case() == kDeprecatedHandle;
-}
-inline void Filter::set_has_deprecated_handle() {
-  _oneof_case_[0] = kDeprecatedHandle;
-}
-inline void Filter::clear_deprecated_handle() {
-  if (has_deprecated_handle()) {
-    delete type_.deprecated_handle_;
-    clear_has_type();
-  }
-}
-inline const ::bgs::protocol::account::v1::GameAccountHandle& Filter::deprecated_handle() const {
-  return has_deprecated_handle() ? *type_.deprecated_handle_
-                      : ::bgs::protocol::account::v1::GameAccountHandle::default_instance();
-}
-inline ::bgs::protocol::account::v1::GameAccountHandle* Filter::mutable_deprecated_handle() {
-  if (!has_deprecated_handle()) {
-    clear_type();
-    set_has_deprecated_handle();
-    type_.deprecated_handle_ = new ::bgs::protocol::account::v1::GameAccountHandle;
-  }
-  return type_.deprecated_handle_;
-}
-inline ::bgs::protocol::account::v1::GameAccountHandle* Filter::release_deprecated_handle() {
-  if (has_deprecated_handle()) {
-    clear_has_type();
-    ::bgs::protocol::account::v1::GameAccountHandle* temp = type_.deprecated_handle_;
-    type_.deprecated_handle_ = NULL;
-    return temp;
-  } else {
-    return NULL;
-  }
-}
-inline void Filter::set_allocated_deprecated_handle(::bgs::protocol::account::v1::GameAccountHandle* deprecated_handle) {
-  clear_type();
-  if (deprecated_handle) {
-    set_has_deprecated_handle();
-    type_.deprecated_handle_ = deprecated_handle;
-  }
 }
 
 // optional .bgs.protocol.account.v2.GameAccountHandle game_account = 3;

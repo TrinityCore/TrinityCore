@@ -647,7 +647,7 @@ struct npc_pulsing_pumpkin : public ScriptedAI
         if (id != ACTION_PUMPKIN_SPROUTING_FINISHED)
             return;
 
-        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
         {
             me->RemoveAurasDueToSpell(SPELL_PUMPKIN_LIFE_CYCLE);
             me->SetDisableGravity(false);
@@ -657,7 +657,7 @@ struct npc_pulsing_pumpkin : public ScriptedAI
             me->SetImmuneToNPC(true);
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();
-        }).Schedule(11s, [this](TaskContext squashSoul)
+        }).Schedule(11s, [this](TaskContext& squashSoul)
         {
             DoCastVictim(SPELL_SQUASH_SOUL);
             squashSoul.Repeat(10s);
@@ -685,10 +685,10 @@ struct npc_flame_bunny : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_BURNING_COSMETIC_BASE);
-        }).Schedule(3s, [this](TaskContext grow)
+        }).Schedule(3s, [this](TaskContext& grow)
         {
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_FIRE_SIZE_BIG);
             if (grow.GetRepeatCounter() < 2)
@@ -715,7 +715,7 @@ struct npc_sir_thomas : public PassiveAI
         me->SetUninteractible(true);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
 
-        _scheduler.Schedule(9s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(9s, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_WISP_FLIGHT_MISSILE);
         });

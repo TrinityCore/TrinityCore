@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ToyPackets_h__
-#define ToyPackets_h__
+#ifndef TRINITYCORE_TOY_PACKETS_H
+#define TRINITYCORE_TOY_PACKETS_H
 
 #include "SpellPackets.h"
 #include "CollectionMgr.h"
@@ -28,7 +28,7 @@ namespace WorldPackets
         class AddToy final : public ClientPacket
         {
         public:
-            AddToy(WorldPacket&& packet) : ClientPacket(CMSG_ADD_TOY, std::move(packet)) { }
+            explicit AddToy(WorldPacket&& packet) : ClientPacket(CMSG_ADD_TOY, std::move(packet)) { }
 
             void Read() override;
 
@@ -38,7 +38,7 @@ namespace WorldPackets
         class UseToy final : public ClientPacket
         {
         public:
-            UseToy(WorldPacket&& packet) : ClientPacket(CMSG_USE_TOY, std::move(packet)) { }
+            explicit UseToy(WorldPacket&& packet) : ClientPacket(CMSG_USE_TOY, std::move(packet)) { }
 
             void Read() override;
 
@@ -48,7 +48,7 @@ namespace WorldPackets
         class AccountToyUpdate final : public ServerPacket
         {
         public:
-            AccountToyUpdate() : ServerPacket(SMSG_ACCOUNT_TOY_UPDATE, 1 + 4 + 1) { }
+            explicit AccountToyUpdate() : ServerPacket(SMSG_ACCOUNT_TOY_UPDATE, 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -59,7 +59,7 @@ namespace WorldPackets
         class ToyClearFanfare final : public ClientPacket
         {
         public:
-            ToyClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_TOY_CLEAR_FANFARE, std::move(packet)) { }
+            explicit ToyClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_TOY_CLEAR_FANFARE, std::move(packet)) { }
 
             void Read() override;
 
@@ -68,4 +68,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ToyPackets_h__
+#endif // TRINITYCORE_TOY_PACKETS_H

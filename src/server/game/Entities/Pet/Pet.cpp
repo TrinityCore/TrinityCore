@@ -835,6 +835,14 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     return true;
 }
 
+void Pet::SendNewlyTamed(bool playPingFx /*= true*/) const
+{
+    WorldPackets::Pet::PetNewlyTamed petNewlyTamed;
+    petNewlyTamed.UnitGUID = GetGUID();
+    petNewlyTamed.PlayPingFX = playPingFx;
+    SendMessageToSet(petNewlyTamed.Write(), true);
+}
+
 /// @todo Move stat mods code to pet passive auras
 bool Guardian::InitStatsForLevel(uint8 petlevel)
 {
@@ -905,7 +913,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         // remove elite bonuses included in DB values
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
-        ApplyLevelScaling();
+        if (!m_Properties) // pet loaded from DB
+            ApplyLevelScaling(GetOwner()->m_unitData->ContentTuningID, GetOwner()->m_unitData->ScalingLevelDelta);
 
         CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
         SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class), 0) * creatureDifficulty->HealthModifier * GetHealthMod(cinfo->Classification), 1.0f));
@@ -1199,15 +1208,17 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
 
                 AuraKey key{ casterGuid, itemGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
                 AuraLoadEffectInfo& info = effectInfo[key];
-                info.Amounts[effectIndex] = fields[4].GetInt32();
-                info.BaseAmounts[effectIndex] = fields[5].GetInt32();
+                info.Amounts[effectIndex] = fields[4].GetDouble();
+                info.BaseAmounts[effectIndex] = fields[5].GetDouble();
             }
         } while (effectResult->NextRow());
     }
 
     /*
                     0      1           2                3           4           5            6           7              8
-    SELECT casterGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges FROM pet_aura WHERE guid = ?
+    SELECT casterGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges,
+                          9            10            11            12            13
+           dstLocationMapId, dstLocationX, dstLocationY, dstLocationZ, dstLocationO FROM pet_aura WHERE guid = ?
     */
     if (auraResult)
     {
@@ -1230,6 +1241,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             int32 maxDuration = fields[6].GetInt32();
             int32 remainTime = fields[7].GetInt32();
             uint8 remainCharges = fields[8].GetUInt8();
+            WorldLocation dst(fields[9].GetInt32(), fields[10].GetFloat(), fields[11].GetFloat(), fields[12].GetFloat(), fields[13].GetFloat());
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId, difficulty);
             if (!spellInfo)
@@ -1264,12 +1276,18 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             else
                 remainCharges = 0;
 
+            if ((dst.GetMapId() != MAPID_INVALID && !sMapStore.HasRecord(dst.GetMapId()))
+                || !Trinity::IsValidMapCoord(dst.GetPositionX(), dst.GetPositionY(), dst.GetPositionZ(), dst.GetOrientation()))
+                dst = WorldLocation();
+
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
             AuraCreateInfo createInfo(castId, spellInfo, difficulty, key.EffectMask, this);
             createInfo
                 .SetCasterGUID(casterGuid)
-                .SetBaseAmount(info.BaseAmounts.data());
+                .SetBaseAmount(info.BaseAmounts.data())
+                .SetStackAmount(stackCount)
+                .SetDst(&dst);
 
             if (Aura* aura = Aura::TryCreate(createInfo))
             {
@@ -1279,7 +1297,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
                     continue;
                 }
 
-                aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts.data());
+                aura->SetLoadedState(maxDuration, remainTime, remainCharges, recalculateMask, info.Amounts.data());
                 aura->ApplyForTargets();
                 TC_LOG_DEBUG("entities.pet", "Added aura spellid {}, effectmask {}", spellInfo->Id, key.EffectMask);
             }
@@ -1325,6 +1343,11 @@ void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
         stmt->setInt32(index++, aura->GetMaxDuration());
         stmt->setInt32(index++, aura->GetDuration());
         stmt->setUInt8(index++, aura->GetCharges());
+        stmt->setInt32(index++, aura->GetDst().GetMapId());
+        stmt->setFloat(index++, aura->GetDst().GetPositionX());
+        stmt->setFloat(index++, aura->GetDst().GetPositionY());
+        stmt->setFloat(index++, aura->GetDst().GetPositionZ());
+        stmt->setFloat(index++, aura->GetDst().GetOrientation());
         trans->Append(stmt);
 
         for (AuraEffect const* effect : aura->GetAuraEffects())
@@ -1336,8 +1359,8 @@ void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
             stmt->setUInt32(index++, key.SpellId);
             stmt->setUInt32(index++, key.EffectMask);
             stmt->setUInt8(index++, effect->GetEffIndex());
-            stmt->setInt32(index++, effect->GetAmount());
-            stmt->setInt32(index++, effect->GetBaseAmount());
+            stmt->setDouble(index++, effect->GetAmount());
+            stmt->setDouble(index++, effect->GetBaseAmount());
             trans->Append(stmt);
         }
     }
@@ -1682,9 +1705,8 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry, uint32 /*p
     SetMap(map);
 
     // TODO: counter should be constructed as (summon_count << 32) | petNumber
-    Object::_Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
 
-    m_spawnId = guidlow;
     m_originalEntry = Entry;
 
     if (!InitEntry(Entry))

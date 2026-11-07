@@ -18,7 +18,7 @@
 #ifndef _VMAPFACTORY_H
 #define _VMAPFACTORY_H
 
-#include "IVMapManager.h"
+#include "Define.h"
 
 /**
 This is the access point to the VMapManager.
@@ -26,12 +26,12 @@ This is the access point to the VMapManager.
 
 namespace VMAP
 {
-    class VMapManager2;
+    class VMapManager;
 
     class TC_COMMON_API VMapFactory
     {
         public:
-            static VMapManager2* createOrGetVMapManager();
+            static VMapManager* createOrGetVMapManager();
             static void clear();
     };
 

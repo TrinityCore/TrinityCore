@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "WaypointDefines.h"
 #include "WaypointManager.h"
+#include "advstd.h"
 #include <algorithm>
 
 #define TC_SAI_IS_BOOLEAN_VALID(e, value) \
@@ -47,6 +48,9 @@
         return false; \
     } \
 }
+
+SmartAIMgr::SmartAIMgr() = default;
+SmartAIMgr::~SmartAIMgr() = default;
 
 SmartAIMgr* SmartAIMgr::instance()
 {
@@ -840,6 +844,8 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_APPLIED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_REMOVED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             case SMART_EVENT_SEND_EVENT_TRIGGER: return NO_PARAMS;
             case SMART_EVENT_AREATRIGGER_EXIT: return NO_PARAMS;
@@ -1025,6 +1031,12 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_DO_ACTION: return sizeof(SmartAction::doAction);
             case SMART_ACTION_COMPLETE_QUEST: return sizeof(SmartAction::quest);
             case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO: return NO_PARAMS;
+            case SMART_ACTION_DESTROY_CONVERSATION: return sizeof(SmartAction::destroyConversation);
+            case SMART_ACTION_ENTER_VEHICLE: return sizeof(SmartAction::enterVehicle);
+            case SMART_ACTION_BOARD_PASSENGER: return sizeof(SmartAction::enterVehicle);
+            case SMART_ACTION_EXIT_VEHICLE: return NO_PARAMS;
+            case SMART_ACTION_RESUME_MOVEMENT: return sizeof(SmartAction::resumeMovement);
+            case SMART_ACTION_FALL: return sizeof(SmartAction::fall);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1247,6 +1259,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_ON_SPELL_CAST:
             case SMART_EVENT_ON_SPELL_FAILED:
             case SMART_EVENT_ON_SPELL_START:
+            case SMART_EVENT_ON_AURA_APPLIED:
+            case SMART_EVENT_ON_AURA_REMOVED:
             {
                 if (!IsSpellValid(e, e.event.spellCast.spell))
                     return false;
@@ -1850,7 +1864,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            TC_SAI_IS_BOOLEAN_VALID(e, e.action.summonCreature.attackInvoker);
+            if (e.action.summonCreature.createdBySpell != 0)
+            {
+                if (!IsSpellValid(e, e.action.summonCreature.createdBySpell))
+                    return false;
+
+                bool propertiesFound = std::ranges::any_of(sSpellMgr->AssertSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE)->GetEffects(),
+                    [](SpellEffectInfo const& spellEffectInfo)
+                {
+                    return spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON) && sSummonPropertiesStore.HasRecord(spellEffectInfo.MiscValueB);
+                });
+
+                if (!propertiesFound)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Spell {} is not a summon creature spell.",
+                        e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.createdBySpell);
+                    return false;
+                }
+            }
             break;
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
@@ -2036,7 +2067,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
 
-                    if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+                    if (!advstd::ranges::contains(InventoryTypesEquipable, dbcItem->InventoryType))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
                         return false;
@@ -2160,12 +2191,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_PAUSE_MOVEMENT:
         {
-            if (!e.action.pauseMovement.pauseTimer)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
         }
@@ -2422,6 +2447,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
         case SMART_ACTION_DO_ACTION:
+        case SMART_ACTION_EXIT_VEHICLE:
+        case SMART_ACTION_RESUME_MOVEMENT:
+        case SMART_ACTION_FALL:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {
@@ -2459,6 +2487,27 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.GetScriptType() != SMART_SCRIPT_TYPE_CREATURE)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-valid SourceType (only valid for SourceType {}), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), SMART_SCRIPT_TYPE_CREATURE);
+                return false;
+            }
+            break;
+        }
+        case SMART_ACTION_DESTROY_CONVERSATION:
+        {
+            if (!sConversationDataStore->GetConversationTemplate(e.action.destroyConversation.id))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_DESTROY_CONVERSATION Entry {} SourceType {} Event {} Action {} uses invalid entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.destroyConversation.id);
+                return false;
+            }
+
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.destroyConversation.isPrivate);
+            break;
+        }
+        case SMART_ACTION_ENTER_VEHICLE:
+        case SMART_ACTION_BOARD_PASSENGER:
+        {
+            if (e.action.enterVehicle.seatId >= MAX_VEHICLE_SEATS)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses incorrect seat id (out of range 0 - {}), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), MAX_VEHICLE_SEATS - 1);
                 return false;
             }
             break;

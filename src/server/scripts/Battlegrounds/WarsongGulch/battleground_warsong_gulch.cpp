@@ -227,7 +227,8 @@ struct battleground_warsong_gulch : BattlegroundScript
         battleground->RewardHonorToTeam(battleground->GetBonusHonorFromKill(_honorEndKills), HORDE);
     }
 
-    void DoForFlagKeepers(std::function<void(Player*)> const& action) const
+    template <std::invocable<Player*> Action>
+    void DoForFlagKeepers(Action const& action) const
     {
         for (ObjectGuid flagGUID : _flags)
             if (GameObject const* flag = battlegroundMap->GetGameObject(flagGUID))

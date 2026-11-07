@@ -42,10 +42,12 @@ void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& /*ignoreTrade*/)
 {
+    _player->TradeCancel(true, TRADE_STATUS_PLAYER_BUSY);
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPackets::Trade::BusyTrade& /*busyTrade*/)
 {
+    _player->TradeCancel(true, TRADE_STATUS_PLAYER_IGNORED);
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
@@ -322,6 +324,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
                 SendTradeStatus(info);
                 return;
             }
+
+            if (Player::IsAccountBankPos(item->GetSlot(), item->GetBagSlot()))
+            {
+                info.Status = TRADE_STATUS_FAILED;
+                info.BagResult = EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
+                SendTradeStatus(info);
+                return;
+            }
         }
 
         if (Item* item = his_trade->GetItem(TradeSlots(i)))
@@ -338,6 +348,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
             //    his_trade->SetAccepted(false, true);
             //    return;
             //}
+
+            if (Player::IsAccountBankPos(item->GetSlot(), item->GetBagSlot()))
+            {
+                info.Status = TRADE_STATUS_FAILED;
+                info.BagResult = EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
+                SendTradeStatus(info);
+                return;
+            }
         }
     }
 
@@ -559,13 +577,13 @@ void WorldSession::HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& /*beg
     SendTradeStatus(info);
 }
 
-void WorldSession::SendCancelTrade()
+void WorldSession::SendCancelTrade(TradeStatus status)
 {
     if (PlayerRecentlyLoggedOut() || PlayerLogout())
         return;
 
     WorldPackets::Trade::TradeStatus info;
-    info.Status = TRADE_STATUS_CANCELLED;
+    info.Status = status;
     SendTradeStatus(info);
 }
 
@@ -657,13 +675,6 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
     if (pOther->GetSession()->isLogingOut())
     {
         info.Status = TRADE_STATUS_TARGET_LOGGING_OUT;
-        SendTradeStatus(info);
-        return;
-    }
-
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID(), GetPlayer()->GetSession()->GetAccountGUID()))
-    {
-        info.Status = TRADE_STATUS_PLAYER_IGNORED;
         SendTradeStatus(info);
         return;
     }

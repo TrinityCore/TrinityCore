@@ -48,7 +48,7 @@ struct GridRefManagerContainer
 
     static std::size_t Size(Container const& container)
     {
-        return container.getSize();
+        return container.size();
     }
 };
 

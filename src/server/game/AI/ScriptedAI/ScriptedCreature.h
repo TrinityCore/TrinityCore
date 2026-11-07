@@ -18,6 +18,7 @@
 #ifndef TRINITY_SCRIPTEDCREATURE_H
 #define TRINITY_SCRIPTEDCREATURE_H
 
+#include "CommonHelpers.h"
 #include "CreatureAI.h"
 #include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
 #include "DBCEnums.h"
@@ -133,8 +134,7 @@ class TC_GAME_API DummyEntryCheckPredicate
 struct TC_GAME_API ScriptedAI : public CreatureAI
 {
     public:
-        explicit ScriptedAI(Creature* creature);
-        explicit ScriptedAI(Creature* creature, uint32 scriptId);
+        explicit ScriptedAI(Creature* creature, uint32 scriptId = 0) noexcept;
         virtual ~ScriptedAI() { }
 
         // *************
@@ -149,9 +149,6 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         // *************
         // Variables
         // *************
-
-        // For fleeing
-        bool IsFleeing;
 
         // *************
         // Pure virtual functions
@@ -251,6 +248,10 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         // return true for 25 man or 25 man heroic mode
         bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
 
+        void SetAggressiveStateAfter(Milliseconds timer, Creature* who = nullptr, bool startCombat = true, Creature* summoner = nullptr, StartCombatArgs const& combatArgs = { });
+
+        void DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who = nullptr);
+
         template <class T>
         inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
         {
@@ -311,8 +312,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
-        BossAI(Creature* creature, uint32 bossId);
-        virtual ~BossAI() { }
+        explicit BossAI(Creature* creature, uint32 bossId) noexcept;
+        virtual ~BossAI();
 
         InstanceScript* const instance;
 
@@ -358,8 +359,8 @@ class TC_GAME_API BossAI : public ScriptedAI
 class TC_GAME_API WorldBossAI : public ScriptedAI
 {
     public:
-        WorldBossAI(Creature* creature);
-        virtual ~WorldBossAI() { }
+        explicit WorldBossAI(Creature* creature) noexcept;
+        virtual ~WorldBossAI();
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;

@@ -23,7 +23,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_ANHUURS_DOOR,                  BOSS_TEMPLE_GUARDIAN_ANHUUR,    EncounterDoorBehavior::OpenWhenDone },
     { GO_ANHUURS_BRIDGE,                BOSS_TEMPLE_GUARDIAN_ANHUUR,    EncounterDoorBehavior::OpenWhenDone },
@@ -37,25 +37,22 @@ DoorData const doorData[] =
     { GO_DOODAD_ULDUM_LASERBEAMS_03,    BOSS_WATER_WARDEN,              EncounterDoorBehavior::OpenWhenDone },
     { GO_DOODAD_ULDUM_LIGHTMACHINE_04,  BOSS_AIR_WARDEN,                EncounterDoorBehavior::OpenWhenDone },
     { GO_DOODAD_ULDUM_LASERBEAMS_02,    BOSS_AIR_WARDEN,                EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_TEMPLE_GUARDIAN_ANHUUR,       BOSS_TEMPLE_GUARDIAN_ANHUUR },
     { NPC_ANRAPHET,                     BOSS_ANRAPHET               },
     { NPC_EARTHRAGER_PTAH,              BOSS_EARTHRAGER_PTAH        },
     { NPC_BRANN_BRONZEBEARD_0,          DATA_BRANN_BRONZEBEARD      },
-    { 0,                                0                           } //END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_LIFT_OF_THE_MAKERS,            DATA_LIFT_OF_THE_MAKERS             },
-    { 0,                                0                                   } //END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_TEMPLE_GUARDIAN_ANHUUR,  {{ 1080 }} },
     { BOSS_EARTHRAGER_PTAH,         {{ 1076 }} },

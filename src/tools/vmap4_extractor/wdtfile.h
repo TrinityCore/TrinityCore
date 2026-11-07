@@ -19,7 +19,6 @@
 #define WDTFILE_H
 
 #include "cascfile.h"
-#include "wmo.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -74,7 +73,7 @@ public:
     ~WDTFile();
     bool init(uint32 mapId);
 
-    ADTFile* GetMap(int32 x, int32 y);
+    ADTFile* GetMap(int32 x, int32 y, bool createIfMissing);
     void FreeADT(ADTFile* adt);
 private:
     CASCFile _file;

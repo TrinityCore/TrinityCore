@@ -8,29 +8,23 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-if(WIN32)
-  if(MSVC)
-    list(APPEND PRIVATE_SOURCES worldserver.rc)
-  endif()
-endif()
-
-if(USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
-endif()
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(worldserver
   ${PRIVATE_SOURCES}
 )
 
-if(NOT WIN32)
+CollectAndAddSourceFiles(
+  worldserver
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if(WIN32)
+  if(MSVC)
+    target_sources(worldserver PRIVATE worldserver.rc)
+  endif()
+else()
   target_compile_definitions(worldserver PRIVATE
     _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
     _TRINITY_CORE_CONFIG_DIR="${CONF_DIR}/worldserver.conf.d"
@@ -46,15 +40,7 @@ target_link_libraries(worldserver
     readline
     gsoap)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
 target_include_directories(worldserver
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -90,5 +76,5 @@ endif()
 
 # Generate precompiled header
 if(USE_COREPCH)
-  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(worldserver PrecompiledHeaders/worldPCH.h)
 endif()

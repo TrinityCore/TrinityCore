@@ -15,96 +15,73 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Landslide
-SD%Complete: 100
-SDComment:
-SDCategory: Maraudon
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "maraudon.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum LandslideSpells
 {
-    SPELL_KNOCKAWAY         = 18670,
+    SPELL_KNOCK_AWAY        = 18670,
     SPELL_TRAMPLE           = 5568,
     SPELL_LANDSLIDE         = 21808
 };
 
-class boss_landslide : public CreatureScript
+// 12203 - Landslide
+struct boss_landslide : public BossAI
 {
-public:
-    boss_landslide() : CreatureScript("boss_landslide") { }
+    boss_landslide(Creature* creature) : BossAI(creature, BOSS_LANDSLIDE), _landslide(false) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetMaraudonAI<boss_landslideAI>(creature);
+        BossAI::Reset();
+
+        _landslide = false;
     }
 
-    struct boss_landslideAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_landslideAI(Creature* creature) : BossAI(creature, BOSS_LANDSLIDE)
-        {
-            Initialize();
-        }
+        BossAI::JustEngagedWith(who);
 
-        void Initialize()
-        {
-            KnockAwayTimer = 8000;
-            TrampleTimer = 2000;
-            LandslideTimer = 0;
-        }
-
-        uint32 KnockAwayTimer;
-        uint32 TrampleTimer;
-        uint32 LandslideTimer;
-
-        void Reset() override
-        {
-            BossAI::Reset();
-
-            Initialize();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //KnockAwayTimer
-            if (KnockAwayTimer <= diff)
+        scheduler
+            .Schedule(5s, 10s, [this](TaskContext& task)
             {
-                DoCastVictim(SPELL_KNOCKAWAY);
-                KnockAwayTimer = 15000;
-            }
-            else KnockAwayTimer -= diff;
-
-            //TrampleTimer
-            if (TrampleTimer <= diff)
+                DoCastVictim(SPELL_KNOCK_AWAY);
+                task.Repeat(15s, 25s);
+            })
+            .Schedule(10s, 15s, [this](TaskContext& task)
             {
-                DoCast(me, SPELL_TRAMPLE);
-                TrampleTimer = 8000;
-            }
-            else TrampleTimer -= diff;
+                DoCastSelf(SPELL_TRAMPLE);
+                task.Repeat(10s, 20s);
+            });
+    }
 
-            //Landslide
-            if (HealthBelowPct(50))
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_landslide && me->HealthBelowPctDamaged(50, damage))
+        {
+            _landslide = true;
+
+            scheduler.Schedule(0s, [this](TaskContext& task)
             {
-                if (LandslideTimer <= diff)
-                {
-                    me->InterruptNonMeleeSpells(false);
-                    DoCast(me, SPELL_LANDSLIDE);
-                    LandslideTimer = 60000;
-                }
-                else LandslideTimer -= diff;
-            }
+                DoCastSelf(SPELL_LANDSLIDE);
+                task.Repeat(30s, 40s);
+            });
         }
-    };
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff);
+    }
+
+private:
+    bool _landslide;
 };
 
 void AddSC_boss_landslide()
 {
-    new boss_landslide();
+    RegisterMaraudonCreatureAI(boss_landslide);
 }
