@@ -53,12 +53,14 @@ enum MonkSpells
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_NO_FEATHER_FALL                          = 79636,
     SPELL_MONK_OPEN_PALM_STRIKES_TALENT                 = 392970,
+    SPELL_MONK_PEER_INTO_PEACE                          = 440008,
     SPELL_MONK_RENEWING_MIST                            = 119611,
     SPELL_MONK_ROLL_BACKWARD                            = 109131,
     SPELL_MONK_ROLL_FORWARD                             = 107427,
     SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS                 = 390105,
     SPELL_MONK_SONG_OF_CHI_JI_STUN                      = 198909,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
+    SPELL_MONK_SOOTHING_MIST_VISUAL                     = 117899,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_STAGGER_DAMAGE_AURA                      = 124255,
     SPELL_MONK_STAGGER_HEAVY                            = 124273,
@@ -545,6 +547,95 @@ struct at_monk_song_of_chi_ji : AreaTriggerAI
     }
 };
 
+// 115175 - Soothing Mist (attached to 116670 - Vivify, 124682 - Enveloping Mist, 399491 - Sheilun's Gift)
+class spell_monk_soothing_mist : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_SOOTHING_MIST, SPELL_MONK_PEER_INTO_PEACE });
+    }
+
+    int32 CalcCastTime(int32 castTime) override
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        Spell* soothingMist = caster->FindCurrentSpellBySpellId(SPELL_MONK_SOOTHING_MIST);
+        if (!target || !soothingMist || soothingMist->getState() != SPELL_STATE_CHANNELING)
+            return castTime;
+
+        if (caster->m_unitData->ChannelObjects.FindIndex(target->GetGUID()) < 0)
+        {
+            if (caster->HasAura(SPELL_MONK_PEER_INTO_PEACE))
+            {
+                caster->CastSpell(target, SPELL_MONK_SOOTHING_MIST, CastSpellExtraArgsInit{
+                    .SpellValueOverrides = { { SPELLVALUE_DURATION, soothingMist->GetRemainingCastTime() } }
+                });
+            }
+            else
+            {
+                caster->InterruptSpell(soothingMist->GetCurrentContainer(), false, false, SPELL_FAILED_DONT_REPORT);
+                return castTime;
+            }
+        }
+
+        return 0;
+    }
+
+    void Register() override
+    {
+    }
+};
+
+// 115175 - Soothing Mist
+class spell_monk_soothing_mist_visual : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_SOOTHING_MIST_VISUAL });
+    }
+
+    bool Load() override
+    {
+        SpellInfo const* visualSpell = sSpellMgr->AssertSpellInfo(SPELL_MONK_SOOTHING_MIST_VISUAL, DIFFICULTY_NONE);
+
+        uint32 spellXSpellVisualId;
+        if (Unit* caster = GetCaster())
+            spellXSpellVisualId = caster->GetCastSpellXSpellVisualId(visualSpell);
+        else
+            spellXSpellVisualId = visualSpell->GetSpellXSpellVisualId();
+
+        SpellXSpellVisualEntry const* sxsv = sSpellXSpellVisualStore.LookupEntry(spellXSpellVisualId);
+        if (!sxsv)
+            return false;
+
+        _spellVisualId = sxsv->SpellVisualID;
+        return true;
+    }
+
+    void TriggerVisual(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->SendPlaySpellVisual(GetTarget(), _spellVisualId, SPELL_MISS_NONE, SPELL_MISS_NONE, 15.0f);
+    }
+
+    void TriggerVisualPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        if (Unit* caster = GetCaster())
+        {
+            caster->SendPlaySpellVisual(GetTarget(), _spellVisualId, SPELL_MISS_NONE, SPELL_MISS_NONE, 40.0f);
+            caster->SendPlaySpellVisual(caster, _spellVisualId, SPELL_MISS_NONE, SPELL_MISS_NONE, 40.0f);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_visual::TriggerVisual, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_visual::TriggerVisualPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+
+    uint32 _spellVisualId = 0;
+};
+
 // Utility for stagger scripts
 Aura* FindExistingStaggerEffect(Unit* unit)
 {
@@ -795,6 +886,8 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_roll_aura);
     RegisterSpellScript(spell_monk_save_them_all);
     RegisterAreaTriggerAI(at_monk_song_of_chi_ji);
+    RegisterSpellScript(spell_monk_soothing_mist);
+    RegisterSpellScript(spell_monk_soothing_mist_visual);
     RegisterSpellScript(spell_monk_stagger);
     RegisterSpellScript(spell_monk_stagger_damage_aura);
     RegisterSpellScript(spell_monk_stagger_debuff_aura);
