@@ -735,7 +735,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                     action.Id, action.Index, action.Type, action.Extra1);
                 return false;
             }
-            /// @todo Extra3 field
+            if (!IsStandardAngleValid(action, action.Extra3))
+                return false;
             break;
         case AI_GROUP_SET_FORMATION:
             /// @todo
@@ -764,7 +765,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_SET_FACING:
-            /// @todo Extra2 field ?
+            if (!IsStandardAngleValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_FACE_GUID:
             if (!IsSearchRadiusValid(action, action.Extra0))
@@ -1203,9 +1205,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra3 field
             break;
         case AI_GROUP_MOVE_RELATIVE:
-            /// @todo Extra0 field
+            if (!IsStandardAngleValid(action, action.Extra0))
+                return false;
             /// @todo Extra1 field
-            /// @todo Extra2 field
+            if (!IsStandardAngleValid(action, action.Extra2))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
@@ -1416,7 +1420,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_FACE_ANGLE_RELATIVE:
-            /// @todo Extra2 field ?
+            if (!IsExtendedAngleValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY:
             if (action.Extra2 < 1 || action.Extra2 > 255 || !IsIntegerDouble(action.Extra2))
@@ -1575,8 +1580,10 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_FOLLOW_TAXI_PATH_RELATIVE:
-            /// @todo Extra0 field
-            /// @todo Extra1 field
+            if (!IsStandardAngleValid(action, action.Extra0))
+                return false;
+            if (!IsStandardAngleValid(action, action.Extra1))
+                return false;
             /// @todo Extra2 field
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
@@ -1662,7 +1669,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             if (!IsPercentValid(action, action.Extra3))
                 return false;
-            /// @todo Extra4 field ?
+            if (!IsStandardAngleValid(action, action.Extra4))
+                return false;
             break;
         case AI_GROUP_TURN_IN_PLACE_TIMED:
             if (action.Extra2 < 0 || action.Extra2 >= static_cast<int>(TurnInPlaceOptions::Max) || !IsIntegerDouble(action.Extra2))
@@ -2293,6 +2301,30 @@ bool AIGroupMgr::IsTriggerValid(ActionSetActionHolder const& action, double trig
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Trigger Param {} (must be between 1 and 500), skipped.",
             action.Id, action.Index, action.Type, trigger);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsStandardAngleValid(ActionSetActionHolder const& action, double angle)
+{
+    if (angle < 0 || angle > 360)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid angle {}, skipped.",
+            action.Id, action.Index, action.Type, angle);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsExtendedAngleValid(ActionSetActionHolder const& action, double angle)
+{
+    if (angle < -360 || angle > 360)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid angle {} (must be between -360 and 360), skipped.",
+            action.Id, action.Index, action.Type, angle);
         return false;
     }
 

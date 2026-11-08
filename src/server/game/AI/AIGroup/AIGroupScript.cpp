@@ -598,7 +598,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             me->DespawnOrUnsummon();
             return true;
         case AI_GROUP_UNIT_SET_FACING:
-            me->SetFacingTo(action.Extra2);
+            me->SetFacingTo(action.Extra2 > 2.0f * float(M_PI) ? float(action.Extra2 * M_PI / 180) : float(action.Extra2));
             return true;
         case AI_GROUP_UNIT_FACE_GUID:
             if (!targets.empty())

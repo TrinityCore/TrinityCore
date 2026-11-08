@@ -1339,6 +1339,8 @@ class TC_GAME_API AIGroupMgr
         static bool IsDisplayIndexValid(ActionSetActionHolder const& action, double index);
         static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
         static bool IsTriggerValid(ActionSetActionHolder const& action, double trigger);
+        static bool IsStandardAngleValid(ActionSetActionHolder const& action, double angle);
+        static bool IsExtendedAngleValid(ActionSetActionHolder const& action, double angle);
         static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
