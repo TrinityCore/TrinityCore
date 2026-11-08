@@ -25,6 +25,7 @@
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "G3DPosition.hpp"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -65,6 +66,8 @@ enum EvokerSpells
     SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
     SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
     SPELL_EVOKER_HOVER                          = 358267,
+    SPELL_EVOKER_LANDSLIDE_AREATRIGGER          = 363800,
+    SPELL_EVOKER_LANDSLIDE_ROOT                 = 355689,
     SPELL_EVOKER_LIVING_FLAME                   = 361469,
     SPELL_EVOKER_LIVING_FLAME_DAMAGE            = 361500,
     SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
@@ -502,6 +505,82 @@ class spell_evo_glide : public SpellScript
     }
 };
 
+// 358385 - Landslide (Black)
+class spell_evo_landslide : public SpellScript
+{
+public:
+    struct Data
+    {
+        Position Dest;
+    };
+
+private:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_LANDSLIDE_AREATRIGGER });
+    }
+
+    void HandleLandslide(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_LANDSLIDE_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .CustomArg = Data{ .Dest = static_cast<Position>(*GetHitDest()) }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_evo_landslide::HandleLandslide, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 363800 - Landslide (Black)
+struct at_evo_landslide : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* creatingSpell) override
+    {
+        if (!creatingSpell)
+            return;
+
+        spell_evo_landslide::Data const* data = std::any_cast<spell_evo_landslide::Data>(&creatingSpell->m_customArg);
+        if (!data)
+            return;
+
+        std::array<G3D::Vector3, 2> path =
+        {
+            PositionToVector3(*at),
+            PositionToVector3(data->Dest)
+        };
+        at->InitSplines(path);
+
+        _scheduler.Schedule(0ms, [this](TaskContext& context)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_EVOKER_LANDSLIDE_ROOT, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                });
+
+            context.Repeat(142ms);
+        });
+    }
+
+    void OnDestinationReached() override
+    {
+        at->Remove();
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 361469 - Living Flame (Red)
 class spell_evo_living_flame : public SpellScript
 {
@@ -782,6 +861,8 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_fire_breath);
     RegisterSpellScript(spell_evo_fire_breath_damage);
     RegisterSpellScript(spell_evo_glide);
+    RegisterSpellScript(spell_evo_landslide);
+    RegisterAreaTriggerAI(at_evo_landslide);
     RegisterSpellScript(spell_evo_living_flame);
     RegisterSpellScript(spell_evo_panacea);
     RegisterSpellScript(spell_evo_permeating_chill);
