@@ -271,8 +271,8 @@ enum DemonHunterSpells
     SPELL_DH_SWALLOWED_ANGER                       = 320313,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
-    SPELL_DH_THE_HUNT                              = 1246167,
-    SPELL_DH_THE_HUNT_DAMAGE                       = 1246168,
+    SPELL_DH_THE_HUNT_DAMAGE_DEVOURER              = 1246168,
+    SPELL_DH_THE_HUNT_DAMAGE_HAVOC                 = 370969,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
     SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
@@ -3190,28 +3190,31 @@ struct at_dh_the_hunt : public AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
+    void OnInitialize() override
+    {
+        if (Player* player = Object::ToPlayer(at->GetCaster()))
+            if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterDevourer)
+                _damageSpellId = SPELL_DH_THE_HUNT_DAMAGE_DEVOURER;
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
-        if (unitsEntered == 5)
+        if (_unitsEntered == 5)
             return;
 
         if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
             {
-                caster->CastSpell(unit, SPELL_DH_THE_HUNT_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-                unitsEntered++;
+                caster->CastSpell(unit, _damageSpellId, true);
+                ++_unitsEntered;
             }
         }
     }
 
-    void OnRemove() override
-    {
-        unitsEntered = 0;
-    }
-
 private:
-    uint8 unitsEntered = 0;
+    uint32 _damageSpellId = SPELL_DH_THE_HUNT_DAMAGE_HAVOC;
+    uint32 _unitsEntered = 0;
 };
 
 // 444931 - Unhindered Assault
