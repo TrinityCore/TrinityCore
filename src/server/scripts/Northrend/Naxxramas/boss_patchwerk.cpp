@@ -22,8 +22,10 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "naxxramas.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum PatchwerkTexts
 {
