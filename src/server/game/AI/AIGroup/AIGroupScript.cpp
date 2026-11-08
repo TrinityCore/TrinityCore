@@ -586,10 +586,15 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             me->CastSpell(targets.empty() ? nullptr : targets.front(), uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_ACTIVATE_OBJECT:
-            /// @todo "+1 (to abort actionset if it fails)" param
-            if (!targets.empty())
-                if (GameObject* object = targets.front()->ToGameObject())
-                    object->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
+            if (targets.empty())
+            {
+                if (action.Extra4)
+                    AbortActionSet(action.Id);
+                return true;
+            }
+
+            if (GameObject* object = targets.front()->ToGameObject())
+                object->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
             return true;
         case AI_GROUP_GENERATE_EVENT:
             /// @todo
