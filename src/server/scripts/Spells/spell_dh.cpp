@@ -271,7 +271,8 @@ enum DemonHunterSpells
     SPELL_DH_SWALLOWED_ANGER                       = 320313,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
-    SPELL_DH_THE_HUNT                              = 1246167,
+    SPELL_DH_THE_HUNT_DAMAGE_DEVOURER              = 1246168,
+    SPELL_DH_THE_HUNT_DAMAGE_HAVOC                 = 370969,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
     SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
@@ -3184,6 +3185,38 @@ class spell_dh_tactical_retreat : public SpellScript
     }
 };
 
+// 370967 - The Hunt
+struct at_dh_the_hunt : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Player* player = Object::ToPlayer(at->GetCaster()))
+            if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterDevourer)
+                _damageSpellId = SPELL_DH_THE_HUNT_DAMAGE_DEVOURER;
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (_unitsEntered == 5)
+            return;
+
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(unit, _damageSpellId, true);
+                ++_unitsEntered;
+            }
+        }
+    }
+
+private:
+    uint32 _damageSpellId = SPELL_DH_THE_HUNT_DAMAGE_HAVOC;
+    uint32 _unitsEntered = 0;
+};
+
 // 444931 - Unhindered Assault
 class spell_dh_unhindered_assault : public AuraScript
 {
@@ -3484,6 +3517,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_swallowed_anger);
     RegisterSpellScript(spell_dh_tactical_retreat);
+    RegisterAreaTriggerAI(at_dh_the_hunt);
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
     RegisterSpellScript(spell_dh_violent_transformation);
