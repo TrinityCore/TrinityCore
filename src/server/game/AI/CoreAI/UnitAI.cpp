@@ -45,6 +45,17 @@ void UnitAI::OnCharmed(bool isNew)
         me->ScheduleAIChange();
 }
 
+void UnitAI::SendCombatTrigger(Unit* sender, uint32 triggerId)
+{
+    if (me->IsInCombat())
+        OnCombatTrigger(sender, triggerId);
+}
+
+void UnitAI::SendGeneralTrigger(Unit* sender, uint32 triggerId)
+{
+    OnGeneralTrigger(sender, triggerId);
+}
+
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))

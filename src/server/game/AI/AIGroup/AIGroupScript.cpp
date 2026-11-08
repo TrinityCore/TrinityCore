@@ -189,7 +189,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
     }
 }
 
-void AIGroupScript::PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid)
+void AIGroupScript::PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid, bool triggerActions)
 {
     if (me && !me->IsAlive() && !(sAIGroupMgr->GetActionSetFlags(actionSetId) & uint32(ActionSetFlags::AllowAllActionsWhileDead)))
         return;
@@ -210,7 +210,7 @@ void AIGroupScript::PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid)
         if (activeActionSet.Id == actionSetId)
             return;
 
-    mActionSets.emplace_back(actionSetId, std::move(actionSet), invokerGuid);
+    mActionSets.emplace_back(actionSetId, std::move(actionSet), invokerGuid, triggerActions);
 }
 
 void AIGroupScript::PerformRandomActionSet(uint32 randomActionSetId, ObjectGuid invokerGuid)
@@ -396,6 +396,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 case AI_GROUP_FOLLOW_GUID:
                 case AI_GROUP_GUARD_GUID:
                 case AI_GROUP_ATTACK_GUID:
+                case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
                 case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
                 case AI_GROUP_UNIT_RIDE_VEHICLE:
                 case AI_GROUP_UNIT_SEND_TAP_LIST:
@@ -427,7 +428,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                     selectNearestTarget = true;
                     break;
                 case AI_GROUP_UNIT_COMBAT_TRIGGER:
-                case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
                 case AI_GROUP_TRIGGER_ACTIONS_UNITS:
                 case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
                 case AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS:
@@ -818,7 +818,11 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return false;
         case AI_GROUP_UNIT_COMBAT_TRIGGER:
-            /// @todo
+            for (WorldObject* target : targets)
+                if (target)
+                    if (Creature* creature = target->ToCreature())
+                        if (CreatureAI* ai = creature->AI())
+                            ai->SendCombatTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_GOSSIP:
             /// @todo
@@ -972,7 +976,10 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
-            /// @todo
+            if (!targets.empty())
+                if (Creature* creature = targets.front()->ToCreature())
+                    if (CreatureAI* ai = creature->AI())
+                        ai->SendCombatTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_CAST_FAILURE:
             /// @todo
@@ -993,10 +1000,17 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_TRIGGER_ACTIONS_UNITS:
-            /// @todo
+            for (WorldObject* target : targets)
+                if (target)
+                    if (Creature* creature = target->ToCreature())
+                        if (CreatureAI* ai = creature->AI())
+                           ai->SendGeneralTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
-            /// @todo
+            if (!targets.empty())
+                if (Creature* creature = targets.front()->ToCreature())
+                    if (CreatureAI* ai = creature->AI())
+                        ai->SendGeneralTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_SAY_ZONE:
             /// @todo
@@ -1159,8 +1173,22 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                     player->KilledMonsterCredit(uint32(action.Extra2));
             return true;
         case AI_GROUP_SUSPEND_TRIGGER_ACTION:
-            /// @todo
+        {
+            uint32 currentActionSetId = m_group ? m_group->GetCurrentActionSet() : me ? me->currentRunningActionSet : 0;
+            auto activeActionSet = std::find_if(mActionSets.begin(), mActionSets.end(), [currentActionSetId](AIGroupActiveActionSet const& candidate)
+            {
+                return candidate.Id == currentActionSetId && candidate.IsTriggerActions;
+            });
+            if (activeActionSet == mActionSets.end())
+                activeActionSet = std::find_if(mActionSets.begin(), mActionSets.end(), [](AIGroupActiveActionSet const& candidate)
+                {
+                    return candidate.IsTriggerActions;
+                });
+
+            if (activeActionSet != mActionSets.end())
+                activeActionSet->SuspendTimer = GetActionDuration(action);
             return true;
+        }
         case AI_GROUP_UNIT_VEHICLE_RECORD:
             /// @todo
             return true;
@@ -1304,6 +1332,9 @@ bool AIGroupScript::IsActionGroupWide(uint16 action)
 
 bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const
 {
+    if (actionSet.SuspendTimer)
+        return true;
+
     if (m_group)
     {
         uint32 flags = sAIGroupMgr->GetActionSetFlags(actionSet.Id);
@@ -1326,6 +1357,10 @@ bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) c
 
 void AIGroupScript::UpdateActionSets(uint32 diff)
 {
+    for (AIGroupActiveActionSet& actionSet : mActionSets)
+        if (actionSet.SuspendTimer)
+            actionSet.SuspendTimer = actionSet.SuspendTimer > diff ? actionSet.SuspendTimer - diff : 0;
+
     if (mActionSets.empty())
     {
         SetCurrentRunningActionSet(0);
@@ -1491,6 +1526,9 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
             activeActionSet->ActionStarted = false;
             ++activeActionSet->CurrentAction;
         }
+
+        if (activeActionSet->SuspendTimer)
+            return;
     }
 
     FinishActionSet(*activeActionSet);
@@ -1982,7 +2020,9 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, WorldObject* obje
             break;
         case OnSpell:
         case OnEmote:
+        case OnCombatTrigger:
         case OnSpellCast:
+        case OnGeneralTrigger:
         case OnSpellStart:
         case OnAuraApplied:
         case OnAuraRemoved:
@@ -2006,7 +2046,8 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, WorldObject* obje
     if (holder.Flags & NotRepeatable)
         holder.IsTriggerUsed = true;
 
-    PerformActionSet(holder.ActionSetId, object ? object->GetGUID() : ObjectGuid::Empty);
+    PerformActionSet(holder.ActionSetId, object ? object->GetGUID() : ObjectGuid::Empty,
+        holder.TriggerId == OnCombatTrigger || holder.TriggerId == OnGeneralTrigger);
 }
 
 void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder)

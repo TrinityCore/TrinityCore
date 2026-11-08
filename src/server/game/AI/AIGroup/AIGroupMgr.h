@@ -125,7 +125,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_EMOTE_STATE                            = 89,    // NYI // Emote State with Idle (formerly continually emote)
     AI_GROUP_UNIT_CALL_FOR_HELP                     = 90,    // NYI // Call for help (combat action only)
     AI_GROUP_FLIGHT_PATH                            = 91,    // NYI // Follow a flight spline path exactly
-    AI_GROUP_UNIT_COMBAT_TRIGGER                    = 92,    // NYI // Trigger actions on units in combat
+    AI_GROUP_UNIT_COMBAT_TRIGGER                    = 92,    // Trigger actions on units in combat
     // ^ Alpha Build 3368
     // Below created from descriptions
     AI_GROUP_UNIT_GOSSIP                            = 93,    // NYI // Unit(s) become a gossip
@@ -164,7 +164,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_ABORT_ACTION_SET_WSE                   = 126,   // NYI // Abort action set if world state expression is true
     AI_GROUP_UNIT_BOSS_EMOTE                        = 127,   // Unit(s) boss emote something
     AI_GROUP_UNIT_BOSS_EMOTE_ZONE                   = 128,   // NYI // Unit(s) boss emote something to the zone
-    AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC        = 129,   // NYI // Trigger actions on nearest unit in combat
+    AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC        = 129,   // Trigger actions on nearest unit in combat
     // ^ 1.12.1
     AI_GROUP_UNIT_CAST_FAILURE                      = 130,   // NYI // Unit(s) cast a spell and report failure to owner
     AI_GROUP_UNIT_NO_REPUTATION                     = 131,   // NYI // Set "No Reputation" flag for unit(s) in the group
@@ -172,8 +172,8 @@ enum AI_GROUP_ACTION
     AI_GROUP_SPLINE_PATH_LOOP                       = 133,   // NYI // Follow a flight spline path exactly, and loop forever
     AI_GROUP_UNIT_VENDOR                            = 134,   // NYI // Unit(s) become a vendor
     AI_GROUP_UNIT_RESET_VENDOR_LISTS                = 135,   // NYI // Reset vendor lists for unit(s) in the group
-    AI_GROUP_TRIGGER_ACTIONS_UNITS                  = 136,   // NYI // Trigger actions on units
-    AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT           = 137,   // NYI // Trigger actions on nearest unit
+    AI_GROUP_TRIGGER_ACTIONS_UNITS                  = 136,   // Trigger actions on units
+    AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT           = 137,   // Trigger actions on nearest unit
     AI_GROUP_UNIT_SAY_ZONE                          = 138,   // NYI // Unit(s) say something to the zone
     AI_GROUP_UNIT_SAY_ZONE_RANDOM                   = 139,   // NYI // Unit(s) say something random to the zone
     AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF             = 140,   // NYI // Unit(s) send a local event to self (if outside of combat)
@@ -221,7 +221,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_TIER_TRANSITION_MOVETO_GUID            = 181,   // NYI // Tier Transition Move To a Unit or Game Object
     AI_GROUP_TIER_TRANSITION_FOLLOW_PATH            = 182,   // NYI // Tier Transition Follow Path
     AI_GROUP_UNIT_KILL_CREDIT_PLAYER                = 183,   // Unit(s) assign kill credit to player
-    AI_GROUP_SUSPEND_TRIGGER_ACTION                 = 184,   // NYI // Suspend Trigger action (creature action only)
+    AI_GROUP_SUSPEND_TRIGGER_ACTION                 = 184,   // Suspend Trigger action (creature action only)
     AI_GROUP_UNIT_VEHICLE_RECORD                    = 185,   // NYI // Unit(s) change their vehicle record ID
     AI_GROUP_UNIT_VEHICLE_RECORD_RESET              = 186,   // NYI // Unit(s) reset their vehicle record ID
     AI_GROUP_UNIT_IMMUNITIES                        = 187,   // NYI // Unit(s) change their creature immunity template ID
@@ -788,7 +788,7 @@ enum ActionTriggers
     OnEmote                     = 11,   // Unit receives emote {EmotesText}.
     OnMelee                     = 12,   // NYI // Unit receives a melee attack.
     OnInteract                  = 13,   // NYI // Unit is right clicked.
-    OnCombatTrigger             = 14,   // NYI // Unit receives 'combat' trigger {#Trigger ID}.
+    OnCombatTrigger             = 14,   // Unit receives 'combat' trigger {#Trigger ID}.
     // [^ Alpha]
     OnSpellCast                 = 15,   // Unit casts spell {Spell}.
     OnPickPocket                = 16,   // NYI // Unit is pickpocketed.
@@ -798,7 +798,7 @@ enum ActionTriggers
     OnHealthRangeRandom         = 20,   // Unit is within randomized health range {#Health Min} to {#Health Max}.
     OnEnergyRangeRandom         = 21,   // Unit is within randomized mana range {#Mana Min} to {#Mana Max}.
     // [^ 1.12.1]
-    OnGeneralTrigger            = 22,   // NYI // Unit receives general trigger ID {#Trigger ID}.
+    OnGeneralTrigger            = 22,   // Unit receives general trigger ID {#Trigger ID}.
     OnDespawn                   = 23,   // Unit receives a despawn request. (Instantaneous)
     OnSpellFailed               = 24,   // Unit fails to cast spell {Spell}.
     OnCharmBreak                = 25,   // NYI // Unit ceases to be charmed.
@@ -1283,15 +1283,18 @@ typedef std::vector<WorldObject*> AIGroupObjectVector;
 
 struct AIGroupActiveActionSet
 {
-    AIGroupActiveActionSet(uint32 id, AIGroupActionSet actions, ObjectGuid invokerGuid) :
-        Id(id), Actions(std::move(actions)), InvokerGuid(invokerGuid), CurrentAction(0), ActionTimer(0), ActionStarted(false) { }
+    AIGroupActiveActionSet(uint32 id, AIGroupActionSet actions, ObjectGuid invokerGuid, bool triggerActions = false) :
+        Id(id), Actions(std::move(actions)), InvokerGuid(invokerGuid), CurrentAction(0), ActionTimer(0), SuspendTimer(0),
+        ActionStarted(false), IsTriggerActions(triggerActions) { }
 
     uint32 Id;
     AIGroupActionSet Actions;
     ObjectGuid InvokerGuid;
     uint16 CurrentAction;
     uint32 ActionTimer;
+    uint32 SuspendTimer;
     bool ActionStarted;
+    bool IsTriggerActions;
 };
 
 typedef std::vector<AIGroupActiveActionSet> AIGroupActiveActionSetList;

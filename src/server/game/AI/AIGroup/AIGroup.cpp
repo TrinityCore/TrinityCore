@@ -124,6 +124,11 @@ void AIGroupCreature::ReceiveEmote(Player* player, uint32 textEmote)
     GetScript()->ProcessEventsFor(ActionTriggers::OnEmote, player, textEmote);
 }
 
+void AIGroupCreature::OnCombatTrigger(Unit* sender, uint32 triggerId)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnCombatTrigger, sender, triggerId);
+}
+
 void AIGroupCreature::OnSpellCast(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
@@ -132,6 +137,11 @@ void AIGroupCreature::OnSpellCast(SpellInfo const* spellInfo)
 void AIGroupCreature::JustReachedHome()
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnCombatReturn);
+}
+
+void AIGroupCreature::OnGeneralTrigger(Unit* sender, uint32 triggerId)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnGeneralTrigger, sender, triggerId);
 }
 
 void AIGroupCreature::OnDespawn()

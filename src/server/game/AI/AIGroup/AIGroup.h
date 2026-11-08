@@ -74,11 +74,17 @@ class TC_GAME_API AIGroupCreature : public CreatureAI
         // Unit receives emote {EmotesText}.
         void ReceiveEmote(Player* player, uint32 textEmote) override;
 
+        // Unit receives 'combat' trigger {#Trigger ID}.
+        void OnCombatTrigger(Unit* sender, uint32 triggerId) override;
+
         // Unit casts spell {Spell}.
         void OnSpellCast(SpellInfo const* spellInfo) override;
 
         // Unit returns to its home position after combat.
         void JustReachedHome() override;
+
+        // Unit receives general trigger ID {#Trigger ID}.
+        void OnGeneralTrigger(Unit* sender, uint32 triggerId) override;
 
         // Unit receives a despawn request. (Instantaneous)
         void OnDespawn() override;
