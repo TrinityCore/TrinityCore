@@ -38,6 +38,7 @@ enum PatchwerkSpells
 {
     SPELL_HATEFUL_STRIKE_PRIMER = 28307,
     SPELL_HATEFUL_STRIKE        = 28308,
+    SPELL_HATEFUL_STRIKE_HEROIC = 59192,
     SPELL_FRENZY                = 28131,
     SPELL_BERSERK               = 26662,
     SPELL_SLIME_BOLT            = 32309
@@ -106,54 +107,10 @@ struct boss_patchwerk : public BossAI
         {
             switch (eventId)
             {
-                // Move everything to SPELL_HATEFUL_STRIKE_PRIMER spell script
                 case EVENT_HATEFUL:
-                {
-                    // Hateful Strike targets the highest non-MT threat in melee range on 10man
-                    // and the higher HP target out of the two highest non-MT threats in melee range on 25man
-                    ThreatReference* secondThreat = nullptr;
-                    ThreatReference* thirdThreat = nullptr;
-
-                    ThreatManager& mgr = me->GetThreatManager();
-                    Unit* currentVictim = mgr.GetCurrentVictim();
-                    auto list = mgr.GetModifiableThreatList();
-                    auto it = list.begin(), end = list.end();
-                    if (it == end)
-                    {
-                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                        return;
-                    }
-
-                    if ((*it)->GetVictim() != currentVictim)
-                        secondThreat = *it;
-                    if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
-                    {
-                        if ((*it)->GetVictim() != currentVictim)
-                            (secondThreat ? thirdThreat : secondThreat) = *it;
-                        if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
-                            thirdThreat = *it;
-                    }
-
-                    Unit* pHatefulTarget = nullptr;
-                    if (!secondThreat)
-                        pHatefulTarget = currentVictim;
-                    else if (!thirdThreat)
-                        pHatefulTarget = secondThreat->GetVictim();
-                    else
-                        pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
-
-                    // add threat to highest threat targets
-                    AddThreat(currentVictim, HATEFUL_THREAT_AMT);
-                    if (secondThreat)
-                        secondThreat->AddThreat(HATEFUL_THREAT_AMT);
-                    if (thirdThreat)
-                        thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
-
-                    DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
-
+                    DoCastSelf(SPELL_HATEFUL_STRIKE_PRIMER, true);
                     events.Repeat(1200ms);
                     break;
-                }
                 case EVENT_BERSERK:
                     DoCastSelf(SPELL_BERSERK, true);
                     Talk(EMOTE_BERSERK);
@@ -180,7 +137,65 @@ private:
     bool _enraged;
 };
 
+// 28307 - Hateful Strike Primer
+class spell_patchwerk_hateful_strike_primer : public SpellScript
+{
+    PrepareSpellScript(spell_patchwerk_hateful_strike_primer);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HATEFUL_STRIKE, SPELL_HATEFUL_STRIKE_HEROIC });
+    }
+
+    void SelectTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+
+        uint32 targetLimit = caster->GetMap()->Is25ManRaid() ? 3 : 2;
+        std::array<Unit*, 3> newTargets = { };
+        auto newTargetsItr = newTargets.begin();
+        auto newTargetsEnd = newTargetsItr + targetLimit;
+
+        for (ThreatReference const* threatRef : caster->GetThreatManager().GetSortedThreatList())
+        {
+            if (!threatRef->IsOnline() || !threatRef->GetVictim()->IsPlayer() || !caster->IsWithinMeleeRange(threatRef->GetVictim()))
+                continue;
+
+            *newTargetsItr = threatRef->GetVictim();
+            if (++newTargetsItr == newTargetsEnd)
+                break;
+        }
+
+        // Hateful Strike damages the higher HP target out of the two highest non-MT threats in melee range on 25man
+        if (newTargets[1] && newTargets[2] && newTargets[1]->GetHealth() < newTargets[2]->GetHealth())
+            std::swap(newTargets[1], newTargets[2]);
+
+        targets.assign(newTargets.begin(), newTargetsItr);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        // all targets get threat increase
+        caster->GetThreatManager().AddThreat(GetHitUnit(), HATEFUL_THREAT_AMT, GetSpellInfo());
+
+        // Hateful Strike damages the second unit on target list (not the MT)
+        // or MT if it is the only target
+        if (GetUnitTargetIndexForEffect(GetHitUnit()->GetGUID(), effIndex) == 1
+            || GetUnitTargetCountForEffect(effIndex) == 1)
+            caster->CastSpell(GetHitUnit(), caster->GetMap()->Is25ManRaid() ? SPELL_HATEFUL_STRIKE_HEROIC : SPELL_HATEFUL_STRIKE, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_patchwerk_hateful_strike_primer::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_patchwerk_hateful_strike_primer::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_boss_patchwerk()
 {
     RegisterNaxxramasCreatureAI(boss_patchwerk);
+    RegisterSpellScript(spell_patchwerk_hateful_strike_primer);
 }
