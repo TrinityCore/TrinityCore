@@ -53,6 +53,10 @@ class TC_GAME_API AIGroupScript
         Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
 
         WorldObject* GetBaseObject() const;
+        static bool IsUnitAndExists(WorldObject* object);
+        static bool IsPlayerAndExists(WorldObject* object);
+        static bool IsCreatureAndExists(WorldObject* object);
+        static bool IsGameObjectAndExists(WorldObject* object);
         void GetWorldObjectsInDist(AIGroupObjectVector& objects, float distance) const;
 
     private:

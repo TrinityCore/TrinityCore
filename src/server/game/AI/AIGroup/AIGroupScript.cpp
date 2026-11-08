@@ -768,8 +768,8 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             return true;
         case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
             for (WorldObject* target : targets)
-                if (GameObject* gameObject = target->ToGameObject())
-                    gameObject->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
+                if (IsGameObjectAndExists(target))
+                    target->ToGameObject()->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
             return true;
         case AI_GROUP_UNIT_STRINGID:
             /// @todo
@@ -819,18 +819,17 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             return false;
         case AI_GROUP_UNIT_COMBAT_TRIGGER:
             for (WorldObject* target : targets)
-                if (target)
-                    if (Creature* creature = target->ToCreature())
-                        if (CreatureAI* ai = creature->AI())
-                            ai->SendCombatTrigger(me, uint32(action.Extra2));
+                if (IsCreatureAndExists(target))
+                    if (CreatureAI* ai = target->ToCreature()->AI())
+                        ai->SendCombatTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_GOSSIP:
             /// @todo
             return true;
         case AI_GROUP_UNIT_KILL_CREDIT:
             for (WorldObject* target : targets)
-                if (Player* player = target->ToPlayer())
-                    player->KilledMonsterCredit(uint32(action.Extra2));
+                if (IsPlayerAndExists(target))
+                    target->ToPlayer()->KilledMonsterCredit(uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_WHISPER:
             if (!targets.empty())
@@ -1001,10 +1000,9 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             return true;
         case AI_GROUP_TRIGGER_ACTIONS_UNITS:
             for (WorldObject* target : targets)
-                if (target)
-                    if (Creature* creature = target->ToCreature())
-                        if (CreatureAI* ai = creature->AI())
-                           ai->SendGeneralTrigger(me, uint32(action.Extra2));
+                if (IsCreatureAndExists(target))
+                    if (CreatureAI* ai = target->ToCreature()->AI())
+                        ai->SendGeneralTrigger(me, uint32(action.Extra2));
             return true;
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
             if (!targets.empty())
@@ -1339,9 +1337,9 @@ bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) c
     {
         uint32 flags = sAIGroupMgr->GetActionSetFlags(actionSet.Id);
         for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-            if (Creature* creature = member->ToCreature())
-                if ((creature->IsInCombat() && (flags & uint32(ActionSetFlags::PauseForCombat))) ||
-                    (creature->IsReturningHome() && (flags & uint32(ActionSetFlags::PauseUntilAllMembersAreDoneReturning))))
+            if (IsCreatureAndExists(member))
+                if ((member->ToCreature()->IsInCombat() && (flags & uint32(ActionSetFlags::PauseForCombat))) ||
+                    (member->ToCreature()->IsReturningHome() && (flags & uint32(ActionSetFlags::PauseUntilAllMembersAreDoneReturning))))
                     return true;
 
         return false;
@@ -1399,8 +1397,8 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 {
                     if (m_group)
                         for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                            if (Creature* creature = member->ToCreature())
-                                if (!creature->IsInCombat())
+                            if (IsCreatureAndExists(member))
+                                if (!member->ToCreature()->IsInCombat())
                                     return;
 
                     if (me && !me->IsInCombat())
@@ -1425,8 +1423,8 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 {
                     if (m_group)
                         for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                            if (Creature* creature = member->ToCreature())
-                                if (creature->IsInCombat() || creature->IsInEvadeMode())
+                            if (IsCreatureAndExists(member))
+                                if (member->ToCreature()->IsInCombat() || member->ToCreature()->IsInEvadeMode())
                                     return;
 
                     if (me && (me->IsInCombat() || me->IsInEvadeMode()))
@@ -1450,8 +1448,8 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 {
                     if (m_group)
                         for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                            if (Creature* creature = member->ToCreature())
-                                if (creature->HasUnitState(UNIT_STATE_CASTING))
+                            if (IsCreatureAndExists(member))
+                                if (member->ToCreature()->HasUnitState(UNIT_STATE_CASTING))
                                     return;
 
                     if (me && me->HasUnitState(UNIT_STATE_CASTING))
@@ -1486,8 +1484,8 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 if (m_group)
                 {
                     for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                        if (Creature* creature = member->ToCreature())
-                            creature->GetMotionMaster()->MoveIdle();
+                        if (IsCreatureAndExists(member))
+                            member->ToCreature()->GetMotionMaster()->MoveIdle();
                 }
                 else if (me)
                     me->GetMotionMaster()->MoveIdle();
@@ -1589,6 +1587,26 @@ WorldObject* AIGroupScript::GetBaseObject() const
     return object;
 }
 
+bool AIGroupScript::IsUnitAndExists(WorldObject* object)
+{
+    return object && (object->GetTypeId() == TYPEID_UNIT || object->GetTypeId() == TYPEID_PLAYER);
+}
+
+bool AIGroupScript::IsPlayerAndExists(WorldObject* object)
+{
+    return object && object->GetTypeId() == TYPEID_PLAYER;
+}
+
+bool AIGroupScript::IsCreatureAndExists(WorldObject* object)
+{
+    return object && object->GetTypeId() == TYPEID_UNIT;
+}
+
+bool AIGroupScript::IsGameObjectAndExists(WorldObject* object)
+{
+    return object && object->GetTypeId() == TYPEID_GAMEOBJECT;
+}
+
 void AIGroupScript::GetWorldObjectsInDist(AIGroupObjectVector& objects, float distance) const
 {
     WorldObject* object = GetBaseObject();
@@ -1664,7 +1682,7 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
 
             for (WorldObject* unit : units)
             {
-                if (!unit->IsCreature())
+                if (!IsCreatureAndExists(unit))
                     continue;
 
                 if (me && me->GetGUID() == unit->GetGUID())
@@ -1692,7 +1710,7 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
 
             for (WorldObject* unit : units)
             {
-                if (!unit->IsCreature())
+                if (!IsCreatureAndExists(unit))
                     continue;
 
                 if (me && me->GetGUID() == unit->GetGUID())
@@ -1716,7 +1734,7 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
 
             for (WorldObject* unit : units)
             {
-                if (!unit->IsGameObject())
+                if (!IsGameObjectAndExists(unit))
                     continue;
 
                 if (go && go->GetGUID() == unit->GetGUID())
@@ -1744,7 +1762,7 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
 
             for (WorldObject* unit : units)
             {
-                if (!unit->IsGameObject())
+                if (!IsGameObjectAndExists(unit))
                     continue;
 
                 if (go && go->GetGUID() == unit->GetGUID())
@@ -1791,7 +1809,7 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
             AIGroupObjectVector units;
             GetWorldObjectsInDist(units, float(target.PlayerDistance.Dist));
             for (WorldObject* unit : units)
-                if (unit->IsPlayer())
+                if (IsPlayerAndExists(unit))
                     targets.push_back(unit);
             break;
         }
