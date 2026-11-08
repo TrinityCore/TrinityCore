@@ -505,7 +505,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         uint32 price = _player->m_activePlayerData->BuybackPrice[packet.Slot - BUYBACK_SLOT_START];
         if (!_player->HasEnoughMoney(uint64(price)))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry());
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0);
             return;
         }
 
@@ -1182,24 +1182,6 @@ void WorldSession::HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& pack
         return;
 
     GetPlayer()->RefundItem(item);
-}
-
-bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
-{
-    // bankerGUID parameter is optional, set to 0 by default.
-    if (!bankerGUID)
-        bankerGUID = _player->PlayerTalkClass->GetInteractionData().SourceGuid;
-
-    bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == _player->PlayerTalkClass->GetInteractionData().SourceGuid);
-
-    if (!isUsingBankCommand)
-    {
-        Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(bankerGUID, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
-        if (!creature)
-            return false;
-    }
-
-    return true;
 }
 
 void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useCritterItem)

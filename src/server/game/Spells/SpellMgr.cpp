@@ -3947,6 +3947,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Without this auras 35173 and 35174 triggers no spell and are removed after first tick
+    ApplySpellFix({
+        35158, // Reflective Magic Shield
+        35159  // Reflective Damage Shield
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 0;
+    });
+
     ApplySpellFix({
         37851, // Tag Greater Felfire Diemetradon
         37918  // Arcano-pince
@@ -5573,6 +5582,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 207230 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Hungering Slash
+    ApplySpellFix({ 1239127 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 1239123, EFFECT_1, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

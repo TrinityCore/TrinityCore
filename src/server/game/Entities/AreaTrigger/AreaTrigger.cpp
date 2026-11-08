@@ -1014,7 +1014,7 @@ void AreaTrigger::HandleUnitEnterExit(std::span<Unit*> targetList, AreaTriggerEx
 
     std::ptrdiff_t enteringUnitsEnd = std::ssize(enteringUnits);
     if (GetCreateProperties()->MaxUnits)
-        enteringUnitsEnd = *GetCreateProperties()->MaxUnits - std::ssize(_insideUnits);
+        enteringUnitsEnd = std::min(*GetCreateProperties()->MaxUnits - std::ssize(_insideUnits), enteringUnitsEnd);
 
     for (std::ptrdiff_t i = 0; i < enteringUnitsEnd; ++i)
         _insideUnits.insert(enteringUnits[i]->GetGUID());
@@ -1484,7 +1484,7 @@ AreaTrigger::MovementUpdateLocalResult AreaTrigger::CalculateLocalPositionAndRot
     return result;
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
+void AreaTrigger::InitSplineOffsets(std::span<Position const> offsets, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1506,7 +1506,7 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Option
     InitSplines(rotatedPoints, overrideSpeed, speedIsTimeInSeconds);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
+void AreaTrigger::InitSplines(std::span<G3D::Vector3 const> splinePoints, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
 {
     if (splinePoints.size() < 2)
         return;

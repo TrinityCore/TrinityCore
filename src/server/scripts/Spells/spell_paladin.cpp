@@ -28,6 +28,7 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
+#include "ListUtils.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
@@ -81,6 +82,8 @@ enum PaladinSpells
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
     SPELL_PALADIN_FINAL_VERDICT                  = 383329,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
+    SPELL_PALADIN_GOLDEN_PATH_TALENT             = 377128,
+    SPELL_PALADIN_GOLDEN_PATH_HEAL               = 377129,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS      = 86659,
     SPELL_PALADIN_HAMMER_OF_JUSTICE              = 853,
     SPELL_PALADIN_HAMMER_OF_THE_RIGHTEOUS_AOE    = 88263,
@@ -939,6 +942,55 @@ class spell_pal_glyph_of_holy_light : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_holy_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 377128 - Golden Path (attached to 26573 - Consecration)
+class spell_pal_golden_path : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_GOLDEN_PATH_TALENT, SPELL_PALADIN_GOLDEN_PATH_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PALADIN_GOLDEN_PATH_TALENT);
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        for (AreaTrigger const* at : GetTarget()->GetAreaTriggers(SPELL_PALADIN_CONSECRATION))
+            GetTarget()->CastSpell(at->GetPosition(), SPELL_PALADIN_GOLDEN_PATH_HEAL, TRIGGERED_FULL_MASK & ~TRIGGERED_CAST_DIRECTLY);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_golden_path::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 377129 - Golden Path
+class spell_pal_golden_path_target_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PALADIN_GOLDEN_PATH_TALENT, EFFECT_1 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        Unit* caster = GetCaster();
+        Trinity::Containers::Lists::RemoveUnique(targets, caster);
+        if (AuraEffect const* maxTargets = caster->GetAuraEffect(SPELL_PALADIN_GOLDEN_PATH_TALENT, EFFECT_1))
+            Trinity::Containers::RandomResize(targets, maxTargets->GetAmountAsInt());
+
+        targets.push_front(caster);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_golden_path_target_selector::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -1946,6 +1998,8 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_final_verdict);
     RegisterSpellScript(spell_pal_fist_of_justice);
     RegisterSpellScript(spell_pal_glyph_of_holy_light);
+    RegisterSpellScript(spell_pal_golden_path);
+    RegisterSpellScript(spell_pal_golden_path_target_selector);
     RegisterSpellScript(spell_pal_grand_crusader);
     RegisterSpellScript(spell_pal_hammer_of_the_righteous);
     RegisterSpellScript(spell_pal_hand_of_sacrifice);

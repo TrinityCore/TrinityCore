@@ -176,6 +176,16 @@ namespace WorldPackets
             ObjectGuid PetitionGUID;
         };
 
+        class PetitionDeclined final : public ServerPacket
+        {
+        public:
+            explicit PetitionDeclined() : ServerPacket(SMSG_PETITION_DECLINED, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Decliner;
+        };
+
         class TurnInPetition final : public ClientPacket
         {
         public:
