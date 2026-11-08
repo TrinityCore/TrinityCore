@@ -60,7 +60,6 @@ class TC_GAME_API AIGroupScript
         void GetWorldObjectsInDist(AIGroupObjectVector& objects, float distance) const;
 
     private:
-        void InstallEvents();
         void UpdateActionSets(uint32 diff);
         void SetCurrentRunningActionSet(uint32 actionSetId);
         void RandomizeHealthRange(ActionTriggersHolder& holder);
@@ -77,7 +76,6 @@ class TC_GAME_API AIGroupScript
         uint32 GetActionDuration(ActionSetActionHolder const& action) const;
         float GetStringIdSearchRadius(ActionSetActionHolder const& action) const;
 
-        AIGroupEventList mInstallEvents;
         AIGroupEventList mEvents;
         AIGroupObjectTriggerList mObjectTriggers;
         AIGroupActiveActionSetList mActionSets;

@@ -71,8 +71,6 @@ void AIGroupScript::OnInitialize(WorldObject* object)
 
     // Load copy of script
     GetScript();
-
-    InstallEvents();
 }
 
 void AIGroupScript::OnInitialize(AIGroup* group)
@@ -87,8 +85,6 @@ void AIGroupScript::OnInitialize(AIGroup* group)
 
     // Load copy of script
     GetScript();
-
-    InstallEvents();
 }
 
 void AIGroupScript::SetActor(WorldObject* object)
@@ -119,23 +115,6 @@ void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user)
     for (ObjectTriggersHolder const& trigger : mObjectTriggers)
         if (trigger.ActionId == action && roll_chance_i(trigger.Chance))
             PerformActionSet(trigger.ActionSetId, user ? user->GetGUID() : ObjectGuid::Empty);
-}
-
-void AIGroupScript::InstallEvents()
-{
-    if (!mInstallEvents.empty())
-    {
-        for (AIGroupEventList::const_iterator it = mInstallEvents.begin(); it != mInstallEvents.end(); ++it)
-        {
-            mEvents.push_back(*it);
-            if (mEvents.back().TriggerId == OnHealthRangeRandom)
-                RandomizeHealthRange(mEvents.back());
-            else if (mEvents.back().TriggerId == OnEnergyRangeRandom)
-                RandomizeEnergyRange(mEvents.back());
-        }
-
-        mInstallEvents.clear();
-    }
 }
 
 void AIGroupScript::FillScript(AIGroupEventList eventList)
