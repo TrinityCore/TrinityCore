@@ -93,13 +93,19 @@ void EscortAI::ReturnToLastPoint()
     me->GetMotionMaster()->MovePoint(POINT_LAST_POINT, me->GetHomePosition());
 }
 
-void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
+void EscortAI::EnterEvadeMode(EvadeReason why)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
 
     EngagementOver();
+
+    if (why == EVADE_REASON_VEHICLE_EVADE)
+    {
+        Reset();
+        return;
+    }
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
