@@ -1369,74 +1369,63 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
     SetCurrentRunningActionSet(activeActionSet->Id);
 
+    enum class PauseReason
+    {
+        None,
+        CombatStart,
+        CombatStop,
+        FinishCast
+    };
+
     while (activeActionSet->CurrentAction < activeActionSet->Actions.size())
     {
         ActionSetActionHolder action = activeActionSet->Actions[activeActionSet->CurrentAction];
 
         if (activeActionSet->ActionStarted)
         {
-            if (action.Type == AI_GROUP_IDLE_COMBAT_START)
+            PauseReason pauseReason = PauseReason::None;
+            switch (action.Type)
             {
-                if (action.TimeA == 0 && action.TimeB == 0)
-                {
-                    if (m_group)
-                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                            if (IsCreatureAndExists(member))
-                                if (!member->ToCreature()->IsInCombat())
-                                    return;
-
-                    if (me && !me->IsInCombat())
-                        return;
-                }
-                else if (activeActionSet->ActionTimer > diff)
-                {
-                    activeActionSet->ActionTimer -= diff;
-                    return;
-                }
-
-                activeActionSet->ActionTimer = 0;
-                activeActionSet->ActionStarted = false;
-                ++activeActionSet->CurrentAction;
-                continue;
+                case AI_GROUP_IDLE_COMBAT_START:
+                    pauseReason = PauseReason::CombatStart;
+                    break;
+                case AI_GROUP_IDLE_COMBAT_STOP:
+                    pauseReason = PauseReason::CombatStop;
+                    break;
+                case AI_GROUP_UNIT_FINISH_CAST:
+                    pauseReason = PauseReason::FinishCast;
+                    break;
+                default:
+                    break;
             }
 
-            // This will not work for summoned creatures, see CreatureAI::EnterEvadeMode. UNIT_STATE_EVADE is not applied, so IsInEvadeMode returns false
-            if (action.Type == AI_GROUP_IDLE_COMBAT_STOP)
+            if (pauseReason != PauseReason::None)
             {
                 if (action.TimeA == 0 && action.TimeB == 0)
                 {
+                    auto shouldPause = [pauseReason](Creature const* creature)
+                    {
+                        switch (pauseReason)
+                        {
+                            case PauseReason::CombatStart:
+                                return !creature->IsInCombat();
+                            case PauseReason::CombatStop:
+                                // This will not work for summoned creatures, see CreatureAI::EnterEvadeMode. UNIT_STATE_EVADE is not applied, so IsInEvadeMode returns false
+                                return creature->IsInCombat() || creature->IsInEvadeMode();
+                            case PauseReason::FinishCast:
+                                return creature->HasUnitState(UNIT_STATE_CASTING);
+                            default:
+                                return false;
+                        }
+                    };
+
                     if (m_group)
                         for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                             if (IsCreatureAndExists(member))
-                                if (member->ToCreature()->IsInCombat() || member->ToCreature()->IsInEvadeMode())
+                                if (shouldPause(member->ToCreature()))
                                     return;
 
-                    if (me && (me->IsInCombat() || me->IsInEvadeMode()))
-                        return;
-                }
-                else if (activeActionSet->ActionTimer > diff)
-                {
-                    activeActionSet->ActionTimer -= diff;
-                    return;
-                }
-
-                activeActionSet->ActionTimer = 0;
-                activeActionSet->ActionStarted = false;
-                ++activeActionSet->CurrentAction;
-                continue;
-            }
-
-            if (action.Type == AI_GROUP_UNIT_FINISH_CAST)
-            {
-                if (action.TimeA == 0 && action.TimeB == 0)
-                {
-                    if (m_group)
-                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
-                            if (IsCreatureAndExists(member))
-                                if (member->ToCreature()->HasUnitState(UNIT_STATE_CASTING))
-                                    return;
-
-                    if (me && me->HasUnitState(UNIT_STATE_CASTING))
+                    if (me && shouldPause(me))
                         return;
                 }
                 else if (activeActionSet->ActionTimer > diff)
