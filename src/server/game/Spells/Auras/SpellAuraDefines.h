@@ -513,7 +513,7 @@ enum AuraType : uint32
     SPELL_AURA_426                                          = 426,
     SPELL_AURA_SCALE_PLAYER_LEVEL                           = 427,  // NYI
     SPELL_AURA_LINKED_SUMMON                                = 428,
-    SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET                      = 429,
+    SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET                      = 429,  // Only affects to pets
     SPELL_AURA_PLAY_SCENE                                   = 430,
     SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,
     SPELL_AURA_432                                          = 432,
@@ -615,7 +615,7 @@ enum AuraType : uint32
     SPELL_AURA_ALLOW_BLOCKING_SPELLS                        = 528, // NYI
     SPELL_AURA_MOD_SPELL_BLOCK_CHANCE                       = 529, // NYI
     SPELL_AURA_530                                          = 530,
-    SPELL_AURA_531                                          = 531,
+    SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON                   = 531, // Affects to all summons except pets
     SPELL_AURA_532                                          = 532,
     SPELL_AURA_DISABLE_NAVIGATION                           = 533, // disables map pins
     SPELL_AURA_534                                          = 534,
