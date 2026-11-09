@@ -6952,7 +6952,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
 
-    if (IsSummon())
+    if (IsPet())
     {
         if (Unit* owner = GetOwner())
         {
@@ -8130,7 +8130,7 @@ int32 Unit::MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType a
             AddPct(DoneTotalMod, autoAttackDamage->GetAmount());
     }
 
-    if (IsSummon())
+    if (IsPet())
     {
         if (Unit* owner = GetOwner())
         {
