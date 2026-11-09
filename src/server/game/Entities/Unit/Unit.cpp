@@ -7516,6 +7516,16 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     else // SPELL_AURA_MOD_HEALING_DONE_PERCENT is included in m_activePlayerData->ModHealingDonePercent for players
         DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
 
+    if (IsPet())
+    {
+        if (Unit* owner = GetOwner())
+        {
+            Unit::AuraEffectList const& modHealingDonePctPetAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT_PET);
+            for (AuraEffect const* aurEff : modHealingDonePctPetAuras)
+                AddPct(DoneTotalMod, aurEff->GetAmount());
+        }
+    }
+
     // bonus against aurastate
     DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE, [victim](AuraEffect const* aurEff) -> bool
     {
