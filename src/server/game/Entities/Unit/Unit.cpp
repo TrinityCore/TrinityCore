@@ -6956,7 +6956,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     {
         if (Unit* owner = GetOwner())
         {
-            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE);
+            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET);
             for (AuraEffect const* aurEff : modSummonDamageAuras)
                 AddPct(DoneTotalMod, aurEff->GetAmount());
         }
@@ -8134,7 +8134,7 @@ int32 Unit::MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType a
     {
         if (Unit* owner = GetOwner())
         {
-            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE);
+            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET);
             for (AuraEffect const* aurEff : modSummonDamageAuras)
                 AddPct(DoneTotalMod, aurEff->GetAmount());
         }
