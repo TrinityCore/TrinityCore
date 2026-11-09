@@ -6961,7 +6961,8 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 AddPct(DoneTotalMod, aurEff->GetAmount());
         }
     }
-    else if (GetTypeId() == TYPEID_UNIT)
+    
+    if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->Classification);
 
     // Versatility
