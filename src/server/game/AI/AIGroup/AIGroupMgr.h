@@ -1050,9 +1050,8 @@ enum AIGroupTargetType : uint8
     AIGROUP_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
     AIGROUP_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     AIGROUP_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
-    AIGROUP_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT   = 30,   // entry(0any), maxDist
 
-    AIGROUP_TARGET_END                            = 31
+    AIGROUP_TARGET_END                            = 30
 };
 
 struct AIGroupTarget

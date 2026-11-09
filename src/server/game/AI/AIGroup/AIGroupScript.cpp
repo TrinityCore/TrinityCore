@@ -1914,11 +1914,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
                             targets.push_back(unit);
             break;
         }
-        case AIGROUP_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT:
-            if (baseObject)
-                if (GameObject* gameObject = baseObject->FindNearestUnspawnedGameObject(target.ClosestGameObject.Entry, float(target.ClosestGameObject.Dist ? target.ClosestGameObject.Dist : 100)))
-                    targets.push_back(gameObject);
-            break;
         default:
             break;
     }
