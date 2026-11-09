@@ -1222,6 +1222,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 
     spell->m_targets.SetPitch(pitch);
     spell->m_targets.SetSpeed(speed);
+    spell->OnClientTrajectoryUpdate();
 
     if (moveStop)
     {
