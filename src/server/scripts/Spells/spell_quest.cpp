@@ -223,7 +223,7 @@ class spell_quest_uther_grom_tribute : public SpellScript
         }
 
         if (spell)
-            caster->CastSpell(caster, spell);
+            caster->CastSpell(caster, spell, true);
     }
 
     void Register() override
@@ -250,7 +250,7 @@ class spell_quest_make_player_destroy_totems : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         // Ignore reagent cost, consumed by quest
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TOTEM_OF_THE_EARTHEN_RING, true);
     }
 
     void Register() override

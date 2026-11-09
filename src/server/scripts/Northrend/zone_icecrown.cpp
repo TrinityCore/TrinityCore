@@ -725,7 +725,7 @@ class spell_icecrown_the_ocular_on_death : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
-            target->CastSpell(target, uint32(GetEffectValue()));
+            target->CastSpell(target, uint32(GetEffectValue()), true);
     }
 
     void Register() override
@@ -819,7 +819,7 @@ class spell_icecrown_chum_the_water : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(ChumTheWaterSummonSpells));
+        caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(ChumTheWaterSummonSpells), true);
     }
 
     void Register() override

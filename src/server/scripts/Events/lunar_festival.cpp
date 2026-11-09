@@ -493,7 +493,7 @@ class spell_lunar_festival_elunes_blessing : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ELUNES_BLESSING_QUEST_CREDIT);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ELUNES_BLESSING_QUEST_CREDIT, true);
     }
 
     void Register() override
