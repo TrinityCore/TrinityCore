@@ -331,7 +331,14 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         return true;
     }
 
-    uint8 objectTypeMask = me ? AIGroupMgr::ObjectTypeMaskUnit : AIGroupMgr::ObjectTypeMaskObject;
+    if (mask == AIGroupMgr::ObjectTypeMaskVehicle && (!me || !me->IsVehicle()))
+    {
+        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: {} entry {} cannot use action type {} ({}), action requires a vehicle, action set {} index {}, skipped.",
+            me ? "Unit" : "Object", me ? me->GetEntry() : go->GetEntry(), action.Type, typeInfo.Name, action.Id, action.Index);
+        return true;
+    }
+
+    uint8 objectTypeMask = me ? (me->IsVehicle() ? AIGroupMgr::ObjectTypeMaskVehicle : AIGroupMgr::ObjectTypeMaskUnit) : AIGroupMgr::ObjectTypeMaskObject;
 
     if (!(mask & objectTypeMask))
     {

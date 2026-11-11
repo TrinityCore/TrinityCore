@@ -1424,7 +1424,8 @@ class TC_GAME_API AIGroupMgr
         {
             ObjectTypeMaskUnit          = 0x01,
             ObjectTypeMaskObject        = 0x02,
-            ObjectTypeMaskAll           = ObjectTypeMaskUnit | ObjectTypeMaskObject
+            ObjectTypeMaskVehicle       = 0x04,
+            ObjectTypeMaskAll           = ObjectTypeMaskUnit | ObjectTypeMaskObject | ObjectTypeMaskVehicle
         };
 
         static ObjectTypeMask GetObjectTypeMask(AI_GROUP_ACTION action);
