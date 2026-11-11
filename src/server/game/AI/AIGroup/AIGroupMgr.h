@@ -951,6 +951,30 @@ struct AIGroupMemberData
     AIGroupUnit Unit;
 };
 
+// From g_eventTypes
+enum class EventTypes : uint8
+{
+    None               = 0,
+    Spawn              = 1,    // "Spawn" - actions would happen when the unit spawns
+    GeneralEvent       = 2,    // NYI // "General event (designer defined)" - actions would happen if anywhere on the server a certain event ID is broadcast
+    TimeEvent          = 3,    // NYI // "Time event" - actions would happen at a certain time of the day (e.g. bells ringing in towns)
+    QuestEvent         = 4,    // NYI // "Quest event" - actions would happen if a player somewhere on the server had accepted or rewarded a quest ID
+    AreaTriggerEvent   = 5,    // NYI // "Area trigger event" - actions would happen if a player somewhere on the server had entered (or exited - in later expansions when the support for that was added) an area trigger ID
+    Max
+};
+
+struct SpawnEventListHolder
+{
+    ObjectGuid::LowType MainMemberGuid = 0;
+    AIGroupMemberType MemberType = AIGroupMemberType::Creature;
+    uint8 Index = 0;
+    uint8 Chance = 0;
+    EventTypes EventType = EventTypes::None;
+    uint32 EventParam1 = 0;
+    uint32 EventParam2 = 0;
+    uint32 ActionSetId = 0;
+};
+
 // From g_aiMoveSpeed
 enum class MoveSpeed : uint8
 {
@@ -1276,6 +1300,8 @@ typedef std::vector<ObjectTriggersHolder> AIGroupObjectTriggerList;
 typedef std::unordered_map<uint32, AIGroupObjectTriggerList> AIGroupObjectTriggersMap;
 typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
+typedef std::vector<SpawnEventListHolder> AIGroupSpawnEventList;
+typedef std::unordered_map<ObjectGuid::LowType, std::unordered_map<AIGroupMemberType, AIGroupSpawnEventList>> AIGroupSpawnEventMap;
 typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
 typedef std::unordered_map<uint32, AIGroupRandomActionSet> AIGroupRandomActionSetMap;
 typedef std::vector<WorldObject*> AIGroupObjectVector;
@@ -1304,6 +1330,7 @@ class TC_GAME_API AIGroupMgr
         AIGroupMgr() { }
         ~AIGroupMgr() { }
 
+        AIGroupSpawnEventMap _spawnEventList;
         std::unordered_map<uint32, std::string> _actionTriggerNames;
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
         AIGroupEventMap mEventMap;
@@ -1357,6 +1384,7 @@ class TC_GAME_API AIGroupMgr
         static AIGroupMgr* Instance();
 
         void LoadAIGroupMembersFromDB();
+        void LoadSpawnEventListsFromDB();
         void LoadActionSetsFromDB();
         void LoadActionSetsNamesFromDB();
         void LoadRandomActionSetsFromDB();
@@ -1469,6 +1497,16 @@ class TC_GAME_API AIGroupMgr
         AIGroupObjectTriggerList GetObjectScript(uint32 triggersId);
         AIGroupActionSet GetActionSet(uint32 actionSetId);
         AIGroupRandomActionSet GetRandomActionSet(uint32 randomActionSetId);
+
+        AIGroupSpawnEventList const* GetSpawnEventList(ObjectGuid::LowType mainMemberGuid, AIGroupMemberType memberType) const
+        {
+            auto guidItr = _spawnEventList.find(mainMemberGuid);
+            if (guidItr == _spawnEventList.end())
+                return nullptr;
+
+            auto typeItr = guidItr->second.find(memberType);
+            return typeItr != guidItr->second.end() ? &typeItr->second : nullptr;
+        }
 
         std::vector<AIGroupMemberData> const* GetGroupMembers(ObjectGuid::LowType mainMemberGuid) const
         {

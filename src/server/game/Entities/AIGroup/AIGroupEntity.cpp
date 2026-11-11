@@ -32,6 +32,30 @@ namespace
     AIGroupMap AIGroupMaps;
 }
 
+static void TriggerSpawnEvents(WorldObject* unit, AIGroupScript* script)
+{
+    if (!unit)
+        return;
+
+    Creature* creature = unit->ToCreature();
+    GameObject* gameObject = unit->ToGameObject();
+    if (!creature && !gameObject)
+        return;
+
+    ObjectGuid::LowType spawnId = creature ? creature->GetSpawnId() : gameObject->GetSpawnId();
+    if (!spawnId)
+        return;
+
+    AIGroupMemberType memberType = creature ? AIGroupMemberType::Creature : AIGroupMemberType::GameObject;
+    AIGroupSpawnEventList const* spawnEvents = sAIGroupMgr->GetSpawnEventList(spawnId, memberType);
+    if (!spawnEvents)
+        return;
+
+    for (SpawnEventListHolder const& event : *spawnEvents)
+        if (event.EventType == EventTypes::Spawn && roll_chance_i(event.Chance))
+            script->PerformActionSet(event.ActionSetId, unit->GetGUID());
+}
+
 AIGroup::AIGroup() { }
 
 AIGroup* AIGroup::GetAIGroup(Creature* creature)
@@ -81,7 +105,11 @@ void AIGroup::AddUnitToAIGroup(WorldObject* unit)
     auto const [groupBegin, groupEnd] = AIGroupMaps.equal_range(spawnId);
     for (auto groupItr = groupBegin; groupItr != groupEnd; ++groupItr)
         if (groupItr->second->GetMap() == unit->GetMap())
+        {
+            groupItr->second->GetScript()->SetActor(unit);
+            TriggerSpawnEvents(unit, groupItr->second->GetScript());
             return;
+        }
 
     bool hasAIGroupAI = (creature && creature->GetAIName() == "AIGroup") || (gameObject && gameObject->GetAIName() == "AIGroup");
     if (!sAIGroupMgr->GetGroupMembers(spawnId) && !hasAIGroupAI && (!creature || !creature->GetNativeTriggersId()))
@@ -93,6 +121,7 @@ void AIGroup::AddUnitToAIGroup(WorldObject* unit)
 
     group->GetScript()->SetActor(unit);
     group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
+    TriggerSpawnEvents(unit, group->GetScript());
     AddAIGroup(std::move(group));
 }
 

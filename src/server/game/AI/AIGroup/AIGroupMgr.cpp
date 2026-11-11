@@ -117,6 +117,89 @@ void AIGroupMgr::LoadAIGroupMembersFromDB()
     TC_LOG_INFO("server.loading", ">> Loaded {} AI group members in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AIGroupMgr::LoadSpawnEventListsFromDB()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _spawnEventList.clear();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPAWN_EVENT_LIST);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spawn events. DB table `spawn_event_list` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        SpawnEventListHolder event;
+
+        event.MainMemberGuid = fields[0].GetUInt32();
+        uint8 memberType = fields[1].GetUInt8();
+        event.Index = fields[2].GetUInt8();
+        event.Chance = fields[3].GetUInt8();
+        uint8 eventType = fields[4].GetUInt8();
+        event.EventParam1 = fields[5].GetUInt32();
+        event.EventParam2 = fields[6].GetUInt32();
+        event.ActionSetId = fields[7].GetUInt32();
+
+        switch (memberType)
+        {
+            case uint8(AIGroupMemberType::Creature):
+                if (!sObjectMgr->GetCreatureData(event.MainMemberGuid))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` references missing creature spawn {}. Row skipped.", event.MainMemberGuid);
+                    continue;
+                }
+                event.MemberType = AIGroupMemberType::Creature;
+                break;
+            case uint8(AIGroupMemberType::GameObject):
+                if (!sObjectMgr->GetGameObjectData(event.MainMemberGuid))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` references missing gameobject spawn {}. Row skipped.", event.MainMemberGuid);
+                    continue;
+                }
+                event.MemberType = AIGroupMemberType::GameObject;
+                break;
+            default:
+                TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` has invalid member type {}. Row skipped.", memberType);
+                continue;
+        }
+
+        if (!event.Chance || event.Chance > 100)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` (MainMemberGUID: {}, Index: {}) has invalid Chance ({}). Row skipped.",
+                event.MainMemberGuid, event.Index, event.Chance);
+            continue;
+        }
+
+        if (eventType >= uint8(EventTypes::Max))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` (MainMemberGUID: {}, Index: {}) has invalid EventType ({}). Row skipped.",
+                event.MainMemberGuid, event.Index, eventType);
+            continue;
+        }
+        event.EventType = EventTypes(eventType);
+
+        if (!event.ActionSetId || mActionSetMap.find(event.ActionSetId) == mActionSetMap.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` (MainMemberGUID: {}, Index: {}) references an invalid ActionSetId ({}). Row skipped.",
+                event.MainMemberGuid, event.Index, event.ActionSetId);
+            continue;
+        }
+
+        _spawnEventList[event.MainMemberGuid][event.MemberType].push_back(event);
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} spawn events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void AIGroupMgr::LoadActionSetsFromDB()
 {
     uint32 oldMSTime = getMSTime();

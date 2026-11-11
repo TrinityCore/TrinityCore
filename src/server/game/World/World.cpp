@@ -2141,6 +2141,9 @@ void World::SetInitialWorldSettings()
     sAIGroupMgr->LoadActionSetsNamesFromDB();
     sAIGroupMgr->LoadRandomActionSetsFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Spawn Event Lists...");
+    sAIGroupMgr->LoadSpawnEventListsFromDB();
+
     TC_LOG_INFO("server.loading", "Loading Action Triggers...");
     sAIGroupMgr->LoadActionTriggersFromDB();
     sAIGroupMgr->LoadActionTriggersNamesFromDB();

@@ -87,6 +87,19 @@ CREATE TABLE `ai_group_members` (
   PRIMARY KEY (`MemberGUID`,`MemberType`,`AIGroupUnit`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `spawn_event_list`;
+CREATE TABLE `spawn_event_list` (
+  `MainMemberGUID` int unsigned NOT NULL,
+  `MemberType` tinyint unsigned NOT NULL DEFAULT '0',
+  `Index` tinyint unsigned NOT NULL,
+  `Chance` tinyint unsigned NOT NULL DEFAULT '100',
+  `EventType` tinyint unsigned NOT NULL,
+  `EventParam1` int unsigned NOT NULL DEFAULT '0',
+  `EventParam2` int unsigned NOT NULL DEFAULT '0',
+  `ActionSetId` int unsigned NOT NULL,
+  PRIMARY KEY (`MainMemberGUID`,`MemberType`,`Index`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `named_point`;
 CREATE TABLE `named_point` (
   `Id` int unsigned NOT NULL ,
