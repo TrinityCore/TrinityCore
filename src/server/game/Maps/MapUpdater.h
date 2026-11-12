@@ -20,8 +20,7 @@
 
 #include "Define.h"
 #include "ProducerConsumerQueue.h"
-#include <condition_variable>
-#include <mutex>
+#include <atomic>
 #include <memory>
 #include <thread>
 #include <vector>
@@ -54,9 +53,7 @@ class TC_GAME_API MapUpdater
 
         std::vector<std::thread> _workerThreads;
 
-        std::mutex _lock;
-        std::condition_variable _condition;
-        size_t pending_requests;
+        std::atomic<std::size_t> _pendingRequests;
 
         void update_finished();
 
