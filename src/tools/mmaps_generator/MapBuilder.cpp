@@ -76,8 +76,7 @@ namespace MMAP
         m_bigBaseUnit        (bigBaseUnit),
         m_mapid              (mapid),
         m_totalTiles         (0u),
-        m_totalTilesProcessed(0u),
-        _cancelationToken    (false)
+        m_totalTilesProcessed(0u)
     {
 
         // At least 1 thread is needed
@@ -91,8 +90,6 @@ namespace MMAP
     /**************************************************************************/
     MapBuilder::~MapBuilder()
     {
-        _cancelationToken = true;
-
         _queue.Cancel();
 
         m_tileBuilders.clear();
@@ -229,9 +226,7 @@ namespace MMAP
         {
             TileInfo tileInfo;
 
-            m_mapBuilder->_queue.WaitAndPop(tileInfo);
-
-            if (m_mapBuilder->_cancelationToken)
+            if (!m_mapBuilder->_queue.WaitAndPop(tileInfo))
                 return;
 
             dtNavMesh* navMesh = dtAllocNavMesh();
@@ -272,8 +267,6 @@ namespace MMAP
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
-
-        _cancelationToken = true;
 
         _queue.Cancel();
 
@@ -353,8 +346,6 @@ namespace MMAP
             m_skipLiquid, m_bigBaseUnit, m_debugOutput, &m_offMeshConnections);
         tileBuilder.buildTile(mapID, tileX, tileY, navMesh);
         dtFreeNavMesh(navMesh);
-
-        _cancelationToken = true;
 
         _queue.Cancel();
     }

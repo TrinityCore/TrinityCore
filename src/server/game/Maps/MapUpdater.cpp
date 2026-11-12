@@ -43,6 +43,12 @@ class MapUpdateRequest
         }
 };
 
+MapUpdater::MapUpdater() : pending_requests(0)
+{
+}
+
+MapUpdater::~MapUpdater() = default;
+
 void MapUpdater::activate(size_t num_threads)
 {
     for (size_t i = 0; i < num_threads; ++i)
@@ -51,8 +57,6 @@ void MapUpdater::activate(size_t num_threads)
 
 void MapUpdater::deactivate()
 {
-    _cancelationToken = true;
-
     wait();
 
     _queue.Cancel();
@@ -102,9 +106,7 @@ void MapUpdater::WorkerThread()
     {
         MapUpdateRequest* request = nullptr;
 
-        _queue.WaitAndPop(request);
-
-        if (_cancelationToken)
+        if (!_queue.WaitAndPop(request))
             return;
 
         request->call();

@@ -81,18 +81,20 @@ public:
         return true;
     }
 
-    void WaitAndPop(T& value)
+    bool WaitAndPop(T& value)
     {
         std::unique_lock lock(_queueLock);
 
         _condition.wait(lock, [&] { return !_queue.empty() || _shutdown; });
 
         if (_queue.empty() || _shutdown)
-            return;
+            return false;
 
         value = _queue.front();
 
         _queue.pop();
+
+        return true;
     }
 
     void Cancel()
