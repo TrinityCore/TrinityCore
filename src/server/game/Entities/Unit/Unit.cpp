@@ -6953,14 +6953,8 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     float DoneTotalMod = 1.0f;
 
     if (IsSummon())
-    {
         if (Unit* owner = GetOwner())
-        {
-            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(IsPet() ? SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET : SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON);
-            for (AuraEffect const* aurEff : modSummonDamageAuras)
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-        }
-    }
+            DoneTotalMod *= owner->GetTotalAuraMultiplier(IsPet() ? SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET : SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON);
 
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->Classification);
@@ -7517,14 +7511,8 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
         DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
 
     if (IsPet())
-    {
         if (Unit* owner = GetOwner())
-        {
-            Unit::AuraEffectList const& modHealingDonePctPetAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT_PET);
-            for (AuraEffect const* aurEff : modHealingDonePctPetAuras)
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-        }
-    }
+            DoneTotalMod *= owner->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_PCT_DONE_PET);
 
     // bonus against aurastate
     DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE, [victim](AuraEffect const* aurEff) -> bool
@@ -8142,14 +8130,8 @@ int32 Unit::MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType a
     }
 
     if (IsSummon())
-    {
         if (Unit* owner = GetOwner())
-        {
-            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(IsPet() ? SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET : SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON);
-            for (AuraEffect const* aurEff : modSummonDamageAuras)
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-        }
-    }
+            DoneTotalMod *= owner->GetTotalAuraMultiplier(IsPet() ? SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET : SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON);
 
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
 
