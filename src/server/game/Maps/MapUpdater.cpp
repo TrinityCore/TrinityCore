@@ -43,6 +43,12 @@ class MapUpdateRequest
         }
 };
 
+MapUpdater::MapUpdater() : _pendingRequests(0)
+{
+}
+
+MapUpdater::~MapUpdater() = default;
+
 void MapUpdater::activate(size_t num_threads)
 {
     for (size_t i = 0; i < num_threads; ++i)
@@ -51,8 +57,6 @@ void MapUpdater::activate(size_t num_threads)
 
 void MapUpdater::deactivate()
 {
-    _cancelationToken = true;
-
     wait();
 
     _queue.Cancel();
@@ -63,18 +67,22 @@ void MapUpdater::deactivate()
 
 void MapUpdater::wait()
 {
-    std::unique_lock lock(_lock);
+    for (;;)
+    {
+        std::size_t pendingRequests = _pendingRequests.load(std::memory_order::acquire);
+        if (!pendingRequests)
+            break;
 
-    _condition.wait(lock, [&] { return pending_requests == 0; });
+        // wait for change
+        _pendingRequests.wait(pendingRequests, std::memory_order::relaxed);
+    }
 }
 
 void MapUpdater::schedule_update(Map& map, uint32 diff)
 {
-    std::scoped_lock lock(_lock);
+    ++_pendingRequests;
 
-    ++pending_requests;
-
-    _queue.Push(new MapUpdateRequest(map, *this, diff));
+    _queue.Push(std::make_unique<MapUpdateRequest>(map, *this, diff));
 }
 
 bool MapUpdater::activated() const
@@ -84,11 +92,8 @@ bool MapUpdater::activated() const
 
 void MapUpdater::update_finished()
 {
-    std::scoped_lock lock(_lock);
-
-    --pending_requests;
-
-    _condition.notify_all();
+    if (_pendingRequests.fetch_sub(1, std::memory_order::release) == 1)
+        _pendingRequests.notify_all();
 }
 
 void MapUpdater::WorkerThread()
@@ -100,15 +105,11 @@ void MapUpdater::WorkerThread()
 
     while (true)
     {
-        MapUpdateRequest* request = nullptr;
+        std::unique_ptr<MapUpdateRequest> request = nullptr;
 
-        _queue.WaitAndPop(request);
-
-        if (_cancelationToken)
+        if (!_queue.WaitAndPop(request))
             return;
 
         request->call();
-
-        delete request;
     }
 }

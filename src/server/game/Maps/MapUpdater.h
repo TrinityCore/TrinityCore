@@ -20,8 +20,8 @@
 
 #include "Define.h"
 #include "ProducerConsumerQueue.h"
-#include <condition_variable>
-#include <mutex>
+#include <atomic>
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -32,8 +32,8 @@ class TC_GAME_API MapUpdater
 {
     public:
 
-        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
-        ~MapUpdater() { }
+        MapUpdater();
+        ~MapUpdater();
 
         friend class MapUpdateRequest;
 
@@ -49,14 +49,11 @@ class TC_GAME_API MapUpdater
 
     private:
 
-        ProducerConsumerQueue<MapUpdateRequest*> _queue;
+        ProducerConsumerQueue<std::unique_ptr<MapUpdateRequest>> _queue;
 
         std::vector<std::thread> _workerThreads;
-        std::atomic<bool> _cancelationToken;
 
-        std::mutex _lock;
-        std::condition_variable _condition;
-        size_t pending_requests;
+        std::atomic<std::size_t> _pendingRequests;
 
         void update_finished();
 

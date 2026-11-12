@@ -2222,7 +2222,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr15>::ToString(SpellAttr15 value)
         case SPELL_ATTR15_UNK7: return { "SPELL_ATTR15_UNK7", "Unknown attribute 7@Attr15", "" };
         case SPELL_ATTR15_UNK8: return { "SPELL_ATTR15_UNK8", "Unknown attribute 8@Attr15", "" };
         case SPELL_ATTR15_UNK9: return { "SPELL_ATTR15_UNK9", "Unknown attribute 9@Attr15", "" };
-        case SPELL_ATTR15_UNK10: return { "SPELL_ATTR15_UNK10", "Unknown attribute 10@Attr15", "" };
+        case SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS: return { "SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS", "Aura has separate stack durations", "" };
         case SPELL_ATTR15_UNK11: return { "SPELL_ATTR15_UNK11", "Unknown attribute 11@Attr15", "" };
         case SPELL_ATTR15_UNK12: return { "SPELL_ATTR15_UNK12", "Unknown attribute 12@Attr15", "" };
         case SPELL_ATTR15_UNK13: return { "SPELL_ATTR15_UNK13", "Unknown attribute 13@Attr15", "" };
@@ -2266,7 +2266,7 @@ TC_API_EXPORT SpellAttr15 EnumUtils<SpellAttr15>::FromIndex(size_t index)
         case 7: return SPELL_ATTR15_UNK7;
         case 8: return SPELL_ATTR15_UNK8;
         case 9: return SPELL_ATTR15_UNK9;
-        case 10: return SPELL_ATTR15_UNK10;
+        case 10: return SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS;
         case 11: return SPELL_ATTR15_UNK11;
         case 12: return SPELL_ATTR15_UNK12;
         case 13: return SPELL_ATTR15_UNK13;
@@ -2307,7 +2307,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr15>::ToIndex(SpellAttr15 value)
         case SPELL_ATTR15_UNK7: return 7;
         case SPELL_ATTR15_UNK8: return 8;
         case SPELL_ATTR15_UNK9: return 9;
-        case SPELL_ATTR15_UNK10: return 10;
+        case SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS: return 10;
         case SPELL_ATTR15_UNK11: return 11;
         case SPELL_ATTR15_UNK12: return 12;
         case SPELL_ATTR15_UNK13: return 13;

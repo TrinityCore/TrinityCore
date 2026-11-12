@@ -18,7 +18,6 @@
 #ifndef TRINITYCORE_LOCKED_QUEUE_H
 #define TRINITYCORE_LOCKED_QUEUE_H
 
-#include "Concepts.h"
 #include <deque>
 #include <mutex>
 
@@ -30,9 +29,6 @@ class LockedQueue
 
     //! Storage backing the queue.
     StorageType _queue;
-
-    //! Cancellation flag.
-    bool _canceled = false;
 
 public:
 
@@ -84,20 +80,6 @@ public:
         result = std::move(front);
         _queue.pop_front();
         return true;
-    }
-
-    //! Cancels the queue.
-    void cancel()
-    {
-        std::scoped_lock lock(_lock);
-        _canceled = true;
-    }
-
-    //! Checks if the queue is cancelled.
-    bool cancelled()
-    {
-        std::scoped_lock lock(_lock);
-        return _canceled;
     }
 
     ///! Calls pop_front of the queue
