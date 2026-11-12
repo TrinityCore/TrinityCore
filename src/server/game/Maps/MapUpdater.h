@@ -22,6 +22,7 @@
 #include "ProducerConsumerQueue.h"
 #include <condition_variable>
 #include <mutex>
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -49,7 +50,7 @@ class TC_GAME_API MapUpdater
 
     private:
 
-        ProducerConsumerQueue<MapUpdateRequest*> _queue;
+        ProducerConsumerQueue<std::unique_ptr<MapUpdateRequest>> _queue;
 
         std::vector<std::thread> _workerThreads;
 

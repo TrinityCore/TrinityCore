@@ -78,7 +78,7 @@ void MapUpdater::schedule_update(Map& map, uint32 diff)
 
     ++pending_requests;
 
-    _queue.Push(new MapUpdateRequest(map, *this, diff));
+    _queue.Push(std::make_unique<MapUpdateRequest>(map, *this, diff));
 }
 
 bool MapUpdater::activated() const
@@ -104,13 +104,11 @@ void MapUpdater::WorkerThread()
 
     while (true)
     {
-        MapUpdateRequest* request = nullptr;
+        std::unique_ptr<MapUpdateRequest> request = nullptr;
 
         if (!_queue.WaitAndPop(request))
             return;
 
         request->call();
-
-        delete request;
     }
 }

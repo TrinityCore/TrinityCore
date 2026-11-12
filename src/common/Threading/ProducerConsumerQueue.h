@@ -90,7 +90,7 @@ public:
         if (_queue.empty() || _shutdown)
             return false;
 
-        value = _queue.front();
+        value = std::move(_queue.front());
 
         _queue.pop();
 
@@ -102,14 +102,7 @@ public:
         std::scoped_lock lock(_queueLock);
 
         while (!_queue.empty())
-        {
-            T& value = _queue.front();
-
-            if constexpr (std::is_pointer_v<T>)
-                delete value;
-
             _queue.pop();
-        }
 
         _shutdown = true;
 
