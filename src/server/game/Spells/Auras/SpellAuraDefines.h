@@ -241,7 +241,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_STEALTH_LEVEL                            = 154,  //    Stealth Level Modifier
     SPELL_AURA_MOD_WATER_BREATHING                          = 155,  //    Mod Water Breathing
     SPELL_AURA_MOD_REPUTATION_GAIN                          = 156,  //    Mod Reputation Gain
-    SPELL_AURA_PET_DAMAGE_MULTI                             = 157,  //    Mod Pet Damage
+    SPELL_AURA_MOD_HEALING_PCT_DONE_PET                     = 157,  //    Mod Healing Pct Done (Pet)
     SPELL_AURA_ALLOW_TALENT_SWAPPING                        = 158,
     SPELL_AURA_NO_PVP_CREDIT                                = 159,
     SPELL_AURA_160                                          = 160,  // old SPELL_AURA_MOD_AOE_AVOIDANCE. Unused 4.3.4
@@ -513,7 +513,7 @@ enum AuraType : uint32
     SPELL_AURA_426                                          = 426,
     SPELL_AURA_SCALE_PLAYER_LEVEL                           = 427,  // NYI
     SPELL_AURA_LINKED_SUMMON                                = 428,
-    SPELL_AURA_MOD_SUMMON_DAMAGE                            = 429,  // NYI - increases damage done by all summons, not just controlled pets
+    SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET                      = 429,  // Only affects pets
     SPELL_AURA_PLAY_SCENE                                   = 430,
     SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,
     SPELL_AURA_432                                          = 432,
@@ -615,7 +615,7 @@ enum AuraType : uint32
     SPELL_AURA_ALLOW_BLOCKING_SPELLS                        = 528, // NYI
     SPELL_AURA_MOD_SPELL_BLOCK_CHANCE                       = 529, // NYI
     SPELL_AURA_530                                          = 530,
-    SPELL_AURA_531                                          = 531,
+    SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON                   = 531, // Affects all summons except pets
     SPELL_AURA_532                                          = 532,
     SPELL_AURA_DISABLE_NAVIGATION                           = 533, // disables map pins
     SPELL_AURA_534                                          = 534,
