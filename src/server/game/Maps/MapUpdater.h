@@ -32,8 +32,8 @@ class TC_GAME_API MapUpdater
 {
     public:
 
-        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
-        ~MapUpdater() { }
+        MapUpdater();
+        ~MapUpdater();
 
         friend class MapUpdateRequest;
 
@@ -52,7 +52,6 @@ class TC_GAME_API MapUpdater
         ProducerConsumerQueue<MapUpdateRequest*> _queue;
 
         std::vector<std::thread> _workerThreads;
-        std::atomic<bool> _cancelationToken;
 
         std::mutex _lock;
         std::condition_variable _condition;

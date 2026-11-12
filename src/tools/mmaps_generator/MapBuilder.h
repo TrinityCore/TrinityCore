@@ -147,7 +147,6 @@ namespace MMAP
 
             std::vector<std::unique_ptr<TileBuilder>> m_tileBuilders;
             ProducerConsumerQueue<TileInfo> _queue;
-            std::atomic<bool> _cancelationToken;
     };
 }
 
