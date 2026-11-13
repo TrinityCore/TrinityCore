@@ -246,8 +246,7 @@ void Metric::ScheduleSend()
 
 void Metric::Unload()
 {
-    // Send what's queued only if IoContext is stopped (so only on shutdown)
-    if (_enabled && Trinity::Asio::get_io_context(*_batchTimer).stopped())
+    if (_enabled)
     {
         _enabled = false;
         SendBatch();
