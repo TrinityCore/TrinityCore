@@ -48,6 +48,14 @@ struct TestObj4 : public TestObj
 {
 };
 
+struct TestObj5 : public Trinity::enable_unique_weak_from_this<TestObj5>
+{
+};
+
+struct TestObj6 : public TestObj5
+{
+};
+
 TEST_CASE("Trinity::unique_trackable_ptr frees memory", "[UniqueTrackablePtr]")
 {
     bool deleted = false;
@@ -163,3 +171,41 @@ TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
 #if TRINITY_COMPILER_IS_CLANG
 #pragma clang diagnostic pop
 #endif
+
+TEST_CASE("Trinity::enable_unique_weak_from_this exposes weak_from_this", "[UniqueTrackablePtr]")
+{
+    SECTION("single object make_unique_trackable sets weak_from_this")
+    {
+        Trinity::unique_trackable_ptr<TestObj6> testObj5 = Trinity::make_unique_trackable<TestObj6>();
+
+        REQUIRE(testObj5->weak_from_this().expired() == false);
+    }
+
+    SECTION("unbounded array make_unique_trackable does not set weak_from_this")
+    {
+        Trinity::unique_trackable_ptr<TestObj6[]> testObj5 = Trinity::make_unique_trackable<TestObj6[]>(1);
+
+        REQUIRE(testObj5[0].weak_from_this().expired() == true);
+    }
+
+    SECTION("unbounded array make_unique_trackable with initial value does not set weak_from_this")
+    {
+        Trinity::unique_trackable_ptr<TestObj6[]> testObj5 = Trinity::make_unique_trackable<TestObj6[]>(1, TestObj6());
+
+        REQUIRE(testObj5[0].weak_from_this().expired() == true);
+    }
+
+    SECTION("bounded array make_unique_trackable does not set weak_from_this")
+    {
+        Trinity::unique_trackable_ptr<TestObj6[1]> testObj5 = Trinity::make_unique_trackable<TestObj6[1]>();
+
+        REQUIRE(testObj5[0].weak_from_this().expired() == true);
+    }
+
+    SECTION("bounded array make_unique_trackable with initial value does not set weak_from_this")
+    {
+        Trinity::unique_trackable_ptr<TestObj6[1]> testObj5 = Trinity::make_unique_trackable<TestObj6[1]>(TestObj6());
+
+        REQUIRE(testObj5[0].weak_from_this().expired() == true);
+    }
+}

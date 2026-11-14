@@ -31,6 +31,9 @@ class unique_weak_ptr;
 template <typename T>
 class unique_strong_ref_ptr;
 
+template <typename T>
+class enable_unique_weak_from_this;
+
 /**
  * \brief Specialized variant of std::shared_ptr that enforces unique ownership and/or std::unique_ptr with std::weak_ptr capabilities
  * Implementation has the same overhead as a std::shared_ptr, that is, a separate allocation for control block that holds use counters
@@ -40,8 +43,8 @@ template <typename T>
 class unique_trackable_ptr
 {
 public:
-    using element_type = T;
-    using pointer = T*;
+    using element_type = std::remove_extent_t<T>;
+    using pointer = element_type*;
 
     unique_trackable_ptr() : _ptr() { }
 
@@ -105,6 +108,11 @@ public:
         return _ptr.get();
     }
 
+    element_type& operator[](std::ptrdiff_t i) const requires (std::is_array_v<T>)
+    {
+        return get()[i];
+    }
+
     explicit operator bool() const
     {
         return static_cast<bool>(_ptr);
@@ -148,7 +156,7 @@ private:
     template <typename T0>
     friend std::enable_if_t<std::is_bounded_array_v<T0>, unique_trackable_ptr<T0>> make_unique_trackable(std::remove_extent_t<T0> const& val);
 
-    std::shared_ptr<element_type> _ptr;
+    std::shared_ptr<T> _ptr;
 };
 
 /**
@@ -330,6 +338,43 @@ private:
     std::shared_ptr<element_type> _ptr;
 };
 
+/**
+ * \brief Trinity::unique_trackable_ptr companion class, replicating what std::enable_shared_from_this is to std::shared_ptr
+ * \tparam T Type of held object
+ */
+template <typename T>
+class enable_unique_weak_from_this
+{
+protected:
+    enable_unique_weak_from_this() noexcept = default;
+
+    enable_unique_weak_from_this(enable_unique_weak_from_this const&) noexcept : _ptr() { }
+
+    enable_unique_weak_from_this(enable_unique_weak_from_this&&) noexcept : _ptr() { }
+
+    enable_unique_weak_from_this& operator=(enable_unique_weak_from_this const&) noexcept { return *this; }
+
+    enable_unique_weak_from_this& operator=(enable_unique_weak_from_this&&) noexcept { return *this; }
+
+    ~enable_unique_weak_from_this() = default;
+
+public:
+    using enable_weak_type = enable_unique_weak_from_this;
+
+    unique_weak_ptr<T> weak_from_this() noexcept { return _ptr; }
+    unique_weak_ptr<T const> weak_from_this() const noexcept { return _ptr; }
+
+private:
+    template <typename T0, typename... Args>
+    friend std::enable_if_t<!std::is_array_v<T0>, unique_trackable_ptr<T0>> make_unique_trackable(Args&&... args);
+
+    unique_weak_ptr<T> _ptr;
+};
+
+template <typename T>
+concept has_unique_weak_from_this = requires { typename T::enable_weak_type; }
+                                    && std::convertible_to<std::remove_cv_t<T>*, typename T::enable_weak_type*>;
+
 // unique_trackable_ptr funcions
 
 template <typename T1, typename T2>
@@ -361,6 +406,8 @@ std::enable_if_t<!std::is_array_v<T>, unique_trackable_ptr<T>> make_unique_track
 {
     unique_trackable_ptr<T> ptr;
     ptr._ptr = std::make_shared<T>(std::forward<Args>(args)...);
+    if constexpr (has_unique_weak_from_this<T>)
+        ptr._ptr->T::enable_weak_type::_ptr = unique_weak_ptr<T>(ptr, ptr.get());
     return ptr;
 }
 
