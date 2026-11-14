@@ -1347,7 +1347,7 @@ class TC_GAME_API AIGroupMgr
         bool IsActionTypeValid(ActionSetActionHolder const& action);
         static void LogUselessActionParams(ActionSetActionHolder const& action);
         static bool IsSpellValid(ActionSetActionHolder const& action, double entry);
-        static bool IsTextValid(ActionSetActionHolder const& action, double entry);
+        static bool IsBroadcastTextValid(ActionSetActionHolder const& action, double entry);
         static bool IsRandomTextValid(ActionSetActionHolder const& action, double entry);
         static bool IsCreatureValid(ActionSetActionHolder const& action, double entry);
         static bool IsAnimTierValid(ActionSetActionHolder const& action, double value);
