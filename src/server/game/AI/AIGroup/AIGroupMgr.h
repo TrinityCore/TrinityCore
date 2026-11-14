@@ -1399,23 +1399,26 @@ class TC_GAME_API AIGroupMgr
         void LoadActionTriggersNamesFromDB();
         void LoadObjectTriggersFromDB();
 
-        enum ActionTypeField : uint16
+        enum ActionTypeField : uint32
         {
-            FieldUnit          = 0x0001,
-            FieldPoint         = 0x0002,
-            FieldPath          = 0x0004,
-            FieldTimeA         = 0x0008,
-            FieldMoveSpeed     = 0x0010,
-            FieldStringId      = 0x0020,
-            FieldTimeB         = 0x0040,
-            FieldLinearPath    = 0x0080,
-            FieldCircularPath  = 0x0100,
-            FieldFlightPath    = 0x0200,
-            FieldExtra0        = 0x0400,
-            FieldExtra1        = 0x0800,
-            FieldExtra2        = 0x1000,
-            FieldExtra3        = 0x2000,
-            FieldExtra4        = 0x4000
+            FieldUnit          = 0x00000001,
+            FieldPoint         = 0x00000002,
+            FieldPath          = 0x00000008,
+            FieldTimeA         = 0x00000010,
+            FieldMoveSpeed     = 0x00000020,
+            FieldStringId      = 0x00000100,
+            FieldTimeB         = 0x00000800,
+            FieldLinearPath    = 0x10000000,
+            FieldCircularPath  = 0x20000000,
+            FieldFlightPath    = 0x40000000,
+            FieldExtra0        = 0x00000200,
+            FieldExtra1        = 0x00000004,
+            FieldExtra2        = 0x00000080,
+            FieldExtra3        = 0x00000400,
+            FieldExtra4        = 0x00000040,
+            Unk12              = 0x00001000,
+            Unk14              = 0x00004000,
+            INVALID            = 0x7FFFFFFF
         };
 
         enum TargetTypeMask : uint8
