@@ -2797,9 +2797,9 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
                             displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->CreatureDisplayInfoID;
                     }
                 }
-                // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
-                //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
-                //    creatureEntry = mountVehicle->VehicleCreatureId;
+                // Newer mounts leave a stale creature in EffectMiscValue (the brutosaur spell still says White Stallion).
+                if (uint32 vehicleCreatureId = sObjectMgr->GetMountVehicleCreature(mountEntry->ID))
+                    creatureEntry = vehicleCreatureId;
 
                 if (mode & AURA_EFFECT_HANDLE_REAL && !mountEntry->GetFlags().HasFlag(MountFlags::MountEquipmentEffectsSuppressed))
                 {
@@ -2846,13 +2846,17 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
     }
     else
     {
-        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK)
+        // This aura is already off the list. Another mounted aura here is the mount that
+        // replaced this one. Dismounting would delete its vehicle and drop the passengers.
+        bool const replacedByAnotherMount = target->HasAuraType(SPELL_AURA_MOUNTED);
+
+        if ((mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK) && !replacedByAnotherMount)
             target->Dismount();
 
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
-        if (mode & AURA_EFFECT_HANDLE_REAL)
+        if ((mode & AURA_EFFECT_HANDLE_REAL) && !replacedByAnotherMount)
         {
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
             for (MountEquipmentEntry const* mountEquipmentStore : sMountEquipmentStore)
@@ -2864,7 +2868,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmountAsInt()))
                 target->RemoveAurasDueToSpell(mountCapability->ModSpellAuraID, target->GetGUID());
 
-        target->SetFlightCapabilityID(0, true);
+        if (!replacedByAnotherMount)
+            target->SetFlightCapabilityID(0, true);
     }
 }
 
@@ -3406,13 +3411,18 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         bool seatChange = (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)                             // Seat change on the same direct vehicle
             || target->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, caster->GetGUID());    // Seat change to a proxy vehicle (for example turret mounted on a siege engine)
 
+        // Mount-vendor passengers keep a second copy of this spell (the dummy their dismount
+        // script watches). Drop that copy only after a real exit from a seat they had taken.
+        // A seat change, or an aura removed before they are sitting, must leave it in place.
+        bool const wasSeated = caster->GetVehicle() != nullptr;
+
         if (!seatChange)
             caster->_ExitVehicle();
         else
             target->GetVehicleKit()->RemovePassenger(caster);  // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
 
-        // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
-        caster->RemoveAurasDueToSpell(GetId());
+        if (!seatChange && wasSeated && !caster->GetVehicle())
+            caster->RemoveAurasDueToSpell(GetId());
     }
 }
 
