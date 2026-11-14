@@ -490,7 +490,9 @@ void ObjectMgr::LoadCreatureTemplates()
         // 63
         "ScriptName,"
         // 64
-        "StringId"
+        "StringId,"
+        // 65
+        "TriggersId"
         " FROM creature_template ct"
         " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
 
@@ -611,6 +613,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.flags_extra           = fields[62].GetUInt32();
     creatureTemplate.ScriptID              = GetScriptId(fields[63].GetString());
     creatureTemplate.StringId              = fields[64].GetString();
+    creatureTemplate.TriggersId            = fields[65].GetUInt32();
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -7562,8 +7565,8 @@ void ObjectMgr::LoadGameObjectTemplate()
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, "
     //                                         8      9      10     11     12     13     14     15     16     17     18      19      20
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33          34
-                                             "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName, StringId "
+    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33          34        35
+                                             "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName, StringId, TriggersId "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7595,6 +7598,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.AIName = fields[32].GetString();
         got.ScriptId = GetScriptId(fields[33].GetString());
         got.StringId = fields[34].GetString();
+        got.TriggersId = fields[35].GetUInt32();
 
         // Checks
         if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))

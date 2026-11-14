@@ -51,6 +51,7 @@
 #include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "NamedPointMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1582,6 +1583,26 @@ void Unit::HandleEmoteCommand(Emote emoteId)
     packet.Guid = GetGUID();
     packet.EmoteID = emoteId;
     SendMessageToSet(packet.Write(), true);
+}
+
+void Unit::PerformEmote(Emote emote)
+{
+    EmotesEntry const* entry = sEmotesStore.LookupEntry(emote);
+    if (!entry)
+        return;
+
+    switch (entry->EmoteSpecProc)
+    {
+        case 0:
+            HandleEmoteCommand(emote);
+            break;
+        case 1:
+            SetStandState(static_cast<UnitStandStateType>(entry->EmoteSpecProcParam));
+            break;
+        case 2:
+            SetEmoteState(emote == EMOTE_STATE_NONE ? static_cast<Emote>(0) : emote);
+            break;
+    }
 }
 
 /*static*/ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/)
@@ -12921,6 +12942,18 @@ void Unit::UpdateHeight(float newZ)
     Relocate(GetPositionX(), GetPositionY(), newZ);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers();
+}
+
+void Unit::TeleportToNamedPoint(uint32 id)
+{
+    if (const NamedPoint* point = GetNamedPoint(id))
+        NearTeleportTo(point->PositionX, point->PositionY, point->PositionZ, point->Orientation);
+}
+
+void Unit::TeleportToNamedPoint(std::string const& stringId, float maxRange)
+{
+    if (const NamedPoint* point = FindNearestNamedPoint(stringId, maxRange))
+        NearTeleportTo(point->PositionX, point->PositionY, point->PositionZ, point->Orientation);
 }
 
 PlayerMovementPendingChange& Unit::PeakFirstPendingMovementChange()
