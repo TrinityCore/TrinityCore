@@ -3053,7 +3053,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             switch (spellEffectInfo.ApplyAuraName)
             {
-                case SPELL_AURA_OPEN_STABLE:    // No point in saving this, since the stable dialog can't be open on aura load anyway.
                 // Auras that require both caster & target to be in world cannot be saved
                 case SPELL_AURA_CONTROL_VEHICLE:
                 case SPELL_AURA_BIND_SIGHT:

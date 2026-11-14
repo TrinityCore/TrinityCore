@@ -4849,13 +4849,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_SPELL_HIT_CHANCE:
             case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
             case SPELL_AURA_MOD_RANGED_HASTE:
-            case SPELL_AURA_MOD_RANGED_HASTE_NO_REGEN:
             case SPELL_AURA_MOD_MELEE_RANGED_HASTE:
             case SPELL_AURA_MOD_MELEE_RANGED_HASTE_NO_REGEN:
             case SPELL_AURA_MOD_CASTING_SPEED:
             case SPELL_AURA_MOD_CASTING_SLOW_NO_STACK:
             case SPELL_AURA_MOD_MELEE_SLOW_NO_STACK:
-            case SPELL_AURA_MOD_RANGED_SLOW_NO_STACK:
             case SPELL_AURA_MOD_SPELL_SLOW_NO_STACK:
             case SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL:
             case SPELL_AURA_MOD_DETECT_RANGE:
@@ -4887,7 +4885,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                     return false;
                 break;
             case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from basepoint sign (positive -> negative)
-            case SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN:
             case SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL:
             case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:

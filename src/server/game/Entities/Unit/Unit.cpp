@@ -2688,30 +2688,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         }
     }
 
-    // Ignore combat result aura
-    AuraEffectList const& ignore = GetAuraEffectsByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
-    for (AuraEffect const* aurEff : ignore)
-    {
-        if (!aurEff->IsAffectingSpell(spellInfo))
-            continue;
-
-        switch (aurEff->GetMiscValue())
-        {
-            case MELEE_HIT_DODGE:
-                canDodge = false;
-                break;
-            case MELEE_HIT_BLOCK:
-                canBlock = false;
-                break;
-            case MELEE_HIT_PARRY:
-                canParry = false;
-                break;
-            default:
-                TC_LOG_DEBUG("entities.unit", "Spell {} SPELL_AURA_IGNORE_COMBAT_RESULT has unhandled state {}", aurEff->GetId(), aurEff->GetMiscValue());
-                break;
-        }
-    }
-
     if (canDodge)
     {
         // Roll dodge
@@ -8183,9 +8159,7 @@ int32 Unit::MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackTyp
     // ..taken
     TakenFlatBenefit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, attacker->GetMeleeDamageSchoolMask());
 
-    if (attType != RANGED_ATTACK)
-        TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN);
-    else
+    if (attType == RANGED_ATTACK)
         TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
 
     if ((TakenFlatBenefit < 0) && (pdamage < -TakenFlatBenefit))
