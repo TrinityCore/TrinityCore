@@ -25,7 +25,6 @@
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "WaypointManager.h"
-#include <limits>
 
 AIGroupMgr* AIGroupMgr::Instance()
 {
@@ -285,7 +284,8 @@ void AIGroupMgr::LoadActionSetsFromDB()
             continue;
         }
 
-        _actionSetLookup.insert(actionHolder.Id);
+        if (actionHolder.Id)
+            _actionSetLookup.insert(actionHolder.Id);
 
         if (!IsActionValid(actionHolder))
             continue;
@@ -892,7 +892,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_MODE:
             if (!IsCreatureValid(action, uint32(action.Extra2)))
                 return false;
-            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(AIActionUnitModeFlag::AIActionUnitModeFlagAll)))
+            if (!IsNonNegativeWholeNumberInRange(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(AIActionUnitModeFlag::AIActionUnitModeFlagAll)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid AIActionUnitModeFlag {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra4);
@@ -1564,7 +1564,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
-            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(MoveCircleOptions::MoveCircleOptionsAll)))
+            if (!IsNonNegativeWholeNumberInRange(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(MoveCircleOptions::MoveCircleOptionsAll)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Move Circle Options {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra4);
@@ -1581,7 +1581,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             /// @todo Extra2 field
             /// @todo Extra3 field
-            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(SparringOptions::SparringOptionsAll)))
+            if (!IsNonNegativeWholeNumberInRange(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(SparringOptions::SparringOptionsAll)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Sparring Options {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra4);
@@ -1734,7 +1734,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             /// @todo Extra1 field
-            if (!IsIntegerDouble(action.Extra2) || (static_cast<uint32>(action.Extra2) & ~static_cast<uint32>(CircleUnitOptions::CircleUnitOptionsAll)))
+            if (!IsNonNegativeWholeNumberInRange(action.Extra2) || (static_cast<uint32>(action.Extra2) & ~static_cast<uint32>(CircleUnitOptions::CircleUnitOptionsAll)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Circle Unit Options {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra2);
@@ -2436,7 +2436,7 @@ bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
 
 bool AIGroupMgr::IsActionSetValid(ActionSetActionHolder const& action, double actionSetId)
 {
-    if (!IsIntegerDouble(actionSetId) || !_actionSetLookup.contains(uint32(actionSetId)))
+    if (!IsPositiveWholeNumberInRange(actionSetId) || !_actionSetLookup.contains(uint32(actionSetId)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references an invalid ActionSetId ({}), skipped.",
             action.Id, action.Index, action.Type, actionSetId);

@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
+#include <limits>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
@@ -1374,6 +1375,8 @@ class TC_GAME_API AIGroupMgr
         bool IsActionSetValid(ActionSetActionHolder const& action, double actionSetId);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
+        static bool IsNonNegativeWholeNumberInRange(double value) { return value >= 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
+        static bool IsPositiveWholeNumberInRange(double value) { return value > 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
 
         static bool IsActionFlagsValid(ActionSetActionHolder const& action);
         static bool ActionHasPath(ActionSetActionHolder const& action);
