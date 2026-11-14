@@ -849,4 +849,36 @@ WorldPacket const* AccountWarbandSceneUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* MythicPlusSeasonData::Write()
+{
+    _worldPacket << Bits<1>(IsMythicPlusActive);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* RequestScheduledPvpInfoResponse::Write()
+{
+    _worldPacket << Bits<1>(BrawlInfo.PvpBrawlID != 0);
+    _worldPacket << Bits<1>(SpecialEventInfo.PvpBrawlID != 0);
+
+    if (BrawlInfo.PvpBrawlID)
+    {
+        _worldPacket << BrawlInfo.PvpBrawlID;
+        _worldPacket << BrawlInfo.Time;
+        _worldPacket.FlushBits();
+        _worldPacket << Bits<1>(BrawlInfo.Started);
+    }
+
+    if (SpecialEventInfo.PvpBrawlID != 0)
+    {
+        _worldPacket << SpecialEventInfo.PvpBrawlID;
+        _worldPacket << SpecialEventInfo.AchievementId;
+        _worldPacket.FlushBits();
+        _worldPacket << Bits<1>(SpecialEventInfo.CanQueue);
+    }
+
+    return &_worldPacket;
+}
 }

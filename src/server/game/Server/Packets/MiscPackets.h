@@ -1044,6 +1044,57 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             WarbandSceneCollectionContainer const* WarbandScenes = nullptr;
         };
+
+        class RequestMythicPlusSeasonData final : public ClientPacket
+        {
+        public:
+            explicit RequestMythicPlusSeasonData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MythicPlusSeasonData final : public ServerPacket
+        {
+        public:
+            explicit MythicPlusSeasonData() : ServerPacket(SMSG_MYTHIC_PLUS_SEASON_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsMythicPlusActive = false;
+        };
+
+        class RequestScheduledPvpInfo final : public ClientPacket
+        {
+        public:
+            explicit RequestScheduledPvpInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_SCHEDULED_PVP_INFO, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct BrawlInfoData
+        {
+            int32 PvpBrawlID = 0;
+            int32 Time = 0;
+            bool Started = false;
+        };
+
+        struct SpecialEventInfoData
+        {
+            int32 PvpBrawlID = 0;
+            int32 AchievementId = 0;
+            bool CanQueue = false;
+        };
+
+        class RequestScheduledPvpInfoResponse final : public ServerPacket
+        {
+        public:
+            explicit RequestScheduledPvpInfoResponse() : ServerPacket(SMSG_REQUEST_SCHEDULED_PVP_INFO_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            BrawlInfoData BrawlInfo;
+            SpecialEventInfoData SpecialEventInfo;
+        };
     }
 }
 

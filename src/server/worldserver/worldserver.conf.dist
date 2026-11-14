@@ -41,6 +41,7 @@
 #    METRIC SETTINGS
 #    PVP SETTINGS
 #    LOAD SETTINGS
+#    MYTHIC PLUS SETTINGS
 #
 ###################################################################################################
 
@@ -4400,6 +4401,25 @@ Pvp.FactionBalance.Pct20 = 0.8
 #                     1 - (Enabled)
 
 Load.Locales = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# MYTHIC PLUS SETTINGS
+#
+# These settings control mythic plus system
+#
+#    MythicPlus.Enable
+#        Description: Toggles the availability of Mythic Plus.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+MythicPlus.Enabled = true
+
+MythicPlus.DisplaySeasonID = 37
+
+MythicPlus.MilestoneSeasonID = 120
 
 #
 ###################################################################################################
