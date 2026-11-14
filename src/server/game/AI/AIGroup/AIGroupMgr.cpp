@@ -831,7 +831,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo
             break;
         case AI_GROUP_UNIT_SAY:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
@@ -839,7 +839,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_CAST:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_ACTIVATE_OBJECT:
@@ -862,7 +862,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_EMOTE:
-            if (!IsEmoteValid(action, uint32(action.Extra2)))
+            if (!IsEmoteValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_MOVETO_GUID:
@@ -882,7 +882,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_MOUNT:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_UNINTERACTIBLE:
@@ -890,7 +890,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_MODE:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             if (!IsNonNegativeWholeNumberInRange(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(AIActionUnitModeFlag::AIActionUnitModeFlagAll)))
             {
@@ -900,7 +900,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_UNIT_FACTION:
-            if (!IsFactionValid(action, uint32(action.Extra2)))
+            if (!IsFactionValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_RADIUS:
@@ -917,35 +917,35 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
-            if (!IsItemValid(action, uint32(action.Extra2)))
+            if (!IsItemValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_GENERATE_EVENT:
@@ -984,11 +984,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_AVOID:
@@ -1029,27 +1029,27 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
-            if (!IsItemValid(action, uint32(action.Extra2)))
+            if (!IsItemValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_ITEM_RANGED:
-            if (!IsItemValid(action, uint32(action.Extra2)))
+            if (!IsItemValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_UNIT_CANCEL_CAST:
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CANCEL_AURA:
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_EMOTE_STATE:
-            if (!IsEmoteValid(action, uint32(action.Extra2)))
+            if (!IsEmoteValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CALL_FOR_HELP:
@@ -1070,15 +1070,15 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_KILL_CREDIT:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_WHISPER:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_WHISPER_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_NO_LOOT:
@@ -1094,11 +1094,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_MUSIC:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_SOUND:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_LOOT:
@@ -1109,11 +1109,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_OBJECT_PLAY_MUSIC:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_PLAY_SOUND:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_SPAWN_FORCED:
@@ -1121,59 +1121,59 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_ZONE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_IGNORE_COMBAT:
@@ -1190,15 +1190,15 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_BOSS_EMOTE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
@@ -1210,7 +1210,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_CAST_FAILURE:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_NO_REPUTATION:
@@ -1237,15 +1237,15 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_ZONE:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF:
@@ -1260,23 +1260,23 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER:
-            if (!IsQuestValid(action, uint32(action.Extra2)))
+            if (!IsQuestValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER:
-            if (!IsQuestValid(action, uint32(action.Extra2)))
+            if (!IsQuestValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_PARTY:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_TARGETED_MUSIC:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_NO_MELEE:
@@ -1284,12 +1284,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_BOSS_WHISPER:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
@@ -1305,20 +1305,20 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_KILL_CREDIT_TAP:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_WITH_POINTS:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_RIDE_VEHICLE:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             if (!IsSeatIndexValid(action, uint32(action.Extra3)))
                 return false;
@@ -1443,7 +1443,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_VEHICLE_RECORD:
@@ -1458,47 +1458,47 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_SAY_PLAYER:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_PLAYER:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_START_QUEST:
-            if (!IsQuestValid(action, uint32(action.Extra2)))
+            if (!IsQuestValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_PLAYER_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_PLAYER_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_START_LOOPING_ANIM_KIT:
-            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+            if (!IsAnimKitValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_ONESHOT_ANIM_KIT:
-            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+            if (!IsAnimKitValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_MOVEMENT_ANIM_KIT:
-            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+            if (!IsAnimKitValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_MELEE_ANIM_KIT:
-            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+            if (!IsAnimKitValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_INTERACT_SPELL:
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_INTERACT_SPELL_CONDITION:
@@ -1525,15 +1525,15 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_EMOTE_PLAYER:
-            if (!IsEmoteValid(action, uint32(action.Extra2)))
+            if (!IsEmoteValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SET_QUEST_LOOT:
@@ -1542,19 +1542,19 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_OTHER_UNIT:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             /// @todo Extra4 field
             break;
@@ -1597,7 +1597,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_RAID_LOCK_TAP_LIST:
-            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+            if (!IsDungeonEncounterValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CANNOT_TURN:
@@ -1609,7 +1609,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_OBJECT_FACTION:
-            if (!IsFactionValid(action, uint32(action.Extra2)))
+            if (!IsFactionValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_KIT:
@@ -1647,11 +1647,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_DEFAULT_MOUNT:
-            if (!IsCreatureValid(action, uint32(action.Extra2)))
+            if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE:
-            if (!IsZoneValid(action, uint32(action.Extra4)))
+            if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE:
@@ -1679,11 +1679,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_START_DUNGEON_ENCOUNTER:
-            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+            if (!IsDungeonEncounterValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_END_DUNGEON_ENCOUNTER:
-            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+            if (!IsDungeonEncounterValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
@@ -1725,7 +1725,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+            if (!IsSpellValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             /// @todo Extra4 field
@@ -1821,7 +1821,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT:
-            if (!IsSoundValid(action, uint32(action.Extra2)))
+            if (!IsSoundValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
@@ -1850,19 +1850,19 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_GAME_REGION:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_GAME_REGION:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM:
-            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_COMBAT_POSITION:
@@ -2120,9 +2120,9 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
     }
 }
 
-bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sSpellMgr->GetSpellInfo(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sSpellMgr->GetSpellInfo(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2132,9 +2132,9 @@ bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sObjectMgr->GetBroadcastText(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sObjectMgr->GetBroadcastText(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent broadcast text {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2144,9 +2144,9 @@ bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, uint3
     return true;
 }
 
-bool AIGroupMgr::IsRandomTextValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsRandomTextValid(ActionSetActionHolder const& action, double entry)
 {
-    if (entry)
+    if (!IsPositiveWholeNumberInRange(entry) || entry)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Random Text {} (currently not supported), skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2156,9 +2156,9 @@ bool AIGroupMgr::IsRandomTextValid(ActionSetActionHolder const& action, uint32 e
     return true;
 }
 
-bool AIGroupMgr::IsCreatureValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsCreatureValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sObjectMgr->GetCreatureTemplate(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sObjectMgr->GetCreatureTemplate(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2180,9 +2180,9 @@ bool AIGroupMgr::IsAnimTierValid(ActionSetActionHolder const& action, double val
     return true;
 }
 
-bool AIGroupMgr::IsEmoteValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsEmoteValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sEmotesStore.LookupEntry(entry))
+    if (!IsNonNegativeWholeNumberInRange(entry) || !sEmotesStore.LookupEntry(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent emote {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2192,9 +2192,9 @@ bool AIGroupMgr::IsEmoteValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsSoundValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsSoundValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sSoundEntriesStore.LookupEntry(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sSoundEntriesStore.LookupEntry(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent sound {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2204,9 +2204,9 @@ bool AIGroupMgr::IsSoundValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsQuestValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsQuestValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sObjectMgr->GetQuestTemplate(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sObjectMgr->GetQuestTemplate(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2216,9 +2216,9 @@ bool AIGroupMgr::IsQuestValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsZoneValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsZoneValid(ActionSetActionHolder const& action, double entry)
 {
-    if (entry != 0 && !sAreaTableStore.LookupEntry(entry))
+    if (!IsNonNegativeWholeNumberInRange(entry) || (entry != 0 && !sAreaTableStore.LookupEntry(uint32(entry))))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2228,9 +2228,9 @@ bool AIGroupMgr::IsZoneValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsItemValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsItemValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sItemStore.LookupEntry(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sItemStore.LookupEntry(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent item {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2240,9 +2240,9 @@ bool AIGroupMgr::IsItemValid(ActionSetActionHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsFactionValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsFactionValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sFactionStore.LookupEntry(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sFactionStore.LookupEntry(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent faction {}, skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2252,9 +2252,9 @@ bool AIGroupMgr::IsFactionValid(ActionSetActionHolder const& action, uint32 entr
     return true;
 }
 
-bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, double entry)
 {
-    if (entry)
+    if (!IsPositiveWholeNumberInRange(entry) || entry)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses AnimKitId {} (master only), skipped.",
             action.Id, action.Index, action.Type, entry);
@@ -2264,9 +2264,9 @@ bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, uint32 entr
     return true;
 }
 
-bool AIGroupMgr::IsDungeonEncounterValid(ActionSetActionHolder const& action, uint32 entry)
+bool AIGroupMgr::IsDungeonEncounterValid(ActionSetActionHolder const& action, double entry)
 {
-    if (!sDungeonEncounterStore.LookupEntry(entry))
+    if (!IsPositiveWholeNumberInRange(entry) || !sDungeonEncounterStore.LookupEntry(uint32(entry)))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Dungeon Encounter {}, skipped.",
             action.Id, action.Index, action.Type, entry);
