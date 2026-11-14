@@ -288,12 +288,10 @@ class TC_GAME_API AuraEffect
         void HandleModMeleeRangedHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeRangedCastingHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModRangedSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModCastingSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeRangedCastingSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeHasteNoRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModRangedHasteNoRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeRangedHasteNoRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   combat rating
