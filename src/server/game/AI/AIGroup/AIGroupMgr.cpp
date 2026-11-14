@@ -831,7 +831,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo
             break;
         case AI_GROUP_UNIT_SAY:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
@@ -923,7 +923,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_YELL:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
@@ -941,7 +941,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_RANDOM:
@@ -984,7 +984,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_RANDOM:
@@ -1074,7 +1074,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_WHISPER:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_WHISPER_RANDOM:
@@ -1121,7 +1121,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsZoneValid(action, action.Extra4))
                 return false;
@@ -1133,7 +1133,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_ZONE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsZoneValid(action, action.Extra4))
                 return false;
@@ -1157,7 +1157,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE_RANDOM:
@@ -1190,12 +1190,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_BOSS_EMOTE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             if (!IsZoneValid(action, action.Extra4))
@@ -1237,7 +1237,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_ZONE:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsZoneValid(action, action.Extra4))
                 return false;
@@ -1268,7 +1268,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_PARTY:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
@@ -1284,7 +1284,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_BOSS_WHISPER:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             /// @todo Extra3 field
             break;
@@ -1458,13 +1458,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_SAY_PLAYER:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_PLAYER:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
@@ -1525,7 +1525,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER_RANDOM:
@@ -1850,7 +1850,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_GAME_REGION:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM:
@@ -1858,7 +1858,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_GAME_REGION:
-            if (!IsBroadcastTextValid(action, action.Extra2))
+            if (!IsTextValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM:
@@ -2132,7 +2132,7 @@ bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, double entry)
     return true;
 }
 
-bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, double entry)
+bool AIGroupMgr::IsTextValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsPositiveWholeNumberInRange(entry) || !sObjectMgr->GetBroadcastText(uint32(entry)))
     {
