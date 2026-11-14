@@ -1035,12 +1035,11 @@ enum class CreatureDisplayInfoIndex : uint8
 enum class AIActionUnitModeFlag : uint8
 {
     UpdateUnitLevel         = 0x001,    // NYI
-    OnlyChangeModel         = 0x002,    // NYI (There's no action to change unit model, so this should be handled in UpdateEntry without updating entry...)
-    NoFactionUpdate         = 0x004,    // NYI (For example in quest Inoculation, Nestlewood Owlkin doesn't update faction)
-    NoReactStateUpdate      = 0x008,    // NYI (This one actually should not exist. Needed because react state should not be updated at all)
-    NoFlagsUpdate           = 0x010,    // NYI (This one actually should not exist. Needed because unit flags should not be removed at all)
+    NoFactionUpdate         = 0x002,    // NYI (For example in quest Inoculation, Nestlewood Owlkin doesn't update faction)
+    NoReactStateUpdate      = 0x004,    // NYI (This one actually should not exist. Needed because react state should not be updated at all)
+    NoFlagsUpdate           = 0x008,    // NYI (This one actually should not exist. Needed because unit flags should not be removed at all)
 
-    AIActionUnitModeFlagAll = (UpdateUnitLevel | OnlyChangeModel | NoFactionUpdate | NoReactStateUpdate | NoFlagsUpdate)
+    AIActionUnitModeFlagAll = (UpdateUnitLevel | NoFactionUpdate | NoReactStateUpdate | NoFlagsUpdate)
 };
 
 // Custom
