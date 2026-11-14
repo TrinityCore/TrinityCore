@@ -25,6 +25,7 @@
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "WaypointManager.h"
+#include <limits>
 
 AIGroupMgr* AIGroupMgr::Instance()
 {
@@ -205,6 +206,7 @@ void AIGroupMgr::LoadActionSetsFromDB()
     uint32 oldMSTime = getMSTime();
 
     mActionSetMap.clear();
+    _actionSetLookup.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACTION_SET);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -283,6 +285,8 @@ void AIGroupMgr::LoadActionSetsFromDB()
             continue;
         }
 
+        _actionSetLookup.insert(actionHolder.Id);
+
         if (!IsActionValid(actionHolder))
             continue;
 
@@ -295,6 +299,8 @@ void AIGroupMgr::LoadActionSetsFromDB()
         actionSet.push_back(actionHolder);
     }
     while (result->NextRow());
+
+    _actionSetLookup.clear();
 
     TC_LOG_INFO("server.loading", ">> Loaded {} action sets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -1777,7 +1783,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_PUSH_ACTIONSET:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsActionSetValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
             if (!IsPointOrStringIdFilled(action))
@@ -1800,7 +1807,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_PERFORM_ACTIONSET:
-            /// @todo Extra2 field
+            if (!IsActionSetValid(action, action.Extra2))
+                return false;
             /// @todo Extra4 field
             break;
         case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
@@ -2420,6 +2428,18 @@ bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} requires either Point or StringId, skipped.",
             action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsActionSetValid(ActionSetActionHolder const& action, double actionSetId)
+{
+    if (!IsIntegerDouble(actionSetId) || !_actionSetLookup.contains(uint32(actionSetId)))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references an invalid ActionSetId ({}), skipped.",
+            action.Id, action.Index, action.Type, actionSetId);
         return false;
     }
 

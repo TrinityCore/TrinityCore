@@ -26,6 +26,7 @@
 #include <initializer_list>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 
 class WorldObject;
 class GameObject;
@@ -1300,6 +1301,7 @@ typedef std::vector<ObjectTriggersHolder> AIGroupObjectTriggerList;
 typedef std::unordered_map<uint32, AIGroupObjectTriggerList> AIGroupObjectTriggersMap;
 typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
+typedef std::unordered_set<uint32> AIGroupActionSetLookup;
 typedef std::vector<SpawnEventListHolder> AIGroupSpawnEventList;
 typedef std::unordered_map<ObjectGuid::LowType, std::unordered_map<AIGroupMemberType, AIGroupSpawnEventList>> AIGroupSpawnEventMap;
 typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
@@ -1335,12 +1337,13 @@ class TC_GAME_API AIGroupMgr
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
         AIGroupEventMap mEventMap;
         AIGroupActionSetMap mActionSetMap;
+        AIGroupActionSetLookup _actionSetLookup;
         AIGroupRandomActionSetMap mRandomActionSetMap;
         AIGroupObjectTriggersMap objectTriggersMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
 
-        static bool IsActionValid(ActionSetActionHolder const& action);
-        static bool IsActionTypeValid(ActionSetActionHolder const& action);
+        bool IsActionValid(ActionSetActionHolder const& action);
+        bool IsActionTypeValid(ActionSetActionHolder const& action);
         static void LogUselessActionParams(ActionSetActionHolder const& action);
         static bool IsSpellValid(ActionSetActionHolder const& action, uint32 entry);
         static bool IsBroadcastTextValid(ActionSetActionHolder const& action, uint32 entry);
@@ -1368,6 +1371,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsStandardAngleValid(ActionSetActionHolder const& action, double angle);
         static bool IsExtendedAngleValid(ActionSetActionHolder const& action, double angle);
         static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
+        bool IsActionSetValid(ActionSetActionHolder const& action, double actionSetId);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
 
