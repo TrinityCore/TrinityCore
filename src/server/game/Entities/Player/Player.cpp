@@ -14655,10 +14655,11 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             Item* item = static_cast<Item*>(questGiver);
             sScriptMgr->OnQuestAccept(this, item, quest);
 
-            // There are two cases where the source item is not destroyed when the quest is accepted:
+            // There are three cases where the source item is not destroyed when the quest is accepted:
+            // - It is flagged ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT
             // - It is required to finish the quest, and is an unique item
             // - It is the same item present in the source item field (item that would be given on quest accept)
-            bool destroyItem = true;
+            bool destroyItem = !item->GetTemplate()->HasFlag(ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT);
 
             for (QuestObjective const& obj : quest->GetObjectives())
             {
