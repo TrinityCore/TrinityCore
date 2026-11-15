@@ -3022,6 +3022,7 @@ std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbiliti
 
 SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_) const
 {
+    SkillRaceClassInfoEntry const* result = nullptr;
     for (auto&& [_, skllRaceClassInfo] : Trinity::Containers::MapEqualRange(_skillRaceClassInfoBySkill, skill))
     {
         if (!skllRaceClassInfo->RaceMask.IsEmpty() && !(skllRaceClassInfo->RaceMask.HasRace(race)))
@@ -3029,10 +3030,12 @@ SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, u
         if (skllRaceClassInfo->ClassMask && !(skllRaceClassInfo->ClassMask & (1 << (class_ - 1))))
             continue;
 
-        return skllRaceClassInfo;
+        // unordered_multimap returns equal keys in no fixed order, several rows can match
+        if (!result || skllRaceClassInfo->ID < result->ID)
+            result = skllRaceClassInfo;
     }
 
-    return nullptr;
+    return result;
 }
 
 std::vector<SkillRaceClassInfoEntry const*> DB2Manager::GetSkillRaceClassInfo(uint32 skill) const
