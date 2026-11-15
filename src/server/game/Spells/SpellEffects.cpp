@@ -3982,8 +3982,8 @@ void Spell::EffectCharge()
         if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             unitCaster->ToPlayer()->SetFallInformation(0, unitCaster->GetPositionZ());
 
-        // charges without a speed move at 4 times the caster's run speed
-        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f;
+        // charges without a speed move at 4 times the caster's run speed, scaled by the effect amplitude
+        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f * (effectInfo->Amplitude > 0.0f ? effectInfo->Amplitude : 1.0f);
 
         Optional<Movement::SpellEffectExtraData> spellEffectExtraData;
         if (effectInfo->MiscValueB)
@@ -4046,8 +4046,8 @@ void Spell::EffectChargeDest()
         PathGenerator path(unitCaster);
         path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
 
-        // charges without a speed move at 4 times the caster's run speed
-        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f;
+        // charges without a speed move at 4 times the caster's run speed, scaled by the effect amplitude
+        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f * (effectInfo->Amplitude > 0.0f ? effectInfo->Amplitude : 1.0f);
 
         if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
             speed = path.GetPathLength() / speed;
