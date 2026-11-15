@@ -1414,10 +1414,10 @@ class TC_GAME_API AIGroupMgr
             FieldExtra1        = 0x00000004,
             FieldExtra2        = 0x00000080,
             FieldExtra3        = 0x00000400,
-            FieldExtra4        = 0x00000040,
-            Unk12              = 0x00001000,
-            Unk14              = 0x00004000,
-            INVALID            = 0x7FFFFFFF
+            FieldExtra4        = 0x00000040
+            // Unk12           = 0x00001000,
+            // Unk14           = 0x00004000,
+            // INVALID         = 0x7FFFFFFF
         };
 
         enum TargetTypeMask : uint8
