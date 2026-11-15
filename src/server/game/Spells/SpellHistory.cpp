@@ -446,7 +446,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
                         recoveryRate *= calcRecoveryRate(modRecoveryRate);
 
                 for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL))
-                    if (spellInfo->HasLabel(modRecoveryRate->GetMiscValue()) || (modRecoveryRate->GetMiscValueB() && spellInfo->HasLabel(modRecoveryRate->GetMiscValueB())))
+                    if (spellInfo->HasLabel(modRecoveryRate->GetMiscValue()) && (!modRecoveryRate->GetMiscValueB() || !spellInfo->HasLabel(modRecoveryRate->GetMiscValueB())))
                         recoveryRate *= calcRecoveryRate(modRecoveryRate);
 
                 if (recoveryRate > 0.0)
