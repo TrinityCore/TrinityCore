@@ -688,6 +688,12 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_UNIT_TRIGGERS:
+            if (sAIGroupMgr->GetScript(uint32(action.Extra2)).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: action set {} index {} references non-existent TriggersId {}, skipped.",
+                    action.Id, action.Index, action.Extra2);
+                return true;
+            }
             me->SetTriggersId(action.Extra2);
             return true;
         case AI_GROUP_UNIT_TRIGGERS_RESET:

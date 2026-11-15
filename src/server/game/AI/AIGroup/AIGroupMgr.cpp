@@ -952,7 +952,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_TRIGGERS:
-            /// @todo Extra2 field
+            // Final validation is done during action execution
+            if (!IsPositiveWholeNumberInRange(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references non-existent TriggersId {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
             break;
         case AI_GROUP_UNIT_LEAVE_COMBAT:
             /// @todo Extra2 field
