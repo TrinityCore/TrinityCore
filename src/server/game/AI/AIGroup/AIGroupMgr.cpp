@@ -1320,18 +1320,18 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsSpellValid(action, action.Extra2))
                 return false;
-            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+            if (!IsSeatIndexValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             /// @todo Extra1 field
-            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+            if (!IsSeatIndexValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_PLAY_MOVIE:
-            if (!sMovieStore.LookupEntry(uint32(action.Extra2)))
+            if (!IsPositiveWholeNumberInRange(action.Extra2) || !sMovieStore.LookupEntry(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent movie {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra2);
@@ -1366,13 +1366,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             /// @todo Extra1 field
-            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+            if (!IsSeatIndexValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+            if (!IsSeatIndexValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_UNIT_FATAL_FALL_DISTANCE:
@@ -1447,7 +1447,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_VEHICLE_RECORD:
-            if (!sVehicleStore.LookupEntry(uint32(action.Extra2)))
+            if (!IsPositiveWholeNumberInRange(action.Extra2) || !sVehicleStore.LookupEntry(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent VehicleId {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra2);
@@ -1812,7 +1812,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
-            if (!sSpellCategoryStore.LookupEntry(uint32(action.Extra2)))
+            if (!IsPositiveWholeNumberInRange(action.Extra2) || !sSpellCategoryStore.LookupEntry(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Spell Category {}, skipped.",
                     action.Id, action.Index, action.Type, action.Extra2);

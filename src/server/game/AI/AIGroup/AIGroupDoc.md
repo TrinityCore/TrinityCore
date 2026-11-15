@@ -52,6 +52,7 @@ To create a new action, follow these steps:
     { "AI_GROUP_FALL_TO_THE_GROUND", {  } },
 ```
 
-5. If needed, validate `extra` parameters in `IsActionTypeValid`. All other parameters are validated automatically and do not require any changes.
+5. If needed, validate `extra` parameters in `IsActionTypeValid`. All other parameters are validated automatically and do not require any changes.<br>
+**IMPORTANT:** If your `extra` parameter uses an integer, always use `IsIntegerDouble` or `IsNonNegativeWholeNumberInRange` or `IsPositiveWholeNumberInRange`.
 6. Implement the action behavior in `AIGroupScript::ExecuteActionForActor`. If your action uses the `StringId` field, ensure you also add your action to the section where `StringId` target selection is handled. Additionally, add your action to `AIGroupScript::GetStringIdSearchRadius`.<br>
 **IMPORTANT:** By default, the action targets both creatures and game objects with the specified `StringId` within a 100-yard range.
