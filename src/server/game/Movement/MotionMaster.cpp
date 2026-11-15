@@ -774,6 +774,7 @@ void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_C
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
     init.SetVelocity(speed);
+    init.SetUnlimitedSpeed();
     if (target)
         init.SetFacing(target);
     if (spellEffectExtraData)
