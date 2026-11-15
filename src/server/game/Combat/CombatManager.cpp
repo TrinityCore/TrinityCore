@@ -420,6 +420,9 @@ bool CombatManager::UpdateOwnerCombatState() const
             _owner->AtDisengage();
 
         // UNIT_FLAG_PET_IN_COMBAT will be cleared if controlled summons are not in combat anymore
+        if (!_owner->IsPet())
+            _owner->UpdatePetCombatState();
+
         if (Unit* master = _owner->GetCharmerOrOwner())
             master->UpdatePetCombatState();
     }
