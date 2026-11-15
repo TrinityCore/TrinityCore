@@ -271,7 +271,7 @@ constexpr uint32 SummonMinionsSpells[4] =
     SPELL_TRIGGER_SUMMON_IRON_VRYKUL
 };
 
-constexpr Position RazorscalePath[] =
+G3D::Vector3 const RazorscalePath[] =
 {
     { 657.0227f, -361.1278f, 519.5406f },
     { 698.9319f, -340.9654f, 520.4857f },
@@ -329,9 +329,7 @@ struct boss_razorscale : public BossAI
     {
         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
         {
-            Movement::PointsArray path(std::size(RazorscalePath));
-            std::transform(std::begin(RazorscalePath), std::end(RazorscalePath), path.begin(), [](Position pos) { return PositionToVector3(pos); });
-            init.MovebyPath(path, 0);
+            init.MovebyPath(RazorscalePath);
             init.SetCyclic();
             init.SetFly();
         };
@@ -934,7 +932,7 @@ struct npc_expedition_trapper : public ScriptedAI
                 break;
             case ACTION_STOP_CAST:
                 me->InterruptNonMeleeSpells(false);
-                _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MoveTargetedHome();
                 });
@@ -991,7 +989,7 @@ struct npc_expedition_engineer : public ScriptedAI
             _canUpdateAI = true;
             if (_myPositionNumber == ENGINEER_EAST)
                 Talk(SAY_AGGRO);
-            _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(28), [this](TaskContext const& /*context*/)
             {
                 HandleHarpoonMovement();
                 me->SetImmuneToNPC(false);
@@ -1001,7 +999,7 @@ struct npc_expedition_engineer : public ScriptedAI
         {
             if (_myPositionNumber == ENGINEER_EAST)
                 Talk(SAY_AGGRO);
-            _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(28), [this](TaskContext const& /*context*/)
             {
                 HandleHarpoonMovement();
             });
@@ -1010,7 +1008,7 @@ struct npc_expedition_engineer : public ScriptedAI
 
     void ChangeOrientation(float orientation)
     {
-        _scheduler.Schedule(Milliseconds(1), [this, orientation](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(1), [this, orientation](TaskContext const& /*context*/)
         {
             me->SetFacingTo(orientation);
         });
@@ -1167,11 +1165,11 @@ struct npc_expedition_engineer : public ScriptedAI
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_1);
 
                 _scheduler.
-                    Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                 {
                     me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                 })
-                    .Schedule(Seconds(18), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleSecondHarpoonMovement();
                 });
@@ -1180,7 +1178,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_2_25:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_2);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleThirdHarpoonMovement();
                 });
@@ -1188,7 +1186,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_3:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_3);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleFourthHarpoonMovement();
                 });
@@ -1196,7 +1194,7 @@ struct npc_expedition_engineer : public ScriptedAI
             case POINT_HARPOON_4:
                 if (Creature* commander = _instance->GetCreature(DATA_EXPEDITION_COMMANDER))
                     commander->AI()->DoAction(ACTION_BUILD_HARPOON_4);
-                _scheduler.Schedule(Seconds(18), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(18), [this](TaskContext const& /*context*/)
                 {
                     HandleBaseMovement();
                 });
@@ -1226,10 +1224,10 @@ struct npc_razorscale_spawner : public ScriptedAI
         me->SetFarVisible(true);
         me->SetReactState(REACT_PASSIVE);
         _scheduler.
-            Schedule(Seconds(1), [this](TaskContext /*context*/)
+            Schedule(Seconds(1), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_SUMMON_MOLE_MACHINE);
-        }).Schedule(Seconds(6), [this](TaskContext /*context*/)
+        }).Schedule(Seconds(6), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SummonMinionsSpells[urand(0, 3)]);
         });
@@ -1476,7 +1474,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
             {
                 if (Creature* controller = me->FindNearestCreature(NPC_RAZORSCALE_CONTROLLER, 5.0f))
                     controller->AI()->Talk(EMOTE_HARPOON);
@@ -1546,11 +1544,11 @@ public:
         void Reset() override
         {
             me->SetFlag(GO_FLAG_NOT_SELECTABLE);
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
             {
                 me->UseDoorOrButton();
             });
-            _scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(10), [this](TaskContext const& /*context*/)
             {
                 me->Delete();
             });

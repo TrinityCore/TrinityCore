@@ -78,50 +78,6 @@ enum SpellCategories
     SPELLCATEGORY_DRINK               = 59
 };
 
-//SpellFamilyFlags
-enum SpellFamilyFlag
-{
-    // SPELLFAMILYFLAG  = SpellFamilyFlags[0]
-    // SPELLFAMILYFLAG1 = SpellFamilyFlags[1]
-    // SPELLFAMILYFLAG2 = SpellFamilyFlags[2]
-
-    // Rogue
-    SPELLFAMILYFLAG0_ROGUE_VANISH               = 0x00000800,
-    SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT           = 0x00000840, // Vanish, Sprint
-    SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP           = 0x00000200, // Shadowstep
-    SPELLFAMILYFLAG0_ROGUE_KICK                 = 0x00000010, // Kick
-    SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB = 0x80100000, // Dismantle, Smoke Bomb
-
-    // Warrior
-    SPELLFAMILYFLAG_WARRIOR_CHARGE              = 0x00000001,
-    SPELLFAMILYFLAG_WARRIOR_SLAM                = 0x00200000,
-    SPELLFAMILYFLAG_WARRIOR_EXECUTE             = 0x20000000,
-    SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW     = 0x04000000,
-
-    // Warlock
-    SPELLFAMILYFLAG_WARLOCK_LIFETAP             = 0x00040000,
-
-    // Druid
-    SPELLFAMILYFLAG2_DRUID_STARFALL             = 0x00000100,
-
-    // Paladin
-    SPELLFAMILYFLAG1_PALADIN_DIVINESTORM        = 0x00020000,
-
-    // Shaman
-    SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK          = 0x80000000,
-    SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM       = 0x00002000,
-    SPELLFAMILYFLAG_SHAMAN_MANA_SPRING          = 0x00004000,
-    SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH           = 0x00000004,
-    SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA            = 0x28000000,
-
-    // Deathknight
-    SPELLFAMILYFLAG_DK_DEATH_STRIKE             = 0x00000010,
-    SPELLFAMILYFLAG_DK_DEATH_COIL               = 0x00002000,
-
-    /// @todo Figure out a more accurate name for the following familyflag(s)
-    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS        = 0x04000000  // Seems to be linked to most totems and some totem effects
-};
-
 enum SpellLinkedType
 {
     SPELL_LINK_CAST     = 0,            // +: cast; -: remove
@@ -316,7 +272,8 @@ DEFINE_ENUM_FLAG(ProcAttributes);
                                PROC_ATTR_REQ_POWER_COST         | \
                                PROC_ATTR_REQ_SPELLMOD           | \
                                PROC_ATTR_USE_STACKS_FOR_CHARGES | \
-                               PROC_ATTR_REDUCE_PROC_60)
+                               PROC_ATTR_REDUCE_PROC_60         | \
+                               PROC_ATTR_CANT_PROC_FROM_ITEM_CAST)
 
 struct SpellProcEntry
 {
@@ -407,16 +364,9 @@ struct SpellThreatEntry
 typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // coordinates for spells (accessed using SpellMgr functions)
-struct SpellTargetPosition
-{
-    uint32 target_mapId;
-    float  target_X;
-    float  target_Y;
-    float  target_Z;
-    float  target_Orientation;
-};
+using SpellTargetPosition = WorldLocation;
 
-typedef std::map<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
+typedef std::multimap<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
 
 // Enum with EffectRadiusIndex and their actual radius
 enum EffectRadiusIndex
@@ -489,7 +439,7 @@ class TC_GAME_API PetAura
     public:
         PetAura() : removeOnChangePet(false), damage(0) { }
 
-        PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, int _damage) :
+        PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, SpellEffectValue _damage) :
         removeOnChangePet(_removeOnChangePet), damage(_damage)
         {
             auras[petEntry] = aura;
@@ -516,7 +466,7 @@ class TC_GAME_API PetAura
             return removeOnChangePet;
         }
 
-        int32 GetDamage() const
+        SpellEffectValue GetDamage() const
         {
             return damage;
         }
@@ -524,7 +474,7 @@ class TC_GAME_API PetAura
     private:
         PetAuraMap auras;
         bool removeOnChangePet;
-        int32 damage;
+        SpellEffectValue damage;
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
@@ -615,7 +565,7 @@ struct CreatureImmunities
     std::bitset<MAX_SPELL_SCHOOL> School;
     std::bitset<DISPEL_MAX> DispelType;
     std::bitset<MAX_MECHANIC> Mechanic;
-    std::vector<SpellEffectName> Effect;
+    std::vector<SpellEffects> Effect;
     std::vector<AuraType> Aura;
     EnumFlag<SpellOtherImmunity> Other = SpellOtherImmunity::None;
 };
@@ -736,6 +686,7 @@ class TC_GAME_API SpellMgr
 
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const;
+        Trinity::IteratorPair<SpellTargetPositionMap::const_iterator> GetSpellTargetPositions(uint32 spell_id, SpellEffIndex effIndex) const;
 
         // Spell Groups table
         SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const;
@@ -746,7 +697,7 @@ class TC_GAME_API SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
-        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, AuraType auraType, SpellEffectValue amount, std::map<SpellGroup, SpellEffectValue>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 

@@ -26,10 +26,12 @@ int32 GameObjectAI::Permissible(GameObject const* /*go*/)
     return PERMIT_BASE_NO;
 }
 
-GameObjectAI::GameObjectAI(GameObject* go, uint32 scriptId) : _scriptId(scriptId ? scriptId : go->GetScriptId()), me(go)
+GameObjectAI::GameObjectAI(GameObject* go, uint32 scriptId) noexcept : _scriptId(scriptId ? scriptId : go->GetScriptId()), me(go)
 {
     ASSERT(_scriptId, "A GameObjectAI was initialized with an invalid scriptId!");
 }
+
+GameObjectAI::~GameObjectAI() = default;
 
 Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player const* /*player*/)
 {

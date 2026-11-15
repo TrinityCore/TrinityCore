@@ -36,21 +36,22 @@ public:
     ~SceneObject();
 
 protected:
-    void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void ClearUpdateMask(bool remove) override;
+    void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void ClearValuesChangesMask() override;
 
 public:
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-        UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target) const;
+        UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target, bool ignoreNestedChangesMask) const;
 
     struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
     {
-        explicit ValuesUpdateForPlayerWithMaskSender(SceneObject const* owner) : Owner(owner) { }
+        explicit ValuesUpdateForPlayerWithMaskSender(SceneObject const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
         SceneObject const* Owner;
         UF::ObjectData::Base ObjectMask;
         UF::SceneObjectData::Base SceneObjectMask;
+        bool IgnoreNestedChangesMask;
 
         void operator()(Player const* player) const;
     };
@@ -69,10 +70,7 @@ public:
     ObjectGuid GetOwnerGUID() const override { return *m_sceneObjectData->CreatedBy; }
     uint32 GetFaction() const override { return 0; }
 
-    float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-    float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-    float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-    float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+    Position const& GetStationaryPosition() const override { return _stationaryPosition; }
     void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
     void SetCreatedBySpellCast(ObjectGuid castId) { _createdBySpellCast = castId; }

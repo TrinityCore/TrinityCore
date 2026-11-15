@@ -16,6 +16,7 @@
  */
 
 #include "LootPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Loot
 {
@@ -25,10 +26,11 @@ static ByteBuffer& operator<<(ByteBuffer& data, LootItemData const& lootItem)
     data << Bits<3>(lootItem.UIType);
     data << Bits<1>(lootItem.CanTradeToTapList);
     data.FlushBits();
-    data << lootItem.Loot; // WorldPackets::Item::ItemInstance
     data << uint32(lootItem.Quantity);
     data << uint8(lootItem.LootItemType);
     data << uint8(lootItem.LootListID);
+    data << lootItem.Loot; // WorldPackets::Item::ItemInstance
+
     return data;
 }
 
@@ -39,6 +41,7 @@ static ByteBuffer& operator<<(ByteBuffer& data, LootCurrency const& lootCurrency
     data << uint8(lootCurrency.LootListID);
     data << Bits<3>(lootCurrency.UIType);
     data.FlushBits();
+
     return data;
 }
 
@@ -56,12 +59,8 @@ WorldPacket const* LootResponse::Write()
     _worldPacket << uint8(_LootMethod);
     _worldPacket << uint8(Threshold);
     _worldPacket << uint32(Coins);
-    _worldPacket << uint32(Items.size());
-    _worldPacket << uint32(Currencies.size());
-    _worldPacket << Bits<1>(Acquired);
-    _worldPacket << Bits<1>(AELooting);
-    _worldPacket << Bits<1>(SuppressError);
-    _worldPacket.FlushBits();
+    _worldPacket << Size<uint32>(Items);
+    _worldPacket << Size<uint32>(Currencies);
 
     for (LootItemData const& item : Items)
         _worldPacket << item;
@@ -69,19 +68,22 @@ WorldPacket const* LootResponse::Write()
     for (LootCurrency const& currency : Currencies)
         _worldPacket << currency;
 
+    _worldPacket << Bits<1>(Acquired);
+    _worldPacket << Bits<1>(AELooting);
+    _worldPacket << Bits<1>(SuppressError);
+    _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
 void LootItem::Read()
 {
-    uint32 Count;
-    _worldPacket >> Count;
+    _worldPacket >> Size<uint32>(Loot);
 
-    Loot.resize(Count);
-    for (uint32 i = 0; i < Count; ++i)
+    for (LootRequest& lootRequest : Loot)
     {
-        _worldPacket >> Loot[i].Object;
-        _worldPacket >> Loot[i].LootListID;
+        _worldPacket >> lootRequest.Object;
+        _worldPacket >> lootRequest.LootListID;
     }
 
     _worldPacket >> Bits<1>(IsSoftInteract);
@@ -89,15 +91,13 @@ void LootItem::Read()
 
 void MasterLootItem::Read()
 {
-    uint32 Count;
-    _worldPacket >> Count;
+    _worldPacket >> Size<uint32>(Loot);
     _worldPacket >> Target;
 
-    Loot.resize(Count);
-    for (uint32 i = 0; i < Count; ++i)
+    for (LootRequest& lootRequest : Loot)
     {
-        _worldPacket >> Loot[i].Object;
-        _worldPacket >> Loot[i].LootListID;
+        _worldPacket >> lootRequest.Object;
+        _worldPacket >> lootRequest.LootListID;
     }
 }
 
@@ -180,12 +180,12 @@ WorldPacket const* StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << int32(MapID);
+    _worldPacket << Item;
     _worldPacket << RollTime;
     _worldPacket << uint8(ValidRolls);
     _worldPacket.append(LootRollIneligibleReason.data(), LootRollIneligibleReason.size());
     _worldPacket << uint8(Method);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
 
     return &_worldPacket;
 }
@@ -194,10 +194,10 @@ WorldPacket const* LootRollBroadcast::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << Player;
+    _worldPacket << Item;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
     _worldPacket << Bits<1>(Autopassed);
     _worldPacket << Bits<1>(OffSpec);
     _worldPacket.FlushBits();
@@ -208,11 +208,11 @@ WorldPacket const* LootRollBroadcast::Write()
 WorldPacket const* LootRollWon::Write()
 {
     _worldPacket << LootObj;
+    _worldPacket << Item;
     _worldPacket << Winner;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
     _worldPacket << Bits<1>(MainSpec);
     _worldPacket.FlushBits();
 
@@ -222,8 +222,8 @@ WorldPacket const* LootRollWon::Write()
 WorldPacket const* LootAllPassed::Write()
 {
     _worldPacket << LootObj;
-    _worldPacket << int32(DungeonEncounterID);
     _worldPacket << Item;
+    _worldPacket << int32(DungeonEncounterID);
 
     return &_worldPacket;
 }
@@ -240,7 +240,7 @@ WorldPacket const* LootRollsComplete::Write()
 WorldPacket const* MasterLootCandidateList::Write()
 {
     _worldPacket << LootObj;
-    _worldPacket << uint32(Players.size());
+    _worldPacket << Size<uint32>(Players);
     for (ObjectGuid const& player : Players)
         _worldPacket << player;
 

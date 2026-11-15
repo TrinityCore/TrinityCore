@@ -15,10 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AsioHacksFwd_h__
-#define AsioHacksFwd_h__
-
-#include <boost/version.hpp>
+#ifndef TRINITYCORE_BOOST_ASIO_HACKS_FWD_H
+#define TRINITYCORE_BOOST_ASIO_HACKS_FWD_H
 
 /**
   Collection of forward declarations to improve compile time
@@ -34,6 +32,12 @@ namespace boost
     {
         template <typename Time>
         struct time_traits;
+
+        template <typename Clock>
+        struct wait_traits;
+
+        template <typename Protocol, typename Clock, typename WaitTraits>
+        class basic_socket_iostream;
 
         namespace ip
         {
@@ -60,9 +64,14 @@ namespace Trinity
     {
         class DeadlineTimer;
         class IoContext;
-        class Resolver;
+        class IoContextExecutor;
         class Strand;
+    }
+
+    namespace Net
+    {
+        class Resolver;
     }
 }
 
-#endif // AsioHacksFwd_h__
+#endif // TRINITYCORE_BOOST_ASIO_HACKS_FWD_H

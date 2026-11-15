@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EquipmentSet_h__
-#define EquipmentSet_h__
+#ifndef TRINITYCORE_EQUIPMENT_SET_H
+#define TRINITYCORE_EQUIPMENT_SET_H
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <array>
 #include <map>
 
@@ -48,7 +49,7 @@ struct EquipmentSetInfo
         uint64 Guid = 0;                                        ///< Set Identifier
         uint32 SetID = 0;                                       ///< Index
         uint32 IgnoreMask = 0;                                  ///< Mask of EquipmentSlot
-        int32 AssignedSpecIndex = -1;                           ///< Index of character specialization that this set is automatically equipped for
+        Optional<int32> AssignedSpecIndex;                      ///< Index of character specialization that this set is automatically equipped for
         std::string SetName;
         std::string SetIcon;
         std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces = {};
@@ -68,4 +69,4 @@ struct EquipmentSetInfo
 
 typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
-#endif // EquipmentSet_h__
+#endif // TRINITYCORE_EQUIPMENT_SET_H

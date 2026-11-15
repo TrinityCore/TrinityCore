@@ -54,7 +54,7 @@ class TC_DATABASE_API MySQLConnection
     friend class PingOperation;
 
     public:
-        MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
+        MySQLConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags);
         virtual ~MySQLConnection();
 
         uint32 Open();
@@ -107,7 +107,7 @@ class TC_DATABASE_API MySQLConnection
         struct WorkerThread;
         std::unique_ptr<WorkerThread> m_workerThread;       //!< Core worker thread.
         MySQLHandle*          m_Mysql;                      //!< MySQL Handle.
-        MySQLConnectionInfo&  m_connectionInfo;             //!< Connection info (used for logging)
+        MySQLConnectionInfo const& m_connectionInfo;        //!< Connection info (used for logging)
         ConnectionFlags       m_connectionFlags;            //!< Connection flags (for preparing relevant statements)
         std::mutex            m_Mutex;
 

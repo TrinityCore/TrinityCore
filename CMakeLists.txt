@@ -86,7 +86,7 @@ add_subdirectory(src)
 include(CTest)
 if(BUILD_TESTING)
   list(APPEND CMAKE_MODULE_PATH
-    "${Catch2_SOURCE_DIR}/contrib")
+    "${Catch2_SOURCE_DIR}/extras")
   include(Catch)
 
   add_subdirectory(tests)

@@ -127,8 +127,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eprot
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReceivedInvitationRemovedNotification));
   SharedSettingsChangedNotification_descriptor_ = file->message_type(4);
-  static const int SharedSettingsChangedNotification_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, agent_id_deprecated_),
+  static const int SharedSettingsChangedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, assignment_),
   };
@@ -160,8 +159,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eprot
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMentionAddedNotification));
   StreamMentionRemovedNotification_descriptor_ = file->message_type(6);
-  static const int StreamMentionRemovedNotification_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, agent_id_deprecated_),
+  static const int StreamMentionRemovedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, mention_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, agent_id_),
   };
@@ -177,8 +175,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eprot
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMentionRemovedNotification));
   StreamMentionAdvanceViewTimeNotification_descriptor_ = file->message_type(7);
-  static const int StreamMentionAdvanceViewTimeNotification_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, agent_id_deprecated_),
+  static const int StreamMentionAdvanceViewTimeNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, view_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, agent_id_),
   };
@@ -275,54 +272,48 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eproto()
     "cation\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
     "club.v1.MemberId\022\025\n\rinvitation_id\030\003 \001(\006\022"
     "5\n\006reason\030\004 \001(\0162%.bgs.protocol.Invitatio"
-    "nRemovedReason\"\332\001\n!SharedSettingsChanged"
-    "Notification\022I\n\023agent_id_deprecated\030\001 \001("
-    "\0132\".bgs.protocol.account.v1.AccountIdB\010\030"
-    "\001\222\371+\002 \001\022\020\n\010agent_id\030\003 \001(\004\022X\n\nassignment\030"
-    "\004 \001(\0132D.bgs.protocol.club_membership.v1."
-    "client.ClubSharedSettingsAssignment\"\217\001\n\036"
-    "StreamMentionAddedNotification\0220\n\010agent_"
-    "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
-    "\022;\n\007mention\030\003 \001(\0132*.bgs.protocol.club.v1"
-    ".client.StreamMention\"\257\001\n StreamMentionR"
-    "emovedNotification\022I\n\023agent_id_deprecate"
-    "d\030\001 \001(\0132\".bgs.protocol.account.v1.Accoun"
-    "tIdB\010\030\001\222\371+\002 \001\022.\n\nmention_id\030\003 \001(\0132\032.bgs."
-    "protocol.TimeSeriesId\022\020\n\010agent_id\030\004 \001(\004\""
-    "\232\001\n(StreamMentionAdvanceViewTimeNotifica"
-    "tion\022I\n\023agent_id_deprecated\030\001 \001(\0132\".bgs."
-    "protocol.account.v1.AccountIdB\010\030\001\222\371+\002 \001\022"
-    "\021\n\tview_time\030\003 \001(\004\022\020\n\010agent_id\030\004 \001(\0042\232\t\n"
-    "\026ClubMembershipListener\022q\n\013OnClubAdded\022="
-    ".bgs.protocol.club_membership.v1.client."
-    "ClubAddedNotification\032\031.bgs.protocol.NO_"
-    "RESPONSE\"\010\202\371+\004\010\001\030\001\022u\n\rOnClubRemoved\022\?.bg"
-    "s.protocol.club_membership.v1.client.Clu"
-    "bRemovedNotification\032\031.bgs.protocol.NO_R"
-    "ESPONSE\"\010\202\371+\004\010\002\030\001\022\215\001\n\031OnReceivedInvitati"
-    "onAdded\022K.bgs.protocol.club_membership.v"
-    "1.client.ReceivedInvitationAddedNotifica"
-    "tion\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\003\030"
-    "\001\022\221\001\n\033OnReceivedInvitationRemoved\022M.bgs."
-    "protocol.club_membership.v1.client.Recei"
-    "vedInvitationRemovedNotification\032\031.bgs.p"
-    "rotocol.NO_RESPONSE\"\010\202\371+\004\010\004\030\001\022\211\001\n\027OnShar"
-    "edSettingsChanged\022I.bgs.protocol.club_me"
-    "mbership.v1.client.SharedSettingsChanged"
-    "Notification\032\031.bgs.protocol.NO_RESPONSE\""
-    "\010\202\371+\004\010\005\030\001\022\203\001\n\024OnStreamMentionAdded\022F.bgs"
-    ".protocol.club_membership.v1.client.Stre"
-    "amMentionAddedNotification\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\010\202\371+\004\010\006\030\001\022\207\001\n\026OnStreamMent"
-    "ionRemoved\022H.bgs.protocol.club_membershi"
-    "p.v1.client.StreamMentionRemovedNotifica"
-    "tion\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\007\030"
-    "\001\022\227\001\n\036OnStreamMentionAdvanceViewTime\022P.b"
-    "gs.protocol.club_membership.v1.client.St"
-    "reamMentionAdvanceViewTimeNotification\032\031"
-    ".bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\010\030\001\032<\202\371+"
-    "0\n,bnet.protocol.club.v1.ClubMembershipL"
-    "istener8\001\212\371+\004\010\001\030\001B\005H\002\200\001\000", 2744);
+    "nRemovedReason\"\217\001\n!SharedSettingsChanged"
+    "Notification\022\020\n\010agent_id\030\003 \001(\004\022X\n\nassign"
+    "ment\030\004 \001(\0132D.bgs.protocol.club_membershi"
+    "p.v1.client.ClubSharedSettingsAssignment"
+    "\"\217\001\n\036StreamMentionAddedNotification\0220\n\010a"
+    "gent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Mem"
+    "berId\022;\n\007mention\030\003 \001(\0132*.bgs.protocol.cl"
+    "ub.v1.client.StreamMention\"d\n StreamMent"
+    "ionRemovedNotification\022.\n\nmention_id\030\003 \001"
+    "(\0132\032.bgs.protocol.TimeSeriesId\022\020\n\010agent_"
+    "id\030\004 \001(\004\"O\n(StreamMentionAdvanceViewTime"
+    "Notification\022\021\n\tview_time\030\003 \001(\004\022\020\n\010agent"
+    "_id\030\004 \001(\0042\232\t\n\026ClubMembershipListener\022q\n\013"
+    "OnClubAdded\022=.bgs.protocol.club_membersh"
+    "ip.v1.client.ClubAddedNotification\032\031.bgs"
+    ".protocol.NO_RESPONSE\"\010\202\371+\004\010\001\030\001\022u\n\rOnClu"
+    "bRemoved\022\?.bgs.protocol.club_membership."
+    "v1.client.ClubRemovedNotification\032\031.bgs."
+    "protocol.NO_RESPONSE\"\010\202\371+\004\010\002\030\001\022\215\001\n\031OnRec"
+    "eivedInvitationAdded\022K.bgs.protocol.club"
+    "_membership.v1.client.ReceivedInvitation"
+    "AddedNotification\032\031.bgs.protocol.NO_RESP"
+    "ONSE\"\010\202\371+\004\010\003\030\001\022\221\001\n\033OnReceivedInvitationR"
+    "emoved\022M.bgs.protocol.club_membership.v1"
+    ".client.ReceivedInvitationRemovedNotific"
+    "ation\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\004"
+    "\030\001\022\211\001\n\027OnSharedSettingsChanged\022I.bgs.pro"
+    "tocol.club_membership.v1.client.SharedSe"
+    "ttingsChangedNotification\032\031.bgs.protocol"
+    ".NO_RESPONSE\"\010\202\371+\004\010\005\030\001\022\203\001\n\024OnStreamMenti"
+    "onAdded\022F.bgs.protocol.club_membership.v"
+    "1.client.StreamMentionAddedNotification\032"
+    "\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\006\030\001\022\207\001\n"
+    "\026OnStreamMentionRemoved\022H.bgs.protocol.c"
+    "lub_membership.v1.client.StreamMentionRe"
+    "movedNotification\032\031.bgs.protocol.NO_RESP"
+    "ONSE\"\010\202\371+\004\010\007\030\001\022\227\001\n\036OnStreamMentionAdvanc"
+    "eViewTime\022P.bgs.protocol.club_membership"
+    ".v1.client.StreamMentionAdvanceViewTimeN"
+    "otification\032\031.bgs.protocol.NO_RESPONSE\"\010"
+    "\202\371+\004\010\010\030\001\032<\202\371+0\n,bnet.protocol.club.v1.Cl"
+    "ubMembershipListener8\001\212\371+\004\010\001\030\001B\005H\002\200\001\000", 2517);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/club_membership_listener.proto", &protobuf_RegisterTypes);
   ClubAddedNotification::default_instance_ = new ClubAddedNotification();
@@ -669,7 +660,6 @@ void ReceivedInvitationRemovedNotification::Swap(ReceivedInvitationRemovedNotifi
 // ===================================================================
 
 #ifndef _MSC_VER
-const int SharedSettingsChangedNotification::kAgentIdDeprecatedFieldNumber;
 const int SharedSettingsChangedNotification::kAgentIdFieldNumber;
 const int SharedSettingsChangedNotification::kAssignmentFieldNumber;
 #endif  // !_MSC_VER
@@ -681,7 +671,6 @@ SharedSettingsChangedNotification::SharedSettingsChangedNotification()
 }
 
 void SharedSettingsChangedNotification::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   assignment_ = const_cast< ::bgs::protocol::club_membership::v1::client::ClubSharedSettingsAssignment*>(&::bgs::protocol::club_membership::v1::client::ClubSharedSettingsAssignment::default_instance());
 }
 
@@ -694,7 +683,6 @@ SharedSettingsChangedNotification::SharedSettingsChangedNotification(const Share
 
 void SharedSettingsChangedNotification::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   agent_id_ = GOOGLE_ULONGLONG(0);
   assignment_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -707,7 +695,6 @@ SharedSettingsChangedNotification::~SharedSettingsChangedNotification() {
 
 void SharedSettingsChangedNotification::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete assignment_;
   }
 }
@@ -827,7 +814,6 @@ void StreamMentionAddedNotification::Swap(StreamMentionAddedNotification* other)
 // ===================================================================
 
 #ifndef _MSC_VER
-const int StreamMentionRemovedNotification::kAgentIdDeprecatedFieldNumber;
 const int StreamMentionRemovedNotification::kMentionIdFieldNumber;
 const int StreamMentionRemovedNotification::kAgentIdFieldNumber;
 #endif  // !_MSC_VER
@@ -839,7 +825,6 @@ StreamMentionRemovedNotification::StreamMentionRemovedNotification()
 }
 
 void StreamMentionRemovedNotification::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   mention_id_ = const_cast< ::bgs::protocol::TimeSeriesId*>(&::bgs::protocol::TimeSeriesId::default_instance());
 }
 
@@ -852,7 +837,6 @@ StreamMentionRemovedNotification::StreamMentionRemovedNotification(const StreamM
 
 void StreamMentionRemovedNotification::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   mention_id_ = NULL;
   agent_id_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -865,7 +849,6 @@ StreamMentionRemovedNotification::~StreamMentionRemovedNotification() {
 
 void StreamMentionRemovedNotification::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete mention_id_;
   }
 }
@@ -907,7 +890,6 @@ void StreamMentionRemovedNotification::Swap(StreamMentionRemovedNotification* ot
 // ===================================================================
 
 #ifndef _MSC_VER
-const int StreamMentionAdvanceViewTimeNotification::kAgentIdDeprecatedFieldNumber;
 const int StreamMentionAdvanceViewTimeNotification::kViewTimeFieldNumber;
 const int StreamMentionAdvanceViewTimeNotification::kAgentIdFieldNumber;
 #endif  // !_MSC_VER
@@ -919,7 +901,6 @@ StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotificati
 }
 
 void StreamMentionAdvanceViewTimeNotification::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotification(const StreamMentionAdvanceViewTimeNotification& from)
@@ -931,7 +912,6 @@ StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotificati
 
 void StreamMentionAdvanceViewTimeNotification::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   view_time_ = GOOGLE_ULONGLONG(0);
   agent_id_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -944,7 +924,6 @@ StreamMentionAdvanceViewTimeNotification::~StreamMentionAdvanceViewTimeNotificat
 
 void StreamMentionAdvanceViewTimeNotification::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
   }
 }
 

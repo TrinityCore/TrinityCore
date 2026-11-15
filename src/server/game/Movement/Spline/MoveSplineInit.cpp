@@ -17,15 +17,42 @@
 
 #include "MoveSplineInit.h"
 #include "Creature.h"
-#include "MovementPackets.h"
 #include "MoveSpline.h"
+#include "MovementPackets.h"
 #include "PathGenerator.h"
-#include "Transport.h"
 #include "Unit.h"
+#include "VehicleDefines.h"
 
 namespace Movement
 {
-    UnitMoveType SelectSpeedType(uint32 moveFlags)
+    // Transforms coordinates from global to transport offsets
+    class TransportPathTransform
+    {
+    public:
+        TransportPathTransform(Unit const* owner, bool transformForTransport)
+            : _transport(transformForTransport ? owner->GetDirectTransport() : nullptr) { }
+
+        Vector3 operator()(Vector3 input) const
+        {
+            if (_transport)
+                _transport->GetPositionOffsetTo({ input.x, input.y, input.z }).GetPosition(input.x, input.y, input.z);
+
+            return input;
+        }
+
+        float operator()(float input) const
+        {
+            if (_transport)
+                input -= _transport->GetTransportOrientation();
+
+            return input;
+        }
+
+    private:
+        TransportBase* _transport;
+    };
+
+    UnitMoveType SelectSpeedType(MovementFlags moveFlags)
     {
         if (moveFlags & MOVEMENTFLAG_FLYING)
         {
@@ -89,7 +116,7 @@ namespace Movement
         args.flags.Enter_Cycle = args.flags.Cyclic;
         move_spline.onTransport = transport;
 
-        uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
+        MovementFlags moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (!args.flags.Backward)
             moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
         else
@@ -102,7 +129,7 @@ namespace Movement
         {
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
-            uint32 moveFlagsForSpeed = moveFlags;
+            MovementFlags moveFlagsForSpeed = moveFlags;
             if (args.walk)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
             else
@@ -149,17 +176,17 @@ namespace Movement
         return move_spline.Duration();
     }
 
-    void MoveSplineInit::Stop()
+    void MoveSplineInit::Stop(bool force /*= false*/)
     {
         MoveSpline& move_spline = *unit->movespline;
 
         // No need to stop if we are not moving
-        if (move_spline.Finalized())
+        if (!force && move_spline.Finalized())
             return;
 
         bool transport = !unit->GetTransGUID().IsEmpty();
         Location loc;
-        if (move_spline.onTransport == transport)
+        if (move_spline.onTransport == transport && !move_spline.Finalized())
             loc = move_spline.ComputePosition();
         else
         {
@@ -175,6 +202,9 @@ namespace Movement
             loc.orientation = unit->GetOrientation();
         }
 
+        if (move_spline.isTurning())
+            SetFacing(loc.orientation);
+
         args.flags = MoveSplineFlagEnum::Done;
         unit->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         move_spline.onTransport = transport;
@@ -185,6 +215,9 @@ namespace Movement
         packet.Pos = Position(loc.x, loc.y, loc.z, loc.orientation);
         packet.SplineData.StopSplineStyle = 2;
         packet.SplineData.ID = move_spline.GetId();
+        packet.SplineData.StopUseFaceDirection = args.facing.type == MONSTER_MOVE_FACING_ANGLE;
+        packet.SplineData.Move.Face = args.facing.type;
+        packet.SplineData.Move.FaceDirection = args.facing.angle;
 
         if (transport)
         {
@@ -234,23 +267,16 @@ namespace Movement
 
     void MoveSplineInit::SetFacing(float angle)
     {
-        if (args.TransformForTransport)
-        {
-            if (Unit* vehicle = unit->GetVehicleBase())
-                angle -= vehicle->GetOrientation();
-            else if (TransportBase* transport = unit->GetTransport())
-                angle -= transport->GetTransportOrientation();
-        }
-
-        args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        args.facing.angle = Position::NormalizeOrientation(transform(angle));
         args.facing.type = MONSTER_MOVE_FACING_ANGLE;
     }
 
-    void MoveSplineInit::MovebyPath(PointsArray const& controls, int32 path_offset)
+    void MoveSplineInit::MovebyPath(std::span<Vector3 const> path, int32 pointId)
     {
-        args.path_Idx_offset = path_offset;
-        args.path.reserve(controls.size());
-        std::transform(controls.begin(), controls.end(), std::back_inserter(args.path), TransportPathTransform(unit, args.TransformForTransport));
+        args.path_Idx_offset = pointId;
+        args.path.resize(path.size());
+        std::ranges::transform(path, args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
     }
 
     void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
@@ -281,15 +307,6 @@ namespace Movement
     {
         args.flags.Falling = true;
         args.flags.FallingSlow = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-    }
-
-    Vector3 TransportPathTransform::operator()(Vector3 input)
-    {
-        if (_transformForTransport)
-            if (TransportBase* transport = _owner->GetDirectTransport())
-                transport->CalculatePassengerOffset(input.x, input.y, input.z);
-
-        return input;
     }
 
     void MoveSplineInitFacingVisitor::operator()(Position const& point) const

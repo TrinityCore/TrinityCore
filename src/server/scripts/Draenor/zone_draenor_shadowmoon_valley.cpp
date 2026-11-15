@@ -73,4 +73,4 @@ struct npc_baros_alexston : public ScriptedAI
 void AddSC_draenor_shadowmoon_valley()
 {
     RegisterCreatureAI(npc_baros_alexston);
-};
+}

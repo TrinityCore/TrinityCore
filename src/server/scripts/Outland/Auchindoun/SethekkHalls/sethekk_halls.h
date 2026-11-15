@@ -23,7 +23,7 @@
 #define SHScriptName "instance_sethekk_halls"
 #define DataHeader "SH"
 
-uint32 const EncounterCount             = 3;
+uint32 constexpr EncounterCount         = 3;
 
 enum SHDataTypes
 {
@@ -34,12 +34,6 @@ enum SHDataTypes
 
     // Additional Data
     DATA_TALON_KING_COFFER              = 3
-};
-
-enum SHCreatureIds
-{
-    NPC_ANZU                            = 23035,
-    NPC_BROOD_OF_ANZU                   = 23132
 };
 
 enum SHGameObjectIds

@@ -246,9 +246,8 @@ public:
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
-                    if (!BeamList.empty())
-                        for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                            (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
+                    for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
+                        (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
@@ -256,11 +255,8 @@ public:
                     me->InterruptNonMeleeSpells(true, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
-                    if (!creatureList.empty())
-                    {
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                            (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
-                    }
+                    for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 default:
@@ -300,6 +296,7 @@ public:
         {
             _phase = PHASE_NONE;
             _moveTimer = 0;
+            _eventStarterGuid.Clear();
         }
 
         void OnQuestAccept(Player* player, Quest const* quest) override
@@ -334,8 +331,9 @@ public:
 
         void Reset() override
         {
-            me->SetCanDualWield(true);
             Initialize();
+            me->SetCanDualWield(true);
+
             _events.Reset();
             _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
             _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
@@ -429,7 +427,8 @@ public:
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
-                            Talk(SAY_LEGOSO_4);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_4, player);
                             _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
@@ -437,7 +436,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromOrientation(ExplosivesPos[0][i].GetOrientation()), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -494,7 +493,8 @@ public:
                             _phase = PHASE_FEEL_SIRONAS_2;
                             break;
                         case PHASE_FEEL_SIRONAS_2: // legoso exclamation before sironas 1.2
-                            Talk(SAY_LEGOSO_11);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_11, player);
                             _moveTimer = 4 * IN_MILLISECONDS;
                             _phase = PHASE_CONTINUE;
                             break;
@@ -533,10 +533,11 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromOrientation(ExplosivesPos[1][i].GetOrientation()), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
-                            Talk(SAY_LEGOSO_15);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_15, player);
                             _moveTimer = 1 * IN_MILLISECONDS;
                             _phase = PHASE_PLANT_SECOND_WAIT;
                             break;
@@ -649,7 +650,7 @@ public:
                 case WP_START:
                     SetEscortPaused(true);
                     me->SetFacingToObject(player);
-                    Talk(SAY_LEGOSO_1);
+                    Talk(SAY_LEGOSO_1, player);
                     _moveTimer = 2.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_CONTINUE;
                     break;
@@ -802,7 +803,7 @@ class spell_free_webbed_on_quest : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (roll_chance_i(66))
+        if (roll_chance(66))
             caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_FREE_WEBBED_11, true);

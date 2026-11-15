@@ -19,6 +19,8 @@
 #include "DB2CascFileSource.h"
 #include "Errors.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "Memory.h"
+#include "StringConvert.h"
 #include "model.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
@@ -28,35 +30,42 @@
 #include <cstdio>
 #include "advstd.h"
 
-bool ExtractSingleModel(std::string& fname)
+ExtractedModelData const* ExtractSingleModel(std::string& fname)
 {
     if (fname.length() < 4)
-        return false;
+        return nullptr;
 
-    std::string extension = fname.substr(fname.length() - 4, 4);
-    if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
-    {
-        fname.erase(fname.length() - 2, 2);
-        fname.append("2");
-    }
+    std::string_view extension = std::string_view(fname).substr(fname.length() - 4, 4);
+    if (StringEqualI(extension, ".mdx"sv) || StringEqualI(extension, ".mdl"sv))
+        fname.replace(fname.length() - 2, 2, "2");
 
     std::string originalName = fname;
 
-    char* name = GetPlainName((char*)fname.c_str());
-    NormalizeFileName(name, strlen(name));
+    fname = GetPlainName(fname);
+    NormalizeFileName(fname);
 
-    std::string output(szWorkDirWmo);
-    output += "/";
-    output += name;
+    auto [model, shouldExtract] = BeginModelExtraction(fname);
+    if (!shouldExtract)
+    {
+        model->Wait();
+        return model->State.load(std::memory_order::relaxed) == ExtractedModelData::Ok ? model : nullptr;
+    }
 
-    if (FileExists(output.c_str()))
-        return true;
+    auto stateGuard = Trinity::make_unique_ptr_with_deleter<&ExtractedModelData::Fail>(model);
 
     Model mdl(originalName);
     if (!mdl.open())
-        return false;
+        return nullptr;
 
-    return mdl.ConvertToVMAPModel(output.c_str());
+    std::string output(szWorkDirWmo);
+    output += "/";
+    output += fname;
+
+    if (!mdl.ConvertToVMAPModel(output.c_str()))
+        return nullptr;
+
+    stateGuard->Complete();
+    return stateGuard.release();
 }
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
@@ -123,9 +132,12 @@ void ExtractGameobjectModels()
 
         std::string_view header(headerRaw.data(), headerRaw.size());
         if (header == "REVM")
-            result = ExtractSingleWmo(fileName);
+        {
+            ExtractedModelData const* wmo = ExtractSingleWmo(fileName);
+            result = wmo && wmo->HasCollision();
+        }
         else if (header == "MD20" || header == "MD21")
-            result = ExtractSingleModel(fileName);
+            result = ExtractSingleModel(fileName) != nullptr;
         else if (header == "BLP2")
             continue;   // broken db2 data
         else

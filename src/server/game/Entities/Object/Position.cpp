@@ -19,9 +19,9 @@
 #include "ByteBuffer.h"
 #include "DB2Stores.h"
 #include "GridDefines.h"
+#include "StringFormat.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
-#include <sstream>
 
 bool Position::operator==(Position const& a) const
 {
@@ -33,9 +33,9 @@ bool Position::operator==(Position const& a) const
 
 void Position::RelocateOffset(Position const& offset)
 {
-    m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + float(M_PI)));
-    m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
-    m_positionZ = GetPositionZ() + offset.GetPositionZ();
+    m_positionX += offset.GetPositionX() * std::cos(GetOrientation()) - offset.GetPositionY() * std::sin(GetOrientation());
+    m_positionY += offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation());
+    m_positionZ += offset.GetPositionZ();
     SetOrientation(GetOrientation() + offset.GetOrientation());
 }
 
@@ -44,15 +44,18 @@ bool Position::IsPositionValid() const
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
-void Position::GetPositionOffsetTo(Position const& endPos, Position& retOffset) const
+Position Position::GetPositionOffsetTo(Position const& endPos) const
 {
     float dx = endPos.GetPositionX() - GetPositionX();
     float dy = endPos.GetPositionY() - GetPositionY();
 
-    retOffset.m_positionX = dx * std::cos(GetOrientation()) + dy * std::sin(GetOrientation());
-    retOffset.m_positionY = dy * std::cos(GetOrientation()) - dx * std::sin(GetOrientation());
-    retOffset.m_positionZ = endPos.GetPositionZ() - GetPositionZ();
-    retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
+    return
+    {
+        dx * std::cos(GetOrientation()) + dy * std::sin(GetOrientation()),
+        dy * std::cos(GetOrientation()) - dx * std::sin(GetOrientation()),
+        endPos.GetPositionZ() - GetPositionZ(),
+        endPos.GetOrientation() - GetOrientation()
+    };
 }
 
 Position Position::GetPositionWithOffset(Position const& offset) const
@@ -198,9 +201,7 @@ bool Position::HasInLine(Position const* pos, float objSize, float width) const
 
 std::string Position::ToString() const
 {
-    std::stringstream sstr;
-    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
-    return sstr.str();
+    return Trinity::StringFormat("{}", *this);
 }
 
 float Position::NormalizeOrientation(float o)
@@ -208,73 +209,112 @@ float Position::NormalizeOrientation(float o)
     // fmod only supports positive numbers. Thus we have
     // to emulate negative numbers
     if (o < 0)
-    {
-        float mod = o *-1;
-        mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
-        mod = -mod + 2.0f * static_cast<float>(M_PI);
-        return mod;
-    }
+        return -std::fmod(-o, 2.0f * static_cast<float>(M_PI)) + 2.0f * static_cast<float>(M_PI);
+
     return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XY> const& streamer)
 {
-    float x, y;
-    buf >> x >> y;
-    streamer.Pos->Relocate(x, y);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZ> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZ> const& streamer)
 {
-    float x, y, z;
-    buf >> x >> y >> z;
-    streamer.Pos->Relocate(x, y, z);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
-    buf << streamer.Pos->GetOrientation();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
+    buf << float(streamer.Pos->GetOrientation());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer)
 {
-    float x, y, z, o;
-    buf >> x >> y >> z >> o;
-    streamer.Pos->Relocate(x, y, z, o);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
+    streamer.Pos->SetOrientation(buf.read<float>());
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer)
 {
-    buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
+    int32 packed = 0;
+    packed |= (int32(streamer.Pos->GetPositionX() * 4.0f) & 0x7FF);
+    packed |= (int32(streamer.Pos->GetPositionY() * 4.0f) & 0x7FF) << 11;
+    packed |= (int32(streamer.Pos->GetPositionZ() * 4.0f) & 0x3FF) << 22;
+    buf << int32(packed);
     return buf;
 }
 
+ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::PackedXYZ> const& streamer)
+{
+    int32 packed;
+    buf >> packed;
+    streamer.Pos->Relocate(float((packed << 21) >> 21) * 0.25f, float((packed << 10) >> 21) * 0.25f, float(packed >> 22) * 0.25f);
+    return buf;
+}
+
+template <typename FormatContext>
+auto fmt::formatter<Position>::format(Position const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {} Z: {} O: {}",
+        position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation());
+}
+
+template <typename FormatContext>
+auto fmt::formatter<WorldLocation>::format(WorldLocation const& worldLocation, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    ctx.advance_to(Trinity::StringFormatTo(ctx.out(), "MapID: {} ", worldLocation.GetMapId()));
+    return fmt::formatter<Position>::format(worldLocation, ctx);
+}
+
+template <typename FormatContext>
+auto fmt::formatter<TaggedPosition<Position::XY>>::format(TaggedPosition<Position::XY> const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {}",
+        position.Pos.GetPositionX(), position.Pos.GetPositionY());
+}
+
+template <typename FormatContext>
+auto fmt::formatter<TaggedPosition<Position::XYZ>>::format(TaggedPosition<Position::XYZ> const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {} Z: {}",
+        position.Pos.GetPositionX(), position.Pos.GetPositionY(), position.Pos.GetPositionZ());
+}
+
+template TC_GAME_API fmt::appender fmt::formatter<Position>::format<fmt::format_context>(Position const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<WorldLocation>::format<fmt::format_context>(WorldLocation const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<TaggedPosition<Position::XY>>::format<fmt::format_context>(TaggedPosition<Position::XY> const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<TaggedPosition<Position::XYZ>>::format<fmt::format_context>(TaggedPosition<Position::XYZ> const&, format_context&) const;
+
 std::string WorldLocation::GetDebugInfo() const
 {
-    std::stringstream sstr;
     MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
-    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
-    return sstr.str();
+    return Trinity::StringFormat("Map name: '{}' {}", mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>", *this);
 }

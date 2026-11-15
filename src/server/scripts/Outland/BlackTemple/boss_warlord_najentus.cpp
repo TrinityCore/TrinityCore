@@ -27,7 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum NajentusTexts
 {
     SAY_AGGRO   = 0,
     SAY_NEEDLE  = 1,
@@ -37,19 +37,22 @@ enum Texts
     SAY_DEATH   = 5
 };
 
-enum Spells
+enum NajentusSpells
 {
     SPELL_NEEDLE_SPINE_TARGETING = 39992,
-    SPELL_NEEDLE_SPINE           = 39835,
     SPELL_TIDAL_BURST            = 39878,
     SPELL_TIDAL_SHIELD           = 39872,
     SPELL_IMPALING_SPINE         = 39837,
     SPELL_CREATE_NAJENTUS_SPINE  = 39956,
     SPELL_HURL_SPINE             = 39948,
-    SPELL_BERSERK                = 26662
+    SPELL_BERSERK                = 26662,
+
+    // Scripts
+    SPELL_NEEDLE_SPINE           = 39835,
+    SPELL_NEEDLE_SPINE_EXPLOSION = 39968
 };
 
-enum Events
+enum NajentusEvents
 {
     EVENT_BERSERK = 1,
     EVENT_YELL    = 2,
@@ -58,12 +61,13 @@ enum Events
     EVENT_SHIELD  = 5
 };
 
-enum Misc
+enum NajentusMisc
 {
     DATA_REMOVE_IMPALING_SPINE   = 1,
     ACTION_RESET_IMPALING_TARGET = 2
 };
 
+// 22887 - High Warlord Naj'entus
 struct boss_najentus : public BossAI
 {
     boss_najentus(Creature* creature) : BossAI(creature, DATA_HIGH_WARLORD_NAJENTUS) { }
@@ -98,7 +102,7 @@ struct boss_najentus : public BossAI
         {
             me->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
             DoCastSelf(SPELL_TIDAL_BURST, true);
-            events.RescheduleEvent(EVENT_SPINE, Seconds(2));
+            events.RescheduleEvent(EVENT_SPINE, 2s);
         }
     }
 
@@ -143,8 +147,8 @@ struct boss_najentus : public BossAI
         {
             case EVENT_SHIELD:
                 DoCastSelf(SPELL_TIDAL_SHIELD, true);
-                events.RescheduleEvent(EVENT_SPINE, Seconds(50));
-                events.Repeat(Seconds(55), Seconds(60));
+                events.RescheduleEvent(EVENT_SPINE, 50s);
+                events.Repeat(55s, 60s);
                 break;
             case EVENT_BERSERK:
                 Talk(SAY_ENRAGE);
@@ -159,15 +163,15 @@ struct boss_najentus : public BossAI
                     target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData(), 30s);
                     Talk(SAY_NEEDLE);
                 }
-                events.Repeat(Seconds(20), Seconds(25));
+                events.Repeat(20s, 25s);
                 break;
             case EVENT_NEEDLE:
                 DoCastSelf(SPELL_NEEDLE_SPINE_TARGETING, true);
-                events.Repeat(Seconds(2));
+                events.Repeat(2s);
                 break;
             case EVENT_YELL:
                 Talk(SAY_SPECIAL);
-                events.Repeat(Seconds(25), Seconds(100));
+                events.Repeat(25s, 100s);
                 break;
             default:
                 break;
@@ -178,6 +182,7 @@ private:
     ObjectGuid _spineTargetGUID;
 };
 
+// 185584 - Naj'entus Spine
 struct go_najentus_spine : public GameObjectAI
 {
     go_najentus_spine(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
@@ -225,9 +230,29 @@ class spell_najentus_needle_spine : public SpellScript
     }
 };
 
+// 39835 - Needle Spine
+class spell_najentus_needle_spine_explosion : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_NEEDLE_SPINE_EXPLOSION });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_NEEDLE_SPINE_EXPLOSION, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_najentus_needle_spine_explosion::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_najentus()
 {
     RegisterBlackTempleCreatureAI(boss_najentus);
     RegisterGameObjectAI(go_najentus_spine);
     RegisterSpellScript(spell_najentus_needle_spine);
+    RegisterSpellScript(spell_najentus_needle_spine_explosion);
 }

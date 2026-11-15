@@ -19,7 +19,7 @@
 #define DB2_DATABASE_LOADER_H
 
 #include "DB2FileLoader.h"
-#include <string>
+#include <string_view>
 #include <vector>
 
 enum HotfixDatabaseStatements : uint32;
@@ -35,14 +35,14 @@ struct TC_SHARED_API DB2LoadInfo : public DB2FileLoadInfo
 class TC_SHARED_API DB2DatabaseLoader
 {
 public:
-    DB2DatabaseLoader(std::string const& storageName, DB2LoadInfo const* loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
+    DB2DatabaseLoader(std::string_view storageName, DB2LoadInfo const* loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
 
     char* Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool, uint32& minId);
     void LoadStrings(bool custom, LocaleConstant locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
-    static char* AddString(char const** holder, std::string const& value);
+    static char* AddString(char const** holder, std::string_view value);
 
 private:
-    std::string const& _storageName;
+    std::string_view _storageName;
     DB2LoadInfo const* _loadInfo;
 };
 

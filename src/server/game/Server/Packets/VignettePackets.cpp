@@ -16,6 +16,7 @@
  */
 
 #include "VignettePackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Vignette
 {
@@ -36,8 +37,8 @@ ByteBuffer& operator<<(ByteBuffer& data, VignetteData const& vignetteData)
 
 ByteBuffer& operator<<(ByteBuffer& data, VignetteDataSet const& vignetteDataSet)
 {
-    data << uint32(vignetteDataSet.IDs.size());
-    data << uint32(vignetteDataSet.Data.size());
+    data << Size<uint32>(vignetteDataSet.IDs);
+    data << Size<uint32>(vignetteDataSet.Data);
     for (ObjectGuid const& id : vignetteDataSet.IDs)
         data << id;
 
@@ -49,9 +50,9 @@ ByteBuffer& operator<<(ByteBuffer& data, VignetteDataSet const& vignetteDataSet)
 
 WorldPacket const* VignetteUpdate::Write()
 {
-    _worldPacket.WriteBit(ForceUpdate);
-    _worldPacket.WriteBit(InFogOfWar);
-    _worldPacket << uint32(Removed.size());
+    _worldPacket << Bits<1>(ForceUpdate);
+    _worldPacket << Bits<1>(InFogOfWar);
+    _worldPacket << Size<uint32>(Removed);
     _worldPacket << Added;
     _worldPacket << Updated;
     for (ObjectGuid const& removed : Removed)

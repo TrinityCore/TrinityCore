@@ -19,16 +19,15 @@
 #include "grim_batol.h"
 #include "InstanceScript.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_GENERAL_UMBRISS,      BOSS_GENERAL_UMBRISS        },
     { NPC_FORGEMASTER_THRONGUS, BOSS_FORGEMASTER_THRONGUS   },
     { NPC_DRAHGA_SHADOWBURNER,  BOSS_DRAHGA_SHADOWBURNER    },
     { NPC_ERUDAX,               BOSS_ERUDAX                 },
-    { 0,                        0                           } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_GENERAL_UMBRISS,         {{ 1051 }}  },
     { BOSS_FORGEMASTER_THRONGUS,    {{ 1050 }}  },
@@ -47,7 +46,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
     };

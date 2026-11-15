@@ -25,22 +25,20 @@ BossBoundaryData const boundaries =
     { DATA_GUARM, new RectangleBoundary(443.320f, 492.354f, 430.713f, 561.020f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_ODYN,                DATA_ODYN               },
     { BOSS_GUARM,               DATA_GUARM              },
     { BOSS_HELYA,               DATA_HELYA              },
-    { 0,                        0                       }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_GUARM_BOSS_DOOR_ENTRANCE,              DATA_GUARM,     EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_GUARM_BOSS_DOOR_EXIT,                  DATA_GUARM,     EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                        0,              EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_ODYN,    {{ 1958 }} },
     { DATA_GUARM,   {{ 1962 }} },
@@ -58,7 +56,7 @@ class instance_trial_of_valor : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);

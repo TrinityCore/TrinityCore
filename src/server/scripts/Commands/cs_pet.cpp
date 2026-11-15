@@ -48,7 +48,7 @@ class pet_commandscript : public CommandScript
 public:
     pet_commandscript() : CommandScript("pet_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable petCommandTable =
         {
@@ -94,18 +94,21 @@ public:
 
         // Everything looks OK, create new pet
         Pet* pet = player->CreateTamedPetFrom(creatureTarget);
+        if (!pet)
+        {
+            handler->PSendSysMessage("CreateTamedPetFrom returned null.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         // "kill" original creature
         creatureTarget->DespawnOrUnsummon();
-
-        // prepare visual effect for levelup
-        pet->SetLevel(player->GetLevel() - 1);
 
         // add to world
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetLevel(player->GetLevel());
+        pet->SendNewlyTamed();
 
         // caster have pet now
         player->SetMinion(pet, true);

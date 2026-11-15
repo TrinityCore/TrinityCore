@@ -32,10 +32,12 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 
 enum MageSpells
 {
+    SPELL_MAGE_ALEXSTRASZAS_FURY                 = 235870,
     SPELL_MAGE_ALTER_TIME_AURA                   = 110909,
     SPELL_MAGE_ALTER_TIME_VISUAL                 = 347402,
     SPELL_MAGE_ARCANE_ALTER_TIME_AURA            = 342246,
@@ -56,24 +58,46 @@ enum MageSpells
     SPELL_MAGE_CONE_OF_COLD_SLOW                 = 212792,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE         = 167145,
+    SPELL_MAGE_DRAGONS_BREATH                    = 31661,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_ETHEREAL_BLINK                    = 410939,
     SPELL_MAGE_EVERWARM_SOCKS                    = 320913,
     SPELL_MAGE_FEEL_THE_BURN                     = 383391,
+    SPELL_MAGE_FIERY_RUSH_AURA                   = 383637,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_FIRE_BLAST                        = 108853,
-    SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
     SPELL_MAGE_FIRESTARTER                       = 205026,
+    SPELL_MAGE_FLAMESTRIKE                       = 2120,
+    SPELL_MAGE_FLAME_ACCELERANT                  = 453283,
+    SPELL_MAGE_FLAME_PATCH_AREATRIGGER           = 205470,
+    SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
+    SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
+    SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
+    SPELL_MAGE_FRENETIC_SPEED                    = 236060,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
+    SPELL_MAGE_HEAT_SHIMMER                      = 458964,
+    SPELL_MAGE_HEATING_UP                        = 48107,
+    SPELL_MAGE_HOT_STREAK                        = 48108,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_IGNITION_BURST                    = 1217359,
+    SPELL_MAGE_IMPROVED_COMBUSTION               = 383967,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 383608,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
     SPELL_MAGE_MASTER_OF_TIME                    = 342249,
+    SPELL_MAGE_METEOR_AREATRIGGER                = 177345,
+    SPELL_MAGE_METEOR_BURN_DAMAGE                = 155158,
+    SPELL_MAGE_METEOR_MISSILE                    = 153564,
+    SPELL_MAGE_MOLTEN_FURY                       = 458910,
+    SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
+    SPELL_MAGE_PHOENIX_FLAMES_DAMAGE             = 257542,
+    SPELL_MAGE_PYROBLAST                         = 11366,
+    SPELL_MAGE_PYROTECHNICS                      = 157644,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -81,12 +105,15 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
+    SPELL_MAGE_SCALD                             = 450746,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_SHIMMER                           = 212653,
     SPELL_MAGE_SLOW                              = 31589,
+    SPELL_MAGE_SPONTANEOUS_COMBUSTION            = 451875,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_SUPERNOVA                         = 157980,
+    SPELL_MAGE_TEMPEST_BARRIER_ABSORB            = 382290,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
     SPELL_MAGE_ICE_LANCE_TRIGGER                 = 228598,
@@ -95,6 +122,7 @@ enum MageSpells
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
     SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
+    SPELL_MAGE_WILDFIRE_TALENT                   = 383489,
     SPELL_MAGE_WINTERS_CHILL                     = 228358
 };
 
@@ -265,7 +293,7 @@ class spell_mage_arcane_explosion : public SpellScript
             if (!requiredTargets)
                 return false;
 
-            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance_i(triggerChance->GetAmount());
+            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance(triggerChance->GetAmount());
         }();
 
         if (!procTriggered)
@@ -287,11 +315,11 @@ class spell_mage_blazing_barrier : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_BLAZING_BARRIER_TRIGGER });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
-            amount = int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            amount = caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f;
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -399,7 +427,7 @@ class spell_mage_cauterize_AuraScript : public AuraScript
         });
     }
 
-    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         AuraEffect const* effect1 = GetEffect(EFFECT_1);
         if (!effect1 ||
@@ -408,10 +436,11 @@ class spell_mage_cauterize_AuraScript : public AuraScript
             dmgInfo.GetDamage() > GetTarget()->GetMaxHealth() * 2 ||
             GetTarget()->HasAura(SPELL_MAGE_CAUTERIZED))
         {
-            PreventDefaultAction();
+            absorbAmount = 0;
             return;
         }
 
+        PreventDefaultAction();
         GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(effect1->GetAmount()));
         GetTarget()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_2).TriggerSpell, TRIGGERED_FULL_MASK);
         GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_CAUTERIZE_DOT, TRIGGERED_FULL_MASK);
@@ -420,7 +449,7 @@ class spell_mage_cauterize_AuraScript : public AuraScript
 
     void Register() override
     {
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_cauterize_AuraScript::HandleAbsorb, EFFECT_0);
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_mage_cauterize_AuraScript::HandleAbsorb, EFFECT_0);
     }
 };
 
@@ -619,26 +648,26 @@ class spell_mage_ethereal_blink_triggered : public SpellScript
         if (!reductionEffect)
             return;
 
-        Seconds reduction = Seconds(reductionEffect->GetAmount()) * targets.size();
+        FloatSeconds reduction = FloatSeconds(reductionEffect->GetAmount()) * targets.size();
 
         if (AuraEffect const* cap = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_3))
-            if (reduction > Seconds(cap->GetAmount()))
-                reduction = Seconds(cap->GetAmount());
+            if (reduction > FloatSeconds(cap->GetAmount()))
+                reduction = FloatSeconds(cap->GetAmount());
 
         if (reduction > 0s)
         {
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_BLINK, -reduction);
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_SHIMMER, -reduction);
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_BLINK, -duration_cast<SpellHistory::Duration>(reduction));
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_SHIMMER, -duration_cast<SpellHistory::Duration>(reduction));
         }
     }
 
     void TriggerSlow(SpellEffIndex /*effIndex*/)
     {
-        int32 effectivenessPct = 100;
+        SpellEffectValue effectivenessPct = 100;
         if (AuraEffect const* effectivenessEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_1))
             effectivenessPct = effectivenessEffect->GetAmount();
 
-        int32 slowPct = sSpellMgr->AssertSpellInfo(SPELL_MAGE_SLOW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).CalcBaseValue(GetCaster(), GetHitUnit(), 0, -1);
+        SpellEffectValue slowPct = sSpellMgr->AssertSpellInfo(SPELL_MAGE_SLOW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).CalcBaseValue(GetCaster(), GetHitUnit(), 0, -1);
         ApplyPct(slowPct, effectivenessPct);
 
         GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_SLOW, CastSpellExtraArgs(GetSpell())
@@ -660,7 +689,7 @@ class spell_mage_feel_the_burn : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_FEEL_THE_BURN });
     }
 
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         if (Unit* caster = GetCaster())
             if (AuraEffect const* valueHolder = caster->GetAuraEffect(SPELL_MAGE_FEEL_THE_BURN, EFFECT_0))
@@ -675,6 +704,25 @@ class spell_mage_feel_the_burn : public AuraScript
     }
 };
 
+// 383637 - Fiery Rush (attached to 190319 - Combustion)
+class spell_mage_fiery_rush_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FIERY_RUSH_AURA });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_FIERY_RUSH_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_fiery_rush_aura::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 112965 - Fingers of Frost
 class spell_mage_fingers_of_frost : public AuraScript
 {
@@ -686,13 +734,13 @@ class spell_mage_fingers_of_frost : public AuraScript
     bool CheckFrostboltProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0x2000000, 0, 0))
-            && roll_chance_i(aurEff->GetAmount());
+            && roll_chance(aurEff->GetAmount());
     }
 
     bool CheckFrozenOrbProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0, 0x80, 0))
-            && roll_chance_i(aurEff->GetAmount());
+            && roll_chance(aurEff->GetAmount());
     }
 
     void Trigger(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -752,6 +800,40 @@ class spell_mage_firestarter_dots : public AuraScript
     }
 };
 
+// 108853 - Fire Blast
+class spell_mage_fire_blast : public SpellScript
+{
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_fire_blast::CalcCritChance);
+    }
+};
+
+// 453282 - Flame Accelerant
+class spell_mage_flame_accelerant : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAME_ACCELERANT });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MAGE_FLAME_ACCELERANT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_flame_accelerant::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 205029 - Flame On
 class spell_mage_flame_on : public AuraScript
 {
@@ -762,16 +844,68 @@ class spell_mage_flame_on : public AuraScript
            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
    }
 
-   void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+   void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
    {
        canBeRecalculated = false;
-       amount = -GetPctOf(GetEffectInfo(EFFECT_2).CalcValue() * IN_MILLISECONDS, sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
+       amount = -GetPctOf<SpellEffectValue>(GetEffectInfo(EFFECT_2).CalcValue() * int32(IN_MILLISECONDS), sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
    }
 
    void Register() override
    {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flame_on::CalculateAmount, EFFECT_1, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
    }
+};
+
+// 205037 - Flame Patch (attached to 2120 - Flamestrike)
+class spell_mage_flame_patch : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAME_PATCH_TALENT, SPELL_MAGE_FLAME_PATCH_AREATRIGGER });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_FLAME_PATCH_TALENT);
+    }
+
+    void HandleFlamePatch() const
+    {
+        GetCaster()->CastSpell(GetExplTargetDest()->GetPosition(), SPELL_MAGE_FLAME_PATCH_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_flame_patch::HandleFlamePatch);
+    }
+};
+
+// 205470 - Flame Patch
+// Id - 6122
+struct at_mage_flame_patch : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(1s, [this](TaskContext& task)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_MAGE_FLAME_PATCH_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 44614 - Flurry
@@ -813,7 +947,7 @@ class spell_mage_flurry : public SpellScript
 
     void EffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetSpell()->m_castId, GetEffectValue() - 1), randtime(300ms, 400ms));
+        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetSpell()->m_castId, GetEffectValueAsInt() - 1), randtime(300ms, 400ms));
     }
 
     void Register() override
@@ -861,6 +995,139 @@ class spell_mage_frostbolt : public SpellScript
     }
 };
 
+// 457735 - Heat Shimmer
+class spell_mage_heat_shimmer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_MAGE_HEAT_SHIMMER);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_heat_shimmer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 2948 - Scorch
+class spell_mage_heat_shimmer_remove : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    void HandleHit() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_MAGE_HEAT_SHIMMER);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_mage_heat_shimmer_remove::HandleHit);
+    }
+};
+
+// 44448 - Pyroblast Clearcasting Driver
+class spell_mage_hot_streak : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_MAGE_DRAGONS_BREATH,
+            SPELL_MAGE_ALEXSTRASZAS_FURY,
+            SPELL_MAGE_HOT_STREAK,
+            SPELL_MAGE_HEATING_UP,
+            SPELL_MAGE_PHOENIX_FLAMES_DAMAGE
+        });
+    }
+
+    bool CheckProc(ProcEventInfo const& procEvent) const
+    {
+        Unit const* caster = GetTarget();
+        switch (procEvent.GetSpellInfo()->Id)
+        {
+            case SPELL_MAGE_DRAGONS_BREATH:
+                // talent requirement
+                if (!caster->HasAura(SPELL_MAGE_ALEXSTRASZAS_FURY))
+                    return false;
+                break;
+            case SPELL_MAGE_PHOENIX_FLAMES_DAMAGE:
+                // primary target only
+                if (procEvent.GetActionTarget()->GetGUID() != procEvent.GetProcSpell()->m_targets.GetObjectTargetGUID())
+                    return false;
+                break;
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        Unit* caster = GetTarget();
+
+        if (eventInfo.GetHitMask() & PROC_HIT_CRITICAL)
+        {
+            CastSpellExtraArgs args;
+            args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+
+            if (!caster->HasAura(SPELL_MAGE_HEATING_UP))
+                caster->CastSpell(caster, SPELL_MAGE_HEATING_UP, args);
+            else
+            {
+                caster->RemoveAura(SPELL_MAGE_HEATING_UP);
+                caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK, args);
+            }
+        }
+        else
+            caster->RemoveAura(SPELL_MAGE_HEATING_UP);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_hot_streak::CheckProc);
+        OnProc += AuraProcFn(spell_mage_hot_streak::HandleProc);
+    }
+};
+
+// 48108 - Hot Streak! (attached to 11366 - Pyroblast and 2120 - Flamestrike)
+class spell_mage_hot_streak_ignite_marker : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK });
+    }
+
+    int32 CalcCastTime(int32 castTime) override
+    {
+        _affectedByHotStreak = GetSpell()->m_appliedMods.contains(GetCaster()->GetAura(SPELL_MAGE_HOT_STREAK));
+        return castTime;
+    }
+
+    void Register() override
+    {
+    }
+
+    bool _affectedByHotStreak = false;
+
+public:
+    static bool IsActive(Spell const* spell)
+    {
+        if (spell)
+            if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
+                return script->_affectedByHotStreak;
+        return false;
+    }
+};
+
 // 386737 - Hyper Impact
 class spell_mage_hyper_impact : public AuraScript
 {
@@ -891,11 +1158,12 @@ class spell_mage_ice_barrier : public AuraScript
         });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         canBeRecalculated = false;
-        if (Unit* caster = GetCaster())
-            amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 10.0f);
+        amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
+        if (Player const* player = GetUnitOwner()->ToPlayer())
+            AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -977,7 +1245,7 @@ class spell_mage_ice_lance : public SpellScript
             if (Aura const* thermalVoid = caster->GetAura(SPELL_MAGE_THERMAL_VOID))
                 if (!thermalVoid->GetSpellInfo()->GetEffects().empty())
                     if (Aura* icyVeins = caster->GetAura(SPELL_MAGE_ICY_VEINS))
-                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster) * IN_MILLISECONDS);
+                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt(caster) * IN_MILLISECONDS);
 
             // Chain Reaction
             if (caster->HasAura(SPELL_MAGE_CHAIN_REACTION_DUMMY))
@@ -1026,33 +1294,62 @@ class spell_mage_ignite : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE })
+            && ValidateSpellEffect({ { SPELL_MAGE_IGNITE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() != nullptr;
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        return damageInfo && damageInfo->GetDamage();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty());
-        int32 pct = aurEff->GetAmount();
+        SpellEffectInfo const& igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty())->GetEffect(EFFECT_0);
+        SpellEffectValue pct = aurEff->GetAmount();
 
-        ASSERT(igniteDot->GetMaxTicks() > 0);
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+        if (spell_mage_hot_streak_ignite_marker::IsActive(eventInfo.GetProcSpell()))
+            pct *= 2;
+
+        SpellEffectValue amount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot.GetPeriodicTickCount();
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IGNITE, args);
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_mage_ignite::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_mage_ignite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1217359 - Ignition Burst (attached to 458964 - Heat Shimmer)
+class spell_mage_ignition_burst : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IGNITION_BURST });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_MAGE_IGNITION_BURST);
+    }
+
+    static void PreventAura(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_ignition_burst::PreventAura, EFFECT_1, TARGET_UNIT_CASTER);
     }
 };
 
@@ -1074,6 +1371,64 @@ class spell_mage_imp_mana_gems : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_mage_imp_mana_gems::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 383967 - Improved Combustion (attached to 190319 - Combustion)
+class spell_mage_improved_combustion : public AuraScript
+{
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_MAGE_IMPROVED_COMBUSTION);
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_2))
+        {
+            int32 critRating = GetUnitOwner()->ToPlayer()->m_activePlayerData->CombatRatings[CR_CRIT_SPELL];
+            amount = CalculatePct(critRating, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_1))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_improved_combustion::CalcAmount, EFFECT_1, SPELL_AURA_MOD_RATING);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_improved_combustion::UpdatePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 383604 - Improved Scorch
+class spell_mage_improved_scorch : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH, SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount()) || eventInfo.GetActor()->HasAura(SPELL_MAGE_HEAT_SHIMMER);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IMPROVED_SCORCH, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_improved_scorch::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_improved_scorch::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1186,6 +1541,85 @@ class spell_mage_living_bomb_periodic : public AuraScript
     }
 };
 
+// 153561 - Meteor
+class spell_mage_meteor : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_METEOR_AREATRIGGER });
+    }
+
+    void EffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_METEOR_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_meteor::EffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 177345 - Meteor
+// Id - 3467
+struct at_mage_meteor : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(at->GetPosition(), SPELL_MAGE_METEOR_MISSILE);
+    }
+};
+
+// 175396 - Meteor Burn
+// Id - 1712
+struct at_mage_meteor_burn : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_MAGE_METEOR_BURN_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_MAGE_METEOR_BURN_DAMAGE, at->GetCasterGuid());
+    }
+};
+
+// 457803 - Molten Fury
+class spell_mage_molten_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        else
+            eventInfo.GetActionTarget()->RemoveAurasDueToSpell(SPELL_MAGE_MOLTEN_FURY, eventInfo.GetActor()->GetGUID());
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_molten_fury::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA       = 18744
@@ -1234,16 +1668,39 @@ class spell_mage_prismatic_barrier : public AuraScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
-            amount = int32(CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_5).CalcValue(caster)));
+            amount = CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_5).CalcValue(caster));
     }
 
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_prismatic_barrier::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
+// 157642 - Pyrotechnics
+class spell_mage_pyrotechnics : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_PYROTECHNICS });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
+    {
+        if (procInfo.GetHitMask() & PROC_HIT_CRITICAL)
+        {
+            PreventDefaultAction();
+            procInfo.GetActor()->RemoveAurasDueToSpell(SPELL_MAGE_PYROTECHNICS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_pyrotechnics::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1257,22 +1714,23 @@ class spell_mage_radiant_spark : public AuraScript
 
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
     {
-        return !procInfo.GetProcTarget()->HasAura(SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, GetCasterGUID());
+        return !procInfo.GetActor()->HasAura(SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, GetCasterGUID());
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
     {
-        Aura* vulnerability = procInfo.GetProcTarget()->GetAura(aurEff->GetSpellEffectInfo().TriggerSpell, GetCasterGUID());
+        Aura* vulnerability = procInfo.GetActionTarget()->GetAura(aurEff->GetSpellEffectInfo().TriggerSpell, GetCasterGUID());
         if (vulnerability && vulnerability->GetStackAmount() == vulnerability->CalcMaxStackAmount())
         {
             PreventDefaultAction();
             vulnerability->Remove();
-            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, true);
+            procInfo.GetActor()->CastSpell(procInfo.GetActor(), SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, true);
         }
     }
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_radiant_spark::CheckProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
         OnEffectProc += AuraEffectProcFn(spell_mage_radiant_spark::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
@@ -1387,21 +1845,24 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE })
-            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_0 } });
+            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_2 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         WorldLocation const* dest = GetExplTargetDest();
-        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).CalcRadius(nullptr, SpellTargetIndex::TargetB);
-        float inRadius = 6.5f;
+        SpellEffectInfo const& spellEffectInfo = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_2);
+        SpellRange radius = {
+            .Min = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetA).Max,
+            .Max = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetB).Max
+        };
 
-        targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
+        targets.remove_if([dest, radius](WorldObject* target)
         {
             Unit* unit = target->ToUnit();
             if (!unit)
                 return true;
-            return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(dest) > outRadius || unit->GetExactDist(dest) < inRadius;
+            return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || !unit->IsInRange3d(dest, radius.Min, radius.Max);
         });
     }
 
@@ -1431,6 +1892,92 @@ class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
     }
 };
 
+// 450746 - Scald (attached to 2948 - Scorch)
+class spell_mage_scald : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SCALD, SPELL_MAGE_HEAT_SHIMMER })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_SCALD);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(caster)) || !caster->HasAura(SPELL_MAGE_HEAT_SHIMMER))
+            return;
+
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_MAGE_SCALD, EFFECT_0))
+            AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_mage_scald::CalculateDamage);
+    }
+};
+
+// 2948 - Scorch
+class spell_mage_scorch : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FRENETIC_SPEED, SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    void CalcCritChance(Unit const* victim, float& critChance)
+    {
+        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()) || GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
+            critChance = 100.0f;
+    }
+
+    void HandleFreneticSpeed(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()) || GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
+            caster->CastSpell(caster, SPELL_MAGE_FRENETIC_SPEED, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_scorch::CalcCritChance);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_scorch::HandleFreneticSpeed, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 451875 - Spontaneous Combustion (attached to 190319 - Combustion)
+class spell_mage_spontaneous_combustion : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SPONTANEOUS_COMBUSTION, SPELL_MAGE_FIRE_BLAST, SPELL_MAGE_PHOENIX_FLAMES });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_SPONTANEOUS_COMBUSTION);
+    }
+
+    void HandleCharges() const
+    {
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId);
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_PHOENIX_FLAMES, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_spontaneous_combustion::HandleCharges);
+    }
+};
+
 // 157980 - Supernova
 class spell_mage_supernova : public SpellScript
 {
@@ -1438,7 +1985,7 @@ class spell_mage_supernova : public SpellScript
     {
         if (GetExplTargetUnit() == GetHitUnit())
         {
-            uint32 damage = GetHitDamage();
+            int32 damage = GetHitDamage();
             AddPct(damage, GetEffectInfo(EFFECT_0).CalcValue());
             SetHitDamage(damage);
         }
@@ -1447,6 +1994,32 @@ class spell_mage_supernova : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_mage_supernova::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 382289 - Tempest Barrier
+class spell_mage_tempest_barrier : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_TEMPEST_BARRIER_ABSORB });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        SpellEffectValue amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+        target->CastSpell(target, SPELL_MAGE_TEMPEST_BARRIER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_tempest_barrier::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1465,7 +2038,7 @@ class spell_mage_touch_of_the_magi_aura : public AuraScript
         {
             if (damageInfo->GetAttacker() == GetCaster() && damageInfo->GetVictim() == GetTarget())
             {
-                uint32 extra = CalculatePct(damageInfo->GetDamage(), 25);
+                SpellEffectValue extra = CalculatePct(damageInfo->GetDamage(), 25);
                 if (extra > 0)
                     aurEff->ChangeAmount(aurEff->GetAmount() + extra);
             }
@@ -1474,7 +2047,7 @@ class spell_mage_touch_of_the_magi_aura : public AuraScript
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        int32 amount = aurEff->GetAmount();
+        SpellEffectValue amount = aurEff->GetAmount();
         if (!amount || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
@@ -1512,6 +2085,41 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
+// 383493 - Wildfire
+// 383492 - Wildfire
+class spell_mage_wildfire_crit : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, _effIndex } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* wildfireCritEffect = caster->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, _effIndex);
+        if (!wildfireCritEffect)
+            return;
+
+        canBeRecalculated = false;
+        amount = wildfireCritEffect->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_wildfire_crit::CalculateAmount, EFFECT_0, _auraType);
+    }
+
+    AuraType _auraType;
+    SpellEffIndex _effIndex;
+
+public:
+    explicit spell_mage_wildfire_crit(AuraType auraType, SpellEffIndex effIndex) : _auraType(auraType), _effIndex(effIndex) { }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterSpellScript(spell_mage_alter_time_aura);
@@ -1532,31 +2140,54 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ethereal_blink);
     RegisterSpellScript(spell_mage_ethereal_blink_triggered);
     RegisterSpellScript(spell_mage_feel_the_burn);
+    RegisterSpellScript(spell_mage_fiery_rush_aura);
     RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
+    RegisterSpellScript(spell_mage_fire_blast);
+    RegisterSpellScript(spell_mage_flame_accelerant);
     RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_flame_patch);
+    RegisterAreaTriggerAI(at_mage_flame_patch);
     RegisterSpellScript(spell_mage_flurry);
     RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
+    RegisterSpellScript(spell_mage_heat_shimmer);
+    RegisterSpellScript(spell_mage_heat_shimmer_remove);
+    RegisterSpellScript(spell_mage_hot_streak);
+    RegisterSpellScript(spell_mage_hot_streak_ignite_marker);
     RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_ignition_burst);
     RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_improved_combustion);
+    RegisterSpellScript(spell_mage_improved_scorch);
     RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
     RegisterSpellScript(spell_mage_living_bomb_periodic);
+    RegisterSpellScript(spell_mage_meteor);
+    RegisterAreaTriggerAI(at_mage_meteor);
+    RegisterAreaTriggerAI(at_mage_meteor_burn);
+    RegisterSpellScript(spell_mage_molten_fury);
     RegisterSpellScript(spell_mage_polymorph_visual);
     RegisterSpellScript(spell_mage_prismatic_barrier);
+    RegisterSpellScript(spell_mage_pyrotechnics);
     RegisterSpellScript(spell_mage_radiant_spark);
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
+    RegisterSpellScript(spell_mage_scald);
+    RegisterSpellScript(spell_mage_scorch);
+    RegisterSpellScript(spell_mage_spontaneous_combustion);
     RegisterSpellScript(spell_mage_supernova);
+    RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
+    RegisterSpellScriptWithArgs(spell_mage_wildfire_crit, "spell_mage_wildfire_area_crit", SPELL_AURA_MOD_CRIT_PCT, EFFECT_3);
+    RegisterSpellScriptWithArgs(spell_mage_wildfire_crit, "spell_mage_wildfire_caster_crit", SPELL_AURA_ADD_PCT_MODIFIER, EFFECT_2);
 }

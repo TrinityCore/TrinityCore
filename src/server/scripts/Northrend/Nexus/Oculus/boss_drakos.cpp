@@ -80,7 +80,7 @@ struct boss_drakos : public BossAI
     void OnSpellCast(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_THUNDERING_STOMP)
-            if (roll_chance_i(50))
+            if (roll_chance(50))
                 Talk(SAY_STOMP);
     }
 

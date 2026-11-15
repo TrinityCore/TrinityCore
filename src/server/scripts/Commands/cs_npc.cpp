@@ -35,6 +35,7 @@ EndScriptData */
 #include "Language.h"
 #include "Loot.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -63,7 +64,7 @@ class npc_commandscript : public CommandScript
 public:
     npc_commandscript() : CommandScript("npc_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable npcAddCommandTable =
         {
@@ -143,11 +144,10 @@ public:
             return true;
         }
 
-        Creature* creature = Creature::CreateCreature(id, map, chr->GetPosition());
+        Creature* creature = Creature::CreateCreature(id, map, chr->GetPosition(), InitialPhaseShift(chr));
         if (!creature)
             return false;
 
-        PhasingHandler::InheritPhaseShift(creature, chr);
         creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
@@ -1121,17 +1121,11 @@ public:
         // set pet to defensive mode by default (some classes can't control controlled pets in fact).
         pet->SetReactState(REACT_DEFENSIVE);
 
-        // calculate proper level
-        uint8 level = std::max<uint8>(player->GetLevel()-5, creatureTarget->GetLevel());
-
-        // prepare visual effect for levelup
-        pet->SetLevel(level - 1);
-
         // add to world
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetLevel(level);
+        pet->SendNewlyTamed();
 
         // caster have pet now
         player->SetMinion(pet, true);
@@ -1313,7 +1307,7 @@ public:
 
         Loot const* loot = creatureTarget->m_loot.get();
         if ((!loot || loot->isLooted())
-            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), &std::unordered_map<ObjectGuid, std::unique_ptr<Loot>>::value_type::second))
+            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), Trinity::Containers::MapValue))
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);
@@ -1326,8 +1320,6 @@ public:
             _ShowLootContents(handler, all.has_value(), loot);
         else
         {
-            using namespace std::string_view_literals;
-
             for (auto const& [lootOwner, personalLoot] : creatureTarget->m_personalLoot)
             {
                 CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(lootOwner);
@@ -1339,7 +1331,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID)
+    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID, Optional<bool> linkedAggro, Optional<bool> formationMovement)
     {
         Creature* creature = handler->getSelectedCreature();
 
@@ -1362,17 +1354,22 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        float  followAngle = (creature->GetAbsoluteAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
-        float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        float  followAngle = creature->GetRelativeAngle(chr) * 180.0f / float(M_PI);
+        float  followDist  = chr->GetExactDist2d(creature);
         uint32 groupAI     = 0;
+        if (linkedAggro == true)
+            groupAI |= FLAG_MEMBERS_ASSIST_MEMBER;
+        if (formationMovement == true)
+            groupAI |= FLAG_IDLE_IN_FORMATION;
+
         sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
         stmt->setUInt64(0, leaderGUID);
         stmt->setUInt64(1, lowguid);
-        stmt->setFloat (2, followAngle);
-        stmt->setFloat (3, followDist);
+        stmt->setFloat (2, followDist);
+        stmt->setFloat (3, followAngle);
         stmt->setUInt32(4, groupAI);
 
         WorldDatabase.Execute(stmt);

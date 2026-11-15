@@ -31,8 +31,8 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         explicit SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk = false);
         explicit SplineChainMovementGenerator(SplineChainResumeInfo const& info);
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;

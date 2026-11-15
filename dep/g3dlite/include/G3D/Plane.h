@@ -77,8 +77,6 @@ public:
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
-    
-    virtual ~Plane() {}
 
     /**
      Returns true if point is on the side the normal points to or 

@@ -558,7 +558,6 @@ class TolBaradCapturePoint : public BattlefieldControlZoneHandler
         uint32 _worldstateAllianceControlled;
         uint32 _worldstateHordeCapturing;
         uint32 _worldstateAllianceCapturing;
-        uint32 _worldstateNeutral;
 };
 
 /* ##################### *

@@ -60,12 +60,14 @@ TC_API_EXPORT EnumText EnumUtils<Races>::ToString(Races value)
         case RACE_DRACTHYR_HORDE: return { "RACE_DRACTHYR_HORDE", "Dracthyr", "Dracthyr (Horde) (RaceMask bit 15)" };
         case RACE_EARTHEN_DWARF_HORDE: return { "RACE_EARTHEN_DWARF_HORDE", "Earthen", "Earthen (Horde) (RaceMask bit 17)" };
         case RACE_EARTHEN_DWARF_ALLIANCE: return { "RACE_EARTHEN_DWARF_ALLIANCE", "Earthen", "Earthen (Alliance) (RaceMask bit 18)" };
+        case RACE_HARANIR_ALLIANCE: return { "RACE_HARANIR_ALLIANCE", "Haranir", "Haranir (Alliance) (RaceMask bit 20)" };
+        case RACE_HARANIR_HORDE: return { "RACE_HARANIR_HORDE", "Haranir", "Haranir (Horde) (RaceMask bit 19)" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Races>::Count() { return 29; }
+TC_API_EXPORT size_t EnumUtils<Races>::Count() { return 31; }
 
 template <>
 TC_API_EXPORT Races EnumUtils<Races>::FromIndex(size_t index)
@@ -101,6 +103,8 @@ TC_API_EXPORT Races EnumUtils<Races>::FromIndex(size_t index)
         case 26: return RACE_DRACTHYR_HORDE;
         case 27: return RACE_EARTHEN_DWARF_HORDE;
         case 28: return RACE_EARTHEN_DWARF_ALLIANCE;
+        case 29: return RACE_HARANIR_ALLIANCE;
+        case 30: return RACE_HARANIR_HORDE;
         default: throw std::out_of_range("index");
     }
 }
@@ -139,6 +143,8 @@ TC_API_EXPORT size_t EnumUtils<Races>::ToIndex(Races value)
         case RACE_DRACTHYR_HORDE: return 26;
         case RACE_EARTHEN_DWARF_HORDE: return 27;
         case RACE_EARTHEN_DWARF_ALLIANCE: return 28;
+        case RACE_HARANIR_ALLIANCE: return 29;
+        case RACE_HARANIR_HORDE: return 30;
         default: throw std::out_of_range("value");
     }
 }

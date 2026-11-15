@@ -174,7 +174,7 @@ struct boss_apothecary_hummel : public BossAI
         instance->SetBossState(BOSS_APOTHECARY_HUMMEL, DONE);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.empty())
         {
             if (Group* group = players.begin()->GetSource()->GetGroup())
                 if (group->isLFGGroup())
@@ -364,7 +364,7 @@ class spell_apothecary_lingering_fumes : public SpellScript
     void HandleAfterCast()
     {
         Unit* caster = GetCaster();
-        if (!caster->IsInCombat() || roll_chance_i(50))
+        if (!caster->IsInCombat() || roll_chance(50))
             return;
 
         std::list<Creature*> triggers;

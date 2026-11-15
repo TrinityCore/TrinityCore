@@ -34,6 +34,7 @@ private:
     Vector3 m_invDirection;
 
     
+#if 0
     /** The following are for the "ray slope" optimization from
       "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
       by Martin Eisemann, Thorsten Grosch, Stefan Müller and Marcus Magnor
@@ -48,6 +49,7 @@ private:
 
     /** Precomputed components */
     float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
+#endif
 
 public:
     /** \param direction Assumed to have unit length */

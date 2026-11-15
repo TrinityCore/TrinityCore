@@ -96,15 +96,6 @@ class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.club_membership.v1.client.ClubMembershipSubscribeOptions options = 2;
   inline bool has_options() const;
   inline void clear_options();
@@ -116,8 +107,6 @@ class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.SubscribeRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_options();
   inline void clear_has_options();
 
@@ -125,7 +114,6 @@ class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::bgs::protocol::club_membership::v1::client::ClubMembershipSubscribeOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -244,25 +232,13 @@ class TC_PROTO_API UnsubscribeRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.UnsubscribeRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_ShutdownFile_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -312,15 +288,6 @@ class TC_PROTO_API GetStateRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.club_membership.v1.client.ClubMembershipGetStateOptions options = 2;
   inline bool has_options() const;
   inline void clear_options();
@@ -332,8 +299,6 @@ class TC_PROTO_API GetStateRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.GetStateRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_options();
   inline void clear_has_options();
 
@@ -341,7 +306,6 @@ class TC_PROTO_API GetStateRequest : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::bgs::protocol::club_membership::v1::client::ClubMembershipGetStateOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -460,15 +424,6 @@ class TC_PROTO_API UpdateClubSharedSettingsRequest : public ::google::protobuf::
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.club_membership.v1.client.ClubSharedSettingsOptions options = 2;
   inline bool has_options() const;
   inline void clear_options();
@@ -480,8 +435,6 @@ class TC_PROTO_API UpdateClubSharedSettingsRequest : public ::google::protobuf::
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.UpdateClubSharedSettingsRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_options();
   inline void clear_has_options();
 
@@ -489,7 +442,6 @@ class TC_PROTO_API UpdateClubSharedSettingsRequest : public ::google::protobuf::
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::bgs::protocol::club_membership::v1::client::ClubSharedSettingsOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -540,15 +492,6 @@ class TC_PROTO_API GetStreamMentionsRequest : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.GetEventOptions options = 2;
   inline bool has_options() const;
   inline void clear_options();
@@ -567,8 +510,6 @@ class TC_PROTO_API GetStreamMentionsRequest : public ::google::protobuf::Message
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.GetStreamMentionsRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_options();
   inline void clear_has_options();
   inline void set_has_fetch_messages();
@@ -578,7 +519,6 @@ class TC_PROTO_API GetStreamMentionsRequest : public ::google::protobuf::Message
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::bgs::protocol::GetEventOptions* options_;
   bool fetch_messages_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -709,15 +649,6 @@ class TC_PROTO_API RemoveStreamMentionsRequest : public ::google::protobuf::Mess
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
   inline int mention_id_size() const;
   inline void clear_mention_id();
@@ -732,14 +663,11 @@ class TC_PROTO_API RemoveStreamMentionsRequest : public ::google::protobuf::Mess
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.RemoveStreamMentionsRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TimeSeriesId > mention_id_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -790,25 +718,13 @@ class TC_PROTO_API AdvanceStreamMentionViewTimeRequest : public ::google::protob
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.AdvanceStreamMentionViewTimeRequest)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
   friend void protobuf_ShutdownFile_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto();
@@ -862,56 +778,15 @@ class TC_PROTO_API ClubMembershipService : public ServiceBase
 
 // SubscribeRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool SubscribeRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SubscribeRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SubscribeRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SubscribeRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& SubscribeRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.SubscribeRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SubscribeRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.SubscribeRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SubscribeRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void SubscribeRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.SubscribeRequest.agent_id_deprecated)
-}
-
 // optional .bgs.protocol.club_membership.v1.client.ClubMembershipSubscribeOptions options = 2;
 inline bool SubscribeRequest::has_options() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void SubscribeRequest::set_has_options() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void SubscribeRequest::clear_has_options() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void SubscribeRequest::clear_options() {
   if (options_ != NULL) options_->::bgs::protocol::club_membership::v1::client::ClubMembershipSubscribeOptions::Clear();
@@ -993,101 +868,19 @@ inline void SubscribeResponse::set_allocated_state(::bgs::protocol::club_members
 
 // UnsubscribeRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool UnsubscribeRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void UnsubscribeRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void UnsubscribeRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void UnsubscribeRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& UnsubscribeRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.UnsubscribeRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* UnsubscribeRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.UnsubscribeRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* UnsubscribeRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void UnsubscribeRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.UnsubscribeRequest.agent_id_deprecated)
-}
-
 // -------------------------------------------------------------------
 
 // GetStateRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool GetStateRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void GetStateRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void GetStateRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void GetStateRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& GetStateRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.GetStateRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* GetStateRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.GetStateRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* GetStateRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void GetStateRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.GetStateRequest.agent_id_deprecated)
-}
-
 // optional .bgs.protocol.club_membership.v1.client.ClubMembershipGetStateOptions options = 2;
 inline bool GetStateRequest::has_options() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void GetStateRequest::set_has_options() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void GetStateRequest::clear_has_options() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void GetStateRequest::clear_options() {
   if (options_ != NULL) options_->::bgs::protocol::club_membership::v1::client::ClubMembershipGetStateOptions::Clear();
@@ -1169,56 +962,15 @@ inline void GetStateResponse::set_allocated_state(::bgs::protocol::club_membersh
 
 // UpdateClubSharedSettingsRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool UpdateClubSharedSettingsRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void UpdateClubSharedSettingsRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void UpdateClubSharedSettingsRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void UpdateClubSharedSettingsRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& UpdateClubSharedSettingsRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.UpdateClubSharedSettingsRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* UpdateClubSharedSettingsRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.UpdateClubSharedSettingsRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* UpdateClubSharedSettingsRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void UpdateClubSharedSettingsRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.UpdateClubSharedSettingsRequest.agent_id_deprecated)
-}
-
 // optional .bgs.protocol.club_membership.v1.client.ClubSharedSettingsOptions options = 2;
 inline bool UpdateClubSharedSettingsRequest::has_options() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void UpdateClubSharedSettingsRequest::set_has_options() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void UpdateClubSharedSettingsRequest::clear_has_options() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void UpdateClubSharedSettingsRequest::clear_options() {
   if (options_ != NULL) options_->::bgs::protocol::club_membership::v1::client::ClubSharedSettingsOptions::Clear();
@@ -1255,56 +1007,15 @@ inline void UpdateClubSharedSettingsRequest::set_allocated_options(::bgs::protoc
 
 // GetStreamMentionsRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool GetStreamMentionsRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void GetStreamMentionsRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void GetStreamMentionsRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void GetStreamMentionsRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& GetStreamMentionsRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.GetStreamMentionsRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* GetStreamMentionsRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.GetStreamMentionsRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* GetStreamMentionsRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void GetStreamMentionsRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.GetStreamMentionsRequest.agent_id_deprecated)
-}
-
 // optional .bgs.protocol.GetEventOptions options = 2;
 inline bool GetStreamMentionsRequest::has_options() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void GetStreamMentionsRequest::set_has_options() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void GetStreamMentionsRequest::clear_has_options() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void GetStreamMentionsRequest::clear_options() {
   if (options_ != NULL) options_->::bgs::protocol::GetEventOptions::Clear();
@@ -1339,13 +1050,13 @@ inline void GetStreamMentionsRequest::set_allocated_options(::bgs::protocol::Get
 
 // optional bool fetch_messages = 3;
 inline bool GetStreamMentionsRequest::has_fetch_messages() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void GetStreamMentionsRequest::set_has_fetch_messages() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void GetStreamMentionsRequest::clear_has_fetch_messages() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void GetStreamMentionsRequest::clear_fetch_messages() {
   fetch_messages_ = false;
@@ -1423,47 +1134,6 @@ inline void GetStreamMentionsResponse::set_continuation(::google::protobuf::uint
 
 // RemoveStreamMentionsRequest
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool RemoveStreamMentionsRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void RemoveStreamMentionsRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void RemoveStreamMentionsRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void RemoveStreamMentionsRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& RemoveStreamMentionsRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.RemoveStreamMentionsRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* RemoveStreamMentionsRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.RemoveStreamMentionsRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* RemoveStreamMentionsRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void RemoveStreamMentionsRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.RemoveStreamMentionsRequest.agent_id_deprecated)
-}
-
 // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
 inline int RemoveStreamMentionsRequest::mention_id_size() const {
   return mention_id_.size();
@@ -1497,47 +1167,6 @@ RemoveStreamMentionsRequest::mutable_mention_id() {
 // -------------------------------------------------------------------
 
 // AdvanceStreamMentionViewTimeRequest
-
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool AdvanceStreamMentionViewTimeRequest::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void AdvanceStreamMentionViewTimeRequest::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void AdvanceStreamMentionViewTimeRequest::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void AdvanceStreamMentionViewTimeRequest::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& AdvanceStreamMentionViewTimeRequest::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.AdvanceStreamMentionViewTimeRequest.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* AdvanceStreamMentionViewTimeRequest::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.AdvanceStreamMentionViewTimeRequest.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* AdvanceStreamMentionViewTimeRequest::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void AdvanceStreamMentionViewTimeRequest::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.AdvanceStreamMentionViewTimeRequest.agent_id_deprecated)
-}
 
 // @@protoc_insertion_point(namespace_scope)
 

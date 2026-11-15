@@ -97,7 +97,12 @@ class TC_GAME_API BattlefieldControlZoneHandler : public ControlZoneHandler
 {
 public:
     explicit BattlefieldControlZoneHandler(Battlefield* bf);
-    virtual ~BattlefieldControlZoneHandler() = default;
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler&&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler&&) = delete;
+
+    virtual ~BattlefieldControlZoneHandler();
 
 protected:
     Battlefield* GetBattlefield();
@@ -108,8 +113,13 @@ private:
 class TC_GAME_API BfGraveyard
 {
     public:
-        BfGraveyard(Battlefield* Bf);
-        virtual ~BfGraveyard() = default;
+        explicit BfGraveyard(Battlefield* bf);
+        BfGraveyard(BfGraveyard const&) = delete;
+        BfGraveyard(BfGraveyard&&) = delete;
+        BfGraveyard& operator=(BfGraveyard const&) = delete;
+        BfGraveyard& operator=(BfGraveyard&&) = delete;
+
+        virtual ~BfGraveyard();
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
@@ -144,10 +154,11 @@ class TC_GAME_API Battlefield : public ZoneScript
     public:
         /// Constructor
         explicit Battlefield(Map* map);
-        Battlefield(Battlefield const& right) = delete;
-        Battlefield(Battlefield&& right) = delete;
-        Battlefield& operator=(Battlefield const& right) = delete;
-        Battlefield& operator=(Battlefield&& right) = delete;
+        Battlefield(Battlefield const&) = delete;
+        Battlefield(Battlefield&&) = delete;
+        Battlefield& operator=(Battlefield const&) = delete;
+        Battlefield& operator=(Battlefield&&) = delete;
+
         /// Destructor
         virtual ~Battlefield();
 
@@ -175,7 +186,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void InvitePlayersInZoneToWar();
 
         /// Called when a Unit is kill in battlefield zone
-        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { };
+        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { }
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
@@ -235,7 +246,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
-        void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
+        void SetGraveyardNumber(uint32 number);
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
@@ -281,7 +292,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void HideNpc(Creature* creature);
         void ShowNpc(Creature* creature, bool aggressive);
 
-        GraveyardVect GetGraveyardVector() const { return m_GraveyardList; }
+        GraveyardVect const& GetGraveyardVector() const { return m_GraveyardList; }
 
         uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }

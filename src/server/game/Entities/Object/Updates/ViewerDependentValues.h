@@ -44,7 +44,7 @@ class ViewerDependentValue<UF::ObjectData::EntryIDTag>
 public:
     using value_type = UF::ObjectData::EntryIDTag::value_type;
 
-    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
+    static value_type GetValue(UF::ObjectData const* objectData, Player const* receiver, Object const* object)
     {
         value_type entryId = objectData->EntryID;
 
@@ -63,7 +63,7 @@ class ViewerDependentValue<UF::ObjectData::DynamicFlagsTag>
 public:
     using value_type = UF::ObjectData::DynamicFlagsTag::value_type;
 
-    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
+    static value_type GetValue(UF::ObjectData const* objectData, Player const* receiver, Object const* object)
     {
         value_type dynamicFlags = objectData->DynamicFlags;
         if (Unit const* unit = object->ToUnit())
@@ -111,6 +111,10 @@ public:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                     break;
+                case GAMEOBJECT_TYPE_TRANSPORT:
+                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                    dynFlags |= dynamicFlags;   // preserve all dynamicflgs
+                    break;
                 case GAMEOBJECT_TYPE_CAPTURE_POINT:
                     if (!gameObject->CanInteractWithCapturePoint(receiver))
                         dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
@@ -141,8 +145,8 @@ public:
                     dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
                 if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId()))
-                    if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
-                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId) != SpawnTrackingState::Active)
+                    if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
+                        if (receiver->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives) != SpawnTrackingState::Active)
                             dynFlags &= ~GO_DYNFLAG_LO_ACTIVATE;
             }
 
@@ -159,7 +163,7 @@ class ViewerDependentValue<UF::UnitData::DisplayIDTag>
 public:
     using value_type = UF::UnitData::DisplayIDTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type displayId = unitData->DisplayID;
         if (unit->IsCreature())
@@ -207,17 +211,15 @@ template<>
 class ViewerDependentValue<UF::UnitData::StateWorldEffectIDsTag>
 {
 public:
-    using value_type = UF::UnitData::StateWorldEffectIDsTag::value_type;
+    using value_type = UF::UnitData::StateWorldEffectIDsTag::value_type const*;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
-        value_type stateWorldEffects = unitData->StateWorldEffectIDs;
-
         if (unit->IsCreature())
             if (SpawnTrackingStateData const* spawnTrackingStateData = unit->GetSpawnTrackingStateDataForPlayer(receiver))
-                stateWorldEffects = spawnTrackingStateData->StateWorldEffects;
+                return &spawnTrackingStateData->StateWorldEffects;
 
-        return stateWorldEffects;
+        return &*unitData->StateWorldEffectIDs;
     }
 };
 
@@ -227,7 +229,7 @@ class ViewerDependentValue<UF::UnitData::StateSpellVisualIDTag>
 public:
     using value_type = UF::UnitData::StateSpellVisualIDTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type stateSpellVisual = unitData->StateSpellVisualID;
 
@@ -245,7 +247,7 @@ class ViewerDependentValue<UF::UnitData::StateAnimIDTag>
 public:
     using value_type = UF::UnitData::StateAnimIDTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* /*unitData*/, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* /*unitData*/, Player const* receiver, Unit const* unit)
     {
         value_type stateAnimId = sDB2Manager.GetEmptyAnimStateID();
 
@@ -263,7 +265,7 @@ class ViewerDependentValue<UF::UnitData::StateAnimKitIDTag>
 public:
     using value_type = UF::UnitData::StateAnimKitIDTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type stateAnimKitId = unitData->StateAnimKitID;
 
@@ -276,12 +278,48 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = unitData->StateWorldEffectsQuestObjectiveID;
+
+        if (!stateWorldEffectsQuestObjectiveId && unit->IsCreature())
+        {
+            if (CreatureData const* data = unit->ToCreature()->GetCreatureData())
+            {
+                auto itr = data->spawnTrackingQuestObjectives.begin();
+                auto end = data->spawnTrackingQuestObjectives.end();
+                if (itr != end)
+                {
+                    // If there is no valid objective for player, fill UF with first objective (if any)
+                    stateWorldEffectsQuestObjectiveId = *itr;
+                    while (++itr != end)
+                    {
+                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, *itr) != SpawnTrackingState::Active)
+                            continue;
+
+                        stateWorldEffectsQuestObjectiveId = *itr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return stateWorldEffectsQuestObjectiveId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::FactionTemplateTag>
 {
 public:
     using value_type = UF::UnitData::FactionTemplateTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type factionTemplate = unitData->FactionTemplate;
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
@@ -303,7 +341,7 @@ class ViewerDependentValue<UF::UnitData::FlagsTag>
 public:
     using value_type = UF::UnitData::FlagsTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* /*unit*/)
     {
         value_type flags = unitData->Flags;
         // Gamemasters should be always able to interact with units - remove uninteractible flag
@@ -320,7 +358,7 @@ class ViewerDependentValue<UF::UnitData::Flags2Tag>
 public:
     using value_type = UF::UnitData::Flags2Tag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* /*unit*/)
     {
         value_type flags = unitData->Flags2;
         // Gamemasters should be always able to interact with units - remove uninteractible flag
@@ -337,7 +375,7 @@ class ViewerDependentValue<UF::UnitData::Flags3Tag>
 public:
     using value_type = UF::UnitData::Flags3Tag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type flags = unitData->Flags3;
         if (flags & UNIT_FLAG3_ALREADY_SKINNED && unit->IsCreature() && !unit->ToCreature()->IsSkinnedBy(receiver))
@@ -348,12 +386,24 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::Flags4Tag>
+{
+public:
+    using value_type = UF::UnitData::Flags4Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Player const* /*receiver*/, Unit const* /*unit*/)
+    {
+        return unitData->Flags4;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::AuraStateTag>
 {
 public:
     using value_type = UF::UnitData::AuraStateTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* /*unitData*/, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* /*unitData*/, Player const* receiver, Unit const* unit)
     {
         // Check per caster aura states to not enable using a spell in client if specified aura is not by target
         return unit->BuildAuraStateUpdateForTarget(receiver);
@@ -366,7 +416,7 @@ class ViewerDependentValue<UF::UnitData::PvpFlagsTag>
 public:
     using value_type = UF::UnitData::PvpFlagsTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type pvpFlags = unitData->PvpFlags;
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
@@ -388,7 +438,7 @@ class ViewerDependentValue<UF::UnitData::InteractSpellIDTag>
 public:
     using value_type = UF::UnitData::InteractSpellIDTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type interactSpellId = unitData->InteractSpellID;
         if (unitData->NpcFlags & UNIT_NPC_FLAG_SPELLCLICK && !interactSpellId)
@@ -418,7 +468,7 @@ class ViewerDependentValue<UF::UnitData::NpcFlagsTag>
 public:
     using value_type = UF::UnitData::NpcFlagsTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type npcFlag = unitData->NpcFlags;
         if (npcFlag)
@@ -445,7 +495,7 @@ class ViewerDependentValue<UF::UnitData::NpcFlags2Tag>
 public:
     using value_type = UF::UnitData::NpcFlags2Tag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Player const* receiver, Unit const* unit)
     {
         value_type npcFlag = unitData->NpcFlags2;
         if (npcFlag)
@@ -462,16 +512,14 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::StateWorldEffectIDsTag>
 {
 public:
-    using value_type = UF::GameObjectData::StateWorldEffectIDsTag::value_type;
+    using value_type = UF::GameObjectData::StateWorldEffectIDsTag::value_type const*;
 
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, Player const* receiver, GameObject const* gameObject)
     {
-        value_type stateWorldEffects = gameObjectData->StateWorldEffectIDs;
-
         if (SpawnTrackingStateData const* spawnTrackingStateData = gameObject->GetSpawnTrackingStateDataForPlayer(receiver))
-            stateWorldEffects = spawnTrackingStateData->StateWorldEffects;
+            return &spawnTrackingStateData->StateWorldEffects;
 
-        return stateWorldEffects;
+        return &*gameObjectData->StateWorldEffectIDs;
     }
 };
 
@@ -481,7 +529,7 @@ class ViewerDependentValue<UF::GameObjectData::StateSpellVisualIDTag>
 public:
     using value_type = UF::GameObjectData::StateSpellVisualIDTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, Player const* receiver, GameObject const* gameObject)
     {
         value_type stateSpellVisual = gameObjectData->StateSpellVisualID;
 
@@ -493,12 +541,12 @@ public:
 };
 
 template<>
-class ViewerDependentValue<UF::GameObjectData::StateAnimIDTag>
+class ViewerDependentValue<UF::GameObjectData::SpawnTrackingStateAnimIDTag>
 {
 public:
-    using value_type = UF::GameObjectData::StateAnimIDTag::value_type;
+    using value_type = UF::GameObjectData::SpawnTrackingStateAnimIDTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, Player const* receiver, GameObject const* gameObject)
     {
         value_type stateAnimId = sDB2Manager.GetEmptyAnimStateID();
 
@@ -510,12 +558,12 @@ public:
 };
 
 template<>
-class ViewerDependentValue<UF::GameObjectData::StateAnimKitIDTag>
+class ViewerDependentValue<UF::GameObjectData::SpawnTrackingStateAnimKitIDTag>
 {
 public:
-    using value_type = UF::GameObjectData::StateAnimKitIDTag::value_type;
+    using value_type = UF::GameObjectData::SpawnTrackingStateAnimKitIDTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, Player const* receiver, GameObject const* gameObject)
     {
         value_type stateAnimKitId = gameObjectData->SpawnTrackingStateAnimKitID;
 
@@ -527,16 +575,52 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, Player const* receiver, GameObject const* gameObject)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = gameObjectData->StateWorldEffectsQuestObjectiveID;
+
+        if (!stateWorldEffectsQuestObjectiveId)
+        {
+            if (::GameObjectData const* data = gameObject->GetGameObjectData())
+            {
+                auto itr = data->spawnTrackingQuestObjectives.begin();
+                auto end = data->spawnTrackingQuestObjectives.end();
+                if (itr != end)
+                {
+                    // If there is no valid objective for player, fill UF with first objective (if any)
+                    stateWorldEffectsQuestObjectiveId = *itr;
+                    while (++itr != end)
+                    {
+                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, *itr) != SpawnTrackingState::Active)
+                            continue;
+
+                        stateWorldEffectsQuestObjectiveId = *itr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return stateWorldEffectsQuestObjectiveId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::GameObjectData::FlagsTag>
 {
 public:
     using value_type = UF::GameObjectData::FlagsTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, Player const* receiver, GameObject const* gameObject)
     {
         value_type flags = gameObjectData->Flags;
         if (gameObject->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-            if (gameObject->GetGOInfo()->chest.usegrouplootrules && !gameObject->IsLootAllowedFor(receiver))
+            if (gameObject->GetGOInfo()->IsUsingGroupLootRules() && !gameObject->IsLootAllowedFor(receiver))
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
         return flags;
@@ -549,7 +633,7 @@ class ViewerDependentValue<UF::GameObjectData::StateTag>
 public:
     using value_type = UF::GameObjectData::StateTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, Player const* receiver, GameObject const* gameObject)
     {
         return gameObject->GetGoStateFor(receiver->GetGUID());
     }
@@ -561,7 +645,7 @@ class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
 public:
     using value_type = UF::ConversationData::LastLineEndTimeTag::value_type;
 
-    static value_type GetValue(UF::ConversationData const* /*conversationData*/, Conversation const* conversation, Player const* receiver)
+    static value_type GetValue(UF::ConversationData const* /*conversationData*/, Player const* receiver, Conversation const* conversation)
     {
         LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
         return conversation->GetLastLineEndTime(locale).count();
@@ -574,7 +658,7 @@ class ViewerDependentValue<UF::ConversationLine::StartTimeTag>
 public:
     using value_type = UF::ConversationLine::StartTimeTag::value_type;
 
-    static value_type GetValue(UF::ConversationLine const* conversationLineData, Conversation const* conversation, Player const* receiver)
+    static value_type GetValue(UF::ConversationLine const* conversationLineData, Player const* receiver, Conversation const* conversation)
     {
         value_type startTime = conversationLineData->StartTime;
         LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();

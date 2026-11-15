@@ -22,6 +22,7 @@
 #include "GridNotifiersImpl.h"
 #include "Map.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldStatePackets.h"
@@ -155,12 +156,12 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount() const
 {
     Position searchCenter = { -1572.57f, 7945.3f, -22.475f, 2.05949f };
 
-    std::vector<WorldObject*> guards;
+    std::vector<Creature*> guards;
     Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(ObjectGuid::Empty, GetControllingFaction() == HORDE ? 18192 : 18256);
-    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> searcher(nullptr, guards, check, GRID_MAP_TYPE_MASK_CREATURE);
+    Trinity::CreatureListSearcher searcher(PhasingHandler::GetEmptyPhaseShift(), guards, check);
     Cell::VisitGridObjects(searchCenter.GetPositionX(), searchCenter.GetPositionY(), m_PvP->GetMap(), searcher, SIZE_OF_GRIDS);
 
-    return std::count_if(guards.begin(), guards.end(), [](WorldObject* guard) { return guard->IsUnit() && guard->ToUnit()->IsAlive(); });
+    return std::ranges::count_if(guards, [](Creature const* guard) { return guard->IsAlive(); });
 }
 
 Team OPvPCapturePointNA::GetControllingFaction() const

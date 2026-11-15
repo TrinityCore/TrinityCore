@@ -164,12 +164,12 @@ struct npc_mortimer_moloch : public ScriptedAI
 
         if (id == POINT_FINISH)
         {
-            scheduler.Schedule(4s, [this](TaskContext /*context*/)
+            scheduler.Schedule(4s, [this](TaskContext const& /*context*/)
             {
                 Talk(MORTIMER_MOLOCH_EMOTE);
             });
 
-            scheduler.Schedule(7s, [this](TaskContext /*context*/)
+            scheduler.Schedule(7s, [this](TaskContext const& /*context*/)
             {
                 Talk(MORTIMER_MOLOCH_DEATH);
                 me->KillSelf();

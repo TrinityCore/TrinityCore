@@ -19,16 +19,13 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "Spell.h"
-#include "SpellInfo.h"
-#include "SpellMgr.h"
-#include "Transport.h"
+#include "SpellScript.h"
+#include "VehicleDefines.h"
 
-static std::vector<uint32> const TeleportSpells =
+static constexpr std::array<uint32, 7> TeleportSpells =
 {
     LIGHT_S_HAMMER_TELEPORT,        // 0
     ORATORY_OF_THE_DAMNED_TELEPORT, // 1
@@ -39,83 +36,81 @@ static std::vector<uint32> const TeleportSpells =
     SINDRAGOSA_S_LAIR_TELEPORT      // 6
 };
 
-class icecrown_citadel_teleport : public GameObjectScript
+struct icecrown_citadel_teleport : public GameObjectAI
 {
     static_assert(DATA_UPPERSPIRE_TELE_ACT == 41, "icecrown_citadel.h DATA_UPPERSPIRE_TELE_ACT set to value != 41, gossip condition of the teleporters won't work as intended.");
 
-    public:
-        icecrown_citadel_teleport() : GameObjectScript("icecrown_citadel_teleport") { }
+    using GameObjectAI::GameObjectAI;
 
-        struct icecrown_citadel_teleportAI : public GameObjectAI
-        {
-            icecrown_citadel_teleportAI(GameObject* go) : GameObjectAI(go)
-            {
-            }
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        if (gossipListId >= TeleportSpells.size())
+            return false;
 
-            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-            {
-                if (gossipListId >= TeleportSpells.size())
-                    return false;
+        ClearGossipMenuFor(player);
+        CloseGossipMenuFor(player);
+        if (!TeleportSpells[gossipListId])
+            return false;
 
-                ClearGossipMenuFor(player);
-                CloseGossipMenuFor(player);
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(TeleportSpells[gossipListId], DIFFICULTY_NONE);
-                if (!spell)
-                    return false;
-
-                if (player->IsInCombat())
-                {
-                    ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), spell->Id, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                    Spell::SendCastResult(player, spell, {}, castId, SPELL_FAILED_AFFECTING_COMBAT);
-                    return true;
-                }
-
-                // If the player is on the ship, Unit::NearTeleport() will try to keep the player on the ship, causing issues.
-                // For that we simply always remove the player from the ship.
-                if (TransportBase* transport = player->GetTransport())
-                    transport->RemovePassenger(player);
-
-                me->CastSpell(player, spell->Id, true);
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetIcecrownCitadelAI<icecrown_citadel_teleportAI>(go);
-        }
+        me->CastSpell(player, TeleportSpells[gossipListId], true);
+        return true;
+    }
 };
 
 class at_frozen_throne_teleport : public AreaTriggerScript
 {
-    public:
-        at_frozen_throne_teleport() : AreaTriggerScript("at_frozen_throne_teleport") { }
+public:
+    at_frozen_throne_teleport() : AreaTriggerScript("at_frozen_throne_teleport") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-        {
-            if (player->IsInCombat())
-            {
-                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(FROZEN_THRONE_TELEPORT, DIFFICULTY_NONE))
-                {
-                    ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), spell->Id, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                    Spell::SendCastResult(player, spell, {}, castId, SPELL_FAILED_AFFECTING_COMBAT);
-                }
-                return true;
-            }
-
-            if (InstanceScript* instance = player->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
-                    instance->GetBossState(DATA_SINDRAGOSA) == DONE && instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
-                    player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
-            }
-
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
             return true;
-        }
+
+        if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) != DONE
+            || instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) != DONE
+            || instance->GetBossState(DATA_SINDRAGOSA) != DONE
+            || instance->GetBossState(DATA_THE_LICH_KING) == IN_PROGRESS)
+            return true;
+
+        player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
+        return true;
+    }
+};
+
+class spell_icc_teleport_check : public SpellScript
+{
+    SpellCastResult CheckCombat() const
+    {
+        Unit const* target = GetExplTargetUnit();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->IsInCombat())
+            return SPELL_FAILED_AFFECTING_COMBAT;
+
+        return SPELL_CAST_OK;
+    }
+
+    void OnPrecast() override
+    {
+        // If the player is on the ship, Unit::NearTeleport() will try to keep the player on the ship, causing issues.
+        // For that we simply always remove the player from the ship.
+        Unit* target = GetExplTargetUnit();
+        if (TransportBase* transport = target->GetTransport())
+            transport->RemovePassenger(target);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_icc_teleport_check::CheckCombat);
+    }
 };
 
 void AddSC_icecrown_citadel_teleport()
 {
-    new icecrown_citadel_teleport();
+    RegisterGameObjectAIWithFactory(icecrown_citadel_teleport, GetIcecrownCitadelAI);
     new at_frozen_throne_teleport();
+    RegisterSpellScript(spell_icc_teleport_check);
 }

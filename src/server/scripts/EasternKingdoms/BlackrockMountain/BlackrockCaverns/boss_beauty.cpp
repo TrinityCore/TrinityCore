@@ -60,7 +60,7 @@ class boss_beauty : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(SPELL_MAGMA_SPIT, 7s, 10s);
+                events.ScheduleEvent(EVENT_MAGMA_SPIT, 7s, 10s);
                 events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 16s, 19s);
                 events.ScheduleEvent(EVENT_FLAMEBREAK, 18s, 22s);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
@@ -86,9 +86,9 @@ class boss_beauty : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case SPELL_MAGMA_SPIT:
+                        case EVENT_MAGMA_SPIT:
                             DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_MAGMA_SPIT, true);
-                            events.ScheduleEvent(SPELL_MAGMA_SPIT, 7s, 10s);
+                            events.ScheduleEvent(EVENT_MAGMA_SPIT, 7s, 10s);
                             break;
                         case EVENT_BERSERKER_CHARGE:
                             DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_BERSERKER_CHARGE, true);

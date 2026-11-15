@@ -285,7 +285,7 @@ struct npc_firework : public ScriptedAI
 
             float displacement = 0.7f;
             for (uint8 i = 0; i < 4; i++)
-                me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 1s);
+                me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData::fromOrientation(me->GetOrientation()), 1s);
         }
         else
             //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
@@ -471,10 +471,35 @@ class spell_lunar_festival_elune_candle : public SpellScript
     }
 };
 
+enum ElunesBlessing
+{
+    SPELL_ELUNES_BLESSING_QUEST_CREDIT     = 26394
+};
+
+// 26393 - Elune's Blessing
+class spell_lunar_festival_elunes_blessing : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ELUNES_BLESSING_QUEST_CREDIT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ELUNES_BLESSING_QUEST_CREDIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_lunar_festival_elunes_blessing::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_lunar_festival()
 {
     RegisterCreatureAI(npc_firework);
     RegisterCreatureAI(npc_omen);
     RegisterCreatureAI(npc_giant_spotlight);
     RegisterSpellScript(spell_lunar_festival_elune_candle);
+    RegisterSpellScript(spell_lunar_festival_elunes_blessing);
 }

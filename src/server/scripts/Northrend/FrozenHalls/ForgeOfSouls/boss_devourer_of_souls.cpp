@@ -266,7 +266,7 @@ struct boss_devourer_of_souls : public BossAI
 
                     beamAngle = me->GetOrientation();
 
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         beamAngleDiff = -beamAngleDiff;
 
                     me->InterruptNonMeleeSpells(false);

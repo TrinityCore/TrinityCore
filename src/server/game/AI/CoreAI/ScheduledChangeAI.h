@@ -23,7 +23,7 @@
 class TC_GAME_API ScheduledChangeAI final : public CreatureAI
 {
     public:
-        explicit ScheduledChangeAI(Creature* creature, uint32 scriptId = {});
+        using CreatureAI::CreatureAI;
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }

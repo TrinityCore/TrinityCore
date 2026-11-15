@@ -109,7 +109,7 @@ struct boss_leymor : public BossAI
     {
         if (action == ACTION_FINISH_LEYMOR_INTRO)
         {
-            scheduler.Schedule(1s, [this](TaskContext /*context*/)
+            scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_STASIS);
                 me->SetImmuneToAll(false);
@@ -427,7 +427,7 @@ struct at_leymor_arcane_eruption : AreaTriggerAI
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -20.0f, MovementForceType::Gravity);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsPlayer())
             return;

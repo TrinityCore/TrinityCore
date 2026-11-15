@@ -30,13 +30,13 @@ npc_magwin
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GameObjectAI.h"
-#include "GridNotifiersImpl.h"
+#include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -84,7 +84,7 @@ public:
 
             DoCastSelf(SPELL_IRRIDATION, true);
 
-            me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+            me->SetPvP(true);
             me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(10));
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -114,7 +114,7 @@ public:
                 _canAskForHelp = false;
                 _canUpdateEvents = true;
 
-                me->RemoveUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+                me->SetPvP(false);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 _playerGUID = caster->GetGUID();
@@ -571,14 +571,12 @@ public:
         void CompleteQuest()
         {
             float radius = 50.0f;
-            std::list<Player*> players;
-            Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
-            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            Cell::VisitWorldObjects(me, searcher, radius);
+            std::vector<Player*> players;
+            me->GetPlayerListInGrid(players, radius);
 
-            for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(NPC_SPARK);
+            for (Player* player : players)
+                if (player->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && player->HasAura(SPELL_TREE_DISGUISE))
+                    player->KilledMonsterCredit(NPC_SPARK);
         }
 
         void DespawnNagaFlag(bool despawn)
@@ -651,12 +649,66 @@ class spell_azuremyst_isle_cast_fishing_net : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_FISHED_UP_RED_SNAPPER : SPELL_FISHED_UP_MURLOC);
+        GetCaster()->CastSpell(GetCaster(), roll_chance(66) ? SPELL_FISHED_UP_RED_SNAPPER : SPELL_FISHED_UP_MURLOC);
     }
 
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_azuremyst_isle_cast_fishing_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 9542: Totem of Vark
+######*/
+
+enum TotemOfVark
+{
+    SPELL_SHADOW_OF_THE_FOREST_SI_DND     = 32213
+};
+
+// 30447 - Shadow of the Forest
+class spell_azuremyst_isle_shadow_of_the_forest_creature : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_THE_FOREST_SI_DND });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_OF_THE_FOREST_SI_DND, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_azuremyst_isle_shadow_of_the_forest_creature::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 30448 - Shadow of the Forest
+class spell_azuremyst_isle_shadow_of_the_forest_player : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_THE_FOREST_SI_DND });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_SHADOW_OF_THE_FOREST_SI_DND, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOW_OF_THE_FOREST_SI_DND);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_azuremyst_isle_shadow_of_the_forest_player::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_azuremyst_isle_shadow_of_the_forest_player::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -668,4 +720,6 @@ void AddSC_azuremyst_isle()
     new npc_magwin();
     RegisterSpellScript(spell_inoculate_nestlewood);
     RegisterSpellScript(spell_azuremyst_isle_cast_fishing_net);
+    RegisterSpellScript(spell_azuremyst_isle_shadow_of_the_forest_creature);
+    RegisterSpellScript(spell_azuremyst_isle_shadow_of_the_forest_player);
 }

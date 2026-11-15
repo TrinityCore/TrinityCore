@@ -17,25 +17,22 @@
 
 #include "AddonPackets.h"
 #include "ByteBuffer.h"
+#include "PacketOperators.h"
 
-ByteBuffer& WorldPackets::Addon::operator>>(ByteBuffer& data, AddOnInfo& addonInfo)
+namespace WorldPackets::Addon
+{
+ByteBuffer& operator>>(ByteBuffer& data, AddOnInfo& addonInfo)
 {
     data.ResetBitPos();
 
-    uint32 nameLength = data.ReadBits(10);
-    uint32 versionLength = data.ReadBits(10);
-    addonInfo.Loaded = data.ReadBit();
-    addonInfo.Disabled = data.ReadBit();
-    if (nameLength > 1)
-    {
-        addonInfo.Name = data.ReadString(nameLength - 1);
-        data.read_skip<uint8>(); // null terminator
-    }
-    if (versionLength > 1)
-    {
-        addonInfo.Version = data.ReadString(versionLength - 1);
-        data.read_skip<uint8>(); // null terminator
-    }
+    data >> SizedCString::BitsSize<10>(addonInfo.Name);
+    data >> SizedCString::BitsSize<10>(addonInfo.Version);
+    data >> Bits<1>(addonInfo.Loaded);
+    data >> Bits<1>(addonInfo.Disabled);
+
+    data >> SizedCString::Data(addonInfo.Name);
+    data >> SizedCString::Data(addonInfo.Version);
 
     return data;
+}
 }

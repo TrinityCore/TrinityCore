@@ -21,7 +21,7 @@
 void MapReference::targetObjectBuildLink()
 {
     // called from link()
-    getTarget()->m_mapRefManager.insertFirst(this);
+    getTarget()->m_mapRefManager.push_front(this);
     getTarget()->m_mapRefManager.incSize();
 }
 

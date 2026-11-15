@@ -50,9 +50,9 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
-#include <boost/algorithm/string/replace.hpp>
 #include <boost/dll/runtime_symbol_info.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/system/system_error.hpp>
 #include <efsw/efsw.hpp>
 #include <algorithm>
@@ -504,6 +504,8 @@ class HotSwapScriptReloadMgr final
 
         /// Invoke this function to run a message thread safe on the reloader
         virtual void operator() (HotSwapScriptReloadMgr* reloader) = 0;
+
+        std::atomic<ScriptReloaderMessage*> QueueLink;
     };
 
     /// Implementation class which wraps functional types and dispatches
@@ -542,10 +544,7 @@ public:
 
     virtual ~HotSwapScriptReloadMgr()
     {
-        // Delete all messages
-        ScriptReloaderMessage* message;
-        while (_messages.Dequeue(message))
-            delete message;
+        RemoveAllQueuedMessages();
     }
 
     /// Returns the absolute path to the script module directory
@@ -554,10 +553,10 @@ public:
         // When an absolute path is given in the config use it,
         // otherwise interpret paths relative to the executable.
         fs::path path(sConfigMgr->GetStringDefault("HotSwap.ScriptDir", "scripts"));
-        if (path.is_absolute())
-            return path;
-        else
-            return fs::absolute(path, GetDirectoryOfExecutable());
+        if (!path.is_absolute())
+            path = fs::absolute(path, GetDirectoryOfExecutable());
+
+        return path;
     }
 
     /// Returns the absolute path to the scripts directory in the source tree.
@@ -663,6 +662,8 @@ public:
         // to trigger unload actions as early as possible,
         // otherwise the worldserver will crash on exit.
         _running_script_modules.clear();
+
+        RemoveAllQueuedMessages();
     }
 
     /// Queue's a thread safe message to the reloader which is executed on
@@ -1114,7 +1115,7 @@ private:
             if (itr != _known_modules_build_directives.end())
                 return itr->second;
             else // If no build directive of the module was found use the one from the game library
-                return _BUILD_DIRECTIVE;
+                return TRINITY_BUILD_TYPE;
         }();
 
         // Initiate the new build job
@@ -1381,6 +1382,14 @@ private:
         }
     }
 
+    void RemoveAllQueuedMessages()
+    {
+        // Delete all messages
+        ScriptReloaderMessage* message;
+        while (_messages.Dequeue(message))
+            delete message;
+    }
+
     // File watcher instance and watcher ID's
     efsw::FileWatcher _fileWatcher;
     efsw::WatchID _libraryWatcher;
@@ -1390,7 +1399,7 @@ private:
     uint32 _unique_library_name_counter;
 
     // Queue which is used for thread safe message processing
-    MPSCQueue<ScriptReloaderMessage> _messages;
+    MPSCQueue<ScriptReloaderMessage, &ScriptReloaderMessage::QueueLink> _messages;
 
     // Change requests to load or unload shared libraries
     std::unordered_set<fs::path /*path*/> _libraries_changed;

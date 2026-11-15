@@ -30,6 +30,11 @@ struct SplineChainLink;
 class TC_GAME_API SystemMgr
 {
     public:
+        SystemMgr(SystemMgr const&) = delete;
+        SystemMgr(SystemMgr&&) = delete;
+        SystemMgr& operator=(SystemMgr const&) = delete;
+        SystemMgr& operator=(SystemMgr&&) = delete;
+
         static SystemMgr* instance();
 
         // database
@@ -43,9 +48,6 @@ class TC_GAME_API SystemMgr
 
         SystemMgr();
         ~SystemMgr();
-
-        SystemMgr(SystemMgr const&) = delete;
-        SystemMgr& operator=(SystemMgr const&) = delete;
 
         std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };

@@ -25,6 +25,7 @@
 #include <array>
 #include <map>
 #include <set>
+#include <span>
 #include <variant>
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -49,7 +50,7 @@ struct DungeonEncounterEntry;
 struct InstanceSpawnGroupInfo;
 enum class CriteriaType : int16;
 enum class CriteriaStartEvent : uint8;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 enum EncounterFrameType
 {
@@ -132,15 +133,13 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) { DungeonEncounters.fill(nullptr); }
-
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
-    EncounterState state;
+    EncounterState state = TO_BE_DECIDED;
     std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
-    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
+    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters = { };
 };
 
 struct DoorInfo
@@ -182,7 +181,7 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(InstanceMap* map);
+        explicit InstanceScript(InstanceMap* map) noexcept;
         InstanceScript(InstanceScript const& right) = delete;
         InstanceScript(InstanceScript&& right) = delete;
         InstanceScript& operator=(InstanceScript const& right) = delete;
@@ -321,18 +320,13 @@ class TC_GAME_API InstanceScript : public ZoneScript
         std::vector<PersistentInstanceScriptValueBase*>& GetPersistentScriptValues() { return _persistentScriptValues; }
 
     protected:
-        void SetHeaders(std::string const& dataHeaders);
-        void SetBossNumber(uint32 number) { bosses.resize(number); }
+        void SetHeaders(std::string_view dataHeaders);
+        void SetBossNumber(uint32 number);
         void LoadBossBoundaries(BossBoundaryData const& data);
-        void LoadDoorData(DoorData const* data);
-        void LoadMinionData(MinionData const* data);
-        void LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData);
-        template<typename T>
-        void LoadDungeonEncounterData(T const& encounters)
-        {
-            for (DungeonEncounterData const& encounter : encounters)
-                LoadDungeonEncounterData(encounter.BossId, encounter.DungeonEncounterId);
-        }
+        void LoadDoorData(std::span<DoorData const> data);
+        void LoadObjectData(std::span<ObjectData const> creatureData, std::span<ObjectData const> gameObjectData);
+        void LoadDungeonEncounterData(std::span<DungeonEncounterData const> encounters);
+        void LoadMinionData(std::span<MinionData const> data);
 
         void AddObject(Creature* obj, bool add);
         void AddObject(GameObject* obj, bool add);
@@ -356,7 +350,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         bool _SkipCheckRequiredBosses(Player const* player = nullptr) const;
 
     private:
-        static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
+        static void LoadObjectData(std::span<ObjectData const> creatureData, ObjectInfoMap& objectInfo);
         void LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds);
         void UpdateLfgEncounterState(BossInfo const* bossInfo);
 

@@ -63,7 +63,7 @@ namespace VMAP
         return hit;
     }
 
-    bool ModelInstance::GetLocationInfo(const G3D::Vector3& p, LocationInfo& info) const
+    bool ModelInstance::GetLocationInfo(G3D::Vector3 const& p, LocationInfo& info) const
     {
         if (!iModel)
         {
@@ -81,35 +81,33 @@ namespace VMAP
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
         Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-        float zDist;
 
-        GroupLocationInfo groupInfo;
-        if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
+        WorldModelLocationInfoQueryResult locationQueryResult;
+        if (iModel->GetLocationInfo(pModel, zDirModel, locationQueryResult))
         {
-            Vector3 modelGround = pModel + zDist * zDirModel;
+            Vector3 modelGround = pModel + locationQueryResult.distanceToModel * zDirModel;
             // Transform back to world space. Note that:
             // Mat * vec == vec * Mat.transpose()
             // and for rotation matrices: Mat.inverse() == Mat.transpose()
             float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
             if (info.ground_Z < world_Z) // hm...could it be handled automatically with zDist at intersection?
             {
-                info.rootId = groupInfo.rootId;
-                info.hitModel = groupInfo.hitModel;
+                info.rootId = locationQueryResult.rootId;
+                info.hitModel = locationQueryResult.hitModel;
                 info.ground_Z = world_Z;
-                info.hitInstance = this;
                 return true;
             }
         }
         return false;
     }
 
-    bool ModelInstance::GetLiquidLevel(const G3D::Vector3& p, LocationInfo& info, float& liqHeight) const
+    bool ModelInstance::GetLiquidLevel(G3D::Vector3 const& p, GroupModel const* model, float& liqHeight) const
     {
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
         //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
         float zDist;
-        if (info.hitModel->GetLiquidLevel(pModel, zDist))
+        if (model->GetLiquidLevel(pModel, zDist))
         {
             // calculate world height (zDist in model coords):
             liqHeight = (Vector3(pModel.x, pModel.y, zDist) * iInvRot * iScale + iPos).z;

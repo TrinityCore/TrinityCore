@@ -38,7 +38,7 @@ class arena_commandscript : public CommandScript
 public:
     arena_commandscript() : CommandScript("arena_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable arenaCommandTable =
         {

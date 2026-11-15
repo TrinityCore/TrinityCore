@@ -18,6 +18,7 @@
 #include "MapManager.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundScript.h"
 #include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
@@ -33,6 +34,7 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldStateMgr.h"
+
 #include <boost/dynamic_bitset.hpp>
 #include <numeric>
 
@@ -81,7 +83,7 @@ Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -97,11 +99,8 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
         ABORT();
     }
 
-    // some instances only have one difficulty
-    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
-
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {}map instance {} for {} created with difficulty {}",
-        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name[sWorld->GetDefaultDbcLocale()]);
+        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, DB2Manager::GetDifficultyName(difficulty));
 
     InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team, instanceLock, lfgDungeonsId);
     ASSERT(map->IsDungeon());
@@ -112,11 +111,11 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
         map->TrySetOwningGroup(group);
 
     map->CreateInstanceData();
-    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
+    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenarioForTeam(map, team));
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -131,9 +130,10 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     bg->SetBgMap(map);
     map->InitScriptData();
     map->InitSpawnGroupState();
+    map->GetBattlegroundScript()->OnInit();
 
     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -160,7 +160,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
     if (!entry)
         return nullptr;
 
-    std::unique_lock<std::shared_mutex> lock(_mapsLock);
+    std::scoped_lock lock(_mapsLock);
 
     Map* map = nullptr;
     uint32 newInstanceId = 0;                       // instanceId of the resulting map
@@ -198,7 +198,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
 
             // Reset difficulty to the one used in instance lock
             if (!entries.Map->IsFlexLocking())
-                difficulty = instanceLock->GetDifficultyId();
+                entries.MapDifficulty = sDB2Manager.GetDownscaledMapDifficultyData(mapId, instanceLock->GetDifficultyId());
         }
         else
         {
@@ -226,7 +226,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
 
         if (!map)
         {
-            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, GetTeamIdForTeam(sCharacterCache->GetCharacterTeamByGuid(instanceOwnerGuid)), group,
+            map = CreateInstance(mapId, newInstanceId, instanceLock, Difficulty(entries.MapDifficulty->DifficultyID), GetTeamIdForTeam(sCharacterCache->GetCharacterTeamByGuid(instanceOwnerGuid)), group,
                 lfgDungeonsId);
             if (group)
                 group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
@@ -408,7 +408,7 @@ uint32 MapManager::GetNumInstances() const
 uint32 MapManager::GetNumPlayersInInstances() const
 {
     std::shared_lock<std::shared_mutex> lock(_mapsLock);
-    return std::accumulate(i_maps.begin(), i_maps.end(), 0u, [](uint32 total, MapMapType::value_type const& value) { return total + (value.second->IsDungeon() ? value.second->GetPlayers().getSize() : 0); });
+    return std::accumulate(i_maps.begin(), i_maps.end(), 0u, [](uint32 total, MapMapType::value_type const& value) { return total + (value.second->IsDungeon() ? value.second->GetPlayers().size() : 0); });
 }
 
 void MapManager::InitInstanceIds()
@@ -482,8 +482,8 @@ public:
 
     void OnCreate(Map* map) override
     {
-        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, map->GetInstanceId() == TEAM_ALLIANCE, false, map);
-        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, map->GetInstanceId() == TEAM_HORDE, false, map);
+        WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, map->GetInstanceId() == TEAM_ALLIANCE, false, map);
+        WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_HORDE, map->GetInstanceId() == TEAM_HORDE, false, map);
     }
 };
 

@@ -150,7 +150,7 @@ class spell_argaloth_consuming_darkness : public AuraScript
     {
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
         {
-            int32 damage = aurEff->GetAmount() + CalculatePct(aurEff->GetAmount(), 10);
+            SpellEffectValue damage = aurEff->GetAmount() + CalculatePct(aurEff->GetAmount(), 10);
             aurEff->SetAmount(damage);
         }
     }

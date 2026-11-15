@@ -415,7 +415,7 @@ class spell_mandokir_decapitate : public SpellScript
     {
         Unit* caster = GetCaster();
         if (Player* target = GetHitPlayer())
-            caster->CastSpell(target, uint32(GetEffectValue()), true);
+            caster->CastSpell(target, uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -442,7 +442,7 @@ class spell_mandokir_bloodletting : public AuraScript
 
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount())));
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max<SpellEffectValue>(7500, CalculatePct(target->GetHealth(), aurEff->GetAmount())));
 
         caster->CastSpell(target, SPELL_BLOODLETTING_DAMAGE, args);
         target->CastSpell(caster, SPELL_BLOODLETTING_HEAL, args);
@@ -460,7 +460,7 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
-            target->RemoveAura(uint32(GetEffectValue()));
+            target->RemoveAura(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -553,7 +553,7 @@ class spell_mandokir_ohgan_orders : public SpellScript
     {
         Unit* caster = GetCaster();
         if (Unit* target = GetHitUnit())
-            caster->CastSpell(target, uint32(GetEffectValue()), true);
+            caster->CastSpell(target, uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override

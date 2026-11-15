@@ -18,6 +18,7 @@
 #include "InspectPackets.h"
 #include "AzeriteItem.h"
 #include "Item.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Inspect
@@ -40,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AzeriteEssenceData const& azeriteEssenc
     data << uint32(azeriteEssenceData.Index);
     data << uint32(azeriteEssenceData.AzeriteEssenceID);
     data << uint32(azeriteEssenceData.Rank);
-    data.WriteBit(azeriteEssenceData.SlotUnlocked);
+    data << Bits<1>(azeriteEssenceData.SlotUnlocked);
     data.FlushBits();
 
     return data;
@@ -49,17 +50,17 @@ ByteBuffer& operator<<(ByteBuffer& data, AzeriteEssenceData const& azeriteEssenc
 ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
+    data << itemData.Item;
     data << uint8(itemData.Index);
-    data << uint32(itemData.AzeritePowers.size());
-    data << uint32(itemData.AzeriteEssences.size());
+    data << Size<uint32>(itemData.AzeritePowers);
+    data << Size<uint32>(itemData.AzeriteEssences);
 
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
 
-    data << itemData.Item;
-    data.WriteBit(itemData.Usable);
-    data.WriteBits(itemData.Enchants.size(), 4);
-    data.WriteBits(itemData.Gems.size(), 2);
+    data << Bits<1>(itemData.Usable);
+    data << BitsSize<4>(itemData.Enchants);
+    data << BitsSize<2>(itemData.Gems);
     data.FlushBits();
 
     for (AzeriteEssenceData const& azeriteEssenceData : itemData.AzeriteEssences)
@@ -74,17 +75,32 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, CharDisplayInfo const& displayInfo)
+{
+    data << SizedString::BitsSize<6>(displayInfo.Name);
+    data << uint8(displayInfo.GenderID);
+    data << uint8(displayInfo.Race);
+    data << uint8(displayInfo.ClassID);
+    data << Size<uint32>(displayInfo.Customizations);
+    data << SizedString::Data(displayInfo.Name);
+
+    for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
+        data << customization;
+
+    return data;
+}
+
 void PlayerModelDisplayInfo::Initialize(Player const* player)
 {
     GUID = player->GetGUID();
     SpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
-    Name = player->GetName();
-    GenderID = player->GetNativeGender();
-    Race = player->GetRace();
-    ClassID = player->GetClass();
+    DisplayInfo.Name = player->GetName();
+    DisplayInfo.GenderID = player->GetNativeGender();
+    DisplayInfo.Race = player->GetRace();
+    DisplayInfo.ClassID = player->GetClass();
 
     for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
-        Customizations.push_back(customization);
+        DisplayInfo.Customizations.push_back(customization);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -95,16 +111,8 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerModelDisplayInfo const& displayIn
 {
     data << displayInfo.GUID;
     data << int32(displayInfo.SpecializationID);
-    data << uint32(displayInfo.Items.size());
-    data.WriteBits(displayInfo.Name.length(), 6);
-    data << uint8(displayInfo.GenderID);
-    data << uint8(displayInfo.Race);
-    data << uint8(displayInfo.ClassID);
-    data << uint32(displayInfo.Customizations.size());
-    data.WriteString(displayInfo.Name);
-
-    for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
-        data << customization;
+    data << displayInfo.DisplayInfo;
+    data << Size<uint32>(displayInfo.Items);
 
     for (InspectItemData const& item : displayInfo.Items)
         data << item;
@@ -136,12 +144,12 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
     data << int32(bracket.Tier);
     data << int32(bracket.WeeklyBestTier);
     data << int32(bracket.SeasonBestRating);
-    data << int32(bracket.SeasonBestTierEnum);
+    data << uint8(bracket.SeasonBestTierEnum);
     data << int32(bracket.RoundsSeasonPlayed);
     data << int32(bracket.RoundsSeasonWon);
     data << int32(bracket.RoundsWeeklyPlayed);
     data << int32(bracket.RoundsWeeklyWon);
-    data.WriteBit(bracket.Disqualified);
+    data << Bits<1>(bracket.Disqualified);
     data.FlushBits();
 
     return data;
@@ -149,9 +157,9 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
 
 ByteBuffer& operator<<(ByteBuffer& data, TraitInspectInfo const& traits)
 {
-    data << int32(traits.Level);
-    data << int32(traits.ChrSpecializationID);
-    data << traits.Config;
+    data << int32(traits.PlayerLevel);
+    data << int32(traits.SpecID);
+    data << traits.ActiveCombatTraits;
 
     return data;
 }
@@ -208,15 +216,22 @@ InspectItemData::InspectItemData(::Item const* item, uint8 index)
 WorldPacket const* InspectResult::Write()
 {
     _worldPacket << DisplayInfo;
-    _worldPacket << uint32(Glyphs.size());
-    _worldPacket << uint32(Talents.size());
-    _worldPacket << uint32(PvpTalents.size());
+    _worldPacket << Size<uint32>(Glyphs);
+    _worldPacket << Size<uint32>(Talents);
+    _worldPacket << Size<uint32>(PvpTalents);
+    _worldPacket << TalentInfo;
     _worldPacket << int32(ItemLevel);
+
+    for (PVPBracketData const& bracket : Bracket)
+        _worldPacket << bracket;
+
     _worldPacket << uint8(LifetimeMaxRank);
     _worldPacket << uint16(TodayHK);
     _worldPacket << uint16(YesterdayHK);
     _worldPacket << uint32(LifetimeHK);
     _worldPacket << uint32(HonorLevel);
+    _worldPacket << TraitsInfo;
+
     if (!Glyphs.empty())
         _worldPacket.append(Glyphs.data(), Glyphs.size());
     if (!Talents.empty())
@@ -224,20 +239,15 @@ WorldPacket const* InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
-    _worldPacket.WriteBit(GuildData.has_value());
-    _worldPacket.WriteBit(AzeriteLevel.has_value());
+    _worldPacket << OptionalInit(GuildData);
+    _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();
-
-    for (PVPBracketData const& bracket : Bracket)
-        _worldPacket << bracket;
 
     if (GuildData)
         _worldPacket << *GuildData;
 
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
-
-    _worldPacket << TalentTraits;
 
     return &_worldPacket;
 }

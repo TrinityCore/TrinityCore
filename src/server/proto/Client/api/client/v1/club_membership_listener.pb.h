@@ -442,15 +442,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional uint64 agent_id = 3;
   inline bool has_agent_id() const;
   inline void clear_agent_id();
@@ -469,8 +460,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.SharedSettingsChangedNotification)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
   inline void set_has_assignment();
@@ -480,7 +469,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::google::protobuf::uint64 agent_id_;
   ::bgs::protocol::club_membership::v1::client::ClubSharedSettingsAssignment* assignment_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eproto();
@@ -612,15 +600,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.TimeSeriesId mention_id = 3;
   inline bool has_mention_id() const;
   inline void clear_mention_id();
@@ -639,8 +618,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.StreamMentionRemovedNotification)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_mention_id();
   inline void clear_has_mention_id();
   inline void set_has_agent_id();
@@ -650,7 +627,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::bgs::protocol::TimeSeriesId* mention_id_;
   ::google::protobuf::uint64 agent_id_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eproto();
@@ -702,15 +678,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-  inline bool has_agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline void clear_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  static const int kAgentIdDeprecatedFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& agent_id_deprecated() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::account::v1::AccountId* release_agent_id_deprecated() PROTOBUF_DEPRECATED;
-  inline void set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) PROTOBUF_DEPRECATED;
-
   // optional uint64 view_time = 3;
   inline bool has_view_time() const;
   inline void clear_view_time();
@@ -727,8 +694,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club_membership.v1.client.StreamMentionAdvanceViewTimeNotification)
  private:
-  inline void set_has_agent_id_deprecated();
-  inline void clear_has_agent_id_deprecated();
   inline void set_has_view_time();
   inline void clear_has_view_time();
   inline void set_has_agent_id();
@@ -738,7 +703,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* agent_id_deprecated_;
   ::google::protobuf::uint64 view_time_;
   ::google::protobuf::uint64 agent_id_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5flistener_2eproto();
@@ -1186,56 +1150,15 @@ inline void ReceivedInvitationRemovedNotification::set_reason(::bgs::protocol::I
 
 // SharedSettingsChangedNotification
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool SharedSettingsChangedNotification::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SharedSettingsChangedNotification::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SharedSettingsChangedNotification::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SharedSettingsChangedNotification::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& SharedSettingsChangedNotification::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.SharedSettingsChangedNotification.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SharedSettingsChangedNotification::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.SharedSettingsChangedNotification.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SharedSettingsChangedNotification::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void SharedSettingsChangedNotification::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.SharedSettingsChangedNotification.agent_id_deprecated)
-}
-
 // optional uint64 agent_id = 3;
 inline bool SharedSettingsChangedNotification::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void SharedSettingsChangedNotification::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void SharedSettingsChangedNotification::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void SharedSettingsChangedNotification::clear_agent_id() {
   agent_id_ = GOOGLE_ULONGLONG(0);
@@ -1253,13 +1176,13 @@ inline void SharedSettingsChangedNotification::set_agent_id(::google::protobuf::
 
 // optional .bgs.protocol.club_membership.v1.client.ClubSharedSettingsAssignment assignment = 4;
 inline bool SharedSettingsChangedNotification::has_assignment() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void SharedSettingsChangedNotification::set_has_assignment() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void SharedSettingsChangedNotification::clear_has_assignment() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void SharedSettingsChangedNotification::clear_assignment() {
   if (assignment_ != NULL) assignment_->::bgs::protocol::club_membership::v1::client::ClubSharedSettingsAssignment::Clear();
@@ -1382,56 +1305,15 @@ inline void StreamMentionAddedNotification::set_allocated_mention(::bgs::protoco
 
 // StreamMentionRemovedNotification
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool StreamMentionRemovedNotification::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void StreamMentionRemovedNotification::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void StreamMentionRemovedNotification::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void StreamMentionRemovedNotification::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& StreamMentionRemovedNotification::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.StreamMentionRemovedNotification.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionRemovedNotification::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.StreamMentionRemovedNotification.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionRemovedNotification::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void StreamMentionRemovedNotification::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.StreamMentionRemovedNotification.agent_id_deprecated)
-}
-
 // optional .bgs.protocol.TimeSeriesId mention_id = 3;
 inline bool StreamMentionRemovedNotification::has_mention_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void StreamMentionRemovedNotification::set_has_mention_id() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void StreamMentionRemovedNotification::clear_has_mention_id() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void StreamMentionRemovedNotification::clear_mention_id() {
   if (mention_id_ != NULL) mention_id_->::bgs::protocol::TimeSeriesId::Clear();
@@ -1466,13 +1348,13 @@ inline void StreamMentionRemovedNotification::set_allocated_mention_id(::bgs::pr
 
 // optional uint64 agent_id = 4;
 inline bool StreamMentionRemovedNotification::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void StreamMentionRemovedNotification::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void StreamMentionRemovedNotification::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void StreamMentionRemovedNotification::clear_agent_id() {
   agent_id_ = GOOGLE_ULONGLONG(0);
@@ -1492,56 +1374,15 @@ inline void StreamMentionRemovedNotification::set_agent_id(::google::protobuf::u
 
 // StreamMentionAdvanceViewTimeNotification
 
-// optional .bgs.protocol.account.v1.AccountId agent_id_deprecated = 1 [deprecated = true];
-inline bool StreamMentionAdvanceViewTimeNotification::has_agent_id_deprecated() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void StreamMentionAdvanceViewTimeNotification::set_has_agent_id_deprecated() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void StreamMentionAdvanceViewTimeNotification::clear_has_agent_id_deprecated() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void StreamMentionAdvanceViewTimeNotification::clear_agent_id_deprecated() {
-  if (agent_id_deprecated_ != NULL) agent_id_deprecated_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_agent_id_deprecated();
-}
-inline const ::bgs::protocol::account::v1::AccountId& StreamMentionAdvanceViewTimeNotification::agent_id_deprecated() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club_membership.v1.client.StreamMentionAdvanceViewTimeNotification.agent_id_deprecated)
-  return agent_id_deprecated_ != NULL ? *agent_id_deprecated_ : *default_instance_->agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAdvanceViewTimeNotification::mutable_agent_id_deprecated() {
-  set_has_agent_id_deprecated();
-  if (agent_id_deprecated_ == NULL) agent_id_deprecated_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club_membership.v1.client.StreamMentionAdvanceViewTimeNotification.agent_id_deprecated)
-  return agent_id_deprecated_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAdvanceViewTimeNotification::release_agent_id_deprecated() {
-  clear_has_agent_id_deprecated();
-  ::bgs::protocol::account::v1::AccountId* temp = agent_id_deprecated_;
-  agent_id_deprecated_ = NULL;
-  return temp;
-}
-inline void StreamMentionAdvanceViewTimeNotification::set_allocated_agent_id_deprecated(::bgs::protocol::account::v1::AccountId* agent_id_deprecated) {
-  delete agent_id_deprecated_;
-  agent_id_deprecated_ = agent_id_deprecated;
-  if (agent_id_deprecated) {
-    set_has_agent_id_deprecated();
-  } else {
-    clear_has_agent_id_deprecated();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club_membership.v1.client.StreamMentionAdvanceViewTimeNotification.agent_id_deprecated)
-}
-
 // optional uint64 view_time = 3;
 inline bool StreamMentionAdvanceViewTimeNotification::has_view_time() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void StreamMentionAdvanceViewTimeNotification::set_has_view_time() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_has_view_time() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_view_time() {
   view_time_ = GOOGLE_ULONGLONG(0);
@@ -1559,13 +1400,13 @@ inline void StreamMentionAdvanceViewTimeNotification::set_view_time(::google::pr
 
 // optional uint64 agent_id = 4;
 inline bool StreamMentionAdvanceViewTimeNotification::has_agent_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void StreamMentionAdvanceViewTimeNotification::set_has_agent_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_has_agent_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_agent_id() {
   agent_id_ = GOOGLE_ULONGLONG(0);

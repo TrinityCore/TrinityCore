@@ -504,9 +504,7 @@ struct boss_malygos : public BossAI
                 break;
             case ACTION_HANDLE_RESPAWN:
                 // Teleport to spawn position, we can't use normal relocate
-                float x, y, z, o;
-                me->GetRespawnPosition(x, y, z, &o);
-                me->NearTeleportTo(x, y, z, o);
+                me->NearTeleportTo(me->GetRespawnPosition());
                 // Respawn Iris
                 instance->SetData(DATA_RESPAWN_IRIS, 0);
                 _despawned = false;
@@ -1689,7 +1687,7 @@ class spell_arcane_overload : public SpellScript
     {
         Creature* arcaneOverload = GetCaster()->ToCreature();
         targets.remove_if(ExactDistanceCheck(arcaneOverload,
-            GetEffectInfo(EFFECT_0).CalcRadius(arcaneOverload) * arcaneOverload->GetObjectScale()));
+            GetEffectInfo(EFFECT_0).CalcRadius(arcaneOverload).Max * arcaneOverload->GetObjectScale()));
     }
 
     void Register() override
@@ -1918,7 +1916,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
-            target->CastSpell(GetCaster(), GetEffectValue(), true);
+            target->CastSpell(GetCaster(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -2069,9 +2067,9 @@ private:
         if (Creature* target = GetTarget()->ToCreature())
         {
             if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
-                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
+                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData::fromOrientation(target->GetOrientation()), 0s);
             else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
-                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
+                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData::fromOrientation(target->GetOrientation()), 0s);
         }
     }
 

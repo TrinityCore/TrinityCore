@@ -23,6 +23,7 @@
 #include "MapDefines.h"
 #include "Position.h"
 #include "Timer.h"
+#include <array>
 #include <atomic>
 #include <bitset>
 #include <memory>
@@ -57,13 +58,14 @@ public:
 
     void LoadMapAndVMap(int32 gx, int32 gy);
     void LoadMMapInstance(uint32 mapId, uint32 instanceId);
+    void LoadMMap(uint32 instanceId, int32 gx, int32 gy);
 
 private:
     void LoadMapAndVMapImpl(int32 gx, int32 gy);
     void LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId);
     void LoadMap(int32 gx, int32 gy);
     void LoadVMap(int32 gx, int32 gy);
-    void LoadMMap(int32 gx, int32 gy);
+    void LoadMMapImpl(uint32 instanceId, int32 gx, int32 gy);
 
 public:
     void UnloadMap(int32 gx, int32 gy);
@@ -111,8 +113,8 @@ private:
     std::mutex _loadMutex;
     std::unique_ptr<GridMap> _gridMap[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
     std::atomic<uint16> _referenceCountFromMap[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
-    std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> _loadedGrids;
-    std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> _gridFileExists; // cache what grids are available for this map (not including parent/child maps)
+    std::array<uint64, MAX_NUMBER_OF_GRIDS> _loadedGrids;
+    std::bitset<MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS> _gridFileExists; // cache what grids are available for this map (not including parent/child maps)
 
     static constexpr Milliseconds CleanupInterval = 1min;
 

@@ -22,7 +22,10 @@ if(WIN32)
     string(SUBSTRING "${MSVC_TOOLSET_VERSION}" ${_BOOST_MSVC_TOOLSET_VERSION_LENGTH} -1 _BOOST_MSVC_TOOLSET_VERSION_MINOR)
 
     file(TO_CMAKE_PATH "${BOOST_ROOT}" BOOST_ROOT)
-    set(BOOST_SEARCH_HINTS "${BOOST_ROOT}/lib${PLATFORM}-msvc-${_BOOST_MSVC_TOOLSET_VERSION_MAJOR}.${_BOOST_MSVC_TOOLSET_VERSION_MINOR}/cmake")
+    while(_BOOST_MSVC_TOOLSET_VERSION_MINOR GREATER_EQUAL 0)
+      list(APPEND BOOST_SEARCH_HINTS "${BOOST_ROOT}/lib${PLATFORM}-msvc-${_BOOST_MSVC_TOOLSET_VERSION_MAJOR}.${_BOOST_MSVC_TOOLSET_VERSION_MINOR}/cmake")
+      math(EXPR _BOOST_MSVC_TOOLSET_VERSION_MINOR "${_BOOST_MSVC_TOOLSET_VERSION_MINOR} - 1" OUTPUT_FORMAT DECIMAL)
+    endwhile()
 
     unset(_BOOST_MSVC_TOOLSET_VERSION_LENGTH)
     unset(_BOOST_MSVC_TOOLSET_VERSION_MAJOR)
@@ -44,7 +47,6 @@ endif()
 find_package(Boost ${BOOST_REQUIRED_VERSION}
   REQUIRED
   COMPONENTS 
-    system
     filesystem
     program_options
     regex
@@ -63,15 +65,13 @@ add_library(boost INTERFACE)
 
 target_link_libraries(boost
   INTERFACE
-    ${Boost_LIBRARIES})
-
-target_include_directories(boost
-  INTERFACE
-    ${Boost_INCLUDE_DIRS})
+    Boost::filesystem
+    Boost::program_options
+    Boost::regex
+    Boost::locale)
 
 target_compile_definitions(boost
   INTERFACE
-    BOOST_ALL_NO_LIB
     BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     BOOST_ASIO_NO_DEPRECATED
     BOOST_BIND_NO_PLACEHOLDERS

@@ -188,11 +188,11 @@ struct npc_sanitron_5000 : public NullCreatureAI
                 ForceCastOnPassenger({ .CreatureId = NPC_DECONTAMINATION_BUNNY, .StringId = "DecontaminationStageThree" }, SPELL_DECONTAMINATE_STAGE_3);
             else if (waypointId == WAYPOINT_SANITRON_FINISH)
             {
-                _scheduler.Schedule(2s, [this](TaskContext task)
+                _scheduler.Schedule(2s, [this](TaskContext& task)
                 {
                     Talk(SAY_SANITRON_DESTROY);
                     DoCast(SPELL_SANITRON_COSMETIC_EXPLOSION);
-                    task.Schedule(1s, [this](TaskContext /*task*/)
+                    task.Schedule(1s, [this](TaskContext const& /*task*/)
                     {
                         if (Creature* technician = me->FindNearestCreatureWithOptions(30.0f, { .CreatureId = NPC_SAFE_TECHNICIAN, .StringId = "SafeTechnicianSanitron" }))
                             technician->AI()->DoAction(ACTION_TECHNICIAN_START_EVENT);
@@ -246,7 +246,7 @@ struct npc_safe_technician_sanitron : public NullCreatureAI
                 _isEventStarted = true;
                 me->SetEmoteState(EMOTE_STATE_NONE);
                 me->SetFacingTo(0.2967f);
-                _scheduler.Schedule(2s + 500ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(2s + 500ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_SAFE_TECHNICIAN_SANITRON, SafeTechnicianSanitron);
                 });
@@ -262,13 +262,13 @@ struct npc_safe_technician_sanitron : public NullCreatureAI
         if (pointId == POINT_SAFE_TECHNICIAN_SANITRON)
         {
             me->SetFacingTo(1.5009f);
-            _scheduler.Schedule(1s, [this](TaskContext task)
+            _scheduler.Schedule(1s, [this](TaskContext& task)
             {
                 Talk(SAY_TECHNICIAN_SANITRON_DESTROY);
-                task.Schedule(2s, [this](TaskContext task)
+                task.Schedule(2s, [this](TaskContext& task)
                 {
                     me->SetEmoteState(EMOTE_STATE_USESTANDING);
-                    task.Schedule(5s, [this](TaskContext /*task*/)
+                    task.Schedule(5s, [this](TaskContext const& /*task*/)
                     {
                         me->SetWalk(true);
                         me->SetEmoteState(EMOTE_STATE_NONE);

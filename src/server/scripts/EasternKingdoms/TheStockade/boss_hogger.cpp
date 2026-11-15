@@ -137,17 +137,17 @@ struct npc_warden_thelwater : public ScriptedAI
 
         if (id == POINT_FINISH)
         {
-            scheduler.Schedule(1s, [this](TaskContext /*context*/)
+            scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
             {
                 Talk(SAY_WARDEN_1);
             });
 
-            scheduler.Schedule(5s, [this](TaskContext /*context*/)
+            scheduler.Schedule(5s, [this](TaskContext const& /*context*/)
             {
                 Talk(SAY_WARDEN_2);
             });
 
-            scheduler.Schedule(8s, [this](TaskContext /*context*/)
+            scheduler.Schedule(8s, [this](TaskContext const& /*context*/)
             {
                 Talk(SAY_WARDEN_3);
             });

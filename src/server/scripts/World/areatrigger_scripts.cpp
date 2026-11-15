@@ -484,8 +484,7 @@ struct at_void_orb_harbinger : AreaTriggerAI
             PathGenerator path(at);
             path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 144.5f;
-            at->InitSplines(path.GetPath(), timeToTarget);
+            at->InitSplines(path.GetPath());
         }
     }
 
@@ -520,9 +519,9 @@ struct at_abyssal_portal_harbinger : AreaTriggerAI
     void OnCreate(Spell const* creatingSpell) override
     {
         if (Unit* caster = at->GetCaster())
-            _remainingSummons = creatingSpell->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster);
+            _remainingSummons = creatingSpell->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt(caster);
 
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetRandomNearPosition(3.0f), SPELL_ABYSSAL_PORTAL_SUMMON, true);

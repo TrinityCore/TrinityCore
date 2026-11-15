@@ -19,16 +19,15 @@
 #include "InstanceScript.h"
 #include "ragefire_chasm.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_ADAROGG,               BOSS_ADAROGG               },
     { NPC_DARK_SHAMAN_KORANTHAL, BOSS_DARK_SHAMAN_KORANTHAL },
     { NPC_SLAGMAW,               BOSS_SLAGMAW               },
     { NPC_LAVA_GUARD_GORDOTH,    BOSS_LAVA_GUARD_GORDOTH    },
-    { 0,                         0                          }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_ADAROGG,               {{ 1443 }}  },
     { BOSS_DARK_SHAMAN_KORANTHAL, {{ 1444 }}  },
@@ -47,7 +46,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
     };

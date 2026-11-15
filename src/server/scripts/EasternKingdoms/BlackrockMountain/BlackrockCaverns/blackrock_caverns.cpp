@@ -597,7 +597,7 @@ class npc_raz_the_crazed : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500ms);
+                _events.ScheduleEvent(EVENT_FURIOUS_SWIPE, 500ms);
             }
 
             void IsSummonedBy(WorldObject* summoner) override
@@ -638,7 +638,7 @@ class npc_raz_the_crazed : public CreatureScript
                             break;
                         case EVENT_FURIOUS_SWIPE:
                             DoCastVictim(SPELL_FURIOUS_SWIPE, true);
-                            _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500ms);
+                            _events.ScheduleEvent(EVENT_FURIOUS_SWIPE, 500ms);
                             break;
                         default:
                             break;

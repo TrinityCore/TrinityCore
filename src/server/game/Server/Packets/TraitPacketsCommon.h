@@ -41,6 +41,7 @@ struct TraitEntry
     int32 TraitNodeEntryID = 0;
     int32 Rank = 0;
     int32 GrantedRanks = 0;
+    int32 BonusRanks = 0;
 };
 
 struct TraitSubTreeCache
@@ -65,6 +66,7 @@ struct TraitConfig
     int32 LocalIdentifier = 0;  // Local to specialization
     int32 SkillLineID = 0;
     int32 TraitSystemID = 0;
+    int32 VariationID = 0;
     std::vector<TraitEntry> Entries;
     std::vector<TraitSubTreeCache> SubTrees;
     String<259> Name;

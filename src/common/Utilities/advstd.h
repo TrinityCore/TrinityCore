@@ -52,6 +52,26 @@ template <typename To, typename From,
 #endif
 }
 
+// std::forward_like
+#ifdef __cpp_lib_forward_like
+#include <utility>
+namespace advstd
+{
+using std::forward_like;
+}
+#else
+namespace advstd
+{
+template <class T, class U>
+[[nodiscard]] constexpr decltype(auto) forward_like(U&& value) noexcept
+{
+    using ValueU = std::remove_reference_t<U>;
+    using ValueConstU = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, ValueU const, ValueU>;
+    return static_cast<std::conditional_t<std::is_rvalue_reference_v<T&&>, ValueConstU&&, ValueConstU&>>(value);
+}
+}
+#endif
+
 // std::ranges::contains
 #include <algorithm>
 #ifndef __cpp_lib_ranges_contains

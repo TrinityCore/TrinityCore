@@ -267,7 +267,7 @@ struct at_telash_greywing_vault_rune : AreaTriggerAI
         caster->CastSpell(nullptr, SPELL_VAULT_RUNE_SHIELD, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsPlayer())
             return;

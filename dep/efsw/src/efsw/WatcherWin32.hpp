@@ -22,6 +22,8 @@ namespace efsw {
 
 class WatcherWin32;
 
+enum RefreshResult { Failed, Success, SucessEx };
+
 /// Internal watch data
 struct WatcherStructWin32 {
 	OVERLAPPED Overlapped;
@@ -33,7 +35,7 @@ struct sLastModifiedEvent {
 	std::string fileName;
 };
 
-bool RefreshWatch( WatcherStructWin32* pWatch );
+RefreshResult RefreshWatch( WatcherStructWin32* pWatch );
 
 void CALLBACK WatchCallback( DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped );
 
@@ -51,6 +53,7 @@ class WatcherWin32 : public Watcher {
 		lParam( 0 ),
 		NotifyFilter( 0 ),
 		StopNow( false ),
+		Extended( false ),
 		Watch( NULL ),
 		DirName( NULL ) {
 			Buffer.resize(dwBufferSize);
@@ -62,9 +65,11 @@ class WatcherWin32 : public Watcher {
 	LPARAM lParam;
 	DWORD NotifyFilter;
 	bool StopNow;
+	bool Extended;
 	FileWatcherImpl* Watch;
 	char* DirName;
 	sLastModifiedEvent LastModifiedEvent;
+	std::vector<std::pair<std::string, LARGE_INTEGER>> OldFiles;
 };
 
 } // namespace efsw

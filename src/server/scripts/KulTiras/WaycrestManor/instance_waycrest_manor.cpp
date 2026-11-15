@@ -27,7 +27,7 @@ static BossBoundaryData const boundaries =
     { DATA_LORD_AND_LADY_WAYCREST, new ZRangeBoundary(182.5f, 192.2f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_SISTER_BRIAR,  DATA_SISTER_BRIAR  },
     { BOSS_SISTER_MALADY, DATA_SISTER_MALADY },
@@ -35,17 +35,15 @@ ObjectData const creatureData[] =
     { BOSS_SOULBOUND_GOLIATH, DATA_SOULBOUND_GOLIATH },
     { BOSS_LADY_WAYCREST, DATA_LADY_WAYCREST },
     { BOSS_LORD_WAYCREST, DATA_LORD_WAYCREST },
-    { 0,                  0                  }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_HEARTSBANE_TRIAD_DOOR,  DATA_HEARTSBANE_TRIAD,       EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_WAYCREST_ORGAN_BARRIER, DATA_LORD_AND_LADY_WAYCREST, EncounterDoorBehavior::OpenWhenDone          },
-    { 0,                         0,                           EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_HEARTSBANE_TRIAD,       {{ 2113 }} },
     { DATA_SOULBOUND_GOLIATH,      {{ 2114 }} },
@@ -65,7 +63,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);

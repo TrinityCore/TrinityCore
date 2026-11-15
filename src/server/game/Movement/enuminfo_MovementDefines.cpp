@@ -50,12 +50,13 @@ TC_API_EXPORT EnumText EnumUtils<MovementGeneratorType>::ToString(MovementGenera
         case EFFECT_MOTION_TYPE: return { "EFFECT_MOTION_TYPE", "EFFECT_MOTION_TYPE", "" };
         case SPLINE_CHAIN_MOTION_TYPE: return { "SPLINE_CHAIN_MOTION_TYPE", "SPLINE_CHAIN_MOTION_TYPE", "SplineChainMovementGenerator.h" };
         case FORMATION_MOTION_TYPE: return { "FORMATION_MOTION_TYPE", "FORMATION_MOTION_TYPE", "FormationMovementGenerator.h" };
+        case FACE_MOTION_TYPE: return { "FACE_MOTION_TYPE", "FACE_MOTION_TYPE", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<MovementGeneratorType>::Count() { return 19; }
+TC_API_EXPORT size_t EnumUtils<MovementGeneratorType>::Count() { return 20; }
 
 template <>
 TC_API_EXPORT MovementGeneratorType EnumUtils<MovementGeneratorType>::FromIndex(size_t index)
@@ -81,6 +82,7 @@ TC_API_EXPORT MovementGeneratorType EnumUtils<MovementGeneratorType>::FromIndex(
         case 16: return EFFECT_MOTION_TYPE;
         case 17: return SPLINE_CHAIN_MOTION_TYPE;
         case 18: return FORMATION_MOTION_TYPE;
+        case 19: return FACE_MOTION_TYPE;
         default: throw std::out_of_range("index");
     }
 }
@@ -109,6 +111,7 @@ TC_API_EXPORT size_t EnumUtils<MovementGeneratorType>::ToIndex(MovementGenerator
         case EFFECT_MOTION_TYPE: return 16;
         case SPLINE_CHAIN_MOTION_TYPE: return 17;
         case FORMATION_MOTION_TYPE: return 18;
+        case FACE_MOTION_TYPE: return 19;
         default: throw std::out_of_range("value");
     }
 }

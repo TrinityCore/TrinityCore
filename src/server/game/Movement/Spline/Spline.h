@@ -115,7 +115,7 @@ public:
     bool isCyclic() const { return cyclic;}
 
     ControlArray const& getPoints() const { return points; }
-    index_type getPointCount() const { return index_type(points.size());}
+    index_type getPointCount() const { return index_type(points.size()); }
     Vector3 const& getPoint(index_type i) const { return points[i]; }
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
@@ -125,9 +125,9 @@ public:
     /** As i can see there are a lot of ways how spline can be initialized
         would be no harm to have some custom initializers. */
     template<class Init>
-    void init_spline_custom(Init& initializer)
+    void init_spline_custom(Init&& initializer)
     {
-        initializer(m_mode, cyclic, points, index_lo, index_hi);
+        std::forward<Init>(initializer)(m_mode, cyclic, points, index_lo, index_hi);
     }
 
     virtual void clear();
@@ -150,7 +150,7 @@ protected:
 
     LengthArray lengths;
 
-    index_type computeIndexInBounds(length_type length) const;
+    index_type computeIndexInBoundsAtLength(length_type length) const;
 public:
 
     explicit Spline(){ }

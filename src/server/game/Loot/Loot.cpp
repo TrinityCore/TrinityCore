@@ -219,10 +219,7 @@ Optional<LootSlotType> LootItem::GetUiTypeForPlayer(Player const* player, Loot c
     {
         if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(loot.GetPlayerFFAItems(), player->GetGUID()))
         {
-            auto ffaItemItr = std::ranges::find_if(*ffaItems, [&](NotNormalLootItem const& ffaItem)
-            {
-                return ffaItem.LootListId == LootListId;
-            });
+            auto ffaItemItr = std::ranges::find(*ffaItems, LootListId, &NotNormalLootItem::LootListId);
             if (ffaItemItr != ffaItems->end() && !ffaItemItr->is_looted)
                 return loot.GetLootMethod() == FREE_FOR_ALL ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
         }
@@ -525,7 +522,7 @@ bool LootRoll::PlayerVote(Player* player, RollVote vote)
 {
     ObjectGuid const& playerGuid = player->GetGUID();
     RollVoteMap::iterator voterItr = m_rollVoteMap.find(playerGuid);
-    if (voterItr == m_rollVoteMap.end())
+    if (voterItr == m_rollVoteMap.end() || voterItr->second.Vote != RollVote::NotEmitedYet)
         return false;
 
     voterItr->second.Vote = vote;
@@ -642,7 +639,7 @@ Optional<uint32> LootRoll::GetItemDisenchantLootId() const
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
 
     // ignore temporary item level scaling (pvp or timewalking)
-    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0);
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0, 0);
 
     ItemDisenchantLootEntry const* disenchantLoot = Item::GetBaseDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
     if (!disenchantLoot)
@@ -664,7 +661,7 @@ Optional<uint16> LootRoll::GetItemDisenchantSkillRequired() const
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
 
     // ignore temporary item level scaling (pvp or timewalking)
-    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0);
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0, 0);
 
     ItemDisenchantLootEntry const* disenchantLoot = Item::GetBaseDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
     if (!disenchantLoot)
@@ -887,10 +884,12 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         if (loot_type == LOOT_CORPSE)
             roundRobinPlayer = lootOwner->GetGUID();
 
-        for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
-                if (player->IsAtGroupRewardDistance(lootOwner))
-                    FillNotNormalLootFor(player);
+        for (GroupReference const& itr : group->GetMembers())
+        {
+            Player* member = itr.GetSource(); // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
+            if (member->IsAtGroupRewardDistance(lootOwner))
+                FillNotNormalLootFor(member);
+        }
 
         for (LootItem& item : items)
         {
@@ -974,7 +973,7 @@ void Loot::AddItem(LootStoreItem const& item)
     }
 }
 
-bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool createdByPlayer)
+bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool pushed, bool createdByPlayer)
 {
     bool allLooted = true;
     for (uint32 i = 0; i < items.size(); ++i)
@@ -1014,7 +1013,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
                 if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
                 {
-                    player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast, GetDungeonEncounterId());
+                    player->SendNewItem(pItem, lootItem->count, pushed, createdByPlayer, broadcast, GetDungeonEncounterId());
                     player->ApplyItemLootedSpell(pItem, true);
                 }
                 else
@@ -1128,7 +1127,7 @@ bool Loot::hasItemFor(Player const* player) const
             return true;
 
     if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(GetPlayerFFAItems(), player->GetGUID()))
-        if (std::ranges::any_of(*ffaItems, std::identity(), &NotNormalLootItem::is_looted))
+        if (std::ranges::any_of(*ffaItems, &NotNormalLootItem::is_looted))
             return true;
 
     return false;

@@ -395,13 +395,14 @@ class spell_brewfest_mount_transformation : public SpellScript
  July      [Stranglethorn Brew]
     spell_brewfest_botm_jungle_madness
  August    [Draenic Pale Ale]
-    NYI
+    spell_brewfest_botm_pink_elekk
  September [Binary Brew]
     spell_brewfest_botm_teach_language
  October   [Autumnal Acorn Ale]
-    NYI
+    Nothing to script here
  November  [Bartlett's Bitter Brew]
-    NYI
+    spell_brewfest_botm_nauseous
+    Incomplete
  December  [Lord of Frost's Private Label]
     Nothing to script here
 */
@@ -526,6 +527,32 @@ class spell_brewfest_botm_jungle_madness : public SpellScript
     }
 };
 
+enum DraenicPaleAle
+{
+    SPELL_BOTM_PINK_ELEKK    = 49908
+};
+
+// 42264 - Weak Alcohol
+class spell_brewfest_botm_pink_elekk : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_PINK_ELEKK });
+    }
+
+    void HandleAfterCast()
+    {
+        // TODO: Needs additional research, this spell is most likely used if drunk state is high enough.
+        if (roll_chance(50))
+            GetCaster()->CastSpell(GetCaster(), SPELL_BOTM_PINK_ELEKK);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_brewfest_botm_pink_elekk::HandleAfterCast);
+    }
+};
+
 enum BinaryBrew
 {
     SPELL_LEARN_GNOMISH_BINARY      = 50242,
@@ -549,6 +576,30 @@ class spell_brewfest_botm_teach_language : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_brewfest_botm_teach_language::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum BartlettsBitterBrew
+{
+    SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL    = 49867
+};
+
+// 49869 - Nauseous
+class spell_brewfest_botm_nauseous : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_brewfest_botm_nauseous::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -610,6 +661,30 @@ class spell_brewfest_botm_empty_bottle_throw_resolve : public SpellScript
     }
 };
 
+enum MoleMachine
+{
+    SPELL_PORT_TO_GRIM_GUZZLER     = 47523
+};
+
+// 49466 - Mole Machine Portal Schedule
+class spell_brewfest_mole_machine_portal_schedule : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PORT_TO_GRIM_GUZZLER });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PORT_TO_GRIM_GUZZLER);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_brewfest_mole_machine_portal_schedule::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_brewfest()
 {
     RegisterSpellScript(spell_brewfest_giddyup);
@@ -626,7 +701,10 @@ void AddSC_event_brewfest()
     RegisterSpellScript(spell_brewfest_botm_bloated);
     RegisterSpellScript(spell_brewfest_botm_internal_combustion);
     RegisterSpellScript(spell_brewfest_botm_jungle_madness);
+    RegisterSpellScript(spell_brewfest_botm_pink_elekk);
     RegisterSpellScript(spell_brewfest_botm_teach_language);
+    RegisterSpellScript(spell_brewfest_botm_nauseous);
     RegisterSpellScript(spell_brewfest_botm_weak_alcohol);
     RegisterSpellScript(spell_brewfest_botm_empty_bottle_throw_resolve);
+    RegisterSpellScript(spell_brewfest_mole_machine_portal_schedule);
 }

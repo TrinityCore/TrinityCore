@@ -46,7 +46,7 @@ public:
     virtual SystemTimePoint GetDate(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
     virtual char const* GetCString(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
 
-    static void LogTruncation(char const* getter, QueryResultFieldMetadata const* meta);
+    [[noreturn]] static void LogTruncation(char const* getter, QueryResultFieldMetadata const* meta);
 };
 
 #endif // TRINITY_FIELD_VALUE_CONVERTER_H

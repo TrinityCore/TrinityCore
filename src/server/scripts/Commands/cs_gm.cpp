@@ -41,7 +41,7 @@ class gm_commandscript : public CommandScript
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable gmCommandTable =
         {

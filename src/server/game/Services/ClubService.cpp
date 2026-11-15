@@ -17,6 +17,7 @@
 
 #include "ClubService.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "ClientBuildInfo.h"
 #include "ClubMembershipService.h"
 #include "GameTime.h"
 #include "Guild.h"
@@ -160,7 +161,8 @@ uint32 ClubService::HandleGetMembers(club::v1::client::GetMembersRequest const* 
 
         clubMember->set_presence_level(club::v1::client::PresenceLevel::PRESENCE_LEVEL_RICH);
         clubMember->set_whisper_level(club::v1::client::WhisperLevel::WHISPER_LEVEL_OPEN);
-        clubMember->set_note(member.GetPublicNote());
+        std::string_view publicNote = member.GetPublicNote();
+        clubMember->set_note(publicNote.data(), publicNote.size());
         clubMember->set_active(member.IsOnline());
     }
 
@@ -373,7 +375,7 @@ uint32 ClubService::HandleCreateMessage(club::v1::client::CreateMessageRequest c
 std::unique_ptr<club::v1::UniqueClubType> ClubService::CreateGuildClubType()
 {
     std::unique_ptr<club::v1::UniqueClubType> type = std::make_unique<club::v1::UniqueClubType>();
-    type->set_program(5730135);
+    type->set_program(ClientBuild::Program::WoW);
     type->set_name("guild");
     return type;
 }

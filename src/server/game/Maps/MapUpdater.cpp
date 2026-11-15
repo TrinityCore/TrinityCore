@@ -20,8 +20,6 @@
 #include "Map.h"
 #include "Metric.h"
 
-#include <mutex>
-
 class MapUpdateRequest
 {
     private:
@@ -45,59 +43,57 @@ class MapUpdateRequest
         }
 };
 
+MapUpdater::MapUpdater() : _pendingRequests(0)
+{
+}
+
+MapUpdater::~MapUpdater() = default;
+
 void MapUpdater::activate(size_t num_threads)
 {
     for (size_t i = 0; i < num_threads; ++i)
-    {
-        _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this));
-    }
+        _workerThreads.emplace_back(&MapUpdater::WorkerThread, this);
 }
 
 void MapUpdater::deactivate()
 {
-    _cancelationToken = true;
-
     wait();
 
     _queue.Cancel();
 
     for (auto& thread : _workerThreads)
-    {
         thread.join();
-    }
 }
 
 void MapUpdater::wait()
 {
-    std::unique_lock<std::mutex> lock(_lock);
+    for (;;)
+    {
+        std::size_t pendingRequests = _pendingRequests.load(std::memory_order::acquire);
+        if (!pendingRequests)
+            break;
 
-    while (pending_requests > 0)
-        _condition.wait(lock);
-
-    lock.unlock();
+        // wait for change
+        _pendingRequests.wait(pendingRequests, std::memory_order::relaxed);
+    }
 }
 
 void MapUpdater::schedule_update(Map& map, uint32 diff)
 {
-    std::lock_guard<std::mutex> lock(_lock);
+    ++_pendingRequests;
 
-    ++pending_requests;
-
-    _queue.Push(new MapUpdateRequest(map, *this, diff));
+    _queue.Push(std::make_unique<MapUpdateRequest>(map, *this, diff));
 }
 
-bool MapUpdater::activated()
+bool MapUpdater::activated() const
 {
-    return _workerThreads.size() > 0;
+    return !_workerThreads.empty();
 }
 
 void MapUpdater::update_finished()
 {
-    std::lock_guard<std::mutex> lock(_lock);
-
-    --pending_requests;
-
-    _condition.notify_all();
+    if (_pendingRequests.fetch_sub(1, std::memory_order::release) == 1)
+        _pendingRequests.notify_all();
 }
 
 void MapUpdater::WorkerThread()
@@ -107,17 +103,13 @@ void MapUpdater::WorkerThread()
     WorldDatabase.WarnAboutSyncQueries(true);
     HotfixDatabase.WarnAboutSyncQueries(true);
 
-    while (1)
+    while (true)
     {
-        MapUpdateRequest* request = nullptr;
+        std::unique_ptr<MapUpdateRequest> request = nullptr;
 
-        _queue.WaitAndPop(request);
-
-        if (_cancelationToken)
+        if (!_queue.WaitAndPop(request))
             return;
 
         request->call();
-
-        delete request;
     }
 }

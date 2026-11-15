@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
@@ -32,7 +33,7 @@
 5 - Kil'Jaeden
 */
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_FIRE_BARRIER,     DATA_FELMYST,  EncounterDoorBehavior::OpenWhenDone },
     { GO_MURUS_GATE_1,     DATA_MURU,     EncounterDoorBehavior::OpenWhenNotInProgress },
@@ -40,33 +41,38 @@ DoorData const doorData[] =
     { GO_BOSS_COLLISION_1, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_BOSS_COLLISION_2, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_FORCE_FIELD,      DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                   0,             EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_KALECGOS,               DATA_KALECGOS_DRAGON      },
     { NPC_KALECGOS_HUMAN,         DATA_KALECGOS_HUMAN       },
     { NPC_SATHROVARR,             DATA_SATHROVARR           },
     { NPC_BRUTALLUS,              DATA_BRUTALLUS            },
     { NPC_MADRIGOSA,              DATA_MADRIGOSA            },
+    { NPC_WORLD_TRIGGER,          DATA_WORLD_TRIGGER        },
     { NPC_FELMYST,                DATA_FELMYST              },
     { NPC_GRAND_WARLOCK_ALYTHESS, DATA_ALYTHESS             },
     { NPC_LADY_SACROLASH,         DATA_SACROLASH            },
     { NPC_MURU,                   DATA_MURU                 },
+    { NPC_ENTROPIUS,              DATA_ENTROPIUS            },
     { NPC_KILJAEDEN,              DATA_KILJAEDEN            },
     { NPC_KILJAEDEN_CONTROLLER,   DATA_KILJAEDEN_CONTROLLER },
     { NPC_ANVEENA,                DATA_ANVEENA              },
     { NPC_KALECGOS_KJ,            DATA_KALECGOS_KJ          },
-    { 0,                          0                         } // END
+};
+
+static constexpr ObjectData gameObjectData[] =
+{
+    { GO_ICE_BARRIER,             DATA_ICE_BARRIER          },
 };
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
+    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0f), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_KALECGOS, {{ 724 }} },
     { DATA_BRUTALLUS, {{ 725 }} },
@@ -88,7 +94,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
             }
@@ -97,7 +103,7 @@ class instance_sunwell_plateau : public InstanceMapScript
             {
                 Map::PlayerList const& players = instance->GetPlayers();
 
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -112,6 +118,38 @@ class instance_sunwell_plateau : public InstanceMapScript
                 return nullptr;
             }
 
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_LADY_SACROLASH:
+                        EredarTwinsSpawnId[0] = creature->GetSpawnId();
+                        break;
+                    case NPC_GRAND_WARLOCK_ALYTHESS:
+                        EredarTwinsSpawnId[1] = creature->GetSpawnId();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_SACROLASH:
+                        return EredarTwinsSpawnId[0];
+                    case DATA_ALYTHESS:
+                        return EredarTwinsSpawnId[1];
+                    default:
+                        break;
+                }
+
+                return InstanceScript::GetData64(type);
+            }
+
             ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
@@ -124,8 +162,10 @@ class instance_sunwell_plateau : public InstanceMapScript
                     default:
                         break;
                 }
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(id);
             }
+
+            ObjectGuid::LowType EredarTwinsSpawnId[2] = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
