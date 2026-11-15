@@ -152,6 +152,7 @@ namespace WorldPackets
     {
         using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
         using resource_type = typename allocator_type::arena_type;
+        using reserve_max_capacity = std::true_type;
     };
 
     // don't store elements inline when size is large
@@ -160,6 +161,7 @@ namespace WorldPackets
     {
         using allocator_type = std::allocator<T>;
         using resource_type = std::allocator<T>;
+        using reserve_max_capacity = std::false_type;
     };
 
     /**
@@ -172,6 +174,7 @@ namespace WorldPackets
         using allocator_traits = ArrayAllocatorTraits<T, N, (sizeof(T) * N > 0x1000)>;
         using allocator_type = typename allocator_traits::allocator_type;
         using allocator_resource_type = typename allocator_traits::resource_type;
+        using reserve_max_capacity = typename allocator_traits::reserve_max_capacity;
 
         using storage_type = std::vector<T, allocator_type>;
 
@@ -186,10 +189,17 @@ namespace WorldPackets
         using iterator = typename storage_type::iterator;
         using const_iterator = typename storage_type::const_iterator;
 
-        Array() : _storage(_allocatorResource) { }
+        Array() : _storage(_allocatorResource)
+        {
+            if constexpr (reserve_max_capacity())
+                _storage.reserve(max_capacity());
+        }
 
         Array(Array const& other) : Array()
         {
+            if constexpr (reserve_max_capacity())
+                _storage.reserve(max_capacity());
+
             for (T const& element : other)
                 _storage.push_back(element);
         }
