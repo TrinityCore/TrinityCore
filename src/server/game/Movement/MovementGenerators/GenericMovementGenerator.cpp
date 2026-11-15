@@ -73,7 +73,7 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     // Cyclic splines never expire, so update the duration only if it's not cyclic
-    if (_duration)
+    if (_duration && !owner->movespline->isCyclic())
         _duration->Update(diff);
 
     if ((_duration && _duration->Passed()) || owner->movespline->Finalized())
