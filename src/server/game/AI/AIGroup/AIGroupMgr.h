@@ -773,6 +773,69 @@ constexpr std::string_view AIGroupActionsAbbr[] =
     "UDontDismissOnFlyingMountReset"       // 302
 };
 
+constexpr std::string_view ExtraFields[] =
+{
+    "None",                      // 0
+    "Music",                     // 1
+    "Sound",                     // 2
+    "Faction",                   // 3
+    "Radius",                    // 4
+    "Gossip",                    // 5
+    "Quest Giver",               // 6
+    "Trainer",                   // 7
+    "Text",                      // 8
+    "Random Text",               // 9
+    "Spell",                     // 10
+    "Creature",                  // 11
+    "Item",                      // 12
+    "Event",                     // 13
+    "Emote",                     // 14
+    "Spells",                    // 15
+    "Triggers",                  // 16
+    "Wander",                    // 17
+    "Game Object Action",        // 18
+    "Loot",                      // 19
+    "Random Action Set",         // 20
+    "Condition",                 // 21
+    "Vendor",                    // 22
+    "Quest",                     // 23
+    "Movie",                     // 24
+    "Animation Tier",            // 25
+    "Formation",                 // 26
+    "Zone",                      // 27
+    "Vehicle",                   // 28
+    "Creature Immunity",         // 29
+    "Anim Kit",                  // 30
+    "Player Condition",          // 31
+    "Combat Condition",          // 32
+    "Dungeon Encounter",         // 33
+    "Spell Visual Kit",          // 34
+    "Spell Visual",              // 35
+    "Taxi Path",                 // 36
+    "Options",                   // 37
+    "Options",                   // 38
+    "World Effect",              // 39
+    "Spell Script",              // 40
+    "AIActionset",               // 41
+    "Spell Category",            // 42
+    "AI Graph Props",            // 43
+    "Options",                   // 44
+    "Options",                   // 45
+    "Conversation",              // 46
+    "Options",                   // 47
+    "Options (AI Cast)",         // 48
+    "Options",                   // 49
+    "Combat Positioning",        // 50
+    "Options",                   // 51
+    "Options (Change Mode)",     // 52
+    "Behavior Tree",             // 53
+    "Mount Set",                 // 54
+    "Unit String ID Slot",       // 55
+    "GameObj String ID Slot",    // 56
+    "Tier Transition",           // 57
+    "Options"                    // 58
+};
+
 // EnumeratedString's EnumID 598 and g_actionTriggers
 enum ActionTriggers
 {
