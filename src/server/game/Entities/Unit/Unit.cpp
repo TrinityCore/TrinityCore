@@ -6834,8 +6834,12 @@ void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damag
             if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt))
                 player->InterruptPowerRegen(powerType);
 
+    int32 generated = damage;
+    if (generated > 0)
+        generated *= victim->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_GAIN_PCT, powerType);
+
     int32 gain = victim->ModifyPower(powerType, damage, false);
-    int32 overEnergize = damage - gain;
+    int32 overEnergize = std::max(generated - gain, 0);
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) / 2, spellInfo, true);
     SendEnergizeSpellLog(victim, spellInfo->Id, gain, overEnergize, powerType);
 }
