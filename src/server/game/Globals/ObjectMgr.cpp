@@ -7008,8 +7008,8 @@ void ObjectMgr::LoadAccessRequirements()
             continue;
         }
 
-        uint32 difficulty = fields[1].GetUInt8();
-        if (!sDB2Manager.GetMapDifficultyData(mapid, Difficulty(difficulty)))
+        Difficulty difficulty = Difficulty(fields[1].GetUInt8());
+        if (!sDB2Manager.GetMapDifficultyData(mapid, difficulty))
         {
             TC_LOG_ERROR("sql.sql", "Map {} referenced in `access_requirement` does not have difficulty {}, skipped", mapid, difficulty);
             continue;
