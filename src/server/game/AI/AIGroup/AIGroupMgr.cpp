@@ -1804,7 +1804,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_UNIT_EJECT_PASSENGER:
-            /// @todo Extra2 field
+            if (action.Extra2 < 0 || action.Extra2 > MAX_VEHICLE_SEATS || !IsIntegerDouble(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Passenger Index {} (must be 0 for all passengers or between 1 and {}), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2, MAX_VEHICLE_SEATS);
+                return false;
+            }
             break;
         case AI_GROUP_PERFORM_ACTIONSET:
             if (!IsActionSetValid(action, action.Extra2))
