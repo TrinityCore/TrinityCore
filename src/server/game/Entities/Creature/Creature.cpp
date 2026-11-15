@@ -575,10 +575,11 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     CreatureStaticFlagsHolder staticFlags = GenerateStaticFlags(m_creatureDifficulty, GetSpawnId(), GetMap()->GetDifficultyID());
     ApplyAllStaticFlags(staticFlags);
 
-    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, creatureInfo->type == CREATURE_TYPE_CRITTER
+    if (creatureInfo->type == CREATURE_TYPE_CRITTER
         || IsPet()
         || IsTotem()
-        || creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_XP);
+        || creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_XP)
+        _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, true);
 
     // TODO: migrate these in DB
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT, (GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0);
