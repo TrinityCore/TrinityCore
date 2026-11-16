@@ -695,14 +695,14 @@ void ObjectMgr::LoadCreatureSummonedData()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in GroundMountDisplayID for creature {}, set to 0",
                 *summonedData.GroundMountDisplayID, creatureId);
-            summonedData.CreatureIDVisibleToSummoner.reset();
+            summonedData.GroundMountDisplayID.reset();
         }
 
         if (summonedData.FlyingMountDisplayID && !sCreatureDisplayInfoStore.LookupEntry(*summonedData.FlyingMountDisplayID))
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in FlyingMountDisplayID for creature {}, set to 0",
                 *summonedData.FlyingMountDisplayID, creatureId);
-            summonedData.GroundMountDisplayID.reset();
+            summonedData.FlyingMountDisplayID.reset();
         }
 
         if (Optional<std::string_view> despawnOnQuestsRemoved = fields[4].GetStringViewOrNull())
