@@ -6539,6 +6539,10 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (target->HasSummonPending())
                     return SPELL_FAILED_SUMMON_PENDING;
 
+                for (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_caster->GetAreaId()); area; area = sAreaTableStore.LookupEntry(area->ParentAreaID))
+                    if (area->GetFlags().HasFlag(AreaFlags::NoPlayerSummoning))
+                        return SPELL_FAILED_NOT_HERE;
+
                 // check if our map is dungeon
                 if (InstanceMap const* map = m_caster->GetMap()->ToInstanceMap())
                 {
