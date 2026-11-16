@@ -2346,6 +2346,19 @@ void Aura::CallScriptCalcDamageAndHealingHandlers(AuraEffect const* aurEff, Aura
     }
 }
 
+void Aura::CallScriptCalcHealingDoneHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod)
+{
+    for (AuraScript* script : m_loadedScripts)
+    {
+        script->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_HEALING_DONE, aurApp);
+        for (AuraScript::EffectCalcHealingDoneHandler const& effectCalcHealingDone : script->DoEffectCalcHealingDone)
+            if (effectCalcHealingDone.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effectCalcHealingDone.Call(script, aurEff, victim, spellInfo, spellEffectInfo, healing, flatMod, pctMod);
+
+        script->_FinishScriptCall();
+    }
+}
+
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& defaultPrevented)
 {
     for (AuraScript* script : m_loadedScripts)
