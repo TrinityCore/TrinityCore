@@ -1099,7 +1099,13 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 recipient->KilledMonsterCredit(uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_CAST_WITH_POINTS:
-            /// @todo
+            {
+                int32 basePoints = int32(action.Extra3);
+                me->CastSpell(targets.empty() ? nullptr : targets.front(), uint32(action.Extra2), CastSpellExtraArgs()
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints)
+                    .AddSpellMod(SPELLVALUE_BASE_POINT1, basePoints)
+                    .AddSpellMod(SPELLVALUE_BASE_POINT2, basePoints));
+            }
             return true;
         case AI_GROUP_UNIT_RIDE_VEHICLE:
             if (!targets.empty())

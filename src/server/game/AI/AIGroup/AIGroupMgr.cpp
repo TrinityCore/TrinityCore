@@ -26,6 +26,8 @@
 #include "Timer.h"
 #include "WaypointManager.h"
 
+#include <limits>
+
 AIGroupMgr* AIGroupMgr::Instance()
 {
     static AIGroupMgr instance;
@@ -1319,7 +1321,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsSpellValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsBasePointValid(action, action.Extra3))
+                return false;
             break;
         case AI_GROUP_UNIT_RIDE_VEHICLE:
             if (!IsSearchRadiusValid(action, action.Extra0))
@@ -1733,7 +1736,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsSpellValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsBasePointValid(action, action.Extra3))
+                return false;
             /// @todo Extra4 field
             break;
         case AI_GROUP_CIRCLE_UNIT:
@@ -2427,6 +2431,18 @@ bool AIGroupMgr::IsExtendedAngleValid(ActionSetActionHolder const& action, doubl
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid angle {} (must be between -360 and 360), skipped.",
             action.Id, action.Index, action.Type, angle);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsBasePointValid(ActionSetActionHolder const& action, double point)
+{
+    if (!IsIntegerDouble(point) || point < std::numeric_limits<int32>::min() || point > std::numeric_limits<int32>::max())
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Base Point ({}), skipped.",
+            action.Id, action.Index, action.Type, point);
         return false;
     }
 
