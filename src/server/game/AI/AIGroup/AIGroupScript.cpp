@@ -1088,7 +1088,15 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_UNIT_KILL_CREDIT_TAP:
-            /// @todo
+            if (Group* lootGroup = me->GetLootRecipientGroup())
+            {
+                for (GroupReference* it = lootGroup->GetFirstMember(); it != nullptr; it = it->next())
+                    if (Player* recipient = it->GetSource())
+                        if (recipient->IsInMap(me))
+                            recipient->KilledMonsterCredit(uint32(action.Extra2));
+            }
+            else if (Player* recipient = me->GetLootRecipient())
+                recipient->KilledMonsterCredit(uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_CAST_WITH_POINTS:
             /// @todo
