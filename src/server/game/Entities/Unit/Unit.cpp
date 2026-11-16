@@ -3260,7 +3260,8 @@ bool Unit::CanDefendWhileCasting() const
             return false;
 
     if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if (spell->getState() != SPELL_STATE_FINISHED && !spell->m_spellInfo->HasAttribute(SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING))
+        if (spell->getState() != SPELL_STATE_FINISHED && !spell->m_spellInfo->HasAttribute(SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING)
+            && !spell->m_spellInfo->HasAttribute(SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING))
             return false;
 
     return true;
