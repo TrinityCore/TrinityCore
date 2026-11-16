@@ -1,31 +1,43 @@
 -- Creature
 UPDATE `creature_addon` SET `auras`="" WHERE `guid`=9003979;
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554432, `unit_flags2`=34816, `unit_flags3`=524288, `ScriptName`='npc_dread_rift' WHERE `entry`=203832; -- Dread Rift
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554432, `unit_flags2`=34816, `unit_flags3`=524288, `AIName` = 'SmartAI' WHERE `entry`=203832; -- Dread Rift
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554944, `unit_flags2`=2097152, `unit_flags3`=27787264, `ScriptName`='npc_ray_of_anguish' WHERE `entry`=202167; -- Ray of Anguish
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 202167;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (202167, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '402219'); -- 202167 (Ray of Anguish) - Ray of Anguish
 
--- Areatrigger
-DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (28185, 28466, 28022, 28429, 28035);
-INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(28466, 0, 32636, 0, 2, 0, 65212, 65213, 0, -1, 0, 0, NULL, 0, 600000, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_kazzara_dread_rift', 49679), -- Spell: 407046 (Dread Rift)
-(28185, 0, 32079, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 600, 0, 300, 300, 0, 0, 0, 0, 0, 0, 'at_kazzara_wings_of_extinction', 49679), -- Spell: 403326 (Wings of Extinction)
-(28022, 0, 31941, 0, 4, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 4, 0.75, 0.75, 10, 10, 0.300000011920928955, 0.300000011920928955, 0, 0, 'at_kazzara_ray_of_anguish', 49679), -- Spell: 402219 (Ray of Anguish)
-(28429, 0, 32313, 0, 16, 0, 0, 0, 0, -1, 0, 0, NULL, 6138, 5000, 4, 3, 3, 10, 10, 0.300000011920928955, 0.300000011920928955, 0, 0, '', 49679), -- Spell: 406303 (Ray of Anguish)
-(28035, 0, 32577, 0, 2, 0, 64997, 0, 0, -1, 0, 548, NULL, 0, 7000, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_kazzara_molten_scar', 49679); -- Spell: 402421 (Molten Scar)
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 
-DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (32079, 32636, 31941, 32313, 31951));
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(203832, 0, 0, 1, 63, 0, 100, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Dread Rift - On Just Created - Set React State Passive'),
+(203832, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 11, 407046, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Dread Rift - On Link - Cast Dread Rift Areatrigger');
+
+-- Areatrigger
+DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (28185, 28466, 28022, 28035, 28767);
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `PositionalSoundKitId`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `Roll`, `Pitch`, `Yaw`, `TargetRoll`, `TargetPitch`, `TargetYaw`, `ScriptName`, `VerifiedBuild`) VALUES
+(28848, 0, 32306, 0, 0, 0, 64384, 63918, 0, -1, 0, 0, NULL, 0, 600000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_dread_rift', 70783), -- Spell: 407046 (Dread Rift)
+(28466, 0, 32636, 0, 0, 0, 65212, 65213, 0, -1, 0, 0, NULL, 0, 600000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_dread_rift', 70783), -- Spell: 407046 (Dread Rift)
+(28185, 0, 32079, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 600, 0, 0, 300, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_wings_of_extinction', 70783), -- Spell: 403326 (Wings of Extinction)
+(28022, 0, 31941, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 4, 0.75, 0.75, 10, 10, 0.300000011920928955, 0.300000011920928955, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_ray_of_anguish', 70783), -- Spell: 402219 (Ray of Anguish)
+(28035, 0, 31951, 0, 0, 0, 64385, 0, 0, -1, 0, 548, NULL, 0, 7000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_molten_scar_mythic', 70783), -- Spell: 402421 (Molten Scar)
+(28767, 0, 32577, 0, 0, 0, 64997, 0, 0, -1, 0, 548, NULL, 0, 7000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_molten_scar', 70783), -- Spell: 402421 (Molten Scar)
+(28602, 0, 32432, 0, 0, 0, 0, 0, 0, -1, 0, 548, NULL, 0, 300000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_molten_scar', 70783), -- Spell: 407517 (Molten Scar)
+(28771, 0, 32580, 0, 0, 0, 0, 0, 0, -1, 0, 548, NULL, 0, 300000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_molten_scar', 70783); -- Spell: 407517 (Molten Scar)
+
+DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (32079, 32306, 32636, 31941, 32577, 32580, 31951));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
-(32079, 0, 0, 49679),
-(32636, 0, 0, 49679),
-(31941, 0, 0, 49679),
-(32313, 0, 0, 49679),
-(31951, 0, 0, 50000);
+(32079, 0, 0, 70783),
+(32306, 0, 0, 70783),
+(32636, 0, 0, 70783),
+(31941, 0, 0, 70783),
+(32577, 0, 0, 70783),
+(32580, 0, 0, 70783),
+(31951, 0, 0, 70783);
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id`IN (402538, 402547, 404744, 404743, 406525, 406517, 407196, 402260, 401328, 401331, 401335);
+DELETE FROM `spell_script_names` WHERE `ScriptName`IN ('spell_kazzara_ray_of_anguish_trigger', 'spell_kazzara_energize', 'spell_kazzara_hellbeam_consume_energy', 'spell_kazzara_terror_claws', 'spell_kazzara_terror_claws_periodic', 'spell_kazzara_dread_rift', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_dread_rifts', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_rays_of_anguish', 'spell_kazzara_rays_of_anguish_rift_selector', 'spell_kazzara_hellsteel_carnage');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (402538, 'spell_kazzara_energize'),
 (402547, 'spell_kazzara_hellbeam_consume_energy'),
@@ -35,6 +47,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (406517, 'spell_kazzara_dread_rift_player_select'),
 (407196, 'spell_kazzara_dread_rifts'),
 (402260, 'spell_kazzara_ray_of_anguish_trigger'),
+(407069, 'spell_kazzara_rays_of_anguish'),
+(407068, 'spell_kazzara_rays_of_anguish_rift_selector'),
 (401328, 'spell_kazzara_hellsteel_carnage'),
 (401331, 'spell_kazzara_hellsteel_carnage'),
 (401335, 'spell_kazzara_hellsteel_carnage');
@@ -60,4 +74,5 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (201261, 9, 0, 'Such sweet suffering.', 14, 0, 50, 0, 0, 223201, 238515, 0, 'Kazzara, the Hellforged to Player'),
 (201261, 9, 1, 'Your cries are delicious.', 14, 0, 50, 0, 0, 223202, 238516, 0, 'Kazzara, the Hellforged to Player'),
 (201261, 10, 0, 'I... am... broken?', 14, 0, 100, 0, 0, 223204, 238518, 0, 'Kazzara, the Hellforged to Player'),
+(201261, 11, 0, 'You have been left... defenseless.', 14, 0, 100, 0, 0, 223203, 238517, 0, 'Kazzara, the Hellforged to Player'),
 (202167, 0, 0, '|TInterface\\ICONS\\Ability_Mage_FireStarter.blp:20|t Hunted by a |cFFFF0000|Hspell:402253|h[Ray of Anguish]|h|r!', 42, 0, 100, 0, 0, 0, 0, 0, 'Ray of Anguish to Player');
