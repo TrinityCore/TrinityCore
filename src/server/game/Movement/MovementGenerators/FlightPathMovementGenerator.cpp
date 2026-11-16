@@ -99,7 +99,7 @@ bool FlightPathMovementGenerator::DoReset(Player* owner)
     init.SetSmooth();
     init.SetUncompressed();
     init.SetWalk(true);
-    init.SetVelocity(_speed.value_or(PLAYER_FLIGHT_SPEED));
+    init.SetVelocity(_speed.value_or(PLAYER_FLIGHT_SPEED) * owner->GetTotalAuraMultiplier(SPELL_AURA_MOD_TAXI_FLIGHT_SPEED));
     init.Launch();
     return true;
 }
