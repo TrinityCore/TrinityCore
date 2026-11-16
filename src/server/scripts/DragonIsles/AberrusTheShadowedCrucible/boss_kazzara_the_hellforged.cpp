@@ -479,20 +479,11 @@ class spell_kazzara_dread_rifts : public SpellScript
         Unit* caster = GetCaster();
 
         if (caster->HasAura(SPELL_INFERNAL_HEART_40_PCT))
-        {
             spellId = SPELL_DREAD_RIFTS_6_TARGETS;
-            break;
-        }
         else if (caster->HasAura(SPELL_INFERNAL_HEART_60_PCT))
-        {
             spellId = SPELL_DREAD_RIFTS_5_TARGETS;
-            break;
-        }
         else if (caster->HasAura(SPELL_INFERNAL_HEART_80_PCT))
-        {
             spellId = SPELL_DREAD_RIFTS_4_TARGETS;
-            break;
-        }
 
         caster->CastSpell(caster, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -679,7 +670,7 @@ class spell_kazzara_rays_of_anguish : public AuraScript
     void Register() override
     {
         DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_kazzara_rays_of_anguish::CalcPeriodic, EFFECT_1, SPELL_AURA_DUMMY);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kazzara_rays_of_anguish::UpdateSpecAura, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kazzara_rays_of_anguish::HandleDummyTick, EFFECT_1, SPELL_AURA_DUMMY);
     }
 
 public:
@@ -835,7 +826,7 @@ struct at_kazzara_dread_rift : AreaTriggerAI
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -0.5f, MovementForceType::Gravity);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_RIFTBURN);
         unit->RemoveMovementForce(at->GetGUID());
@@ -855,7 +846,7 @@ struct at_kazzara_molten_scar : AreaTriggerAI
         unit->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_MOLTEN_SCAR_DAMAGE);
     }
@@ -874,7 +865,7 @@ struct at_kazzara_ray_of_anguish : AreaTriggerAI
         unit->CastSpell(unit, SPELL_RAY_OF_ANGUISH_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_RAY_OF_ANGUISH_DAMAGE);
     }
@@ -893,7 +884,7 @@ struct at_kazzara_wings_of_extinction : AreaTriggerAI
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -20.0f, MovementForceType::Gravity);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveMovementForce(at->GetGUID());
     }
