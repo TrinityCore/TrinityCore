@@ -1842,7 +1842,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr12>::ToString(SpellAttr12 value)
         case SPELL_ATTR12_UNK14: return { "SPELL_ATTR12_UNK14", "Unknown attribute 14@Attr12", "" };
         case SPELL_ATTR12_UNK15: return { "SPELL_ATTR12_UNK15", "Unknown attribute 15@Attr12", "" };
         case SPELL_ATTR12_UNK16: return { "SPELL_ATTR12_UNK16", "Unknown attribute 16@Attr12", "" };
-        case SPELL_ATTR12_UNK17: return { "SPELL_ATTR12_UNK17", "Unknown attribute 17@Attr12", "" };
+        case SPELL_ATTR12_NOT_IN_PROVING_GROUNDS: return { "SPELL_ATTR12_NOT_IN_PROVING_GROUNDS", "Not In Proving Grounds", "" };
         case SPELL_ATTR12_UNK18: return { "SPELL_ATTR12_UNK18", "Unknown attribute 18@Attr12", "" };
         case SPELL_ATTR12_UNK19: return { "SPELL_ATTR12_UNK19", "Unknown attribute 19@Attr12", "" };
         case SPELL_ATTR12_UNK20: return { "SPELL_ATTR12_UNK20", "Unknown attribute 20@Attr12", "" };
@@ -1886,7 +1886,7 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
         case 14: return SPELL_ATTR12_UNK14;
         case 15: return SPELL_ATTR12_UNK15;
         case 16: return SPELL_ATTR12_UNK16;
-        case 17: return SPELL_ATTR12_UNK17;
+        case 17: return SPELL_ATTR12_NOT_IN_PROVING_GROUNDS;
         case 18: return SPELL_ATTR12_UNK18;
         case 19: return SPELL_ATTR12_UNK19;
         case 20: return SPELL_ATTR12_UNK20;
@@ -1927,7 +1927,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
         case SPELL_ATTR12_UNK14: return 14;
         case SPELL_ATTR12_UNK15: return 15;
         case SPELL_ATTR12_UNK16: return 16;
-        case SPELL_ATTR12_UNK17: return 17;
+        case SPELL_ATTR12_NOT_IN_PROVING_GROUNDS: return 17;
         case SPELL_ATTR12_UNK18: return 18;
         case SPELL_ATTR12_UNK19: return 19;
         case SPELL_ATTR12_UNK20: return 20;

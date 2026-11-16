@@ -894,7 +894,7 @@ enum SpellAttr12 : uint32
     SPELL_ATTR12_UNK14                           = 0x00004000, // TITLE Unknown attribute 14@Attr12
     SPELL_ATTR12_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr12
     SPELL_ATTR12_UNK16                           = 0x00010000, // TITLE Unknown attribute 16@Attr12
-    SPELL_ATTR12_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr12
+    SPELL_ATTR12_NOT_IN_PROVING_GROUNDS          = 0x00020000, // TITLE Not In Proving Grounds
     SPELL_ATTR12_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr12
     SPELL_ATTR12_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr12
     SPELL_ATTR12_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr12

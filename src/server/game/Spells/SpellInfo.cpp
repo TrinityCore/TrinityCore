@@ -2228,6 +2228,13 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             return SPELL_FAILED_NOT_IN_BATTLEGROUND;
     }
 
+    if (HasAttribute(SPELL_ATTR12_NOT_IN_PROVING_GROUNDS))
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        if (mapEntry && mapEntry->GetFlags().HasFlag(MapFlags::ProvingGrounds))
+            return SPELL_FAILED_NOT_HERE;
+    }
+
     // DB base check (if non empty then must fit at least single for allow)
     SpellAreaMapBounds saBounds = sSpellMgr->GetSpellAreaMapBounds(Id);
     if (saBounds.first != saBounds.second)
