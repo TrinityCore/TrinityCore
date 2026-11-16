@@ -388,6 +388,7 @@ class TC_GAME_API SpellInfo
         uint32 BaseLevel = 0;
         uint32 SpellLevel = 0;
         SpellDurationEntry const* DurationEntry = nullptr;
+        SpellDurationEntry const* PvPDurationEntry = nullptr;
         std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> PowerCosts = {};
         SpellRangeEntry const* RangeEntry = nullptr;
         float Speed = 0.0f;
