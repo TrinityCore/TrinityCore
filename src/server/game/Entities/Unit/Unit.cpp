@@ -2411,7 +2411,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     bool canDodge = victim->GetTypeId() != TYPEID_PLAYER || canParryOrBlock;
 
     // if victim is casting or cc'd it can't avoid attacks
-    if (victim->IsNonMeleeSpellCast(false, false, true) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
+    if ((victim->IsNonMeleeSpellCast(false, false, true) && !victim->CanDefendWhileCasting()) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
     {
         canDodge = false;
         canParryOrBlock = false;
@@ -2646,7 +2646,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     bool canBlock = !spellInfo->HasAttribute(SPELL_ATTR8_NO_ATTACK_BLOCK);
 
     // if victim is casting or cc'd it can't avoid attacks
-    if (victim->IsNonMeleeSpellCast(false, false, true) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
+    if ((victim->IsNonMeleeSpellCast(false, false, true) && !victim->CanDefendWhileCasting()) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
     {
         canDodge = false;
         canParry = false;
@@ -3251,6 +3251,19 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled /*= false*/,
         return true;
 
     return false;
+}
+
+bool Unit::CanDefendWhileCasting() const
+{
+    if (Spell const* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->getState() != SPELL_STATE_LAUNCHED && !spell->m_spellInfo->HasAttribute(SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING))
+            return false;
+
+    if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if (spell->getState() != SPELL_STATE_FINISHED && !spell->m_spellInfo->HasAttribute(SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING))
+            return false;
+
+    return true;
 }
 
 void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id, bool withInstant)

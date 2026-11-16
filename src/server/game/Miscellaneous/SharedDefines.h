@@ -820,7 +820,7 @@ enum SpellAttr10 : uint32
     SPELL_ATTR10_ROLLING_PERIODIC                = 0x00004000, // TITLE Rolling Periodic DESCRIPTION Add remaining periodic damage to new aura when refreshed
     SPELL_ATTR10_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr10
     SPELL_ATTR10_UNK16                           = 0x00010000, // TITLE Unknown attribute 16@Attr10
-    SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING   = 0x00020000, // TITLE Allow Defense While Casting
+    SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING     = 0x00020000, // TITLE Allow Defense While Casting
     SPELL_ATTR10_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr10
     SPELL_ATTR10_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr10
     SPELL_ATTR10_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr10
