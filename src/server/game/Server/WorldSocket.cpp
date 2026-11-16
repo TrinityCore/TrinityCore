@@ -344,7 +344,7 @@ bool WorldSocket::ReadHeaderHandler()
         _authCrypt.PeekDecryptRecv(reinterpret_cast<uint8*>(&header->EncryptedOpcode), sizeof(encryptedOpcode));
 
         // CMSG_HOTFIX_REQUEST can be much larger than normal packets, allow receiving it once per session
-        if (header->EncryptedOpcode != CMSG_HOTFIX_REQUEST || header->Size > 0x100000 || !_canRequestHotfixes)
+        if (header->EncryptedOpcode != CMSG_HOTFIX_REQUEST || !header->IsValidLargeSize() || !_canRequestHotfixes)
         {
             TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, opcode {})",
                 GetRemoteIpAddress(), header->Size, uint32(header->EncryptedOpcode));
