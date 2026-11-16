@@ -595,6 +595,7 @@ class TC_GAME_API SpellInfo
         DiminishingReturnsType GetDiminishingReturnsGroupType() const;
         DiminishingLevels GetDiminishingReturnsMaxLevel() const;
         int32 GetDiminishingReturnsLimitDuration() const;
+        static SpellDiminishEntry const* GetSpellDiminishEntry(DiminishingGroup group);
 
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const;

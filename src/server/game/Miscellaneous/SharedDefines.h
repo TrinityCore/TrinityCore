@@ -7426,14 +7426,10 @@ enum PartyResult
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
 
-enum DiminishingLevels
+enum DiminishingLevels : uint8
 {
     DIMINISHING_LEVEL_1             = 0,
-    DIMINISHING_LEVEL_2             = 1,
-    DIMINISHING_LEVEL_3             = 2,
-    DIMINISHING_LEVEL_IMMUNE        = 3,
-    DIMINISHING_LEVEL_4             = 3,
-    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
+    DIMINISHING_LEVEL_IMMUNE        = 3
 };
 
 enum WeaponAttackType : uint8

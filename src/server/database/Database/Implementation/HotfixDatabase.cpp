@@ -1616,6 +1616,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "SpellID FROM spell_cooldowns WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_COOLDOWNS, "SELECT MAX(ID) + 1 FROM spell_cooldowns", CONNECTION_SYNCH);
 
+    // SpellDiminish.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_DIMINISH, "SELECT ID, Name, Duration, Multiplier, Unknown1200, ImmunityStacks, MaxStacks, IconFileDataID"
+        " FROM spell_diminish WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_DIMINISH, "SELECT MAX(ID) + 1 FROM spell_diminish", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_SPELL_DIMINISH, "SELECT ID, Name_lang FROM spell_diminish_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
     // SpellDuration.db2
     PrepareStatement(HOTFIX_SEL_SPELL_DURATION, "SELECT ID, Duration, MaxDuration, DurationPerResource FROM spell_duration"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
