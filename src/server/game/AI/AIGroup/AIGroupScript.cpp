@@ -1899,14 +1899,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
             }
             break;
         }
-        case AIGROUP_TARGET_FARTHEST:
-            if (me)
-            {
-                if (Unit* unit = me->AI()->SelectTarget(SelectTargetMethod::MaxDistance, 0, FarthestTargetSelector(me, float(target.Farthest.MaxDist), target.Farthest.PlayerOnly, target.Farthest.IsInLos != 0)))
-                    targets.push_back(unit);
-            }
-            break;
-
         case AIGROUP_TARGET_VEHICLE_PASSENGER:
         {
             if (me && me->IsVehicle())

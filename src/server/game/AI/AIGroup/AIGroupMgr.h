@@ -1136,7 +1136,6 @@ enum AIGroupTargetType : uint8
     AIGROUP_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist, playerOnly
     AIGROUP_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
     AIGROUP_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
-    AIGROUP_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     AIGROUP_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
 
     AIGROUP_TARGET_END                            = 30
@@ -1250,13 +1249,6 @@ struct AIGroupTarget
         {
             uint32 SeatMask;
         } Vehicle;
-
-        struct
-        {
-            uint32 MaxDist;
-            bool PlayerOnly;
-            bool IsInLos;
-        } Farthest;
 
         struct
         {
