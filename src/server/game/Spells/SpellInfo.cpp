@@ -2587,8 +2587,8 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
             if (effect.IsAura(SPELL_AURA_MOD_SHAPESHIFT))
             {
                 SpellShapeshiftFormEntry const* shapeShiftFromEntry = sSpellShapeshiftFormStore.LookupEntry(effect.MiscValue);
-                if (shapeShiftFromEntry && (shapeShiftFromEntry->Flags & 1) == 0)  // unk flag
-                    checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
+                if (shapeShiftFromEntry && !shapeShiftFromEntry->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance))
+                    checkMask |= VEHICLE_SEAT_FLAG_PASSENGER_MAY_SHAPESHIFT;
                 break;
             }
         }
