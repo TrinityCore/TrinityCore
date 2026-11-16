@@ -70,7 +70,8 @@ struct PacketHeader
     uint32 Size;
     uint8 Tag[12];
 
-    bool IsValidSize() const { return Size < 0x10000; }
+    bool IsValidSize() const { return Size >= 4 && Size < 0x10000; }
+    bool IsValidLargeSize() const { return Size >= 4 && Size < 0x100000; }
 };
 
 struct IncomingPacketHeader : PacketHeader
