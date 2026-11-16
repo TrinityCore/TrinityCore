@@ -25836,10 +25836,12 @@ float Player::GetReputationPriceDiscount(Creature const* creature) const
 
 float Player::GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate) const
 {
-    if (!factionTemplate || !factionTemplate->Faction)
-        return 1.0f;
+    ReputationRank rank = REP_NEUTRAL;
+    if (sChrRacesStore.AssertEntry(GetRace())->GetFlags().HasFlag(ChrRacesFlag::ExaltedWithAllVendors))
+        rank = REP_EXALTED;
+    else if (factionTemplate && factionTemplate->Faction)
+        rank = GetReputationRank(factionTemplate->Faction);
 
-    ReputationRank rank = GetReputationRank(factionTemplate->Faction);
     if (rank <= REP_NEUTRAL)
         return 1.0f;
 
