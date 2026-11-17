@@ -167,7 +167,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
         }
         else if (type == POINT_MOTION_TYPE)
         {
-            if (action.Type != AI_GROUP_MOVE_RELATIVE)
+            if (action.Type != AI_GROUP_MOVE_RELATIVE_CURRENT_FACING)
                 return;
 
             if (id != action.Id)
@@ -1093,7 +1093,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
             /// @todo
             return true;
-        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             /// @todo "MoveSpeed", "Speed Multiplier", "retry with shorter dist  (0 = 0ff, 1 = on)" params
             {
                 constexpr float DegreesToRadians = float(M_PI) / 180.0f;
@@ -1330,7 +1330,7 @@ bool AIGroupScript::ShouldStopMovementForAction(uint16 action)
         case AI_GROUP_PATROL_LINE:
         case AI_GROUP_PATROL_CIRCLE:
         case AI_GROUP_GUARD_GUID:
-        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             return true;
         default:
             return false;
@@ -1347,7 +1347,7 @@ bool AIGroupScript::IsActionWaitable(ActionSetActionHolder const& action)
         case AI_GROUP_IDLE_COMBAT_STOP:
         case AI_GROUP_UNIT_FINISH_CAST:
             return true;
-        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             return action.TimeA == 0;
         default:
             return false;
@@ -1510,7 +1510,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 auto StopMovement = [actionType = action.Type](Creature* creature)
                 {
                     MotionMaster* motionMaster = creature->GetMotionMaster();
-                    if (actionType == AI_GROUP_MOVE_RELATIVE)
+                    if (actionType == AI_GROUP_MOVE_RELATIVE_CURRENT_FACING)
                     {
                         motionMaster->Clear(MOTION_SLOT_ACTIVE);
                         creature->StopMoving();

@@ -196,7 +196,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_UPDATE_INTERACTION                = 155,   // NYI // Unit(s) update interaction
     AI_GROUP_UNIT_BOSS_WHISPER                      = 156,   // NYI // Unit(s) boss whispers someone
     AI_GROUP_UNIT_BOSS_WHISPER_RANDOM               = 157,   // NYI // Unit(s) boss whispers someone randomly
-    AI_GROUP_MOVE_RELATIVE                          = 158,   // Move relative to current facing
+    AI_GROUP_MOVE_RELATIVE_CURRENT_FACING           = 158,   // Move relative to current facing
     AI_GROUP_UNIT_DONT_CLEAR_TAP                    = 159,   // NYI // Unit(s) don't clear tap when leaving combat
     AI_GROUP_UNIT_KILL_CREDIT_TAP                   = 160,   // Unit(s) assign kill credit to tap list
     AI_GROUP_UNIT_CAST_WITH_POINTS                  = 161,   // Unit(s) cast a spell with points
@@ -626,7 +626,7 @@ constexpr std::string_view AIGroupActionsAbbr[] =
     "UUpdateInteraction",                  // 155
     "UBossWhisper",                        // 156
     "UBossWhisperRandom",                  // 157
-    "MoveRelative",                        // 158
+    "MoveRelativeCurrentFacing",           // 158
     "UDontClearTap",                       // 159
     "UKillCreditTap",                      // 160
     "UCastWithPoints",                     // 161

@@ -1301,7 +1301,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             /// @todo Extra3 field
             break;
-        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             if (!IsExtendedAngleValid(action, action.Extra0))
                 return false;
             /// @todo Extra1 field
@@ -2704,7 +2704,7 @@ AIGroupMgr::ObjectTypeMask AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION action)
         case AI_GROUP_UNIT_UPDATE_INTERACTION:
         case AI_GROUP_UNIT_BOSS_WHISPER:
         case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
-        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
         case AI_GROUP_UNIT_DONT_CLEAR_TAP:
         case AI_GROUP_UNIT_KILL_CREDIT_TAP:
         case AI_GROUP_UNIT_CAST_WITH_POINTS:
@@ -3031,7 +3031,7 @@ AIGroupMgr::ActionSetTypeInfo const AIGroupMgr::StaticActionSetTypeData[AI_GROUP
     { "AI_GROUP_UNIT_UPDATE_INTERACTION", { FieldUnit } },
     { "AI_GROUP_UNIT_BOSS_WHISPER", { FieldUnit, FieldExtra2, FieldExtra3 } },
     { "AI_GROUP_UNIT_BOSS_WHISPER_RANDOM", { FieldUnit, FieldExtra2, FieldExtra3 } },
-    { "AI_GROUP_MOVE_RELATIVE", { FieldTimeA, FieldMoveSpeed, FieldExtra0, FieldExtra1, FieldExtra2, FieldExtra3, FieldExtra4 } },
+    { "AI_GROUP_MOVE_RELATIVE_CURRENT_FACING", { FieldTimeA, FieldMoveSpeed, FieldExtra0, FieldExtra1, FieldExtra2, FieldExtra3, FieldExtra4 } },
     { "AI_GROUP_UNIT_DONT_CLEAR_TAP", { FieldUnit } },
     { "AI_GROUP_UNIT_KILL_CREDIT_TAP", { FieldUnit, FieldExtra2 } },
     { "AI_GROUP_UNIT_CAST_WITH_POINTS", { FieldUnit, FieldStringId, FieldExtra0, FieldExtra2, FieldExtra3 } },

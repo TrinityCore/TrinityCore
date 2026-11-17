@@ -60,7 +60,7 @@ To create a new action, follow these steps:
 
 ## Actions, Fields, Predefined Examples
 
-* **158 - AI_GROUP_MOVE_RELATIVE - (Move relative to current facing)**<br>
+* **158 - AI_GROUP_MOVE_RELATIVE_CURRENT_FACING - (Move relative to current facing)**<br>
 
 `Extra0` (Pitch / Elevation): Controls the vertical angle (up/down) in degrees:
 
