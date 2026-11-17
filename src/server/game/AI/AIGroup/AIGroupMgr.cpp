@@ -1302,7 +1302,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra3 field
             break;
         case AI_GROUP_MOVE_RELATIVE:
-            if (!IsStandardAngleValid(action, action.Extra0))
+            if (!IsExtendedAngleValid(action, action.Extra0))
                 return false;
             /// @todo Extra1 field
             if (!IsStandardAngleValid(action, action.Extra2))

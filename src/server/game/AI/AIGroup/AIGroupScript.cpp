@@ -134,7 +134,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
     if (mActionSets.empty())
         return;
 
-    if (type == WAYPOINT_MOTION_TYPE)
+    if (type == WAYPOINT_MOTION_TYPE || type == POINT_MOTION_TYPE)
     {
         auto activeActionSet = std::max_element(mActionSets.begin(), mActionSets.end(), [this](AIGroupActiveActionSet const& left, AIGroupActiveActionSet const& right)
         {
@@ -155,12 +155,24 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
             return;
 
         ActionSetActionHolder const& action = activeActionSet->Actions[activeActionSet->CurrentAction];
-        if (action.Type != AI_GROUP_FOLLOW_PATH)
-            return;
 
-        WaypointPath const* path = sWaypointMgr->GetPath(action.Path);
-        if (!path || path->nodes.empty() || id != path->nodes.size() - 1)
-            return;
+        if (type == WAYPOINT_MOTION_TYPE)
+        {
+            if (action.Type != AI_GROUP_FOLLOW_PATH)
+                return;
+
+            WaypointPath const* path = sWaypointMgr->GetPath(action.Path);
+            if (!path || path->nodes.empty() || id != path->nodes.size() - 1)
+                return;
+        }
+        else if (type == POINT_MOTION_TYPE)
+        {
+            if (action.Type != AI_GROUP_MOVE_RELATIVE)
+                return;
+
+            if (id != action.Id)
+                return;
+        }
 
         activeActionSet->ActionTimer = 0;
         activeActionSet->ActionStarted = false;
@@ -1082,8 +1094,19 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_MOVE_RELATIVE:
-            /// @todo
-            return true;
+            /// @todo "MoveSpeed", "Speed Multiplier", "retry with shorter dist  (0 = 0ff, 1 = on)" params
+            {
+                constexpr float DegreesToRadians = float(M_PI) / 180.0f;
+                float pitch = float(action.Extra0) * DegreesToRadians;
+                float distance = float(action.Extra1);
+                float moveAngle = me->ToAbsoluteAngle(float(action.Extra2) * DegreesToRadians);
+                float destinationX = me->GetPositionX() + distance * std::cos(pitch) * std::cos(moveAngle);
+                float destinationY = me->GetPositionY() + distance * std::cos(pitch) * std::sin(moveAngle);
+                float destinationZ = me->GetPositionZ() + distance * std::sin(pitch);
+
+                me->GetMotionMaster()->MovePoint(action.Id, destinationX, destinationY, destinationZ, true);
+            }
+            return false;
         case AI_GROUP_UNIT_DONT_CLEAR_TAP:
             /// @todo
             return true;
@@ -1307,15 +1330,16 @@ bool AIGroupScript::ShouldStopMovementForAction(uint16 action)
         case AI_GROUP_PATROL_LINE:
         case AI_GROUP_PATROL_CIRCLE:
         case AI_GROUP_GUARD_GUID:
+        case AI_GROUP_MOVE_RELATIVE:
             return true;
         default:
             return false;
     }
 }
 
-bool AIGroupScript::IsActionWaitable(uint16 action)
+bool AIGroupScript::IsActionWaitable(ActionSetActionHolder const& action)
 {
-    switch (action)
+    switch (action.Type)
     {
         case AI_GROUP_FOLLOW_PATH:
         case AI_GROUP_MOVETO:
@@ -1323,6 +1347,8 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
         case AI_GROUP_IDLE_COMBAT_STOP:
         case AI_GROUP_UNIT_FINISH_CAST:
             return true;
+        case AI_GROUP_MOVE_RELATIVE:
+            return action.TimeA == 0;
         default:
             return false;
     }
@@ -1467,7 +1493,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 continue;
             }
 
-            if (IsActionWaitable(action.Type))
+            if (IsActionWaitable(action))
                 return;
 
             if (CanActionBeInfinite(action.Type) && action.TimeA == 0)
@@ -1481,14 +1507,26 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
             if (ShouldStopMovementForAction(action.Type))
             {
+                auto StopMovement = [actionType = action.Type](Creature* creature)
+                {
+                    MotionMaster* motionMaster = creature->GetMotionMaster();
+                    if (actionType == AI_GROUP_MOVE_RELATIVE)
+                    {
+                        motionMaster->Clear(MOTION_SLOT_ACTIVE);
+                        creature->StopMoving();
+                    }
+
+                    motionMaster->MoveIdle();
+                };
+
                 if (m_group)
                 {
                     for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                         if (IsCreatureAndExists(member))
-                            member->ToCreature()->GetMotionMaster()->MoveIdle();
+                            StopMovement(member->ToCreature());
                 }
                 else if (me)
-                    me->GetMotionMaster()->MoveIdle();
+                    StopMovement(me);
             }
 
             activeActionSet->ActionTimer = 0;
@@ -1519,7 +1557,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
         }
 
         if (actionFinished ||
-            (activeActionSet->ActionTimer == 0 && !CanActionBeInfinite(action.Type) && !IsActionWaitable(action.Type)))
+            (activeActionSet->ActionTimer == 0 && !CanActionBeInfinite(action.Type) && !IsActionWaitable(action)))
         {
             activeActionSet->ActionStarted = false;
             ++activeActionSet->CurrentAction;

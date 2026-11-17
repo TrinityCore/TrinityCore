@@ -6,6 +6,7 @@
 
 * [Creating a New Action Trigger](#creating-a-new-action-trigger)
 * [Creating a New Action](#creating-a-new-action)
+* [Actions, Fields, Predefined Examples](#actions-fields-predefined-examples)
 
 ## TO-DO List
 
@@ -56,3 +57,55 @@ To create a new action, follow these steps:
 **IMPORTANT:** If your `extra` parameter uses an integer, always use `IsIntegerDouble` or `IsNonNegativeWholeNumberInRange` or `IsPositiveWholeNumberInRange`.
 6. Implement the action behavior in `AIGroupScript::ExecuteActionForActor`. If your action uses the `StringId` field, ensure you also add your action to the section where `StringId` target selection is handled. Additionally, add your action to `AIGroupScript::GetStringIdSearchRadius`.<br>
 **IMPORTANT:** By default, the action targets both creatures and game objects with the specified `StringId` within a 100-yard range.
+
+## Actions, Fields, Predefined Examples
+
+* **158 - AI_GROUP_MOVE_RELATIVE - (Move relative to current facing)**<br>
+
+`Extra0` (Pitch / Elevation): Controls the vertical angle (up/down) in degrees:
+
+```txt
+0 = Flat/Horizontal (ground level)
+> 0 (Positive) = Aimed upward
+< 0 (Negative) = Aimed downward
+```
+
+`Extra1` (Yards to Move): The total length/magnitude of the movement in yards.
+
+`Extra2` (Move Angle / Direction): Controls the horizontal heading in degrees. The angle is relative to the creature's current facing direction:
+
+```txt
+0 = Directly ahead (forward)
+180 = Directly behind (backward)
+90 = Directly to the creature's left
+270 = Directly to the creature's right
+```
+
+Reference Table for Common Behaviors:
+
+| Movement Scenario | Extra0 (Pitch) | Extra2 (Move Angle) |
+| :--- | :---: | :---: |
+| **Straight Forward** | 0 | 0 |
+| **Straight Backward** | 0 | 180 |
+| **Strafe Left** | 0 | 90 |
+| **Strafe Right** | 0 | 270 |
+| **Diagonal Forward-Left** | 0 | 45 |
+| **Diagonal Forward-Right** | 0 | 315 |
+| **Diagonal Backward-Left** | 0 | 135 |
+| **Diagonal Backward-Right** | 0 | 225 |
+| **Straight Up** | 90 | 0 |
+| **Straight Down** | -90 | 0 |
+| **Backward Up** | 45 | 180 |
+| **Strafe Left Up** | 45 | 90 |
+| **Strafe Right Up** | 45 | 270 |
+| **Diagonal Forward-Left Up** | 45 | 45 |
+| **Diagonal Forward-Right Up** | 45 | 315 |
+| **Backward-Left Up** | 45 | 135 |
+| **Backward-Right Up** | 45 | 225 |
+| **Backward Down** | -45 | 180 |
+| **Strafe Left Down** | -45 | 90 |
+| **Strafe Right Down** | -45 | 270 |
+| **Diagonal Forward-Left Down** | -45 | 45 |
+| **Diagonal Forward-Right Down** | -45 | 315 |
+| **Backward-Left Down** | -45 | 135 |
+| **Backward-Right Down** | -45 | 225 |
