@@ -529,8 +529,7 @@ void Spell::EffectSchoolDMG()
         Unit* unitCaster = GetUnitCasterForEffectHandlers();
         if (unitCaster && apply_direct_bonus)
         {
-            int32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
-            damage = bonus + int32(bonus * variance);
+            damage = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
             damage = unitTarget->SpellDamageBonusTaken(unitCaster, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
         }
 

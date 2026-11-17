@@ -574,32 +574,36 @@ SpellEffectValue SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullpt
     {
         float delta = fabs(Scaling.Variance * 0.5f);
         float valueVariance = frand(-delta, delta);
-        value += basePoints * valueVariance;
+        value += static_cast<int32>(basePoints * valueVariance);
 
         if (variance)
             *variance = valueVariance;
     }
-    else if (DieSides)
-    {
-        // roll in a range <1;EffectDieSides> as of patch 3.3.3
-        if (DieSides == 1)
-            value += DieSides;
-        else
-            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
-    }
 
-    // base amount modification based on spell lvl vs caster lvl
     if (Scaling.Coefficient == 0.0f)
     {
+        if (DieSides)
+        {
+            // roll in a range <1;EffectDieSides> as of patch 3.3.3
+            if (DieSides == 1)
+                value += DieSides;
+            else
+                value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
+        }
+
+        // base amount modification based on spell lvl vs caster lvl
         if (casterUnit && basePointsPerLevel != 0.0)
         {
-            int32 level = int32(casterUnit->GetLevel());
-            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
-                level = int32(_spellInfo->MaxLevel);
+            int32 level = _spellInfo->SpellLevel;
+            if (!level)
+                level = int32(casterUnit->GetLevel());
 
-            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
-            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
-            level = std::max(level, 0);
+            if (_spellInfo->MaxLevel > 0 && level > static_cast<int32>(_spellInfo->MaxLevel))
+                level = static_cast<int32>(_spellInfo->MaxLevel);
+
+            if (_spellInfo->BaseLevel > 0)
+                level = std::max(0, level - static_cast<int32>(_spellInfo->BaseLevel));
+
             value += level * basePointsPerLevel;
         }
     }
