@@ -21,6 +21,9 @@
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -32,104 +35,108 @@
 enum KazzaraSpells
 {
     // Intro
-    SPELL_DREAD_LANDING                      = 411872,
-    SPELL_FEAR                               = 220540,
-    SPELL_KAZZARA_INTRO                      = 410541,
+    SPELL_DREAD_LANDING                         = 411872,
+    SPELL_FEAR                                  = 220540,
+    SPELL_KAZZARA_INTRO                         = 410541,
 
     // Kazzara
-    SPELL_DREAD_RIFTS                        = 407196,
-    SPELL_DREAD_RIFT_AURA                    = 406525,
-    SPELL_DREAD_RIFT_SUMMON                  = 406526,
-    SPELL_DREAD_RIFTS_3_TARGETS              = 406516,
-    SPELL_DREAD_RIFTS_4_TARGETS              = 407198,
-    SPELL_DREAD_RIFTS_5_TARGETS              = 407199,
-    SPELL_DREAD_RIFTS_6_TARGETS              = 407200,
-    SPELL_DREAD_RIFT_MARKER                  = 411926,
-    SPELL_HELLBEAM                           = 400430,
-    SPELL_HELLSTEEL_CARNAGE_40_PCT           = 401319,
-    SPELL_HELLSTEEL_CARNAGE_60_PCT           = 401318,
-    SPELL_HELLSTEEL_CARNAGE_80_PCT           = 401316,
-    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT = 401335,
-    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT = 401331,
-    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT = 401328,
-    SPELL_HELLSTEEL_FRAGMENTS_40_PCT         = 404595,
-    SPELL_HELLSTEEL_FRAGMENTS_60_PCT         = 404593,
-    SPELL_HELLSTEEL_FRAGMENTS_80_PCT         = 404553,
-    SPELL_INFERNAL_FUSION                    = 408147,
-    SPELL_INFERNAL_HEART_40_PCT              = 408373,
-    SPELL_INFERNAL_HEART_60_PCT              = 408372,
-    SPELL_INFERNAL_HEART_80_PCT              = 408367,
-    SPELL_MOLTEN_SCAR_AREATRIGGER            = 402421,
-    SPELL_MOLTEN_SCAR_AREATRIGGER_RIFT       = 407517,
-    SPELL_MOLTEN_SCAR_DAMAGE                 = 402420,
-    SPELL_OVERRIDE_POWER_DISPLAY             = 402550,
-    SPELL_PERIODIC_ENERGIZE                  = 402538,
-    SPELL_RAY_OF_ANGUISH_AREA                = 402260,
-    SPELL_RAY_OF_ANGUISH_AREATRIGGER         = 402219,
-    SPELL_RAY_OF_ANGUISH_DAMAGE              = 402207,
-    SPELL_RAY_OF_ANGUISH_DAMAGE_AREA         = 407218,
-    SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS     = 409256,
-    SPELL_RAY_OF_ANGUISH_AURA_MARKER         = 411925,
-    SPELL_RAY_OF_ANGUISH_DECREASE_SPEED      = 402299,
-    SPELL_RAY_OF_ANGUISH_FIXATE              = 402253,
-    SPELL_RAY_OF_ANGUISH_MISSILE             = 402187,
-    SPELL_RAYS_OF_ANGUISH                    = 407069,
-    SPELL_RELENTLESS_TORMENT                 = 410511,
-    SPELL_REVENANTS_BLOOD_80_PCT             = 404407,
-    SPELL_REVENANTS_BLOOD_60_PCT             = 404784,
-    SPELL_REVENANTS_BLOOD_40_PCT             = 407488,
-    SPELL_RIFTBURN                           = 406530,
-    SPELL_TERROR_CLAWS                       = 404744,
-    SPELL_TERROR_CLAWS_DAMAGE                = 406597,
-    SPELL_TERROR_CLAWS_PERIODIC_AURA         = 404743,
-    SPELL_TERROR_CLAWS_PERIODIC_DAMAGE       = 401898,
-    SPELL_TERROR_CLAWS_SHADOWFLAME_DAMAGE    = 406601,
-    SPELL_WINGS_OF_EXTINCTION                = 403326
+    SPELL_DREAD_RIFTS                           = 407196,
+    SPELL_DREAD_RIFT_AURA                       = 406525,
+    SPELL_DREAD_RIFT_SUMMON                     = 406526,
+    SPELL_DREAD_RIFTS_3_TARGETS                 = 406516,
+    SPELL_DREAD_RIFTS_4_TARGETS                 = 407198,
+    SPELL_DREAD_RIFTS_5_TARGETS                 = 407199,
+    SPELL_DREAD_RIFTS_6_TARGETS                 = 407200,
+    SPELL_DREAD_RIFT_MARKER                     = 411926,
+    SPELL_HELLBEAM                              = 400430,
+    SPELL_HELLSTEEL_CARNAGE_40_PCT              = 401319,
+    SPELL_HELLSTEEL_CARNAGE_60_PCT              = 401318,
+    SPELL_HELLSTEEL_CARNAGE_80_PCT              = 401316,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT    = 401335,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT    = 401331,
+    SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT    = 401328,
+    SPELL_HELLSTEEL_FRAGMENTS_40_PCT            = 404595,
+    SPELL_HELLSTEEL_FRAGMENTS_60_PCT            = 404593,
+    SPELL_HELLSTEEL_FRAGMENTS_80_PCT            = 404553,
+    SPELL_INFERNAL_FUSION                       = 408147,
+    SPELL_INFERNAL_HEART_40_PCT                 = 408373,
+    SPELL_INFERNAL_HEART_60_PCT                 = 408372,
+    SPELL_INFERNAL_HEART_80_PCT                 = 408367,
+    SPELL_MOLTEN_SCAR_AREATRIGGER               = 402421,
+    SPELL_MOLTEN_SCAR_AREATRIGGER_RIFT          = 407517,
+    SPELL_MOLTEN_SCAR_DAMAGE                    = 402420,
+    SPELL_OVERRIDE_POWER_DISPLAY                = 402550,
+    SPELL_PERIODIC_ENERGIZE                     = 402538,
+    SPELL_RAY_OF_ANGUISH_AREA                   = 402260,
+    SPELL_RAY_OF_ANGUISH_AREATRIGGER            = 402219,
+    SPELL_RAY_OF_ANGUISH_DAMAGE                 = 402207,
+    SPELL_RAY_OF_ANGUISH_DAMAGE_AREA            = 407218,
+    SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS        = 409256,
+    SPELL_RAY_OF_ANGUISH_AURA_MARKER            = 411925,
+    SPELL_RAY_OF_ANGUISH_DECREASE_SPEED         = 402299,
+    SPELL_RAY_OF_ANGUISH_FIXATE                 = 402253,
+    SPELL_RAY_OF_ANGUISH_MISSILE                = 402187,
+    SPELL_RAYS_OF_ANGUISH                       = 407069,
+    SPELL_RELENTLESS_TORMENT                    = 410511,
+    SPELL_REVENANTS_BLOOD_80_PCT                = 404407,
+    SPELL_REVENANTS_BLOOD_60_PCT                = 404784,
+    SPELL_REVENANTS_BLOOD_40_PCT                = 407488,
+    SPELL_RIFTBURN                              = 406530,
+    SPELL_TERROR_CLAWS                          = 404744,
+    SPELL_TERROR_CLAWS_DAMAGE                   = 406597,
+    SPELL_TERROR_CLAWS_PERIODIC_AURA            = 404743,
+    SPELL_TERROR_CLAWS_PERIODIC_DAMAGE          = 401898,
+    SPELL_TERROR_CLAWS_SHADOWFLAME_DAMAGE       = 406601,
+    SPELL_WINGS_OF_EXTINCTION                   = 403326
 };
 
 enum KazzaraTexts
 {
-    SAY_AGGRO                                = 0,
-    SAY_WINGS_OF_EXTINCTION                  = 1,
-    SAY_ARMOR_80_PCT                         = 2,
-    SAY_RAYS_OF_ANGUISH                      = 3,
-    SAY_HELLBEAM                             = 4,
-    SAY_HELLBEAM_ALERT                       = 5,
-    SAY_TERROR_CLAWS                         = 6,
-    SAY_ARMOR_60_PCT                         = 7,
-    SAY_ARMOR_40_PCT                         = 8,
-    SAY_KILL                                 = 9,
-    SAY_DIED                                 = 10,
-    SAY_WIPE                                 = 11,
+    SAY_AGGRO                   = 0,
+    SAY_WINGS_OF_EXTINCTION     = 1,
+    SAY_ARMOR_80_PCT            = 2,
+    SAY_RAYS_OF_ANGUISH         = 3,
+    SAY_HELLBEAM                = 4,
+    SAY_HELLBEAM_ALERT          = 5,
+    SAY_TERROR_CLAWS            = 6,
+    SAY_ARMOR_60_PCT            = 7,
+    SAY_ARMOR_40_PCT            = 8,
+    SAY_KILL                    = 9,
+    SAY_DIED                    = 10,
+    SAY_WIPE                    = 11,
 
     // Ray of Anguish
-    SAY_FIXATE                               = 0
+    SAY_FIXATE                  = 0
 };
 
 enum KazzaraEvents
 {
-    EVENT_RAYS_OF_ANGUISH                    = 1,
-    EVENT_TERROR_CLAWS                       = 2,
-    EVENT_WINGS_OF_EXTINCTION                = 3,
-    EVENT_ENERGIZE                           = 4,
-    EVENT_DREAD_RIFT                         = 5,
-    EVENT_CHECK_ENERGY                       = 6,
+    EVENT_RAYS_OF_ANGUISH = 1,
+    EVENT_TERROR_CLAWS,
+    EVENT_WINGS_OF_EXTINCTION,
+    EVENT_DREAD_RIFT,
+    EVENT_CHECK_ENERGY,
 
     // Ray of Anguish
-    EVENT_MOLTEN_SCAR                        = 7,
-    EVENT_RELENTLESS_TORMENT                 = 8
+    EVENT_MOLTEN_SCAR,
+    EVENT_RELENTLESS_TORMENT
 };
 
 enum KazzaraActions
 {
-    ACTION_HEALTH_BELOW_80_PCT               = 1,
-    ACTION_HEALTH_BELOW_60_PCT               = 2,
-    ACTION_HEALTH_BELOW_40_PCT               = 3
+    ACTION_HEALTH_BELOW_80_PCT = 1,
+    ACTION_HEALTH_BELOW_60_PCT = 2,
+    ACTION_HEALTH_BELOW_40_PCT = 3
+};
+
+enum KazzaraTaskGroups
+{
+    GROUP_ENERGIZE = 1
 };
 
 enum KazzaraMisc
 {
-    NPC_RAY_OF_ANGUISH  = 202167
+    NPC_RAY_OF_ANGUISH = 202167
 };
 
 // 201261 - Kazzara the Hellforged
@@ -142,6 +149,7 @@ struct boss_kazzara_the_hellforged : public BossAI
         _Reset();
         _hellsteelCarnageCast = 0;
         _terrorClawsCount = 1;
+        _pendingCarnages.clear();
     }
 
     void KilledUnit(Unit* victim) override
@@ -185,24 +193,24 @@ struct boss_kazzara_the_hellforged : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+        // ENCOUNTER_FRAME_ENGAGE is sent only once (it was sent twice before)
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
         DoCastSelf(SPELL_PERIODIC_ENERGIZE);
         DoCastSelf(SPELL_OVERRIDE_POWER_DISPLAY);
 
-        events.ScheduleEvent(EVENT_TERROR_CLAWS, 3s);
+        // First timers taken from retail sniffs (median of all difficulties)
+        events.ScheduleEvent(EVENT_TERROR_CLAWS, 4s);
+        events.ScheduleEvent(EVENT_DREAD_RIFT, 7s);
         events.ScheduleEvent(EVENT_WINGS_OF_EXTINCTION, 14500ms);
         events.ScheduleEvent(EVENT_RAYS_OF_ANGUISH, 24s);
-        events.ScheduleEvent(EVENT_DREAD_RIFT, 12s);
         events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
     void OnSpellStart(SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
-            case SAY_WINGS_OF_EXTINCTION:
+            case SPELL_WINGS_OF_EXTINCTION:
                 Talk(SAY_WINGS_OF_EXTINCTION);
                 break;
             case SPELL_TERROR_CLAWS:
@@ -214,15 +222,39 @@ struct boss_kazzara_the_hellforged : public BossAI
             case SPELL_HELLBEAM:
                 Talk(SAY_HELLBEAM);
                 Talk(SAY_HELLBEAM_ALERT);
+                ScheduleEnergize(7300ms);
                 break;
             case SPELL_HELLSTEEL_CARNAGE_80_PCT:
                 Talk(SAY_ARMOR_80_PCT);
+                ScheduleEnergize(9000ms);
                 break;
             case SPELL_HELLSTEEL_CARNAGE_60_PCT:
                 Talk(SAY_ARMOR_60_PCT);
+                ScheduleEnergize(9000ms);
                 break;
             case SPELL_HELLSTEEL_CARNAGE_40_PCT:
                 Talk(SAY_ARMOR_40_PCT);
+                ScheduleEnergize(9000ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_HELLSTEEL_CARNAGE_80_PCT:
+                DoCastSelf(SPELL_INFERNAL_HEART_80_PCT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                break;
+            case SPELL_HELLSTEEL_CARNAGE_60_PCT:
+                me->RemoveAurasDueToSpell(SPELL_INFERNAL_HEART_80_PCT);
+                DoCastSelf(SPELL_INFERNAL_HEART_60_PCT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                break;
+            case SPELL_HELLSTEEL_CARNAGE_40_PCT:
+                me->RemoveAurasDueToSpell(SPELL_INFERNAL_HEART_60_PCT);
+                DoCastSelf(SPELL_INFERNAL_HEART_40_PCT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 break;
             default:
                 break;
@@ -256,11 +288,10 @@ struct boss_kazzara_the_hellforged : public BossAI
                 }
 
                 me->SetVisible(true);
-
                 DoCast(SPELL_DREAD_LANDING);
                 DoCast(SPELL_KAZZARA_INTRO);
 
-                scheduler.Schedule(1s + 500ms, [this](TaskContext /*context*/)
+                scheduler.Schedule(1s + 500ms, [this](TaskContext const& /*context*/)
                 {
                     std::vector<Creature*> sunderedMobs;
                     GetCreatureListWithOptionsInGrid(sunderedMobs, me, 70.0f, { .StringId = "sundered_mob" });
@@ -273,7 +304,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                     }
                 });
 
-                scheduler.Schedule(12s, [this](TaskContext /*context*/)
+                scheduler.Schedule(12s, [this](TaskContext const& /*context*/)
                 {
                     me->SetUninteractible(false);
                     me->SetImmuneToAll(false);
@@ -281,28 +312,17 @@ struct boss_kazzara_the_hellforged : public BossAI
                 break;
             }
             case ACTION_HEALTH_BELOW_80_PCT:
-            {
-                DoCastSelf(SPELL_HELLSTEEL_CARNAGE_80_PCT);
-                DoCastSelf(SPELL_INFERNAL_HEART_80_PCT);
+                _pendingCarnages.push_back(SPELL_HELLSTEEL_CARNAGE_80_PCT);
                 ++_hellsteelCarnageCast;
                 break;
-            }
             case ACTION_HEALTH_BELOW_60_PCT:
-            {
-                me->RemoveAurasDueToSpell(SPELL_INFERNAL_HEART_80_PCT);
-                DoCastSelf(SPELL_HELLSTEEL_CARNAGE_60_PCT);
-                DoCastSelf(SPELL_INFERNAL_HEART_60_PCT);
+                _pendingCarnages.push_back(SPELL_HELLSTEEL_CARNAGE_60_PCT);
                 ++_hellsteelCarnageCast;
                 break;
-            }
             case ACTION_HEALTH_BELOW_40_PCT:
-            {
-                me->RemoveAurasDueToSpell(SPELL_INFERNAL_HEART_60_PCT);
-                DoCastSelf(SPELL_HELLSTEEL_CARNAGE_40_PCT);
-                DoCastSelf(SPELL_INFERNAL_HEART_40_PCT);
+                _pendingCarnages.push_back(SPELL_HELLSTEEL_CARNAGE_40_PCT);
                 ++_hellsteelCarnageCast;
                 break;
-            }
             default:
                 break;
         }
@@ -315,10 +335,17 @@ struct boss_kazzara_the_hellforged : public BossAI
         if (!UpdateVictim())
             return;
 
+        events.Update(diff);
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        events.Update(diff);
+        if (!_pendingCarnages.empty())
+        {
+            if (DoCastSelf(_pendingCarnages.front()) == SPELL_CAST_OK)
+                _pendingCarnages.pop_front();
+            return;
+        }
 
         while (uint32 eventId = events.ExecuteEvent())
         {
@@ -339,22 +366,18 @@ struct boss_kazzara_the_hellforged : public BossAI
                     DoCastSelf(SPELL_WINGS_OF_EXTINCTION);
                     events.Repeat(35s);
                     break;
-                case EVENT_ENERGIZE:
-                    DoCastSelf(SPELL_PERIODIC_ENERGIZE);
-                    break;
                 case EVENT_DREAD_RIFT:
                     DoCastSelf(SPELL_DREAD_RIFTS);
                     events.Repeat(35s);
                     break;
                 case EVENT_CHECK_ENERGY:
                 {
-                    if (me->GetPower(me->GetPowerType()) == 100 && !me->HasUnitState(UNIT_STATE_CASTING))
+                    if (me->GetPower(me->GetPowerType()) >= 100)
                     {
-                        me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
                         {
+                            me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
                             DoCast(target, SPELL_HELLBEAM);
-                            events.ScheduleEvent(EVENT_ENERGIZE, 1s);
                         }
                     }
                     events.Repeat(500ms);
@@ -368,9 +391,20 @@ struct boss_kazzara_the_hellforged : public BossAI
                 return;
         }
     }
+
 private:
+    void ScheduleEnergize(Milliseconds delay)
+    {
+        scheduler.CancelGroup(GROUP_ENERGIZE);
+        scheduler.Schedule(delay, GROUP_ENERGIZE, [this](TaskContext const& /*context*/)
+        {
+            DoCastSelf(SPELL_PERIODIC_ENERGIZE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        });
+    }
+
     uint8 _hellsteelCarnageCast;
     uint32 _terrorClawsCount;
+    std::deque<uint32> _pendingCarnages;
 };
 
 // 202167 - Ray of Anguish
@@ -388,16 +422,19 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
         DoCastSelf(SPELL_RAY_OF_ANGUISH_AREATRIGGER);
         DoCastSelf(SPELL_RAY_OF_ANGUISH_DECREASE_SPEED);
 
-        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS))
+        if (Unit* target = SelectFixateTarget())
+        {
             DoCast(target, SPELL_RAY_OF_ANGUISH_FIXATE);
+            me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+        }
 
         if (IsLFR() || IsNormal())
             me->DespawnOrUnsummon(10s);
 
-        _events.ScheduleEvent(EVENT_MOLTEN_SCAR, 100ms, 400ms);
+        _events.ScheduleEvent(EVENT_MOLTEN_SCAR, 400ms);
 
         if (IsHeroicOrHigher())
-            _events.ScheduleEvent(EVENT_RELENTLESS_TORMENT, 35600s);
+            _events.ScheduleEvent(EVENT_RELENTLESS_TORMENT, 32600ms, 41700ms);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -408,9 +445,6 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
-            return;
-
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -419,7 +453,7 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
             {
                 case EVENT_MOLTEN_SCAR:
                     DoCastSelf(SPELL_MOLTEN_SCAR_AREATRIGGER);
-                    _events.Repeat(100ms, 400ms);
+                    _events.Repeat(400ms);
                     break;
                 case EVENT_RELENTLESS_TORMENT:
                     DoCastSelf(SPELL_RELENTLESS_TORMENT);
@@ -429,7 +463,26 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
             }
         }
     }
+
 private:
+    Unit* SelectFixateTarget() const
+    {
+        std::vector<Player*> players;
+        me->GetPlayerListInGrid(players, 40.0f);
+
+        std::erase_if(players, [](Player const* player)
+        {
+            return !player->HasAura(SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS);
+        });
+
+        auto itr = std::ranges::min_element(players, {}, [this](Player const* player)
+        {
+            return std::pair(player->HasAura(SPELL_RAY_OF_ANGUISH_FIXATE), me->GetExactDistSq(player));
+        });
+
+        return itr != players.end() ? *itr : nullptr;
+    }
+
     EventMap _events;
 };
 
@@ -509,11 +562,11 @@ class spell_kazzara_dread_rifts : public SpellScript
         Unit* caster = GetCaster();
 
         if (caster->HasAura(SPELL_INFERNAL_HEART_40_PCT))
-            spellId = SPELL_DREAD_RIFTS_6_TARGETS;
+            spellId = SPELL_DREAD_RIFTS_4_TARGETS;
         else if (caster->HasAura(SPELL_INFERNAL_HEART_60_PCT))
             spellId = SPELL_DREAD_RIFTS_5_TARGETS;
         else if (caster->HasAura(SPELL_INFERNAL_HEART_80_PCT))
-            spellId = SPELL_DREAD_RIFTS_4_TARGETS;
+            spellId = SPELL_DREAD_RIFTS_6_TARGETS;
 
         caster->CastSpell(caster, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -530,33 +583,13 @@ class spell_kazzara_dread_rifts : public SpellScript
 // 402538 - Energize
 class spell_kazzara_energize : public AuraScript
 {
-    static constexpr std::array<uint8, 30> KazzaraEnergizeCycle = { 0, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 3, 4, 4, 3, 4, 3, 4, 3, 1 };
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_HELLSTEEL_CARNAGE_80_PCT,
-            SPELL_HELLSTEEL_CARNAGE_60_PCT,
-            SPELL_HELLSTEEL_CARNAGE_40_PCT
-        });
-    }
+    static constexpr std::array<uint8, 7> KazzaraEnergizeCycle = { 3, 4, 3, 4, 3, 4, 4 };
 
     void PeriodicTick(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-        Spell* currentChanneledSpell = target->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-
-        if (!currentChanneledSpell)
-            return;
-
-        if (currentChanneledSpell && (currentChanneledSpell->GetSpellInfo()->Id == SPELL_HELLSTEEL_CARNAGE_80_PCT
-            || currentChanneledSpell->GetSpellInfo()->Id == SPELL_HELLSTEEL_CARNAGE_60_PCT
-            || currentChanneledSpell->GetSpellInfo()->Id == SPELL_HELLSTEEL_CARNAGE_40_PCT))
-            return;
-
-        if (target)
-            target->SetPower(target->GetPowerType(), target->GetPower(target->GetPowerType()) + KazzaraEnergizeCycle[std::min(aurEff->GetTickNumber(), aurEff->GetTickNumber())]);
+        uint8 cycleIdx = aurEff->GetTickNumber() % KazzaraEnergizeCycle.size();
+        target->ModifyPower(target->GetPowerType(), KazzaraEnergizeCycle[cycleIdx]);
     }
 
     void Register() override
@@ -601,24 +634,17 @@ class spell_kazzara_hellsteel_carnage : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         uint32 spellId = GetSpellInfo()->Id;
-
         switch (spellId)
         {
             case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_80_PCT:
-            {
                 spellId = SPELL_HELLSTEEL_FRAGMENTS_80_PCT;
                 break;
-            }
             case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_60_PCT:
-            {
                 spellId = SPELL_HELLSTEEL_FRAGMENTS_60_PCT;
                 break;
-            }
             case SPELL_HELLSTEEL_CARNAGE_TRANSFORM_40_PCT:
-            {
                 spellId = SPELL_HELLSTEEL_FRAGMENTS_40_PCT;
                 break;
-            }
             default:
                 break;
         }
@@ -694,8 +720,13 @@ class spell_kazzara_rays_of_anguish_rift_selector : public SpellScript
             return;
 
         if (Aura* aura = kazzara->GetAura(SPELL_RAYS_OF_ANGUISH))
+        {
             if (spell_kazzara_rays_of_anguish* script = aura->GetScript<spell_kazzara_rays_of_anguish>())
                 script->SetRifts(targets);
+
+            if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
+                aurEff->CalculatePeriodic(kazzara, true);
+        }
     }
 
     void Register() override
@@ -776,24 +807,17 @@ class spell_kazzara_revenants_blood : public SpellScript
     void HandleRevenantsBlood() const
     {
         uint32 spellId = GetSpellInfo()->Id;
-
         switch (spellId)
         {
             case SPELL_HELLSTEEL_FRAGMENTS_80_PCT:
-            {
                 spellId = SPELL_REVENANTS_BLOOD_80_PCT;
                 break;
-            }
             case SPELL_HELLSTEEL_FRAGMENTS_60_PCT:
-            {
                 spellId = SPELL_REVENANTS_BLOOD_60_PCT;
                 break;
-            }
             case SPELL_HELLSTEEL_FRAGMENTS_40_PCT:
-            {
                 spellId = SPELL_REVENANTS_BLOOD_40_PCT;
                 break;
-            }
             default:
                 break;
         }
@@ -876,7 +900,7 @@ struct at_kazzara_dread_rift : AreaTriggerAI
 
         if (unit->IsPlayer())
         {
-            unit->CastSpell(unit, SPELL_RIFTBURN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            at->GetCaster()->CastSpell(unit, SPELL_RIFTBURN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -0.5f, MovementForceType::Gravity);
         }
     }
@@ -899,7 +923,7 @@ struct at_kazzara_molten_scar : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        at->GetCaster()->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
@@ -919,7 +943,7 @@ struct at_kazzara_molten_scar_mythic : AreaTriggerAI
             unit->CastSpell(at->GetPosition(), SPELL_INFERNAL_FUSION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (unit->IsPlayer())
-            unit->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            at->GetCaster()->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override

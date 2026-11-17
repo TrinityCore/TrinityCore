@@ -1,7 +1,7 @@
 -- Creature
 UPDATE `creature_addon` SET `auras`="" WHERE `guid`=9003979;
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554432, `unit_flags2`=34816, `unit_flags3`=524288, `AIName` = 'SmartAI' WHERE `entry`=203832; -- Dread Rift
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554944, `unit_flags2`=2097152, `unit_flags3`=27787264, `ScriptName`='npc_ray_of_anguish' WHERE `entry`=202167; -- Ray of Anguish
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=250, `unit_flags`=33554944, `unit_flags2`=2097152, `unit_flags3`=27787264, `ScriptName`='npc_kazzara_ray_of_anguish' WHERE `entry`=202167; -- Ray of Anguish
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 202167;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
@@ -9,13 +9,13 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 
-DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` =0 AND `entryorguid` =203832;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (203832, 0, 0, 1, 63, 0, 100, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Dread Rift - On Just Created - Set React State Passive'),
 (203832, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 11, 407046, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Dread Rift - On Link - Cast Dread Rift Areatrigger');
 
 -- Areatrigger
-DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (28185, 28466, 28022, 28035, 28767);
+DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (28771, 28602, 28848, 28185, 28466, 28022, 28035, 28767);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `PositionalSoundKitId`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `Roll`, `Pitch`, `Yaw`, `TargetRoll`, `TargetPitch`, `TargetYaw`, `ScriptName`, `VerifiedBuild`) VALUES
 (28848, 0, 32306, 0, 0, 0, 64384, 63918, 0, -1, 0, 0, NULL, 0, 600000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_dread_rift', 70783), -- Spell: 407046 (Dread Rift)
 (28466, 0, 32636, 0, 0, 0, 65212, 65213, 0, -1, 0, 0, NULL, 0, 600000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 'at_kazzara_dread_rift', 70783), -- Spell: 407046 (Dread Rift)
@@ -37,7 +37,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 (31951, 0, 0, 70783);
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `ScriptName`IN ('spell_kazzara_ray_of_anguish_trigger', 'spell_kazzara_energize', 'spell_kazzara_hellbeam_consume_energy', 'spell_kazzara_terror_claws', 'spell_kazzara_terror_claws_periodic', 'spell_kazzara_dread_rift', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_dread_rifts', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_rays_of_anguish', 'spell_kazzara_rays_of_anguish_rift_selector', 'spell_kazzara_hellsteel_carnage');
+DELETE FROM `spell_script_names` WHERE `ScriptName`IN ('spell_kazzara_revenants_blood', 'spell_kazzara_ray_of_anguish_trigger', 'spell_kazzara_energize', 'spell_kazzara_hellbeam_consume_energy', 'spell_kazzara_terror_claws', 'spell_kazzara_terror_claws_periodic', 'spell_kazzara_dread_rift', 'spell_kazzara_dread_rifts', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_rays_of_anguish', 'spell_kazzara_rays_of_anguish_rift_selector', 'spell_kazzara_hellsteel_carnage');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (402538, 'spell_kazzara_energize'),
 (402547, 'spell_kazzara_hellbeam_consume_energy'),
@@ -49,6 +49,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (402260, 'spell_kazzara_ray_of_anguish_trigger'),
 (407069, 'spell_kazzara_rays_of_anguish'),
 (407068, 'spell_kazzara_rays_of_anguish_rift_selector'),
+(404553, 'spell_kazzara_revenants_blood'),
+(404593, 'spell_kazzara_revenants_blood'),
+(404595, 'spell_kazzara_revenants_blood'),
 (401328, 'spell_kazzara_hellsteel_carnage'),
 (401331, 'spell_kazzara_hellsteel_carnage'),
 (401335, 'spell_kazzara_hellsteel_carnage');
