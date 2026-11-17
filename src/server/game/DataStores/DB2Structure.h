@@ -281,7 +281,6 @@ struct BattlemasterListEntry
     int32 Unknown1153_0;
     int32 Unknown1153_1;
 
-    BattlemasterType GetType() const { return static_cast<BattlemasterType>(PvpType); }
     EnumFlag<BattlemasterListFlags> GetFlags() const { return static_cast<BattlemasterListFlags>(Flags); }
 };
 
