@@ -92,7 +92,7 @@ TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
         ptr.reset();
 
         REQUIRE(weakRef.expired());
-        REQUIRE(!weakRef.lock());
+        REQUIRE(weakRef.lock() == nullptr);
     }
 
     SECTION("when unique_trackable_ptr is reassigned then weak cannot retrieve old value")
@@ -102,14 +102,14 @@ TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
         Trinity::unique_weak_ptr<int> weakRef2 = ptr;
 
         REQUIRE(weakRef.expired());
-        REQUIRE(!weakRef2.expired());
+        REQUIRE(weakRef2.expired() == false);
         REQUIRE(weakRef.lock() != weakRef2.lock());
     }
 
     SECTION("when unique_trackable_ptr holds a value then weak can retrieve it")
     {
-        REQUIRE(!weakRef.expired());
-        REQUIRE(!!weakRef.lock());
+        REQUIRE(weakRef.expired() == false);
+        REQUIRE(weakRef.lock() != nullptr);
     }
 }
 
