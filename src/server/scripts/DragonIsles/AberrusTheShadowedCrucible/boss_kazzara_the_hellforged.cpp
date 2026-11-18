@@ -70,7 +70,7 @@ enum KazzaraSpells
     SPELL_RAY_OF_ANGUISH_AREA                   = 402260,
     SPELL_RAY_OF_ANGUISH_AREATRIGGER            = 402219,
     SPELL_RAY_OF_ANGUISH_DAMAGE                 = 402207,
-    SPELL_RAY_OF_ANGUISH_DAMAGE_AREA            = 407218,
+    SPELL_RAY_OF_ANGUISH_FIXATE_SELECTOR        = 407218,
     SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS        = 409256,
     SPELL_RAY_OF_ANGUISH_AURA_MARKER            = 411925,
     SPELL_RAY_OF_ANGUISH_DECREASE_SPEED         = 402299,
@@ -419,15 +419,10 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
     {
         DoCastSelf(SPELL_RAY_OF_ANGUISH_AREATRIGGER);
         DoCastSelf(SPELL_RAY_OF_ANGUISH_DECREASE_SPEED);
-
-        if (Unit* target = SelectFixateTarget())
-        {
-            DoCast(target, SPELL_RAY_OF_ANGUISH_FIXATE);
-            me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
-        }
+        DoCastSelf(SPELL_RAY_OF_ANGUISH_FIXATE_SELECTOR);
 
         if (IsLFR() || IsNormal())
-            me->DespawnOrUnsummon(10s);
+            me->DespawnOrUnsummon(17500ms);
 
         _events.ScheduleEvent(EVENT_MOLTEN_SCAR, 400ms);
 
@@ -463,24 +458,6 @@ struct npc_kazzara_ray_of_anguish : public ScriptedAI
     }
 
 private:
-    Unit* SelectFixateTarget() const
-    {
-        std::vector<Player*> players;
-        me->GetPlayerListInGrid(players, 40.0f);
-
-        std::erase_if(players, [](Player const* player)
-        {
-            return !player->HasAura(SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS);
-        });
-
-        auto itr = std::ranges::min_element(players, {}, [this](Player const* player)
-        {
-            return std::pair(player->HasAura(SPELL_RAY_OF_ANGUISH_FIXATE), me->GetExactDistSq(player));
-        });
-
-        return itr != players.end() ? *itr : nullptr;
-    }
-
     EventMap _events;
 };
 
@@ -730,6 +707,56 @@ class spell_kazzara_rays_of_anguish_rift_selector : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kazzara_rays_of_anguish_rift_selector::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+// 407218 - Ray of Anguish
+class spell_kazzara_ray_of_anguish_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS, SPELL_RAY_OF_ANGUISH_FIXATE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        Unit* caster = GetCaster();
+        targets.remove_if([](WorldObject const* target)
+        {
+            Player const* player = target->ToPlayer();
+            return !player || !player->HasAura(SPELL_RAY_OF_ANGUISH_AURA_10_SECONDS);
+        });
+
+        if (targets.empty())
+            return;
+
+        auto itr = std::ranges::min_element(targets, {}, [caster](WorldObject const* target)
+        {
+            return std::pair(target->ToUnit()->HasAura(SPELL_RAY_OF_ANGUISH_FIXATE), caster->GetExactDistSq(target));
+        });
+
+        WorldObject* selected = *itr;
+        targets.clear();
+        targets.push_back(selected);
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        if (Creature* creatureCaster = GetCaster()->ToCreature())
+        {
+            Unit* target = GetHitUnit();
+            creatureCaster->CastSpell(target, SPELL_RAY_OF_ANGUISH_FIXATE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+            creatureCaster->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kazzara_ray_of_anguish_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sporecaller_zancha_musashitake_teleport_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1009,6 +1036,7 @@ void AddSC_boss_kazzara_the_hellforged()
     RegisterSpellScript(spell_kazzara_hellsteel_carnage);
     RegisterSpellScript(spell_kazzara_rays_of_anguish);
     RegisterSpellScript(spell_kazzara_rays_of_anguish_rift_selector);
+    RegisterSpellScript(spell_kazzara_ray_of_anguish_selector);
     RegisterSpellScript(spell_kazzara_ray_of_anguish_trigger);
     RegisterSpellScript(spell_kazzara_revenants_blood);
     RegisterSpellScript(spell_kazzara_terror_claws);
