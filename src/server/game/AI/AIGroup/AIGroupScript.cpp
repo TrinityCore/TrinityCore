@@ -370,8 +370,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             bool selectNearestTarget = false;
 
             /// @todo:
-            // AI_GROUP_UNIT_SEND_LOCAL_EVENT
-            // AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT
             // AI_GROUP_UNIT_CALL_FOR_HELP
             // AI_GROUP_UNIT_CAST_FAILURE
             // AI_GROUP_COMBAT_POSITION
@@ -421,6 +419,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 case AI_GROUP_UNIT_FACE_GUID:
                 case AI_GROUP_MOVETO_GUID:
                 case AI_GROUP_AVOID_GUID:
+                case AI_GROUP_UNIT_SEND_LOCAL_EVENT:
                 case AI_GROUP_JUMP_GUID:
                 case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
                 case AI_GROUP_UNIT_CAST_WITH_POINTS:
@@ -437,6 +436,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskObject;
                     break;
+                case AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT:
                 case AI_GROUP_UNIT_DESPAWN_STRINGID:
                 default:
                     break;
