@@ -193,12 +193,10 @@ struct boss_kazzara_the_hellforged : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        // ENCOUNTER_FRAME_ENGAGE is sent only once (it was sent twice before)
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         DoCastSelf(SPELL_PERIODIC_ENERGIZE);
         DoCastSelf(SPELL_OVERRIDE_POWER_DISPLAY);
 
-        // First timers taken from retail sniffs (median of all difficulties)
         events.ScheduleEvent(EVENT_TERROR_CLAWS, 4s);
         events.ScheduleEvent(EVENT_DREAD_RIFT, 7s);
         events.ScheduleEvent(EVENT_WINGS_OF_EXTINCTION, 14500ms);
@@ -891,16 +889,20 @@ struct at_kazzara_dread_rift : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
         if (unit->GetMap()->IsHeroicOrHigher() && unit->GetEntry() == NPC_RAY_OF_ANGUISH)
         {
             unit->ToCreature()->DespawnOrUnsummon();
-            at->GetCaster()->CastSpell(at->GetPosition(), SPELL_MOLTEN_SCAR_AREATRIGGER_RIFT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(at->GetPosition(), SPELL_MOLTEN_SCAR_AREATRIGGER_RIFT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             at->Remove();
         }
 
         if (unit->IsPlayer())
         {
-            at->GetCaster()->CastSpell(unit, SPELL_RIFTBURN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(unit, SPELL_RIFTBURN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -0.5f, MovementForceType::Gravity);
         }
     }
@@ -923,7 +925,11 @@ struct at_kazzara_molten_scar : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
