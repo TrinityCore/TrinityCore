@@ -756,7 +756,7 @@ class spell_kazzara_ray_of_anguish_selector : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kazzara_ray_of_anguish_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sporecaller_zancha_musashitake_teleport_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_kazzara_ray_of_anguish_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
