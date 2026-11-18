@@ -219,7 +219,7 @@ private:
 // 372716 - Ancient Dynamo
 class spell_sentinel_talondras_ancient_dynamo : public AuraScript
 {
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         Unit* target = GetTarget();
         target->SetPower(target->GetPowerType(), target->GetPower(target->GetPowerType()) + 4);
@@ -316,7 +316,7 @@ class spell_sentinel_talondras_resonating_orb_marker : public AuraScript
         return ValidateSpellInfo({ Spells::ResonatingOrbMissile });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
