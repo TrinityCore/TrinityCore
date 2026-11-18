@@ -3967,6 +3967,19 @@ void Spell::EffectSkinning()
     }
 }
 
+static float CalculateChargeSpeed(Unit const* caster, SpellInfo const* spellInfo, SpellEffectInfo const& effectInfo)
+{
+    if (spellInfo->HasAttribute(SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED) && effectInfo.Amplitude > 0.0f)
+        return effectInfo.Amplitude;
+
+    // charges move at 4 times the caster's base run speed, scaled by the effect amplitude
+    float speed = caster->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
+    if (Creature const* creature = caster->ToCreature())
+        speed *= creature->GetCreatureTemplate()->speed_run;
+
+    return speed * 4.0f * (effectInfo.Amplitude > 0.0f ? effectInfo.Amplitude : 1.0f);
+}
+
 void Spell::EffectCharge()
 {
     if (!unitTarget)
@@ -3982,8 +3995,7 @@ void Spell::EffectCharge()
         if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             unitCaster->ToPlayer()->SetFallInformation(0, unitCaster->GetPositionZ());
 
-        // charges without a speed move at 4 times the caster's run speed, scaled by the effect amplitude
-        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f * (effectInfo->Amplitude > 0.0f ? effectInfo->Amplitude : 1.0f);
+        float speed = CalculateChargeSpeed(unitCaster, m_spellInfo, *effectInfo);
 
         Optional<Movement::SpellEffectExtraData> spellEffectExtraData;
         if (effectInfo->MiscValueB)
@@ -4000,9 +4012,6 @@ void Spell::EffectCharge()
             m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
             m_preGeneratedPath->CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
         }
-
-        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            speed = m_preGeneratedPath->GetPathLength() / speed;
 
         unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
 
@@ -4046,11 +4055,7 @@ void Spell::EffectChargeDest()
         PathGenerator path(unitCaster);
         path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
 
-        // charges without a speed move at 4 times the caster's run speed, scaled by the effect amplitude
-        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : unitCaster->GetSpeed(MOVE_RUN) * 4.0f * (effectInfo->Amplitude > 0.0f ? effectInfo->Amplitude : 1.0f);
-
-        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            speed = path.GetPathLength() / speed;
+        float speed = CalculateChargeSpeed(unitCaster, m_spellInfo, *effectInfo);
 
         unitCaster->GetMotionMaster()->MoveCharge(path, speed);
 
