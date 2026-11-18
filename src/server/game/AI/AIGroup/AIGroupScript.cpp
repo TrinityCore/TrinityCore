@@ -375,7 +375,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             // AI_GROUP_UNIT_CALL_FOR_HELP
             // AI_GROUP_UNIT_CAST_FAILURE
             // AI_GROUP_UNIT_CAST_RANDOM_PLAYER
-            // AI_GROUP_PUSH_ACTIONSET
             // AI_GROUP_COMBAT_POSITION
             // AI_GROUP_COMBAT_CHASE
 
@@ -405,6 +404,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS:
                 case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
                 case AI_GROUP_CIRCLE_UNIT:
+                case AI_GROUP_PUSH_ACTIONSET:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskUnit;
                     selectNearestTarget = true;
                     break;
