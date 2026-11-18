@@ -374,7 +374,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             // AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT
             // AI_GROUP_UNIT_CALL_FOR_HELP
             // AI_GROUP_UNIT_CAST_FAILURE
-            // AI_GROUP_UNIT_CAST_RANDOM_PLAYER
             // AI_GROUP_COMBAT_POSITION
             // AI_GROUP_COMBAT_CHASE
 
@@ -410,6 +409,9 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                     break;
                 case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskUnitRandom;
+                    break;
+                case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskPlayerRandom;
                     break;
                 case AI_GROUP_UNIT_ACTIVATE_OBJECT:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskObject;
@@ -474,6 +476,14 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                     else
                         for (Creature* creature : creatures)
                             targets.push_back(creature);
+                }
+
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskPlayerRandom)
+                {
+                    std::vector<Player*> players;
+                    baseObject->GetPlayerListInGrid(players, searchRadius);
+                    if (!players.empty())
+                        targets.push_back(Trinity::Containers::SelectRandomContainerElement(players));
                 }
 
                 if (targetTypeMask & AIGroupMgr::TargetTypeMaskObject)

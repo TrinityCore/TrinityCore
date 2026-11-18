@@ -1482,6 +1482,7 @@ class TC_GAME_API AIGroupMgr
             TargetTypeMaskObject        = 0x02,
             TargetTypeMaskNamedPoint    = 0x04,
             TargetTypeMaskUnitRandom    = 0x08,
+            TargetTypeMaskPlayerRandom  = 0x10,
             TargetTypeMaskEntity        = TargetTypeMaskUnit | TargetTypeMaskObject
         };
 
