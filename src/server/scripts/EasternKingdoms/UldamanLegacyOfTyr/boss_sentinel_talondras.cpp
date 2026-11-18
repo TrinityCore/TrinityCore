@@ -373,6 +373,9 @@ class spell_sentinel_talondras_resonating_orb_selector : public SpellScript
     {
         Unit* caster = GetCaster();
         caster->m_Events.AddEventAtOffset(new ResonatingOrbEvent(caster, GetSpell()->m_castId, caster->GetPosition()), 5s);
+
+        if (GetUnitTargetCountForEffect(EFFECT_0) < 2)
+            caster->m_Events.AddEventAtOffset(new ResonatingOrbEvent(caster, GetSpell()->m_castId, caster->GetPosition()), 5s);
     }
 
     void Register() override
