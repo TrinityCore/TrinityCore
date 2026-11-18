@@ -64,7 +64,7 @@ To create a new action, follow these steps:
 
 `TimeA`
 
-`Extra2`
+`Extra2`: Creature Display Info Index (0 = random)
 
 * **1 - AI_GROUP_IDLE - (Idle)**
 
@@ -80,13 +80,13 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: Named Point Search Dist
 
-`Extra1`
+`Extra1`: Approach Dist(yds)
 
-`Extra2`
+`Extra2`: (Spell Script) Position Script
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **3 - AI_GROUP_TELEPORT - (Teleport to a point in the world)**
 
@@ -94,7 +94,7 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **4 - AI_GROUP_WANDER - (Wander)**
 
@@ -104,15 +104,15 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: wander radius
 
-`Extra2`
+`Extra2`: (Wander)
 
 * **5 - AI_GROUP_ATTACK_ALL - (Attack all players within a given radius; old AI_GROUP_WANDER_SPAWNRELATIVE_OBSOLETE)**
 
-`Extra0`
+`Extra0`: Attack Radius
 
 * **6 - AI_GROUP_WANDER_AREA - (Wander a convex poly area (not yet implemented))**
 
@@ -124,9 +124,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Close Enough Dist
 
 * **8 - AI_GROUP_FOLLOW_PATH - (Follow a path)**
 
@@ -136,7 +136,7 @@ To create a new action, follow these steps:
 
 `LinearPath`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **9 - AI_GROUP_PATROL_LINE - (Patrol back and forth along a path)**
 
@@ -148,15 +148,15 @@ To create a new action, follow these steps:
 
 `LinearPath`
 
-`Extra0`
+`Extra0`: Min Time at Ends (secs)
 
-`Extra1`
+`Extra1`: Max Time at Ends (secs)
 
-`Extra2`
+`Extra2`: (Wander) Wander at Ends (optional)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: Wander at end Radius (optional)
 
 * **10 - AI_GROUP_PATROL_CIRCLE - (Patrol in a circular path)**
 
@@ -168,7 +168,7 @@ To create a new action, follow these steps:
 
 `CircularPath`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **11 - AI_GROUP_GUARD_GUID - (Guard a unit)**
 
@@ -176,11 +176,11 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Guard Dist
 
-`Extra3`
+`Extra3`: Angle : in degrees (0 = random)
 
 * **12 - AI_GROUP_GUARD_AREA - (Guard an area (not yet implemented))**
 
@@ -188,13 +188,13 @@ To create a new action, follow these steps:
 
 * **13 - AI_GROUP_SET_FORMATION - (Set a specific formation and spread)**
 
-`Extra0`
+`Extra0`: Num Columns (Marching only)
 
-`Extra1`
+`Extra1`: Spread / Spacing
 
-`Extra2`
+`Extra2`: (Options (((#47)))) Options
 
-`Extra4`
+`Extra4`: (Formation) Formation
 
 * **14 - AI_GROUP_UNIT_CHANGE_MODE_OBSOLETE - (Change mode on unit(s) in the group (obsolete))**
 
@@ -206,9 +206,9 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: 1 = ignore invisibility
 
 * **16 - AI_GROUP_UNIT_CAST - (Unit(s) cast a spell)**
 
@@ -216,9 +216,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **17 - AI_GROUP_UNIT_ACTIVATE_OBJECT - (Unit(s) activate a game object)**
 
@@ -226,15 +226,15 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Game Object Action)
 
-`Extra4`
+`Extra4`: +1 (to abort actionset if it fails)
 
 * **18 - AI_GROUP_GENERATE_EVENT - (Generate an event)**
 
-`Extra2`
+`Extra2`: (Event)
 
 * **19 - AI_GROUP_DESPAWN - (Despawn)**
 
@@ -244,19 +244,19 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Conversation) Conversation ID
 
 * **21 - AI_GROUP_SET_FACTION_OBSOLETE - (Unit(s) cancel a conversation (public unless target is a player))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Conversation) Conversation ID
 
 * **22 - AI_GROUP_UNIT_SET_FACING - (Unit(s) face a particular angle)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: world angle (degs)
 
 * **23 - AI_GROUP_UNIT_FACE_GUID - (Unit(s) face a unit or game object or point)**
 
@@ -264,13 +264,13 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **24 - AI_GROUP_UNIT_EMOTE - (Emote State - Set and Forget (formerly perform an emote))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Emote)
 
 * **25 - AI_GROUP_MOVETO_GUID - (Move within distance of a unit or game object)**
 
@@ -280,27 +280,27 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Approach Dist(yds)
 
-`Extra2`
+`Extra2`: +1 ignore target bounds
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **26 - AI_GROUP_ATTACK_GUID - (Attack unit)**
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: require path check to target(1 or 0)
 
 * **27 - AI_GROUP_UNIT_MOUNT - (Unit(s) mount a creature)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature)
 
 * **28 - AI_GROUP_UNIT_DISMOUNT - (Unit(s) dismount)**
 
@@ -310,7 +310,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **30 - AI_GROUP_UNIT_UNINTERACTIBLE_RESET - (Reset "Uninteractible" flag for unit(s); old AI_GROUP_BEASTMASTER_OFF)**
 
@@ -320,9 +320,9 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature)
 
-`Extra4`
+`Extra4`: (Options (Change Mode))
 
 * **32 - AI_GROUP_UNIT_MODE_RESET - (Reset mode for unit(s))**
 
@@ -332,7 +332,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Faction)
 
 * **34 - AI_GROUP_UNIT_FACTION_RESET - (Reset faction template for unit(s))**
 
@@ -342,7 +342,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Radius)
 
 * **36 - AI_GROUP_UNIT_RADIUS_RESET - (Reset radius record for unit(s))**
 
@@ -356,13 +356,13 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Quest Giver)
 
 * **39 - AI_GROUP_UNIT_TRAINER - (Unit(s) become a trainer)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Trainer)
 
 * **40 - AI_GROUP_SPLINE_PATH - (Follow a short path exactly (no pathing))**
 
@@ -372,7 +372,7 @@ To create a new action, follow these steps:
 
 `LinearPath`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **41 - AI_GROUP_PLAYER_ACTION - (Player performs an action (Programmer -Internal Use Only))**
 
@@ -390,9 +390,9 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra4`
+`Extra4`: 1 = ignore invisibility
 
 * **44 - AI_GROUP_UNIT_YELL - (Unit(s) yell something)**
 
@@ -400,9 +400,9 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: 1 = ignore invisibility
 
 * **45 - AI_GROUP_UNIT_YELL_RANDOM - (Unit(s) yell something random)**
 
@@ -410,17 +410,17 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra4`
+`Extra4`: 1 = ingore invisibility
 
 * **46 - AI_GROUP_UNIT_SET_ITEM_MAINHAND - (Set the item in the mainhand slot for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Item)
 
-`Extra3`
+`Extra3`: Default item: (0 = no, 1 = yes)
 
 * **47 - AI_GROUP_UNIT_RESET_ITEM_MAINHAND - (Reset the item in the mainhand slot for unit(s))**
 
@@ -432,7 +432,7 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **49 - AI_GROUP_UNIT_CHAT_EMOTE_RANDOM - (Unit(s) chat emote something random)**
 
@@ -440,13 +440,13 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **50 - AI_GROUP_UNIT_GENERATE_EVENT - (Unit(s) in the group generates an event)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Event)
 
 * **51 - AI_GROUP_VENDOR_IDLE_OBSOLETE - (Vendor wander + face + idle action sequence (obsolete))**
 
@@ -460,9 +460,9 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Triggers)
 
-`Extra4`
+`Extra4`: (Triggers)
 
 * **54 - AI_GROUP_UNIT_TRIGGERS_RESET - (Reset action triggers for unit(s))**
 
@@ -470,7 +470,7 @@ To create a new action, follow these steps:
 
 * **55 - AI_GROUP_UNIT_LEAVE_COMBAT - (Leave combat (combat action only))**
 
-`Extra2`
+`Extra2`: (Options (((#45)))) options
 
 * **56 - AI_GROUP_IDLE_COMBAT_START - (Idle until group goes into combat)**
 
@@ -488,7 +488,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **59 - AI_GROUP_UNIT_IMMUNEPC_RESET - (Reset "ImmunePC" flag for unit(s))**
 
@@ -498,7 +498,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **61 - AI_GROUP_UNIT_IMMUNENPC_RESET - (Reset "ImmuneNPC" flag for unit(s))**
 
@@ -508,7 +508,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **63 - AI_GROUP_UNIT_UNKILLABLE_RESET - (Reset "Unkillable" flag for unit(s))**
 
@@ -518,7 +518,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Spells)
 
 * **65 - AI_GROUP_UNIT_SPELLS_RESET - (Reset the spells record for unit(s))**
 
@@ -534,9 +534,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Event)
 
 * **68 - AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT - (Unit(s) broadcast a local event)**
 
@@ -544,11 +544,11 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Event)
 
-`Extra4`
+`Extra4`: The number of units to send event to. 0 = all (chosen randomly)
 
 * **69 - AI_GROUP_UNIT_FLEE - (Flee combat (combat action only))**
 
@@ -564,7 +564,7 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **72 - AI_GROUP_OBJECT_CHAT_EMOTE_RANDOM - (Object(s) chat emote something random)**
 
@@ -572,7 +572,7 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **73 - AI_GROUP_AVOID - (Move outside a certain distance of a point)**
 
@@ -582,11 +582,11 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 `Extra1`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **74 - AI_GROUP_AVOID_GUID - (Move outside a certain distance of a unit or game object)**
 
@@ -596,17 +596,17 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 `Extra1`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **75 - AI_GROUP_OBJECT_ACTIVATE - (Activate object(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Game Object Action)
 
 * **76 - AI_GROUP_UNIT_ACTIVATE_OBJECTS - (Unit(s) activate nearby game objects)**
 
@@ -614,9 +614,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Game Object Action)
 
 * **77 - AI_GROUP_UNIT_STRINGID - (Set the string ID for unit(s))**
 
@@ -624,27 +624,27 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra2`
+`Extra2`: StringID slot 0 or 3?
 
 * **78 - AI_GROUP_UNIT_STRINGID_RESET - (Reset the string ID for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: StringID slot 0 or 3?
 
 * **79 - AI_GROUP_PERIODIC_EVENT - (Set a periodic event for the group)**
 
 `TimeA`
 
-`Extra2`
+`Extra2`: (Event)
 
 * **80 - AI_GROUP_UNIT_SET_ITEM_OFFHAND - (Set the item in the offhand slot for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Item)
 
-`Extra3`
+`Extra3`: Default item: (0 = no, 1 = yes)
 
 * **81 - AI_GROUP_UNIT_RESET_ITEM_OFFHAND - (Reset the item in the offhand slot for unit(s))**
 
@@ -654,9 +654,9 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Item)
 
-`Extra3`
+`Extra3`: Default item: (0 = no, 1 = yes)
 
 * **83 - AI_GROUP_UNIT_RESET_ITEM_RANGED - (Reset the item in the ranged slot for unit(s))**
 
@@ -674,13 +674,13 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **87 - AI_GROUP_UNIT_CANCEL_AURA - (Unit(s) cancel an aura on themselves)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **88 - AI_GROUP_UNIT_FINISH_CAST - (Unit(s) wait until they finish casting)**
 
@@ -696,13 +696,13 @@ To create a new action, follow these steps:
 
 `TimeB`
 
-`Extra2`
+`Extra2`: (Emote)
 
 * **90 - AI_GROUP_UNIT_CALL_FOR_HELP - (Call for help (combat action only))**
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **91 - AI_GROUP_FLIGHT_PATH - (Follow a flight spline path exactly)**
 
@@ -714,7 +714,7 @@ To create a new action, follow these steps:
 
 `FlightPath`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **92 - AI_GROUP_UNIT_COMBAT_TRIGGER - (Trigger actions on units in combat)**
 
@@ -722,39 +722,39 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: Trigger Param
 
 * **93 - AI_GROUP_UNIT_GOSSIP - (Unit(s) become a gossip)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Gossip)
 
 * **94 - AI_GROUP_UNIT_KILL_CREDIT - (Unit(s) assign kill credit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature)
 
 * **95 - AI_GROUP_UNIT_WHISPER - (Unit(s) whisper to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **96 - AI_GROUP_UNIT_WHISPER_RANDOM - (Unit(s) whisper to a player something random)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **97 - AI_GROUP_UNIT_NO_LOOT - (Set "No Loot" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **98 - AI_GROUP_UNIT_NO_LOOT_RESET - (Reset "No Loot" flag for unit(s) in the group)**
 
@@ -764,7 +764,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **100 - AI_GROUP_UNIT_NO_XP_RESET - (Reset "No XP" flag for unit(s) in the group)**
 
@@ -774,7 +774,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **102 - AI_GROUP_UNIT_PVP_ENABLING_RESET - (Reset "PVP" flag for unit(s) in the group)**
 
@@ -786,7 +786,7 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Music)
 
 * **104 - AI_GROUP_UNIT_PLAY_SOUND - (Unit(s) play a sound)**
 
@@ -794,19 +794,19 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Sound)
 
 * **105 - AI_GROUP_UNIT_SET_LOOT - (Set the loot for a unit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Loot)
 
 * **106 - AI_GROUP_UNIT_FLOATING - (Set "Floating" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **107 - AI_GROUP_UNIT_FLOATING_RESET - (Reset "Floating" flag for unit(s) in the group)**
 
@@ -818,7 +818,7 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Music)
 
 * **109 - AI_GROUP_OBJECT_PLAY_SOUND - (Object(s) play a sound)**
 
@@ -826,13 +826,13 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Sound)
 
 * **110 - AI_GROUP_SPAWN_FORCED - (Spawn (forced))**
 
 `TimeA`
 
-`Extra2`
+`Extra2`: DisplayID Index (0 = random)
 
 * **111 - AI_GROUP_UNIT_UNSHEATHE_RANGE - (Unit(s) unsheathe their range weapons)**
 
@@ -842,83 +842,83 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **113 - AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM - (Unit(s) chat emote something random to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **114 - AI_GROUP_UNIT_YELL_ZONE - (Unit(s) yell something to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **115 - AI_GROUP_UNIT_YELL_ZONE_RANDOM - (Unit(s) yell something random to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **116 - AI_GROUP_UNIT_PLAY_MUSIC_ZONE - (Unit(s) play music to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Music)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **117 - AI_GROUP_UNIT_PLAY_SOUND_ZONE - (Unit(s) play a sound to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Sound)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **118 - AI_GROUP_OBJECT_CHAT_EMOTE_ZONE - (Object(s) chat emote something to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **119 - AI_GROUP_OBJECT_CHAT_EMOTE_ZONE_RANDOM - (Object(s) chat emote something random to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **120 - AI_GROUP_OBJECT_PLAY_MUSIC_ZONE - (Object(s) play music to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Music)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **121 - AI_GROUP_OBJECT_PLAY_SOUND_ZONE - (Object(s) play a sound to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Sound)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **122 - AI_GROUP_UNIT_IGNORE_COMBAT - (Set "Ignore combat" flag for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **123 - AI_GROUP_UNIT_IGNORE_COMBAT_RESET - (Reset "Ignore combat" flag for unit(s))**
 
@@ -926,15 +926,15 @@ To create a new action, follow these steps:
 
 * **124 - AI_GROUP_RANDOM_ACTION_SET - (Perform a random set of actions)**
 
-`Extra2`
+`Extra2`: (Random Action Set)
 
 * **125 - AI_GROUP_RESTART_ACTIONS_WSE - (Restart the current actions if world state expression is true)**
 
-`Extra2`
+`Extra2`: (Condition)
 
 * **126 - AI_GROUP_ABORT_ACTION_SET_WSE - (Abort action set if world state expression is true)**
 
-`Extra2`
+`Extra2`: (Condition)
 
 * **127 - AI_GROUP_UNIT_BOSS_EMOTE - (Unit(s) boss emote something)**
 
@@ -942,19 +942,19 @@ To create a new action, follow these steps:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra3`
+`Extra3`: Display Time
 
 * **128 - AI_GROUP_UNIT_BOSS_EMOTE_ZONE - (Unit(s) boss emote something to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra3`
+`Extra3`: Display Time
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **129 - AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC - (Trigger actions on nearest unit in combat)**
 
@@ -962,9 +962,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: Trigger Param
 
 * **130 - AI_GROUP_UNIT_CAST_FAILURE - (Unit(s) cast a spell and report failure to owner)**
 
@@ -972,15 +972,15 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **131 - AI_GROUP_UNIT_NO_REPUTATION - (Set "No Reputation" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **132 - AI_GROUP_UNIT_NO_REPUTATION_RESET - (Reset "No Reputation" flag for unit(s) in the group)**
 
@@ -996,13 +996,13 @@ To create a new action, follow these steps:
 
 `FlightPath`
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **134 - AI_GROUP_UNIT_VENDOR - (Unit(s) become a vendor)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Vendor)
 
 * **135 - AI_GROUP_UNIT_RESET_VENDOR_LISTS - (Reset vendor lists for unit(s) in the group)**
 
@@ -1014,9 +1014,9 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: Trigger Param
 
 * **137 - AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT - (Trigger actions on nearest unit)**
 
@@ -1024,37 +1024,37 @@ To create a new action, follow these steps:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: Trigger Param
 
 * **138 - AI_GROUP_UNIT_SAY_ZONE - (Unit(s) say something to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **139 - AI_GROUP_UNIT_SAY_ZONE_RANDOM - (Unit(s) say something random to the zone)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **140 - AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF - (Unit(s) send a local event to self (if outside of combat))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Event)
 
 * **141 - AI_GROUP_UNIT_SESSILE - (Set "Sessile" flag for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **142 - AI_GROUP_UNIT_SESSILE_RESET - (Reset "Sessile" flag for unit(s))**
 
@@ -1064,7 +1064,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **144 - AI_GROUP_UNIT_RAID_LOCK_RESET - (Reset "RAID_LOCK_ON_DEATH" flag for unit(s))**
 
@@ -1072,17 +1072,17 @@ To create a new action, follow these steps:
 
 * **145 - AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER - (Quest complete for triggering player)**
 
-`Extra2`
+`Extra2`: (Quest)
 
 * **146 - AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER - (Quest cleared for triggering player)**
 
-`Extra2`
+`Extra2`: (Quest)
 
 * **147 - AI_GROUP_UNIT_CHAT_PARTY - (Unit(s) chat to a player's party)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **148 - AI_GROUP_UNIT_CLEAR_COOLDOWNS - (Unit(s) clear cooldowns)**
 
@@ -1092,13 +1092,13 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Sound)
 
 * **150 - AI_GROUP_UNIT_PLAY_TARGETED_MUSIC - (Unit(s) play targeted music)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Music)
 
 * **151 - AI_GROUP_UNIT_RESET_INITIAL_SPELL_COOLDOWNS - (Unit(s) reset initial spell cooldowns)**
 
@@ -1108,7 +1108,7 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **153 - AI_GROUP_UNIT_NO_MELEE_RESET - (Reset "No Melee" flag for unit(s) in the group)**
 
@@ -1126,17 +1126,17 @@ To create a new action, follow these steps:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra3`
+`Extra3`: Display Time
 
 * **157 - AI_GROUP_UNIT_BOSS_WHISPER_RANDOM - (Unit(s) boss whispers someone randomly)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
-`Extra3`
+`Extra3`: Display Time
 
 * **158 - AI_GROUP_MOVE_RELATIVE_CURRENT_FACING - (Move relative to current facing)**
 
@@ -1163,9 +1163,9 @@ To create a new action, follow these steps:
 270 = Directly to the creature's right
 ```
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: retry with shorter dist  (0 = 0ff, 1 = on)
 
 Reference Table for Common Behaviors:
 
@@ -1204,7 +1204,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature)
 
 * **161 - AI_GROUP_UNIT_CAST_WITH_POINTS - (Unit(s) cast a spell with points)**
 
@@ -1212,11 +1212,11 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
-`Extra3`
+`Extra3`: Points
 
 * **162 - AI_GROUP_UNIT_RIDE_VEHICLE - (Unit(s) ride a vehicle)**
 
@@ -1224,11 +1224,11 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell) Ride Spell
 
-`Extra3`
+`Extra3`: Seat Index
 
 * **163 - AI_GROUP_UNIT_ABANDON_VEHICLE - (Unit(s) abandon their vehicles)**
 
@@ -1242,17 +1242,17 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Close Enough Dist
 
-`Extra3`
+`Extra3`: Seat Index
 
 * **165 - AI_GROUP_PLAY_MOVIE - (Target player plays a movie file)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Movie)
 
 * **166 - AI_GROUP_JUMP_POINT - (Jump to a point)**
 
@@ -1262,13 +1262,13 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: max jump height(yards)
 
-`Extra1`
+`Extra1`: min jump height(yards)
 
-`Extra2`
+`Extra2`: StringID Search Radius
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **167 - AI_GROUP_JUMP_GUID - (Jump to an object or unit)**
 
@@ -1276,13 +1276,13 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: max jump height(yards)
 
-`Extra1`
+`Extra1`: min jump height(yards)
 
-`Extra2`
+`Extra2`: StringID Search Radius (0 = 100)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **168 - AI_GROUP_MOVETO_THEN_JUMP - (Move to a point, then jump to end of path)**
 
@@ -1292,11 +1292,11 @@ Reference Table for Common Behaviors:
 
 `LinearPath`
 
-`Extra0`
+`Extra0`: max jump height(yards)
 
-`Extra1`
+`Extra1`: min jump height(yards)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **169 - AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS - (Vehicle(s) recall each living passenger)**
 
@@ -1306,11 +1306,11 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Close Enough Dist
 
-`Extra3`
+`Extra3`: Seat Index
 
 * **170 - AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS - (Vehicle(s) respawn all passengers)**
 
@@ -1318,15 +1318,15 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra3`
+`Extra3`: Seat Index
 
 * **171 - AI_GROUP_UNIT_FATAL_FALL_DISTANCE - (Unit(s) Set fatal fall distance)**
 
 `Unit`
 
-`Extra1`
+`Extra1`: Fatal Distance (usually 70)
 
 * **172 - AI_GROUP_UNIT_FATAL_FALL_DISTANCE_RESET - (Unit(s) Reset fatal fall distance)**
 
@@ -1336,7 +1336,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Animation Tier)
 
 * **174 - AI_GROUP_UNIT_SEND_TAP_LIST - (Unit(s) send their tap list to another unit)**
 
@@ -1344,7 +1344,7 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **175 - AI_GROUP_UNIT_GET_TAP_LIST - (Unit(s) get their tap list from another unit)**
 
@@ -1352,13 +1352,13 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **176 - AI_GROUP_UNIT_HOVER_HEIGHT - (Unit(s) set their hover height)**
 
 `Unit`
 
-`Extra1`
+`Extra1`: Height(yards)
 
 * **177 - AI_GROUP_UNIT_HOVER_HEIGHT_RESET - (Unit(s) Reset their hover height)**
 
@@ -1368,19 +1368,19 @@ Reference Table for Common Behaviors:
 
 `MoveSpeed`
 
-`Extra2`
+`Extra2`: (Animation Tier) Anim Tier
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **179 - AI_GROUP_TIER_TRANSITION_TAKE_OFF - (Tier Transition Take off)**
 
 `MoveSpeed`
 
-`Extra1`
+`Extra1`: Vertical Distance
 
-`Extra2`
+`Extra2`: (Animation Tier) Anim Tier
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **180 - AI_GROUP_TIER_TRANSITION_MOVETO - (Tier Transition Move To)**
 
@@ -1392,11 +1392,11 @@ Reference Table for Common Behaviors:
 
 `FlightPath`
 
-`Extra0`
+`Extra0`: String ID Search Radius
 
-`Extra2`
+`Extra2`: (Animation Tier) Anim Tier
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **181 - AI_GROUP_TIER_TRANSITION_MOVETO_GUID - (Tier Transition Move To a Unit or Game Object)**
 
@@ -1406,13 +1406,13 @@ Reference Table for Common Behaviors:
 
 `FlightPath`
 
-`Extra0`
+`Extra0`: String ID Search Radius
 
-`Extra1`
+`Extra1`: Close Enough Dist
 
-`Extra2`
+`Extra2`: (Animation Tier) Anim Tier
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **182 - AI_GROUP_TIER_TRANSITION_FOLLOW_PATH - (Tier Transition Follow Path)**
 
@@ -1424,15 +1424,15 @@ Reference Table for Common Behaviors:
 
 `FlightPath`
 
-`Extra2`
+`Extra2`: (Animation Tier) Anim Tier
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
 * **183 - AI_GROUP_UNIT_KILL_CREDIT_PLAYER - (Unit(s) assign kill credit to player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature)
 
 * **184 - AI_GROUP_SUSPEND_TRIGGER_ACTION - (Suspend Trigger action (creature action only))**
 
@@ -1444,7 +1444,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Vehicle) Vehicle
 
 * **186 - AI_GROUP_UNIT_VEHICLE_RECORD_RESET - (Unit(s) reset their vehicle record ID)**
 
@@ -1454,7 +1454,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature Immunity) Creature Immunities
 
 * **188 - AI_GROUP_UNIT_IMMUNITIES_RESET - (Unit(s) reset their creature immunity template ID)**
 
@@ -1468,41 +1468,41 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: 0: Ignore Phase, 1: Match Phase
 
 * **191 - AI_GROUP_UNIT_YELL_PLAYER - (Unit(s) yells something only to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
-`Extra4`
+`Extra4`: 0: Ignore Phase, 1: Match Phase
 
 * **192 - AI_GROUP_UNIT_START_QUEST - (Unit(s) starts a quest)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Quest)
 
 * **193 - AI_GROUP_UNIT_SAY_PLAYER_RANDOM - (Unit(s) says something random only to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **194 - AI_GROUP_UNIT_YELL_PLAYER_RANDOM - (Unit(s) yells something random only to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **195 - AI_GROUP_UNIT_START_LOOPING_ANIM_KIT - (Unit(s) start a looping anim kit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Anim Kit)
 
 * **196 - AI_GROUP_UNIT_STOP_LOOPING_ANIM_KIT - (Unit(s) stop their looping anim kit)**
 
@@ -1512,25 +1512,25 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Anim Kit)
 
 * **198 - AI_GROUP_UNIT_SET_MOVEMENT_ANIM_KIT - (Unit(s) set their movement anim kit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Anim Kit)
 
 * **199 - AI_GROUP_UNIT_SET_MELEE_ANIM_KIT - (Unit(s) set their melee anim kit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Anim Kit)
 
 * **200 - AI_GROUP_UNIT_INTERACT_SPELL - (Set InteractSpell for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Spell) Spell
 
 * **201 - AI_GROUP_UNIT_INTERACT_SPELL_RESET - (Reset InteractSpell for unit(s) in the group)**
 
@@ -1540,7 +1540,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Player Condition)
 
 * **203 - AI_GROUP_UNIT_INTERACT_SPELL_CONDITION_RESET - (Reset InteractSpellCondition for unit(s) in the group)**
 
@@ -1550,7 +1550,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **205 - AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC_RESET - (Reset "No NPC damage below 85%" flag for unit(s))**
 
@@ -1560,13 +1560,13 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: +- angle (deg)
 
 * **207 - AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY - (Unit(s) sets his boss unit frames priority)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: Use number 1-255. 1 is highest
 
 * **208 - AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY_RESET - (Unit(s) resets his boss unit frames priority)**
 
@@ -1576,7 +1576,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **210 - AI_GROUP_UNIT_NO_THREAT_FEEDBACK_RESET - (Reset "No Threat Feedback" flag for unit(s))**
 
@@ -1586,25 +1586,25 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **212 - AI_GROUP_UNIT_CHAT_EMOTE_PLAYER_RANDOM - (Unit(s) chat emote something random to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **213 - AI_GROUP_UNIT_EMOTE_PLAYER - (Unit(s) perform an emote to a player)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Emote)
 
 * **214 - AI_GROUP_UNIT_SET_QUEST_LOOT - (Set the quest loot for a unit)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Loot)
 
 * **215 - AI_GROUP_UNIT_CAST_RANDOM_UNIT - (Unit(s) cast a spell on a random unit)**
 
@@ -1612,9 +1612,9 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **216 - AI_GROUP_UNIT_CAST_RANDOM_PLAYER - (Unit(s) cast a spell on a random player)**
 
@@ -1622,9 +1622,9 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
 * **217 - AI_GROUP_UNIT_CAST_OTHER_UNIT - (Unit(s) tell some other unit to cast a spell)**
 
@@ -1632,11 +1632,11 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell)
 
-`Extra4`
+`Extra4`: (Options (AI Cast)) options
 
 * **218 - AI_GROUP_MOVE_CIRCLE_RELATIVE - (Move in a circle relative to position)**
 
@@ -1644,15 +1644,15 @@ Reference Table for Common Behaviors:
 
 `MoveSpeed`
 
-`Extra0`
+`Extra0`: Radius of Circle
 
-`Extra1`
+`Extra1`: Z Offset (-/+ yards)
 
-`Extra2`
+`Extra2`: Circle Position Relative (-1 = none/center) or (-180 to 180 = angle)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: +1=time out return, +2=ctr clk, +4=rand dir, +8=high res
 
 * **219 - AI_GROUP_RETURN_HOME_INSTANTLY - (Move everybody back to spawn positions instantly)**
 
@@ -1666,21 +1666,21 @@ Reference Table for Common Behaviors:
 
 * **221 - AI_GROUP_ABORT_ACTION_SET_COMBAT_CONDITION_TRUE - (Abort action set if combat condition is true)**
 
-`Extra2`
+`Extra2`: (Combat Condition) Combat Condition
 
 * **222 - AI_GROUP_FORCE_COMBAT - (Force combat with a unit)**
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: No damage below this percent
 
-`Extra2`
+`Extra2`: (Combat Condition) Stop when Combat Condition is true
 
-`Extra3`
+`Extra3`: Threat multiplier (%)
 
-`Extra4`
+`Extra4`: add 1 to ignore faction, add 2 for bidirectional(sparring), add 4 to Lock Target
 
 * **223 - AI_GROUP_STOP_FORCE_COMBAT - (Stop Force combat)**
 
@@ -1690,7 +1690,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: on = 1, off = 0
 
 * **225 - AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT_RESET - (Unit(s) Reset Untargetable By Client)**
 
@@ -1700,7 +1700,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **227 - AI_GROUP_UNIT_NO_MELEE_APPROACH_RESET - (Reset "No Melee Approach" flag for unit(s) in the group)**
 
@@ -1710,13 +1710,13 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Dungeon Encounter) Dungeon Encounter
 
 * **229 - AI_GROUP_UNIT_CANNOT_TURN - (Set "Cannot Turn" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **230 - AI_GROUP_UNIT_CANNOT_TURN_RESET - (Reset "Cannot Turn" flag for unit(s) in the group)**
 
@@ -1726,7 +1726,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: on = 1, off = 0
 
 * **232 - AI_GROUP_UNIT_PREFER_NPCS_ENEMIES_RESET - (Reset "Prefer NPCs When Searching For Enemies" flag for unit(s) in the group)**
 
@@ -1736,7 +1736,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Faction)
 
 * **234 - AI_GROUP_OBJECT_FACTION_RESET - (Reset faction template for object(s))**
 
@@ -1750,9 +1750,9 @@ Reference Table for Common Behaviors:
 
 `TimeB`
 
-`Extra0`
+`Extra0`: Duration (secs)
 
-`Extra2`
+`Extra2`: (Spell Visual Kit) Spell Visual Kit
 
 * **236 - AI_GROUP_UNIT_PERFORM_SPELL_VISUAL - (Unit(s) perform spell visual)**
 
@@ -1760,11 +1760,11 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell Visual) Spell Visual
 
-`Extra3`
+`Extra3`: Visual Speed/Time
 
 * **237 - AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS - (Unit(s) perform spell visual and trigger actions)**
 
@@ -1772,19 +1772,19 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: String ID Search Radius
 
-`Extra2`
+`Extra2`: (Spell Visual) Spell Visual
 
-`Extra3`
+`Extra3`: Speed/Time
 
-`Extra4`
+`Extra4`: Trigger Param (on target)
 
 * **238 - AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE - (Unit(s) Set "No LeaveCombat State Restore" flag)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **239 - AI_GROUP_OBJECT_STRINGID - (Set the string ID for object(s))**
 
@@ -1792,25 +1792,25 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra2`
+`Extra2`: StringID slot 0 or 1?
 
 * **240 - AI_GROUP_OBJECT_STRINGID_RESET - (Reset the string ID for object(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: StringID slot 0 or 1?
 
 * **241 - AI_GROUP_UNIT_DESPAWN_PERSISTENT_AURA_OBJECTS - (Unit(s) despawn persistent area aura objects)**
 
 `Unit`
 
-`Extra0`
+`Extra0`: Radius
 
 * **242 - AI_GROUP_UNIT_DEFAULT_MOUNT - (Unit(s) set the default mount)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Creature) Mount Creature
 
 * **243 - AI_GROUP_UNIT_DEFAULT_MOUNT_RESET - (Unit(s) reset the default mount)**
 
@@ -1840,7 +1840,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra4`
+`Extra4`: (Zone)
 
 * **249 - AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_PLAYER - (Unit(s) clears boss emotes for a player)**
 
@@ -1850,7 +1850,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **251 - AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE_RESET - (Unit(s) Reset Interact While Hostile)**
 
@@ -1860,7 +1860,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **253 - AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION_RESET - (Unit(s) reset the model highlight suppression)**
 
@@ -1872,11 +1872,11 @@ Reference Table for Common Behaviors:
 
 `LinearPath`
 
-`Extra2`
+`Extra2`: (Taxi Path)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: (Options) Options
 
 * **255 - AI_GROUP_FOLLOW_TAXI_PATH_RELATIVE - (Follow a taxi path relative)**
 
@@ -1884,31 +1884,31 @@ Reference Table for Common Behaviors:
 
 `LinearPath`
 
-`Extra0`
+`Extra0`: rotate angle (degs)
 
-`Extra1`
+`Extra1`: rotate pitch (degs)
 
-`Extra2`
+`Extra2`: (Taxi Path)
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: (Options) Options
 
 * **256 - AI_GROUP_START_DUNGEON_ENCOUNTER - (Start a Dungeon Encounter)**
 
-`Extra2`
+`Extra2`: (Dungeon Encounter) Dungeon Encounter
 
 * **257 - AI_GROUP_END_DUNGEON_ENCOUNTER - (End a Dungeon Encounter)**
 
-`Extra2`
+`Extra2`: (Dungeon Encounter) Dungeon Encounter
 
-`Extra4`
+`Extra4`: 1 = success, 0 = unsuccessful
 
 * **258 - AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL - (Unit(s) set Wild BattlePet Level)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: Level
 
 * **259 - AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL_RESET - (Unit(s) reset Wild BattlePet Level)**
 
@@ -1918,15 +1918,15 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: WorldStateUI
 
-`Extra4`
+`Extra4`: Value
 
 * **261 - AI_GROUP_UNIT_CANNOT_PENETRATE_WATER - (Set "Cannot Penetrate Water" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **262 - AI_GROUP_UNIT_CANNOT_PENETRATE_WATER_RESET - (Reset "Cannot Penetrate Water" flag for unit(s) in the group)**
 
@@ -1938,7 +1938,7 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 * **264 - AI_GROUP_UNIT_SET_SAFE_LOCATION - (Unit(s) Set Safe Location)**
 
@@ -1948,7 +1948,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **266 - AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT_RESET - (Reset "Treat Unit As Raid Unit" flag for unit(s))**
 
@@ -1958,19 +1958,19 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra0`
+`Extra0`: Within a radius of
 
 * **268 - AI_GROUP_UNIT_ADD_PERMANENT_WORLD_EFFECT - (Add permanent World Effect to unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (World Effect) World Effect ID
 
 * **269 - AI_GROUP_UNIT_REMOVE_PERMANENT_WORLD_EFFECT - (Remove permanent World Effect from unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (World Effect) World Effect ID
 
 * **270 - AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT - (Unit(s) tell some other unit to cast a spell with points)**
 
@@ -1978,13 +1978,13 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra2`
+`Extra2`: (Spell) Spell
 
-`Extra3`
+`Extra3`: Points
 
-`Extra4`
+`Extra4`: (Options (AI Cast)) options
 
 * **271 - AI_GROUP_UNIT_SET_ANCHOR_POINT - (Unit(s) Set Anchor Point)**
 
@@ -1998,15 +1998,15 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: RadiusMin
 
-`Extra2`
+`Extra2`: +1 cclock, +2 rand dir
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: Max Radius (optional for randomness)
 
 * **273 - AI_GROUP_RUN_SPELL_SCRIPT - (Run a spell script)**
 
@@ -2014,19 +2014,19 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra2`
+`Extra2`: (Spell Script) script
 
-`Extra3`
+`Extra3`: param (passed to script)
 
 * **274 - AI_GROUP_TURN_IN_PLACE_DEGREES - (Turn in Place(Degrees))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 0 = right, 1 = left, 2 = random
 
-`Extra3`
+`Extra3`: Speed % ( 1 = slowest, 100 = fastest
 
-`Extra4`
+`Extra4`: Total Degrees
 
 * **275 - AI_GROUP_TURN_IN_PLACE_TIMED - (Turn in Place(Timed))**
 
@@ -2036,15 +2036,15 @@ Reference Table for Common Behaviors:
 
 `TimeB`
 
-`Extra2`
+`Extra2`: 0 = right, 1 = left, 2 = random
 
-`Extra3`
+`Extra3`: Speed % ( 1 = slowest, 100 = fastest
 
 * **276 - AI_GROUP_UNIT_PREFER_UNENGAGED_TARGETS - (Set "Prefer Unengaged Targets" flag for unit(s) in the group)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **277 - AI_GROUP_UNIT_GENERATE_SPAWNGROUP_EVENT - (Unit(s) in the group generates a spawngroup event)**
 
@@ -2052,17 +2052,17 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: Event radius
 
-`Extra2`
+`Extra2`: (Event)
 
 * **278 - AI_GROUP_PUSH_ACTIONSET - (Push Actionset)**
 
 `StringId`
 
-`Extra0`
+`Extra0`: Search radius
 
-`Extra2`
+`Extra2`: (AIActionset) ActionSetID
 
 * **279 - AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT - (Move on path graph to point)**
 
@@ -2072,33 +2072,33 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: Named point search dist
 
-`Extra1`
+`Extra1`: Approach dist(yds)
 
-`Extra2`
+`Extra2`: (Spell Script) Position Script
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: (AI Graph Props) GraphID 0=automatic
 
 * **280 - AI_GROUP_TRIGGER_ACTIONS_ON_SELF - (Trigger actions on self)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: Trigger Param
 
 * **281 - AI_GROUP_UNIT_EJECT_PASSENGER - (Unit(s) eject passenger)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: Passenger Index (1 based index, 0 for all)
 
 * **282 - AI_GROUP_PERFORM_ACTIONSET - (Perform actionset)**
 
-`Extra2`
+`Extra2`: (AIActionset)
 
-`Extra4`
+`Extra4`: (Condition)
 
 * **283 - AI_GROUP_UNIT_PAUSE_SPELL_COOLDOWNS - (Unit(s) Pause Spell Cooldowns)**
 
@@ -2112,9 +2112,9 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Spell Category) Category
 
-`Extra3`
+`Extra3`: Duration (sec)
 
 * **286 - AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT - (Unit(s) Plays a sound on itself [Speakerbot])**
 
@@ -2122,7 +2122,7 @@ Reference Table for Common Behaviors:
 
 `Extra0`
 
-`Extra2`
+`Extra2`: (Sound)
 
 * **287 - AI_GROUP_UNIT_STOP_SPEAKERBOT_SOUND - (Unit(s) Stops the [Speakerbot] sound it is playing)**
 
@@ -2142,15 +2142,15 @@ Reference Table for Common Behaviors:
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Approach Dist(yds)
 
-`Extra2`
+`Extra2`: +1 ignore target bounds
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: (AI Graph Props) AI Graph ID. 0=auto
 
 * **290 - AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS - (Move on path graph - multiple points)**
 
@@ -2160,17 +2160,17 @@ Reference Table for Common Behaviors:
 
 `LinearPath`
 
-`Extra2`
+`Extra2`: (Options (((#44)))) Options
 
-`Extra3`
+`Extra3`: Speed Multiplier
 
-`Extra4`
+`Extra4`: (AI Graph Props) AI Graph ID. 0=auto
 
 * **291 - AI_GROUP_UNIT_NEVER_EVADE - (Unit(s) "Never Evade" flag)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **292 - AI_GROUP_UNIT_NEVER_EVADE_RESET - (Reset Unit(s) "Never Evade" flag)**
 
@@ -2180,7 +2180,7 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **294 - AI_GROUP_UNIT_CANCEL_CURRENT_SPELL - (Unit(s) Cancel Current Spell)**
 
@@ -2190,53 +2190,53 @@ Reference Table for Common Behaviors:
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **296 - AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM - (Unit(s) say something random to the entire game region)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **297 - AI_GROUP_UNIT_YELL_GAME_REGION - (Unit(s) yell something to the entire game region)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Text)
 
 * **298 - AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM - (Unit(s) yell something random to the entire game region)**
 
 `Unit`
 
-`Extra2`
+`Extra2`: (Random Text)
 
 * **299 - AI_GROUP_COMBAT_POSITION - (Combat Position)**
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
-`Extra1`
+`Extra1`: Other Object Search Dist
 
-`Extra2`
+`Extra2`: (Options (((#51))))
 
-`Extra4`
+`Extra4`: (Combat Positioning)
 
 * **300 - AI_GROUP_COMBAT_CHASE - (Combat Chase)**
 
 `StringId`
 
-`Extra0`
+`Extra0`: StringID Search Radius
 
 `Extra1`
 
-`Extra2`
+`Extra2`: (Options (((#49)))) options
 
 * **301 - AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT - (Set "Don't Dismiss On Flying Mount" for unit(s))**
 
 `Unit`
 
-`Extra2`
+`Extra2`: 1 = set, 0 = unset
 
 * **302 - AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT_RES - (Reset "Don't Dismiss On Flying Mount" for unit(s))**
 
