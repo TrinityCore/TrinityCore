@@ -129,11 +129,6 @@ enum KazzaraActions
     ACTION_HEALTH_BELOW_40_PCT = 3
 };
 
-enum KazzaraTaskGroups
-{
-    GROUP_ENERGIZE = 1
-};
-
 enum KazzaraMisc
 {
     NPC_RAY_OF_ANGUISH = 202167
@@ -150,6 +145,7 @@ struct boss_kazzara_the_hellforged : public BossAI
         _hellsteelCarnageCast = 0;
         _terrorClawsCount = 1;
         _pendingCarnages.clear();
+        _energizeScheduler.CancelAll();
     }
 
     void KilledUnit(Unit* victim) override
@@ -177,6 +173,7 @@ struct boss_kazzara_the_hellforged : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         Talk(SAY_DIED);
         _JustDied();
+        _energizeScheduler.CancelAll();
         me->RemoveAllAreaTriggers();
         summons.DespawnAll();
     }
@@ -224,14 +221,17 @@ struct boss_kazzara_the_hellforged : public BossAI
                 break;
             case SPELL_HELLSTEEL_CARNAGE_80_PCT:
                 Talk(SAY_ARMOR_80_PCT);
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
                 ScheduleEnergize(9000ms);
                 break;
             case SPELL_HELLSTEEL_CARNAGE_60_PCT:
                 Talk(SAY_ARMOR_60_PCT);
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
                 ScheduleEnergize(9000ms);
                 break;
             case SPELL_HELLSTEEL_CARNAGE_40_PCT:
                 Talk(SAY_ARMOR_40_PCT);
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_ENERGIZE);
                 ScheduleEnergize(9000ms);
                 break;
             default:
@@ -329,6 +329,7 @@ struct boss_kazzara_the_hellforged : public BossAI
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
+        _energizeScheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
@@ -393,8 +394,10 @@ struct boss_kazzara_the_hellforged : public BossAI
 private:
     void ScheduleEnergize(Milliseconds delay)
     {
-        scheduler.CancelGroup(GROUP_ENERGIZE);
-        scheduler.Schedule(delay, GROUP_ENERGIZE, [this](TaskContext const& /*context*/)
+        // own scheduler without BossAI's casting validator: retail's Energize comes 9.0 s after every Carnage start and
+        // 7.3 s after a Hellbeam start, also when the boss is casting then (scheduler held it until the cast ended)
+        _energizeScheduler.CancelAll();
+        _energizeScheduler.Schedule(delay, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_PERIODIC_ENERGIZE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         });
@@ -403,6 +406,7 @@ private:
     uint8 _hellsteelCarnageCast;
     uint32 _terrorClawsCount;
     std::deque<uint32> _pendingCarnages;
+    TaskScheduler _energizeScheduler;
 };
 
 // 202167 - Ray of Anguish
@@ -536,11 +540,11 @@ class spell_kazzara_dread_rifts : public SpellScript
         uint32 spellId = SPELL_DREAD_RIFTS_3_TARGETS;
         Unit* caster = GetCaster();
 
-        if (caster->HasAura(SPELL_INFERNAL_HEART_40_PCT))
+        if (caster->HasAura(SPELL_INFERNAL_HEART_80_PCT))
             spellId = SPELL_DREAD_RIFTS_4_TARGETS;
         else if (caster->HasAura(SPELL_INFERNAL_HEART_60_PCT))
             spellId = SPELL_DREAD_RIFTS_5_TARGETS;
-        else if (caster->HasAura(SPELL_INFERNAL_HEART_80_PCT))
+        else if (caster->HasAura(SPELL_INFERNAL_HEART_40_PCT))
             spellId = SPELL_DREAD_RIFTS_6_TARGETS;
 
         caster->CastSpell(caster, spellId, CastSpellExtraArgsInit{
@@ -558,12 +562,12 @@ class spell_kazzara_dread_rifts : public SpellScript
 // 402538 - Energize
 class spell_kazzara_energize : public AuraScript
 {
-    static constexpr std::array<uint8, 7> KazzaraEnergizeCycle = { 3, 4, 3, 4, 3, 4, 4 };
+    static constexpr std::array<uint8, 29> KazzaraEnergizeCycle = { 3, 4, 3, 4, 3, 4, 4, 3, 4, 3, 4, 3, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 4, 3, 4, 3, 4, 3, 1 };
 
     void PeriodicTick(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-        uint8 cycleIdx = aurEff->GetTickNumber() % KazzaraEnergizeCycle.size();
+        uint32 cycleIdx = std::min<uint32>(aurEff->GetTickNumber() - 1, KazzaraEnergizeCycle.size() - 1);
         target->ModifyPower(target->GetPowerType(), KazzaraEnergizeCycle[cycleIdx]);
     }
 
@@ -972,11 +976,15 @@ struct at_kazzara_molten_scar_mythic : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
         if (unit->GetEntry() == NPC_RAY_OF_ANGUISH)
             unit->CastSpell(at->GetPosition(), SPELL_INFERNAL_FUSION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (unit->IsPlayer())
-            at->GetCaster()->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(unit, SPELL_MOLTEN_SCAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override

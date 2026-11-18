@@ -22,13 +22,13 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (32079, 32306, 32636, 31941, 32577, 32580, 31951));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
-(32079, 0, 0, 70783),
-(32306, 0, 0, 70783),
-(32636, 0, 0, 70783),
-(31941, 0, 0, 70783),
-(32577, 0, 0, 70783),
-(32580, 0, 0, 70783),
-(31951, 0, 0, 70783);
+(32079, 0, 0, 0, 70783),
+(32306, 0, 0, 0x400, 70783),
+(32636, 0, 0, 0x400, 70783),
+(31941, 0, 0, 0, 70783),
+(32577, 0, 0, 0, 70783),
+(32580, 0, 0, 0, 70783),
+(31951, 0, 0, 0x400, 70783);
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName`IN ('spell_kazzara_ray_of_anguish_selector', 'spell_kazzara_revenants_blood', 'spell_kazzara_ray_of_anguish_trigger', 'spell_kazzara_energize', 'spell_kazzara_hellbeam_consume_energy', 'spell_kazzara_terror_claws', 'spell_kazzara_terror_claws_periodic', 'spell_kazzara_dread_rift', 'spell_kazzara_dread_rifts', 'spell_kazzara_dread_rift_player_select', 'spell_kazzara_rays_of_anguish', 'spell_kazzara_rays_of_anguish_rift_selector', 'spell_kazzara_hellsteel_carnage');
