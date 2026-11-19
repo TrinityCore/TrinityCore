@@ -5579,6 +5579,27 @@ class spell_gen_overcharged_town : public SpellScript
     }
 };
 
+static constexpr uint32 SPELL_PVP_TRINKET_NEUTRAL = 97979;
+
+// 59752 - Will to Survive (Racial)
+class spell_gen_will_to_survive : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PVP_TRINKET_NEUTRAL });
+    }
+
+    void HandleVisualSpell()
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_PVP_TRINKET_NEUTRAL, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_gen_will_to_survive::HandleVisualSpell);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5769,4 +5790,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_force_phase_update);
     RegisterSpellScript(spell_gen_crazy_gadgets_calculations);
     RegisterSpellScript(spell_gen_overcharged_town);
+    RegisterSpellScript(spell_gen_will_to_survive);
 }
