@@ -1,0 +1,96 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef DEF_SERPENT_SHRINE_H
+#define DEF_SERPENT_SHRINE_H
+
+#include "CreatureAIImpl.h"
+
+#define SSCScriptName "instance_serpent_shrine"
+#define DataHeader "SS"
+
+uint32 constexpr EncounterCount     = 6;
+
+enum SSBosses
+{
+    BOSS_HYDROSS_THE_UNSTABLE       = 0,
+    BOSS_THE_LURKER_BELOW           = 1,
+    BOSS_LEOTHERAS_THE_BLIND        = 2,
+    BOSS_FATHOM_LORD_KARATHRESS     = 3,
+    BOSS_MOROGRIM_TIDEWALKER        = 4,
+    BOSS_LADY_VASHJ                 = 5
+};
+
+enum SSDataTypes
+{
+    DATA_CARIBDIS                   = 6,
+    DATA_TIDALVESS,
+    DATA_SHARKKIS,
+    DATA_BRIDGE_PART_1,
+    DATA_BRIDGE_PART_2,
+    DATA_BRIDGE_PART_3,
+    DATA_SHIELD_GENERATOR_1,
+    DATA_SHIELD_GENERATOR_2,
+    DATA_SHIELD_GENERATOR_3,
+    DATA_SHIELD_GENERATOR_4,
+    DATA_KILLED_ELITES
+};
+
+enum SSCreatureIds
+{
+    NPC_COILFANG_PRIESTESS          = 21220,
+    NPC_COILFANG_SHATTERER          = 21301,
+    NPC_CARIBDIS                    = 21964,
+    NPC_TIDALVESS                   = 21965,
+    NPC_SHARKKIS                    = 21966,
+    NPC_KARATHRESS                  = 21214,
+    NPC_THE_LURKER_BELOW            = 21217,
+    NPC_LEOTHERAS_THE_BLIND         = 21215,
+    NPC_LADY_VASHJ                  = 21212
+};
+
+enum SSGameObjectIds
+{
+    GO_BRIDGE_PART_1                = 184203,
+    GO_BRIDGE_PART_2                = 184204,
+    GO_BRIDGE_PART_3                = 184205,
+    GO_SHIELD_GENERATOR_1           = 185051,
+    GO_SHIELD_GENERATOR_2           = 185052,
+    GO_SHIELD_GENERATOR_3           = 185053,
+    GO_SHIELD_GENERATOR_4           = 185054
+};
+
+enum SSEventsIds
+{
+    EVENT_RESPAWN_STRANGE_POOL      = 1
+};
+
+enum SSMisc
+{
+    MIN_KILLED_ELITES               = 30
+};
+
+template <class AI, class T>
+inline AI* GetSerpentshrineCavernAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SSCScriptName);
+}
+
+#define RegisterSerpentshrineCavernCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSerpentshrineCavernAI)
+#define RegisterSerpentshrineCavernGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetSerpentshrineCavernAI)
+
+#endif

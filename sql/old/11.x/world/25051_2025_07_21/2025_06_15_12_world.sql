@@ -1,0 +1,3 @@
+DELETE FROM `achievement_reward` WHERE `ID`=40944;
+INSERT INTO `achievement_reward` (`ID`,`TitleA`,`TitleH`,`ItemID`,`Sender`,`Subject`,`Body`,`MailTemplateID`) VALUES
+(40944,0,0,236953,219226,'Undermine Crest Amelioration','Friend,\r\n\r\nCuzolth says I have tunnel vision because all I talk about are these Undermine Crests. I cannot help it if I find my work so fascinating, but perhaps he is right. I should probably take breaks more often and try to enjoy my time here with Cuzolth in Dornogal.\r\n\r\nAnyways, I figured out how to transmute your Runed Undermine Crests into Gilded Undermine Crests. Please visit us when you get the chance.\r\n\r\nYours,\r\nVaskarn',0);

@@ -1,0 +1,2 @@
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x00008000,`npcflag`=`npcflag`&~0x10000000 WHERE `npcflag` & 0x10000000;
+UPDATE `creature_template` SET `npcflag`=`npcflag`&~0x20000000 WHERE `npcflag` & 0x20000000;

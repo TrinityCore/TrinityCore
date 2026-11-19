@@ -1,0 +1,21 @@
+DELETE FROM `creature_immunities` WHERE `ID` IN (95,96,315,477,679,878,1537,1557,1614,1615,1630,1632,1664,1676,1682,1693,1694,1695,1733);
+INSERT INTO `creature_immunities` (`ID`, `SchoolMask`, `DispelTypeMask`, `MechanicsMask`, `Effects`, `Auras`, `ImmuneAoE`, `ImmuneChain`, `Comment`) VALUES
+(95, 0, 0, 32, '', '', 0, 0, 'Immune to Fear'),
+(96, 0, 0, 1234599598, '', '5,7,12,26,33,455', 0, 0, 'Immune to CC (Free Friend, Uncontrollable Frenzy, Warlord\'s Presence)'),
+(315, 127, 0, 0, '', '', 0, 0, 'Immune to damage'),
+(477, 0, 0, 68719476736, '114', '11', 0, 0, 'Immune to Taunt'),
+(679, 0, 0, 1234599078, '', '5,7,12,26,33,455', 0, 0, 'Immune to CC'),
+(878, 0, 0, 4096, '', '12', 0, 0, 'Immune to Stun'),
+(1537, 0, 0, 32, '', '7', 0, 0, 'Immune to Fear'),
+(1557, 0, 0, 1234599078, '98,124,144,145', '', 0, 0, 'Immune CC+Stun+Move'),
+(1614, 0, 0, 68719476736, '114', '11', 0, 0, 'Immune to Taunt'),
+(1615, 0, 0, 1301707942, '68', '5,7,12,26,27,33,60,455', 0, 0, 'Immune to CC+Interrupt'),
+(1630, 0, 0, 69954075814, '114', '5,7,11,12,26,33,455', 0, 0, 'Immune to CC+Taunt'),
+(1632, 0, 0, 584472182, '', '', 0, 0, 'Immune to hard CC'),
+(1664, 0, 0, 2176, '', '', 0, 0, 'Immune to slow'),
+(1676, 0, 0, 570425344, '', '', 0, 0, 'Immune to immunities'),
+(1682, 0, 0, 4096, '', '', 0, 0, 'Immune to Stun'),
+(1693, 0, 0, 584472182, '68', '', 0, 0, 'Immune to hard CC+Interrupt'),
+(1694, 0, 0, 68719476736, '114', '11', 0, 0, 'Immune to Taunt'),
+(1695, 0, 0, 4096, '', '12', 0, 0, 'Immune to Stun'),
+(1733, 0, 0, 1234599078, '98,124,144,145', '', 0, 0, 'Immune CC+Stun+Move');

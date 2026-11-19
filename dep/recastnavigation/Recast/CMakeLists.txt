@@ -1,0 +1,43 @@
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+add_library(Recast STATIC)
+
+target_sources(Recast
+  PRIVATE
+    Source/Recast.cpp 
+    Source/RecastAlloc.cpp 
+    Source/RecastAssert.cpp 
+    Source/RecastArea.cpp 
+    Source/RecastContour.cpp 
+    Source/RecastFilter.cpp 
+    Source/RecastLayers.cpp
+    Source/RecastMesh.cpp 
+    Source/RecastMeshDetail.cpp 
+    Source/RecastRasterization.cpp 
+    Source/RecastRegion.cpp)
+
+target_sources(Recast
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS Include
+    FILES
+      Include/RecastAlloc.h
+      Include/RecastAssert.h
+      Include/Recast.h)
+
+target_link_libraries(Recast
+  PRIVATE
+    trinity-dependency-interface)
+
+set_target_properties(Recast
+    PROPERTIES
+      FOLDER
+        "dep")

@@ -1,0 +1,257 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ItemPacketsCommon.h"
+#include "Item.h"
+#include "Loot.h"
+#include "PacketOperators.h"
+
+namespace WorldPackets::Item
+{
+bool ItemBonuses::operator==(ItemBonuses const& r) const
+{
+    if (Context != r.Context)
+        return false;
+
+    return std::ranges::is_permutation(BonusListIDs, r.BonusListIDs);
+}
+
+bool ItemModList::operator==(ItemModList const& r) const
+{
+    return std::ranges::is_permutation(Values, r.Values);
+}
+
+void ItemInstance::Initialize(::Item const* item)
+{
+    ItemID = item->GetEntry();
+    std::vector<int32> const& bonusListIds = item->GetBonusListIDs();
+    if (!bonusListIds.empty())
+    {
+        ItemBonus.emplace();
+        ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
+        ItemBonus->Context = item->GetContext();
+    }
+
+    for (UF::ItemMod mod : item->m_itemData->Modifiers->Values)
+        Modifications.Values.push_back({ .Value = mod.Value, .Type = ItemModifier(mod.Type) });
+}
+
+void ItemInstance::Initialize(UF::SocketedGem const* gem)
+{
+    ItemID = gem->ItemID;
+
+    ItemBonuses bonus;
+    bonus.Context = ItemContext(*gem->Context);
+    for (uint16 bonusListId : gem->BonusListIDs)
+        if (bonusListId)
+            bonus.BonusListIDs.push_back(bonusListId);
+
+    if (bonus.Context != ItemContext::NONE || !bonus.BonusListIDs.empty())
+        ItemBonus = bonus;
+}
+
+void ItemInstance::Initialize(::LootItem const& lootItem)
+{
+    ItemID = lootItem.itemid;
+
+    if (!lootItem.BonusListIDs.empty() || lootItem.randomBonusListId)
+    {
+        ItemBonus.emplace();
+        ItemBonus->BonusListIDs = lootItem.BonusListIDs;
+        ItemBonus->Context = lootItem.context;
+        if (lootItem.randomBonusListId)
+            ItemBonus->BonusListIDs.push_back(lootItem.randomBonusListId);
+    }
+}
+
+bool ItemInstance::operator==(ItemInstance const& r) const
+{
+    if (ItemID != r.ItemID)
+        return false;
+
+    if (ItemBonus != r.ItemBonus)
+        return false;
+
+    if (Modifications != r.Modifications)
+        return false;
+
+    return true;
+}
+
+bool ItemBonusKey::operator==(ItemBonusKey const& right) const
+{
+    if (ItemID != right.ItemID)
+        return false;
+
+    if (BonusListIDs != right.BonusListIDs)
+        return false;
+
+    if (Modifications != right.Modifications)
+        return false;
+
+    return true;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemBonuses const& itemBonusInstanceData)
+{
+    data << uint8(itemBonusInstanceData.Context);
+    data << Size<uint32>(itemBonusInstanceData.BonusListIDs);
+    for (uint32 bonusID : itemBonusInstanceData.BonusListIDs)
+        data << uint32(bonusID);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, ItemBonuses& itemBonusInstanceData)
+{
+    data >> As<uint8>(itemBonusInstanceData.Context);
+    uint32 bonusListIdSize;
+    data >> bonusListIdSize;
+    if (bonusListIdSize > 32)
+        OnInvalidArraySize(bonusListIdSize, 32);
+
+    itemBonusInstanceData.BonusListIDs.resize(bonusListIdSize);
+
+    for (int32& bonusListID : itemBonusInstanceData.BonusListIDs)
+        data >> bonusListID;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemMod const& itemMod)
+{
+    data << uint8(itemMod.Type);
+    data << int32(itemMod.Value);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, ItemMod& itemMod)
+{
+    data >> As<uint8>(itemMod.Type);
+    data >> itemMod.Value;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemModList const& itemModList)
+{
+    data << BitsSize<7>(itemModList.Values);
+    data.FlushBits();
+
+    for (ItemMod const& itemMod : itemModList.Values)
+        data << itemMod;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
+{
+    data >> BitsSize<7>(itemModList.Values);
+    data.ResetBitPos();
+
+    for (ItemMod& itemMod : itemModList.Values)
+        data >> itemMod;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
+{
+    data << int32(itemInstance.ItemID);
+    data << itemInstance.Modifications;
+    data << OptionalInit(itemInstance.ItemBonus);
+    data.FlushBits();
+
+    if (itemInstance.ItemBonus)
+        data << *itemInstance.ItemBonus;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
+{
+    data >> itemInstance.ItemID;
+    data >> itemInstance.Modifications;
+    data >> OptionalInit(itemInstance.ItemBonus);
+    data.ResetBitPos();
+
+    if (itemInstance.ItemBonus)
+        data >> *itemInstance.ItemBonus;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey)
+{
+    data << int32(itemBonusKey.ItemID);
+    data << Size<uint32>(itemBonusKey.BonusListIDs);
+    data << Size<uint32>(itemBonusKey.Modifications);
+
+    if (!itemBonusKey.BonusListIDs.empty())
+        data.append(itemBonusKey.BonusListIDs.data(), itemBonusKey.BonusListIDs.size());
+
+    for (ItemMod const& modification : itemBonusKey.Modifications)
+        data << modification;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData)
+{
+    data << int32(itemEnchantData.ID);
+    data << uint32(itemEnchantData.Expiration);
+    data << int32(itemEnchantData.Charges);
+    data << uint8(itemEnchantData.Slot);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemData)
+{
+    data << uint8(itemGemData.Slot);
+    data << itemGemData.Item;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemData)
+{
+    data >> itemGemData.Slot;
+    data >> itemGemData.Item;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate)
+{
+    data >> BitsSize<2>(invUpdate.Items);
+    data.ResetBitPos();
+    for (InvUpdate::InvItem& item : invUpdate.Items)
+    {
+        data >> item.ContainerSlot;
+        data >> item.Slot;
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, UiEventToast const& uiEventToast)
+{
+    data << int32(uiEventToast.UiEventToastID);
+    data << int32(uiEventToast.Asset);
+
+    return data;
+}
+}

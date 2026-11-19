@@ -1,0 +1,134 @@
+SET @CGUID := 396579;
+SET @OGUID := 249672;
+SET @EVENT := 26;
+
+-- Creature spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+-- Aerie Peak
+(@CGUID+0, 32823, 0, 47, 349, '0', 0, 0, 0, 0, 263.055572509765625, -2110.77783203125, 120.7434234619140625, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Wildhammer Keep - Difficulty: 0) (Auras: )
+(@CGUID+1, 34653, 0, 47, 349, '0', 0, 0, 0, 0, 267.329864501953125, -2117.572998046875, 120.9868850708007812, 5.148721218109130859, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table Hostess (Area: Wildhammer Keep - Difficulty: 0)
+-- Revantusk Village
+(@CGUID+2, 32823, 0, 47, 3317, '0', 0, 0, 0, 0, -607.1961669921875, -4616.3125, 10.03559494018554687, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Revantusk Village - Difficulty: 0) (Auras: )
+(@CGUID+3, 34654, 0, 47, 3317, '0', 0, 0, 0, 0, -599.390625, -4617.470703125, 9.891392707824707031, 5.672319889068603515, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741); -- Bountiful Feast Hostess (Area: Revantusk Village - Difficulty: 0)
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+51;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+-- Aerie Peak
+(@OGUID+0, 179968, 0, 47, 349, '0', 0, 0, 266.84722900390625, -2116.007080078125, 120.8715286254882812, 1.989672422409057617, 0, 0, 0.838669776916503906, 0.544640243053436279, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+1, 179968, 0, 47, 349, '0', 0, 0, 269.630218505859375, -2111.973876953125, 120.9878463745117187, 2.809975385665893554, 0, 0, 0.986285209655761718, 0.165049895644187927, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+2, 179968, 0, 47, 349, '0', 0, 0, 264.197906494140625, -2116.453125, 120.8559036254882812, 1.48352813720703125, 0, 0, 0.675589561462402343, 0.737277925014495849, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+3, 179968, 0, 47, 349, '0', 0, 0, 260.31597900390625, -2106.458251953125, 120.4097213745117187, 2.076939344406127929, 0, 0, 0.861628532409667968, 0.50753939151763916, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+4, 179968, 0, 47, 349, '0', 0, 0, 267.15972900390625, -2105.921875, 121.2152786254882812, 4.1538848876953125, 0, 0, -0.8746194839477539, 0.484810054302215576, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+5, 179968, 0, 47, 349, '0', 0, 0, 258.401031494140625, -2108.59375, 120.5726470947265625, 6.09120035171508789, 0, 0, -0.09584522247314453, 0.995396256446838378, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+6, 179968, 0, 47, 349, '0', 0, 0, 259.364593505859375, -2113.14404296875, 120.782989501953125, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+7, 179968, 0, 47, 349, '0', 0, 0, 269.6007080078125, -2109.6181640625, 121.2222213745117187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+8, 179968, 0, 47, 349, '0', 0, 0, 260.63714599609375, -2114.982666015625, 120.8906326293945312, 1.029743075370788574, 0, 0, 0.492423057556152343, 0.870355963706970214, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+9, 179968, 0, 47, 349, '0', 0, 0, 265.071197509765625, -2105.310791015625, 120.876739501953125, 4.729844093322753906, 0, 0, -0.70090866088867187, 0.713251054286956787, 120, 255, 1, 46741), -- Haystack 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+10, 180353, 0, 47, 349, '0', 0, 0, 265.6475830078125, -2116.19970703125, 120.8385391235351562, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+11, 180353, 0, 47, 349, '0', 0, 0, 269.664947509765625, -2110.734375, 121.0486221313476562, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+12, 180353, 0, 47, 349, '0', 0, 0, 259.744781494140625, -2114.069580078125, 120.8506927490234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+13, 180353, 0, 47, 349, '0', 0, 0, 266.072906494140625, -2105.47216796875, 121.0225677490234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+14, 180353, 0, 47, 349, '0', 0, 0, 259.1007080078125, -2107.366455078125, 120.5347213745117187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+15, 195164, 0, 47, 349, '0', 0, 0, 269.493072509765625, -2112.1181640625, 121.6967086791992187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+16, 195164, 0, 47, 349, '0', 0, 0, 266.98785400390625, -2115.88720703125, 121.5873336791992187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+17, 195164, 0, 47, 349, '0', 0, 0, 265.029510498046875, -2105.40625, 121.5630264282226562, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+18, 195164, 0, 47, 349, '0', 0, 0, 264.145843505859375, -2116.382080078125, 121.5560836791992187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+19, 195164, 0, 47, 349, '0', 0, 0, 267.0225830078125, -2105.93408203125, 121.8807373046875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+20, 195164, 0, 47, 349, '0', 0, 0, 258.498260498046875, -2108.638916015625, 121.2765731811523437, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+21, 195164, 0, 47, 349, '0', 0, 0, 260.296875, -2106.50341796875, 121.1185836791992187, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+22, 195164, 0, 47, 349, '0', 0, 0, 269.510406494140625, -2109.645751953125, 121.8946304321289062, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+23, 195164, 0, 47, 349, '0', 0, 0, 259.4132080078125, -2113.100830078125, 121.4849014282226562, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+24, 195164, 0, 47, 349, '0', 0, 0, 260.567718505859375, -2114.911376953125, 121.5960235595703125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Wildhammer Keep - Difficulty: 0)
+(@OGUID+25, 195664, 0, 47, 349, '0', 0, 0, 263.055999755859375, -2110.780029296875, 120.660003662109375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- [DND] Collision Thanksgiving Table Size (Area: Wildhammer Keep - Difficulty: 0)
+-- Revantusk Village
+(@OGUID+26, 179968, 0, 47, 3317, '0', 0, 0, -600.65106201171875, -4615.1494140625, 9.866200447082519531, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+27, 179968, 0, 47, 3317, '0', 0, 0, -603.16839599609375, -4611.484375, 9.887152671813964843, 4.1538848876953125, 0, 0, -0.8746194839477539, 0.484810054302215576, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+28, 179968, 0, 47, 3317, '0', 0, 0, -605.1805419921875, -4610.84375, 9.881151199340820312, 4.729844093322753906, 0, 0, -0.70090866088867187, 0.713251054286956787, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+29, 179968, 0, 47, 3317, '0', 0, 0, -600.623291015625, -4617.5068359375, 9.894596099853515625, 2.809975385665893554, 0, 0, 0.986285209655761718, 0.165049895644187927, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+30, 179968, 0, 47, 3317, '0', 0, 0, -610.88714599609375, -4618.67724609375, 10.17881965637207031, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+31, 179968, 0, 47, 3317, '0', 0, 0, -609.6163330078125, -4620.51416015625, 10.14236164093017578, 1.029743075370788574, 0, 0, 0.492423057556152343, 0.870355963706970214, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+32, 179968, 0, 47, 3317, '0', 0, 0, -606.0555419921875, -4621.98291015625, 10.07040214538574218, 1.48352813720703125, 0, 0, 0.675589561462402343, 0.737277925014495849, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+33, 179968, 0, 47, 3317, '0', 0, 0, -603.404541015625, -4621.5380859375, 10.00694465637207031, 1.989672422409057617, 0, 0, 0.838669776916503906, 0.544640243053436279, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+34, 179968, 0, 47, 3317, '0', 0, 0, -611.8507080078125, -4614.125, 9.96187591552734375, 6.09120035171508789, 0, 0, -0.09584522247314453, 0.995396256446838378, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+35, 179968, 0, 47, 3317, '0', 0, 0, -609.935791015625, -4611.98974609375, 9.911458015441894531, 2.076939344406127929, 0, 0, 0.861628532409667968, 0.50753939151763916, 120, 255, 1, 46741), -- Haystack 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+36, 180353, 0, 47, 3317, '0', 0, 0, -600.5867919921875, -4616.26416015625, 9.878147125244140625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+37, 180353, 0, 47, 3317, '0', 0, 0, -604.1788330078125, -4611.00341796875, 9.885110855102539062, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+38, 180353, 0, 47, 3317, '0', 0, 0, -611.15106201171875, -4612.8994140625, 9.929449081420898437, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+39, 180353, 0, 47, 3317, '0', 0, 0, -610.5069580078125, -4619.6005859375, 10.16666698455810546, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+40, 180353, 0, 47, 3317, '0', 0, 0, -604.60418701171875, -4621.73291015625, 10.02672290802001953, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+41, 195164, 0, 47, 3317, '0', 0, 0, -600.7430419921875, -4615.17724609375, 10.5774078369140625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+42, 195164, 0, 47, 3317, '0', 0, 0, -605.22222900390625, -4610.9375, 10.58710289001464843, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+43, 195164, 0, 47, 3317, '0', 0, 0, -609.68402099609375, -4620.4443359375, 10.84650516510009765, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+44, 195164, 0, 47, 3317, '0', 0, 0, -606.10589599609375, -4621.9130859375, 10.77658557891845703, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+45, 195164, 0, 47, 3317, '0', 0, 0, -611.75347900390625, -4614.17041015625, 10.66797447204589843, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+46, 195164, 0, 47, 3317, '0', 0, 0, -603.22918701171875, -4611.46875, 10.58974933624267578, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+47, 195164, 0, 47, 3317, '0', 0, 0, -603.263916015625, -4621.42041015625, 10.70130729675292968, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+48, 195164, 0, 47, 3317, '0', 0, 0, -609.95489501953125, -4612.03466796875, 10.61386585235595703, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+49, 195164, 0, 47, 3317, '0', 0, 0, -610.83856201171875, -4618.6318359375, 10.88643646240234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+50, 195164, 0, 47, 3317, '0', 0, 0, -600.76043701171875, -4617.6494140625, 10.60738754272460937, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Revantusk Village - Difficulty: 0)
+(@OGUID+51, 195664, 0, 47, 3317, '0', 0, 0, -607.19598388671875, -4616.31005859375, 9.952260017395019531, 0, 0, 0, 0, 1, 120, 255, 1, 46741); -- [DND] Collision Thanksgiving Table Size (Area: Revantusk Village - Difficulty: 0)
+
+-- Event spawns
+DELETE FROM `game_event_creature` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(@EVENT, @CGUID+0), 
+(@EVENT, @CGUID+1),
+(@EVENT, @CGUID+2),
+(@EVENT, @CGUID+3);
+
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @OGUID+0 AND @OGUID+51;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(@EVENT, @OGUID+0),
+(@EVENT, @OGUID+1),
+(@EVENT, @OGUID+2),
+(@EVENT, @OGUID+3),
+(@EVENT, @OGUID+4),
+(@EVENT, @OGUID+5),
+(@EVENT, @OGUID+6),
+(@EVENT, @OGUID+7),
+(@EVENT, @OGUID+8),
+(@EVENT, @OGUID+9),
+(@EVENT, @OGUID+10),
+(@EVENT, @OGUID+11),
+(@EVENT, @OGUID+12),
+(@EVENT, @OGUID+13),
+(@EVENT, @OGUID+14),
+(@EVENT, @OGUID+15),
+(@EVENT, @OGUID+16),
+(@EVENT, @OGUID+17),
+(@EVENT, @OGUID+18),
+(@EVENT, @OGUID+19),
+(@EVENT, @OGUID+20),
+(@EVENT, @OGUID+21),
+(@EVENT, @OGUID+22),
+(@EVENT, @OGUID+23),
+(@EVENT, @OGUID+24),
+(@EVENT, @OGUID+25),
+(@EVENT, @OGUID+26),
+(@EVENT, @OGUID+27),
+(@EVENT, @OGUID+28),
+(@EVENT, @OGUID+29),
+(@EVENT, @OGUID+30),
+(@EVENT, @OGUID+31),
+(@EVENT, @OGUID+32),
+(@EVENT, @OGUID+33),
+(@EVENT, @OGUID+34),
+(@EVENT, @OGUID+35),
+(@EVENT, @OGUID+36),
+(@EVENT, @OGUID+37),
+(@EVENT, @OGUID+38),
+(@EVENT, @OGUID+39),
+(@EVENT, @OGUID+40),
+(@EVENT, @OGUID+41),
+(@EVENT, @OGUID+42),
+(@EVENT, @OGUID+43),
+(@EVENT, @OGUID+44),
+(@EVENT, @OGUID+45),
+(@EVENT, @OGUID+46),
+(@EVENT, @OGUID+47),
+(@EVENT, @OGUID+48),
+(@EVENT, @OGUID+49),
+(@EVENT, @OGUID+50),
+(@EVENT, @OGUID+51);

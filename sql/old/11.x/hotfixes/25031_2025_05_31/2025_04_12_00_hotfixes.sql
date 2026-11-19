@@ -1,0 +1,5 @@
+DELETE FROM `broadcast_text` WHERE `VerifiedBuild`>0 AND `ID` IN (242815, 242822, 284310);
+INSERT INTO `broadcast_text` (`Text`, `Text1`, `ID`, `LanguageID`, `ConditionID`, `EmotesID`, `Flags`, `ChatBubbleDurationMs`, `VoiceOverPriorityID`, `SoundKitID1`, `SoundKitID2`, `EmoteID1`, `EmoteID2`, `EmoteID3`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `VerifiedBuild`) VALUES
+('', 'This lair is a place of darkness and danger.\n\nDo you wish to battle the past incarnation of the broodmother, Onyxia.', 242815, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 57564),
+('', 'The present is a place of uncertainty and challenge, but also great opportunity.\n\nDo you wish to return?', 242822, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 57564),
+('I\'ve been ordered here to assist you. Which of the following gifts will the dragonflights bestow upon you?', 'I\'ve been ordered here to assist you. Which of the following gifts will the dragonflights bestow upon you?', 284310, 0, 0, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 60192);

@@ -1,0 +1,3 @@
+-- Make Grimscale Murlocs drop their heads faster...
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance`=-66 WHERE `item`=21757;
+

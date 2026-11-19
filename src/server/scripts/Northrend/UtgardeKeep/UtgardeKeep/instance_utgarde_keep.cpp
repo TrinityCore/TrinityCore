@@ -1,0 +1,184 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "utgarde_keep.h"
+
+static constexpr DoorData doorData[] =
+{
+    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
+};
+
+static constexpr DungeonEncounterData encounters[] =
+{
+    { DATA_PRINCE_KELESETH, {{ 2026 }} },
+    { DATA_SKARVALD_DALRONN, {{ 2024 }} },
+    { DATA_INGVAR, {{ 2025 }} }
+};
+
+class instance_utgarde_keep : public InstanceMapScript
+{
+    public:
+        instance_utgarde_keep() : InstanceMapScript(UKScriptName, 574) { }
+
+        struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
+        {
+            instance_utgarde_keep_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
+            }
+
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_PRINCE_KELESETH:
+                        PrinceKelesethGUID = creature->GetGUID();
+                        break;
+                    case NPC_SKARVALD:
+                        SkarvaldGUID = creature->GetGUID();
+                        break;
+                    case NPC_DALRONN:
+                        DalronnGUID = creature->GetGUID();
+                        break;
+                    case NPC_INGVAR:
+                        IngvarGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go) override
+            {
+                InstanceScript::OnGameObjectCreate(go);
+
+                switch (go->GetEntry())
+                {
+                    case GO_BELLOW_1:
+                        Forges[0].BellowGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_BELLOW_2:
+                        Forges[1].BellowGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_BELLOW_3:
+                        Forges[2].BellowGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_1:
+                        Forges[0].FireGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_2:
+                        Forges[1].FireGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_3:
+                        Forges[2].FireGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_1:
+                        Forges[0].AnvilGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_2:
+                        Forges[1].AnvilGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_3:
+                        Forges[2].AnvilGUID = go->GetGUID();
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_PRINCE_KELESETH:
+                        return PrinceKelesethGUID;
+                    case DATA_SKARVALD:
+                        return SkarvaldGUID;
+                    case DATA_DALRONN:
+                        return DalronnGUID;
+                    case DATA_INGVAR:
+                        return IngvarGUID;
+                    default:
+                        break;
+                }
+
+                return ObjectGuid::Empty;
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                    case DATA_FORGE_1:
+                    case DATA_FORGE_2:
+                    case DATA_FORGE_3:
+                    {
+                        uint8 i = type - DATA_FORGE_1;
+                        HandleGameObject(Forges[i].AnvilGUID, data != NOT_STARTED);
+                        HandleGameObject(Forges[i].BellowGUID, data != NOT_STARTED);
+                        HandleGameObject(Forges[i].FireGUID, data != NOT_STARTED);
+                        Forges[i].Event = data;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void AfterDataLoad() override
+            {
+                if (GetBossState(DATA_PRINCE_KELESETH) == DONE)
+                    for (uint8 i = 0; i < 3; ++i)
+                        Forges[i].Event = DONE;
+            }
+
+        protected:
+            ForgeInfo Forges[3];
+
+            ObjectGuid PrinceKelesethGUID;
+            ObjectGuid SkarvaldGUID;
+            ObjectGuid DalronnGUID;
+            ObjectGuid IngvarGUID;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        {
+           return new instance_utgarde_keep_InstanceMapScript(map);
+        }
+};
+
+void AddSC_instance_utgarde_keep()
+{
+    new instance_utgarde_keep();
+}

@@ -1,0 +1,367 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef TRINITYCORE_PACKET_UTILITIES_H
+#define TRINITYCORE_PACKET_UTILITIES_H
+
+#include "ByteBuffer.h"
+#include "Duration.h"
+#include "Types.h"
+#include <short_alloc/short_alloc.h>
+#include <string_view>
+#include <ctime>
+
+namespace WorldPackets
+{
+    class InvalidStringValueException : public ByteBufferInvalidValueException
+    {
+    public:
+        explicit InvalidStringValueException(char const* type, std::string_view value);
+
+        std::string const& GetInvalidValue() const { return _value; }
+
+    private:
+        std::string _value;
+    };
+
+    class InvalidUtf8ValueException : public InvalidStringValueException
+    {
+    public:
+        explicit InvalidUtf8ValueException(std::string_view value);
+    };
+
+    class InvalidHyperlinkException : public InvalidStringValueException
+    {
+    public:
+        enum Reason : uint8
+        {
+            Malformed,
+            NotAllowed
+        };
+
+        explicit InvalidHyperlinkException(std::string_view value, Reason reason);
+
+        Reason GetReason() const { return _reason; }
+
+    private:
+        static char const* GetReasonText(Reason reason);
+
+        Reason _reason;
+    };
+
+    namespace Strings
+    {
+        struct RawBytes { static void Validate(std::string_view /*value*/) { } };
+        struct ByteSize { static void Validate(std::string_view value, std::size_t maxSize); };
+        struct Utf8 { static void Validate(std::string_view value); };
+        struct Hyperlinks { static void Validate(std::string_view value); };
+        struct NoHyperlinks { static void Validate(std::string_view value); };
+    }
+
+    /**
+     * Utility class for automated prevention of invalid strings in client packets
+     */
+    template <std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
+    class String
+    {
+    public:
+        bool empty() const { return _storage.empty(); }
+        std::size_t length() const { return _storage.length(); }
+        char const* c_str() const { return _storage.c_str(); }
+
+        operator std::string_view() const { return _storage; }
+        operator std::string&() & { return _storage; }
+        operator std::string const&() const & { return _storage; }
+        operator std::string&&() && { return std::move(_storage); }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
+        {
+            value = data.ReadCString(false);
+            return data;
+        }
+
+        String& operator=(std::string const& value)
+        {
+            Validate(value);
+            _storage = value;
+            return *this;
+        }
+
+        String& operator=(std::string&& value)
+        {
+            Validate(value);
+            _storage = std::move(value);
+            return *this;
+        }
+
+        String& operator=(std::string_view value)
+        {
+            Validate(value);
+            _storage = std::move(value);
+            return *this;
+        }
+
+        String& operator=(char const* value)
+        {
+            return *this = std::string_view(value);
+        }
+
+        void resize(std::size_t size)
+        {
+            _storage.resize(size);
+        }
+
+    private:
+        static void Validate(std::string_view value)
+        {
+            Strings::ByteSize::Validate(value, MaxBytesWithoutNullTerminator);
+
+            if constexpr (!Trinity::has_type_in_list_v<Strings::RawBytes, Validators...> && !Trinity::has_type_in_list_v<Strings::Utf8, Validators...>)
+                Strings::Utf8::Validate(value);
+
+            (Validators::Validate(value), ...);
+        }
+
+        std::string _storage;
+    };
+
+    class PacketArrayMaxCapacityException : public ByteBufferException
+    {
+    public:
+        PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit);
+    };
+
+    [[noreturn]] void OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit);
+
+    template <typename T, std::size_t N, bool IsLarge>
+    struct ArrayAllocatorTraits
+    {
+        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
+        using resource_type = typename allocator_type::arena_type;
+        using reserve_max_capacity = std::true_type;
+    };
+
+    // don't store elements inline when size is large
+    template <typename T, std::size_t N>
+    struct ArrayAllocatorTraits<T, N, true>
+    {
+        using allocator_type = std::allocator<T>;
+        using resource_type = std::allocator<T>;
+        using reserve_max_capacity = std::false_type;
+    };
+
+    /**
+     * Utility class for automated prevention of loop counter spoofing in client packets
+     */
+    template<typename T, std::size_t N>
+    class Array
+    {
+    public:
+        using allocator_traits = ArrayAllocatorTraits<T, N, (sizeof(T) * N > 0x1000)>;
+        using allocator_type = typename allocator_traits::allocator_type;
+        using allocator_resource_type = typename allocator_traits::resource_type;
+        using reserve_max_capacity = typename allocator_traits::reserve_max_capacity;
+
+        using storage_type = std::vector<T, allocator_type>;
+
+        using max_capacity = std::integral_constant<std::size_t, N>;
+
+        using value_type = typename storage_type::value_type;
+        using size_type = typename storage_type::size_type;
+        using pointer = typename storage_type::pointer;
+        using const_pointer = typename storage_type::const_pointer;
+        using reference = typename storage_type::reference;
+        using const_reference = typename storage_type::const_reference;
+        using iterator = typename storage_type::iterator;
+        using const_iterator = typename storage_type::const_iterator;
+
+        Array() : _storage(_allocatorResource)
+        {
+            if constexpr (reserve_max_capacity())
+                _storage.reserve(max_capacity());
+        }
+
+        Array(Array const& other) : Array()
+        {
+            if constexpr (reserve_max_capacity())
+                _storage.reserve(max_capacity());
+
+            for (T const& element : other)
+                _storage.push_back(element);
+        }
+
+        Array(Array&& other) noexcept = delete;
+
+        Array& operator=(Array const& other)
+        {
+            if (this == &other)
+                return *this;
+
+            _storage.clear();
+            for (T const& element : other)
+                _storage.push_back(element);
+
+            return *this;
+        }
+
+        Array& operator=(Array&& other) noexcept = delete;
+
+        ~Array() = default;
+
+        iterator begin() { return _storage.begin(); }
+        const_iterator begin() const { return _storage.begin(); }
+
+        iterator end() { return _storage.end(); }
+        const_iterator end() const { return _storage.end(); }
+
+        pointer data() { return _storage.data(); }
+        const_pointer data() const { return _storage.data(); }
+
+        size_type size() const { return _storage.size(); }
+        bool empty() const { return _storage.empty(); }
+
+        reference operator[](size_type i) { return _storage[i]; }
+        const_reference operator[](size_type i) const { return _storage[i]; }
+
+        void resize(size_type newSize)
+        {
+            if (newSize > max_capacity::value)
+                OnInvalidArraySize(newSize, max_capacity::value);
+
+            _storage.resize(newSize);
+        }
+
+        void push_back(value_type const& value)
+        {
+            if (_storage.size() >= max_capacity::value)
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
+
+            _storage.push_back(value);
+        }
+
+        void push_back(value_type&& value)
+        {
+            if (_storage.size() >= max_capacity::value)
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
+
+            _storage.push_back(std::forward<value_type>(value));
+        }
+
+        template<typename... Args>
+        T& emplace_back(Args&&... args)
+        {
+            _storage.emplace_back(std::forward<Args>(args)...);
+            return _storage.back();
+        }
+
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            return _storage.erase(first, last);
+        }
+
+        void clear()
+        {
+            _storage.clear();
+        }
+
+    private:
+        allocator_resource_type _allocatorResource;
+        storage_type _storage;
+    };
+
+    template<typename Underlying = int64>
+    class Timestamp
+    {
+    public:
+        Timestamp() = default;
+        Timestamp(time_t value) : _value(value) { }
+        Timestamp(SystemTimePoint const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
+
+        Timestamp& operator=(time_t value)
+        {
+            _value = value;
+            return *this;
+        }
+
+        Timestamp& operator=(SystemTimePoint const& systemTime)
+        {
+            _value = std::chrono::system_clock::to_time_t(systemTime);
+            return *this;
+        }
+
+        operator time_t() const
+        {
+            return _value;
+        }
+
+        Underlying AsUnderlyingType() const
+        {
+            return static_cast<Underlying>(_value);
+        }
+
+        friend ByteBuffer& operator<<(ByteBuffer& data, Timestamp timestamp)
+        {
+            data << static_cast<Underlying>(timestamp._value);
+            return data;
+        }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
+        {
+            timestamp._value = static_cast<time_t>(data.read<Underlying>());
+            return data;
+        }
+
+    private:
+        time_t _value = time_t(0);
+    };
+
+    template<typename ChronoDuration, typename Underlying = int64>
+    class Duration
+    {
+    public:
+        Duration() = default;
+        Duration(ChronoDuration value) : _value(value) { }
+
+        Duration& operator=(ChronoDuration value)
+        {
+            _value = value;
+            return *this;
+        }
+
+        operator ChronoDuration() const
+        {
+            return _value;
+        }
+
+        friend ByteBuffer& operator<<(ByteBuffer& data, Duration duration)
+        {
+            data << static_cast<Underlying>(duration._value.count());
+            return data;
+        }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, Duration& duration)
+        {
+            duration._value = ChronoDuration(data.read<Underlying>());
+            return data;
+        }
+
+    private:
+        ChronoDuration _value = ChronoDuration::zero();
+    };
+}
+
+#endif // TRINITYCORE_PACKET_UTILITIES_H

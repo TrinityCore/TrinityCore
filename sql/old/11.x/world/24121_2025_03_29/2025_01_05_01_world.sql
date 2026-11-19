@@ -1,0 +1,53 @@
+SET @OGUID := 8000022;
+
+-- GameObject
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+4;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 339568, 2175, 10424, 10527, '0', 0, 0, 80.48090362548828125, -2279.5244140625, 60.4192047119140625, 0.021085526794195175, -0.0907440185546875, 0.175644874572753906, 0.026347160339355468, 0.979908287525177001, 120, 255, 0, 58238), -- Thick Cocoon (Area: Hrun's Barrow - Difficulty: 0) CreateObject1
+(@OGUID+1, 339568, 2175, 10424, 10527, '0', 0, 0, 36.02951431274414062, -2199.451416015625, 17.00921058654785156, 2.142104148864746093, -0.19759082794189453, 0.006606101989746093, 0.867940902709960937, 0.455623567104339599, 120, 255, 0, 58238), -- Thick Cocoon (Area: Hrun's Barrow - Difficulty: 0) CreateObject1
+(@OGUID+2, 339568, 2175, 10424, 10527, '0', 0, 0, 123.5694427490234375, -2238.923583984375, -5.86077213287353515, 1.357517719268798828, -0.07591676712036132, -0.08171272277832031, 0.622530937194824218, 0.774606287479400634, 120, 255, 0, 58238), -- Thick Cocoon (Area: Hrun's Barrow - Difficulty: 0) CreateObject1
+(@OGUID+3, 339568, 2175, 10424, 10527, '0', 0, 0, 111.0572891235351562, -2217.923583984375, 32.95146942138671875, 2.87512826919555664, -0.18683481216430664, -0.06464099884033203, 0.973572731018066406, 0.114326126873493194, 120, 255, 0, 58238), -- Thick Cocoon (Area: Hrun's Barrow - Difficulty: 0) CreateObject1
+(@OGUID+4, 339568, 2175, 10424, 10527, '0', 0, 0, 65.34201812744140625, -2276.59375, -0.66227895021438598, 0.820587992668151855, -0.15194892883300781, 0.1264801025390625, 0.4056396484375, 0.892396092414855957, 120, 255, 0, 58238); -- Thick Cocoon (Area: Hrun's Barrow - Difficulty: 0) CreateObject1
+
+-- Spawntracking
+DELETE FROM `spawn_tracking_template` WHERE `SpawnTrackingId` IN (1864694, 1864795, 1864797, 1864794, 1864796, 1825492);
+INSERT INTO `spawn_tracking_template` (`SpawnTrackingId`, `MapId`, `PhaseId`, `PhaseGroup`, `PhaseUseFlags`, `VerifiedBuild`) VALUES
+(1864796, 2175, 0, 0, 0, 58238),
+(1864794, 2175, 0, 0, 0, 58238),
+(1864797, 2175, 0, 0, 0, 58238),
+(1864795, 2175, 0, 0, 0, 58238),
+(1864694, 2175, 0, 0, 0, 58238);
+
+DELETE FROM `spawn_tracking_quest_objective` WHERE `SpawnTrackingId` IN (1864694, 1864795, 1864797, 1864794, 1864796, 1825492);
+INSERT INTO `spawn_tracking_quest_objective` (`SpawnTrackingId`, `QuestObjectiveId`, `VerifiedBuild`) VALUES
+(1864694, 391939, 58238),
+(1864795, 391939, 58238),
+(1864797, 391939, 58238),
+(1864794, 391939, 58238),
+(1864796, 391939, 58238);
+
+DELETE FROM `spawn_tracking` WHERE `SpawnTrackingId` IN (1864694, 1864795, 1864797, 1864794, 1864796, 1825492);
+INSERT INTO `spawn_tracking` (`SpawnTrackingId`, `SpawnType`, `SpawnId`, `QuestObjectiveId`) VALUES
+(1864694, 1, @OGUID+0, 391939),
+(1864795, 1, @OGUID+1, 391939),
+(1864797, 1, @OGUID+2, 391939),
+(1864794, 1, @OGUID+3, 391939),
+(1864796, 1, @OGUID+4, 391939);
+
+DELETE FROM `spawn_tracking_state` WHERE `SpawnId` IN (@OGUID+0, @OGUID+1, @OGUID+2, @OGUID+3, @OGUID+4);
+INSERT INTO `spawn_tracking_state` (`SpawnType`, `SpawnId`, `State`, `Visible`, `StateSpellVisualId`, `StateAnimId`, `StateAnimKitId`, `StateWorldEffects`) VALUES
+(1, @OGUID+0, 0, 0, NULL, NULL, NULL, ''),
+(1, @OGUID+0, 1, 1, NULL, NULL, NULL, '13200'),
+(1, @OGUID+0, 2, 0, NULL, NULL, 19119, '13200'),
+(1, @OGUID+1, 0, 0, NULL, NULL, NULL, ''),
+(1, @OGUID+1, 1, 1, NULL, NULL, NULL, '13200'),
+(1, @OGUID+1, 2, 0, NULL, NULL, 19119, '13200'),
+(1, @OGUID+2, 0, 0, NULL, NULL, NULL, ''),
+(1, @OGUID+2, 1, 1, NULL, NULL, NULL, '13200'),
+(1, @OGUID+2, 2, 0, NULL, NULL, 19119, '13200'),
+(1, @OGUID+3, 0, 0, NULL, NULL, NULL, ''),
+(1, @OGUID+3, 1, 1, NULL, NULL, NULL, '13200'),
+(1, @OGUID+3, 2, 0, NULL, NULL, 19119, '13200'),
+(1, @OGUID+4, 0, 0, NULL, NULL, NULL, ''),
+(1, @OGUID+4, 1, 1, NULL, NULL, NULL, '13200'),
+(1, @OGUID+4, 2, 0, NULL, NULL, 19119, '13200');

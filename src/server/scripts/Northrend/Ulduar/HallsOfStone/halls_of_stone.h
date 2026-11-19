@@ -1,0 +1,82 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef HALLS_OF_STONE_H_
+#define HALLS_OF_STONE_H_
+
+#include "CreatureAIImpl.h"
+
+#define HoSScriptName "instance_halls_of_stone"
+#define DataHeader    "HOS"
+
+uint32 const EncounterCount = 4;
+
+enum HOSDataTypes
+{
+    // Bosses
+    DATA_KRYSTALLUS             = 0,
+    DATA_MAIDEN_OF_GRIEF        = 1,
+    DATA_TRIBUNAL_OF_AGES       = 2,
+    DATA_SJONNIR_THE_IRONSHAPER = 3,
+
+    // Additional data
+    /*Tribunal of Ages*/
+    DATA_KADDRAK,
+    DATA_MARNAK,
+    DATA_ABEDNEUM,
+    DATA_GO_TRIBUNAL_CONSOLE,
+    DATA_GO_KADDRAK,
+    DATA_GO_MARNAK,
+    DATA_GO_ABEDNEUM,
+    DATA_GO_SKY_FLOOR,
+    DATA_GO_TRIBUNAL_CHEST
+};
+
+enum HOSCreatureIds
+{
+    NPC_MAIDEN_OF_GRIEF         = 27975,
+    NPC_KRYSTALLUS              = 27977,
+    NPC_SJONNIR_THE_IRONSHAPER  = 27978,
+    NPC_MARNAK                  = 30897,
+    NPC_KADDRAK                 = 30898,
+    NPC_ABEDNEUM                = 30899,
+    NPC_BRANN                   = 28070
+};
+
+enum HOSGameObjectIds
+{
+    GO_ABEDNEUM                 = 191669,
+    GO_MARNAK                   = 191670,
+    GO_KADDRAK                  = 191671,
+    GO_MAIDEN_DOOR              = 191292,
+    GO_BRANN_DOOR               = 191295,
+    GO_SJONNIR_DOOR             = 191296,
+    GO_TRIBUNAL_CONSOLE         = 193907,
+    GO_TRIBUNAL_CHEST           = 190586,
+    GO_TRIBUNAL_CHEST_HERO      = 193996,
+    GO_TRIBUNAL_SKY_FLOOR       = 191527
+};
+
+template <class AI, class T>
+inline AI* GetHallsOfStoneAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, HoSScriptName);
+}
+
+#define RegisterHallsOfStoneCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfStoneAI)
+
+#endif // HALLS_OF_STONE_H_

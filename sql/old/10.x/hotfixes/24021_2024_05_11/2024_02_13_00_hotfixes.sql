@@ -1,0 +1,28 @@
+DELETE FROM `broadcast_text` WHERE `ID` IN (250466, 250942, 250946, 250186, 251752, 250187, 250464, 250189, 250188, 250962, 250463, 250896, 250465, 252333, 250256, 252261, 251082, 250605, 250743, 249795, 249793, 250601, 250291, 250462);
+INSERT INTO `broadcast_text` (`Text`, `Text1`, `ID`, `LanguageID`, `ConditionID`, `EmotesID`, `Flags`, `ChatBubbleDurationMs`, `VoiceOverPriorityID`, `SoundKitID1`, `SoundKitID2`, `EmoteID1`, `EmoteID2`, `EmoteID3`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `VerifiedBuild`) VALUES
+('', 'You are worthy of gifts too! Get yourself something really special.', 250466, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Aye, we\'re one o\' several guilds who assist this here gala.\n\nPlenty o\' free-lancin\' artisans are here peddling their wares too, but we supplied the tents and what have ye to make this all possible.\n\nIf ye have any coin to spare, every bit helps us do this again next year!', '', 250942, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Would ye care to make a donation to the Artisan\'s Consortium?\n\nYer patronage helps us bring this festival back next year!', '', 250946, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'Fantastic gifts here! If you\'ve been saving up, come get yourself something lovely!', 250186, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('O.D.I.E. can sniff out anything, just use that remote control of his!', '', 251752, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Add a little spark to your love! Toys and novelties right over here!', '', 250187, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'Every flower tells a story--what will yours say?', 250464, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'Pour your heart out with these colorful roses!', 250189, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Who doesn\'t love chocolate? Come get a delicious treat!', '', 250188, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Thank ye for yer patronage to the Artisan\'s Consortium.\n\nIf you\'re feeling really generous, come back tomorrow. But I won\'t ask ye for any more of your kindness today.', '', 250962, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Chocolates are the perfect gift for someone you care about. You always feel better after being treated to something sweet!', '', 250463, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('My good $Gbrother:sister;, have you seen these fireworks? This show is great!\n\nI could relax right here, all day, every day.', '', 250896, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Nothing shows your affection quite like dazzling explosions!', '', 250465, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('This gala is so full of love! It is so lovely to see everyone giving gifts and spending quality time together.\n\nBut it is just as important to show love to yourself! You are never truly alone when you can trust and love your own heart.', '', 252333, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Care for a free sample?', '', 250256, 0, 0, 6, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Never heard of the Crown? You\'re lucky, pal.\n\nBack before we had this gala, the Crown would come by every year peddling their wares. It was all artificial nonsense--perfumes and colognes that reeked of factory production and corporate greed.\n\nThat was before we found out their smells were literally making people sick! Some friends and I did some digging, and we took the fight to their boss, Apothecary Hummel. I thought we got rid of him for good, but it looks like I was wrong.\n\nNot only is he back, but he\'s not exactly happy about what we did to shut his operation down. We gotta stop whatever it is he\'s up to!', '', 252261, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('This gala is a real nice break.\n\nI\'ve been in one war or another for twenty years now. Honestly, it\'s a rare day when the Alliance isn\'t at war with something or someone.\n\nA job like mine puts a lot of weight on your shoulders. I bet you can relate.', '', 251082, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('Come discover distant lands and fantastic vacations!', '', 250605, 0, 0, 70, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('This festival is so lovely! I am happy to have come here.', '', 250743, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'A celebration of the bonds we\'ve built and the people we love, of course!\n\nArtisans from all over Azeroth have come to sell exquisite gifts that reflect your kindness and affection. Show your appreciation for your loved ones by getting them something special!\n\nEvery artisan hand-crafts their goods from the heart, so you can trust that what you give to friends, family, or partners is of the highest quality!', 249795, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'Welcome, welcome, to the Gala of Gifts!\n\nThere\'s so much love to discover. Get a gift to show your appreciation for your loved ones!', 249793, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('What\'s a better gift than a vacation?\n\nTake a portal, and enjoy the beautiful lands of scenic Azeroth!', '', 250601, 0, 0, 396, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('<This portal is bursting with magical potential to whisk you away to fantastic lands. You feel as if touching it and thinking of a place will take you there.\n\nWhat journey do you seek?>', '', 250291, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262),
+('', 'Have a lovely day!', 250462, 0, 0, 70, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 53262);
+
+UPDATE `broadcast_text` SET `VerifiedBuild`=53262 WHERE `ID` IN (233720, 16151, 82177, 37929, 201074, 251979, 232606, 234629, 4682, 4678, 232610, 232607, 204227);

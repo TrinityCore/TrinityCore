@@ -1,0 +1,406 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "Containers.h"
+#include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+
+/*
+ * @todo
+ * - Fix model id during unleash soul -> seems DB issue 36503 is missing (likewise 36504 is also missing).
+ * - Fix outro npc movement
+ */
+
+enum Yells
+{
+    SAY_FACE_AGGRO                              = 0,
+    SAY_FACE_ANGER_SLAY                         = 1,
+    SAY_FACE_SORROW_SLAY                        = 2,
+    SAY_FACE_DESIRE_SLAY                        = 3,
+    SAY_FACE_DEATH                              = 4,
+    EMOTE_MIRRORED_SOUL                         = 5,
+    EMOTE_UNLEASH_SOUL                          = 6,
+    SAY_FACE_UNLEASH_SOUL                       = 7,
+    EMOTE_WAILING_SOUL                          = 8,
+    SAY_FACE_WAILING_SOUL                       = 9,
+
+    SAY_JAINA_OUTRO                             = 0,
+    SAY_SYLVANAS_OUTRO                          = 0
+};
+
+enum Spells
+{
+    SPELL_PHANTOM_BLAST                         = 68982,
+    H_SPELL_PHANTOM_BLAST                       = 70322,
+    SPELL_MIRRORED_SOUL_PROC_AURA               = 69023,
+    SPELL_MIRRORED_SOUL_DAMAGE                  = 69034,
+    SPELL_MIRRORED_SOUL_TARGET_SELECTOR         = 69048,
+    SPELL_MIRRORED_SOUL_BUFF                    = 69051,
+    SPELL_WELL_OF_SOULS                         = 68820,
+    SPELL_UNLEASHED_SOULS                       = 68939,
+    SPELL_WAILING_SOULS_STARTING                = 68912,  // Initial spell cast at begining of wailing souls phase
+    SPELL_WAILING_SOULS_BEAM                    = 68875,  // the beam visual
+    SPELL_WAILING_SOULS                         = 68873,  // the actual spell
+    H_SPELL_WAILING_SOULS                       = 70324,
+//    68871, 68873, 68875, 68876, 68899, 68912, 70324,
+// 68899 trigger 68871
+};
+
+enum Events
+{
+    EVENT_PHANTOM_BLAST         = 1,
+    EVENT_MIRRORED_SOUL         = 2,
+    EVENT_WELL_OF_SOULS         = 3,
+    EVENT_UNLEASHED_SOULS       = 4,
+    EVENT_WAILING_SOULS         = 5,
+    EVENT_WAILING_SOULS_TICK    = 6,
+    EVENT_FACE_ANGER            = 7,
+};
+
+enum Models
+{
+    DISPLAY_ANGER               = 30148,
+    DISPLAY_SORROW              = 30149,
+    DISPLAY_DESIRE              = 30150,
+};
+
+struct outroPosition
+{
+    uint32 entry[2];
+    Position movePosition;
+} outroPositions[] =
+{
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5590.47f, 2427.79f, 705.935f, 0.802851f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5593.59f, 2428.34f, 705.935f, 0.977384f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5600.81f, 2429.31f, 705.935f, 0.890118f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5600.81f, 2421.12f, 705.935f, 0.890118f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5601.43f, 2426.53f, 705.935f, 0.890118f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5601.55f, 2418.36f, 705.935f, 1.15192f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5598, 2429.14f, 705.935f, 1.0472f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5594.04f, 2424.87f, 705.935f, 1.15192f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 5597.89f, 2421.54f, 705.935f, 0.610865f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5598.57f, 2434.62f, 705.935f, 1.13446f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5585.46f, 2417.99f, 705.935f, 1.06465f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5605.81f, 2428.42f, 705.935f, 0.820305f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5591.61f, 2412.66f, 705.935f, 0.925025f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5593.9f, 2410.64f, 705.935f, 0.872665f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 5586.76f, 2416.73f, 705.935f, 0.942478f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 5592.23f, 2419.14f, 705.935f, 0.855211f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 5594.61f, 2416.87f, 705.935f, 0.907571f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 5589.77f, 2421.03f, 705.935f, 0.855211f } },
+
+    { { NPC_KORELN, NPC_LORALEN }, { 5602.58f, 2435.95f, 705.935f, 0.959931f } },
+    { { NPC_ELANDRA, NPC_KALIRA }, { 5606.13f, 2433.16f, 705.935f, 0.785398f } },
+    { { NPC_JAINA_PART2, NPC_SYLVANAS_PART2 }, { 5606.12f, 2436.6f, 705.935f, 0.890118f } },
+
+    { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
+};
+
+static constexpr Position CrucibleSummonPos = { 5672.294f, 2520.686f, 713.4386f, 0.9599311f };
+
+struct boss_devourer_of_souls : public BossAI
+{
+    boss_devourer_of_souls(Creature* creature) : BossAI(creature, DATA_DEVOURER_OF_SOULS)
+    {
+        beamAngle = 0.f;
+        beamAngleDiff = float(M_PI) / 20.0f;
+        wailingSoulTick = 0;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        me->SetControlled(false, UNIT_STATE_ROOT);
+        me->SetDisplayId(DISPLAY_ANGER);
+        me->SetReactState(REACT_AGGRESSIVE);
+        instance->DoUpdateWorldState(WORLD_STATE_THREE_FACED_FAILED, 0);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_FACE_AGGRO);
+
+        if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
+            instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
+        events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+        events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
+        events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
+        events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
+        events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        uint8 textId = 0;
+        switch (me->GetDisplayId())
+        {
+            case DISPLAY_ANGER:
+                textId = SAY_FACE_ANGER_SLAY;
+                break;
+            case DISPLAY_SORROW:
+                textId = SAY_FACE_SORROW_SLAY;
+                break;
+            case DISPLAY_DESIRE:
+                textId = SAY_FACE_DESIRE_SLAY;
+                break;
+            default:
+                break;
+        }
+
+        if (textId)
+            Talk(textId);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+
+        Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
+
+        Talk(SAY_FACE_DEATH);
+
+        int32 entryIndex;
+        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+            entryIndex = 0;
+        else
+            entryIndex = 1;
+
+        for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
+        {
+            if (TempSummon* summon = instance->instance->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint))
+            {
+                summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+                summon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
+                if (summon->GetEntry() == NPC_JAINA_PART2)
+                    summon->AI()->Talk(SAY_JAINA_OUTRO);
+                else if (summon->GetEntry() == NPC_SYLVANAS_PART2)
+                    summon->AI()->Talk(SAY_SYLVANAS_OUTRO);
+            }
+        }
+    }
+
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
+            instance->DoUpdateWorldState(WORLD_STATE_THREE_FACED_FAILED, 1);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PHANTOM_BLAST:
+                    DoCastVictim(SPELL_PHANTOM_BLAST);
+                    events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+                    break;
+                case EVENT_MIRRORED_SOUL:
+                    DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
+                    Talk(EMOTE_MIRRORED_SOUL);
+                    events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
+                    break;
+                case EVENT_WELL_OF_SOULS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_WELL_OF_SOULS);
+                    events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
+                    break;
+                case EVENT_UNLEASHED_SOULS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_UNLEASHED_SOULS);
+                    me->SetDisplayId(DISPLAY_SORROW);
+                    Talk(SAY_FACE_UNLEASH_SOUL);
+                    Talk(EMOTE_UNLEASH_SOUL);
+                    events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30s);
+                    events.ScheduleEvent(EVENT_FACE_ANGER, 5s);
+                    break;
+                case EVENT_FACE_ANGER:
+                    me->SetDisplayId(DISPLAY_ANGER);
+                    break;
+
+                case EVENT_WAILING_SOULS:
+                    me->SetDisplayId(DISPLAY_DESIRE);
+                    Talk(SAY_FACE_WAILING_SOUL);
+                    Talk(EMOTE_WAILING_SOUL);
+                    DoCast(me, SPELL_WAILING_SOULS_STARTING);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    {
+                        me->SetFacingToObject(target);
+                        DoCast(me, SPELL_WAILING_SOULS_BEAM);
+                    }
+
+                    beamAngle = me->GetOrientation();
+
+                    if (roll_chance(50))
+                        beamAngleDiff = -beamAngleDiff;
+
+                    me->InterruptNonMeleeSpells(false);
+                    me->SetReactState(REACT_PASSIVE);
+
+                    //Remove any target
+                    me->SetTarget(ObjectGuid::Empty);
+
+                    me->GetMotionMaster()->Clear();
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+
+                    wailingSoulTick = 20;
+                    events.DelayEvents(13s); // no other events during wailing souls
+                    events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
+                    break;
+
+                case EVENT_WAILING_SOULS_TICK:
+                    if (--wailingSoulTick)
+                    {
+                        beamAngle += beamAngleDiff;
+                        me->SetFacingTo(beamAngle);
+                        DoCast(me, SPELL_WAILING_SOULS);
+                        events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 500ms);
+                    }
+                    else
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetDisplayId(DISPLAY_ANGER);
+                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        me->StartDefaultCombatMovement(me->GetVictim());
+                        events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
+                    }
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+
+private:
+    // wailing soul event
+    float beamAngle;
+    float beamAngleDiff;
+    int8 wailingSoulTick;
+};
+
+// 69051 - Mirrored Soul
+class spell_devourer_of_souls_mirrored_soul : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_PROC_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 69023 - Mirrored Soul (Proc)
+class spell_devourer_of_souls_mirrored_soul_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return GetCaster() && GetCaster()->IsAlive();
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
+        GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_devourer_of_souls_mirrored_soul_proc::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_devourer_of_souls_mirrored_soul_proc::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 69048 - Mirrored Soul (Target Selector)
+class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        targets.clear();
+        targets.push_back(target);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_MIRRORED_SOUL_BUFF, false);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_devourer_of_souls_mirrored_soul_target_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul_target_selector::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+void AddSC_boss_devourer_of_souls()
+{
+    RegisterForgeOfSoulsCreatureAI(boss_devourer_of_souls);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_proc);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector);
+}

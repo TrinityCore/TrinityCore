@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE `spell_id`=24751 AND `ScriptName`='spell_gen_trick_or_treat';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES (24751,'spell_gen_trick_or_treat');

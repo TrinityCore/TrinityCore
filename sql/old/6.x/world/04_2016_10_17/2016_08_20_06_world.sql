@@ -1,0 +1,2 @@
+--
+DELETE FROM `gameobject` WHERE `guid` IN (203059,212760,216475,220570);

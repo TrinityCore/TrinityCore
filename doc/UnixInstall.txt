@@ -1,0 +1,57 @@
+= TrinityCore -- Linux installation =
+This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+
+=========================================================
+WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+=========================================================
+
+CHECK https://www.trinitycore.info/ FOR FURTHER HELP.
+
+These are the instructions for installation in a Linux environment.
+If you are using Windows, refer to https://www.trinitycore.info/ .
+
+Installing TrinityCore is fairly simple on a Linux machine, assuming you 
+have all required applications
+
+https://www.trinitycore.info/display/tc/Requirements
+
+Most of these are included on common Linux distros, others you may have 
+to install by your self. Please check your distro's repos.
+
+Make a directory to build in, you can call it anything you want (like
+build or bin etc.), then go into the directory and use cmake and make.
+E.g. you created a dir named build and want to have your final compiled product
+installed in /home/trinity/server/. An example sequence of commands can be:
+
+    cmake ../ -DCMAKE_INSTALL_PREFIX=/home/trinity/server -DTOOLS=1 -DWITH_WARNINGS=1
+    make
+    make install
+    
+Thats just about all thats needed. You can however tweak more settings 
+than where to install using flags built into our cmake files. Just open 
+up CMakeLists.txt in the main folder and take a look at some of the 
+flags like
+
+    SERVERS                 Build worldserver and authserver
+    SCRIPTS                 Build core with scripts included
+    TOOLS                   Build maps/mmaps/vmaps extraction/assembler tools
+    USE_SCRIPTPCH           Use precompiled headers when compiling scripts
+    USE_COREPCH             Use precompiled headers when compiling servers
+    WITH_WARNINGS           Show all warnings during compile
+    WITH_COREDEBUG          Include additional debug-code in core
+    CMAKE_INSTALL_PREFIX    Set installation directory
+    NOJEM                   Do not build with jemalloc (advanced users only)
+    CONF_DIR                Set path as default configuration directory
+    CMAKE_C_FLAGS           Set C_FLAGS for compile (advanced users only)
+    CMAKE_CXX_FLAGS         Set CXX_FLAGS for compile (advanced users only)
+    CMAKE_BUILD_TYPE        Set build type - the supported modes are:
+                            Release, MinSizeRel, RelWithDebInfo, Debug
+
+Of course, replace the paths in CMAKE_INSTALL_PREFIX with the directory you wish to
+install TrinityCore to. The datadir is where maps, DBCs, and SQLs are stored.
+The sysconfdir is where configuration files are stored.
+
+Once TrinityCore is installed, you will need to apply database updates
+where necessary. Furthermore, you must configure your installation by
+editing the config files in the sysconfdir.

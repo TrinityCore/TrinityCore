@@ -1,0 +1,1 @@
+ALTER TABLE `animation_data` CHANGE COLUMN `BehaviorID` `Fallback` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0' AFTER `ID`, CHANGE COLUMN `Fallback` `BehaviorID` INT(11) NOT NULL DEFAULT '0' AFTER `BehaviorTier`;

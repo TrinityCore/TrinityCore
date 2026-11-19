@@ -1,0 +1,76 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef TRINITYCORE_WORLDPACKET_H
+#define TRINITYCORE_WORLDPACKET_H
+
+#include "ByteBuffer.h"
+#include "Opcodes.h"
+#include "Duration.h"
+
+class WorldPacket : public ByteBuffer
+{
+    public:
+                                                            // just container for later use
+        explicit WorldPacket() : ByteBuffer(0, Reserve{}),
+            m_opcode(UNKNOWN_OPCODE), _connection(CONNECTION_TYPE_DEFAULT) { }
+
+        explicit WorldPacket(uint32 opcode, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(0, Reserve{}),
+            m_opcode(opcode), _connection(connection) { }
+
+        explicit WorldPacket(uint32 opcode, size_t res, Reserve, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res, Reserve{}),
+            m_opcode(opcode), _connection(connection) { }
+
+        explicit WorldPacket(uint32 opcode, size_t res, Resize, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res, Resize{}),
+            m_opcode(opcode), _connection(connection) { }
+
+        explicit WorldPacket(uint32 opcode, size_t res, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : WorldPacket(opcode, res, Reserve{}, connection) { }
+
+        explicit WorldPacket(std::vector<uint8>&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)),
+            m_opcode(UNKNOWN_OPCODE), _connection(connection) { }
+
+        WorldPacket(WorldPacket const& right) = default;
+
+        WorldPacket(WorldPacket&& packet) noexcept = default;
+
+        WorldPacket& operator=(WorldPacket const& right) = default;
+
+        WorldPacket& operator=(WorldPacket&& right) noexcept = default;
+
+        void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
+        {
+            clear();
+            _storage.reserve(newres);
+            m_opcode = opcode;
+            _connection = connection;
+        }
+
+        uint32 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint32 opcode) { m_opcode = opcode; }
+
+        ConnectionType GetConnection() const { return _connection; }
+
+        TimePoint GetReceivedTime() const { return m_receivedTime; }
+        void SetReceiveTime(TimePoint receivedTime) { m_receivedTime = receivedTime; }
+
+    protected:
+        uint32 m_opcode;
+        ConnectionType _connection;
+        TimePoint m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
+};
+
+#endif

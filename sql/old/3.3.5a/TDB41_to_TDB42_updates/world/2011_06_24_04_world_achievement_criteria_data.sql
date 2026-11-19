@@ -1,0 +1,1 @@
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=7590 AND `type`=18;

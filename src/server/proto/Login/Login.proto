@@ -1,0 +1,86 @@
+syntax = "proto2";
+
+package Battlenet.JSON.Login;
+
+option optimize_for = CODE_SIZE;
+
+message ErrorResponse {
+}
+
+enum FormType {
+  LOGIN_FORM = 1;
+}
+
+message FormInput {
+  required string input_id = 1;
+  required string type = 2;
+  required string label = 3;
+  optional uint32 max_length = 4;
+}
+
+message FormInputs {
+  required FormType type = 1;
+  repeated FormInput inputs = 2;
+  optional string srp_url = 3;
+  optional string srp_js = 4;
+}
+
+message FormInputValue {
+  required string input_id = 1;
+  required string value = 2;
+}
+
+message LoginForm {
+  required string platform_id = 1;
+  required string program_id = 2;
+  required string version = 3;
+  repeated FormInputValue inputs = 4;
+  optional uint32 title_id = 5;
+}
+
+message SrpLoginChallenge {
+  required uint32 version = 1;
+  required uint32 iterations = 2;
+  required string modulus = 3;
+  required string generator = 4;
+  required string hash_function = 5;
+  required string username = 6;
+  required string salt = 7;
+  required string public_B = 8;
+  optional bool eligible_credential_upgrade = 9;
+}
+
+enum AuthenticationState {
+  LOGIN = 1;
+  LEGAL = 2;
+  AUTHENTICATOR = 3;
+  DONE = 4;
+}
+
+message LoginResult {
+  required AuthenticationState authentication_state = 1;
+  optional string error_code = 2;
+  optional string error_message = 3;
+  optional string url = 4;
+  optional string login_ticket = 5;
+  optional string server_evidence_M2 = 6;
+  optional string next_url = 7;
+}
+
+message LoginRefreshResult {
+  required uint64 login_ticket_expiry = 1;
+  optional bool is_expired = 2;
+}
+
+message GameAccountInfo {
+  required string display_name = 1;
+  required uint32 expansion = 2;
+  optional bool is_suspended = 3;
+  optional bool is_banned = 4;
+  optional uint64 suspension_expires = 5;
+  optional string suspension_reason = 6;
+}
+
+message GameAccountList {
+  repeated GameAccountInfo game_accounts = 1;
+}

@@ -1,0 +1,104 @@
+From 3790dbcc9cd4bdebbd3257ac8f3f9f28a0cf0485 Mon Sep 17 00:00:00 2001
+From: jackpoz <giacomopoz@gmail.com>
+Date: Fri, 20 Jun 2014 23:15:04 +0200
+Subject: [PATCH] Add custom trinitycore changes
+
+---
+ Detour/Include/DetourNavMesh.h       | 24 ++++++++++++++++++------
+ Detour/Source/DetourNavMeshQuery.cpp |  4 ++--
+ Recast/Include/Recast.h              |  4 ++--
+ 3 files changed, 22 insertions(+), 10 deletions(-)
+
+diff --git a/Detour/Include/DetourNavMesh.h b/Detour/Include/DetourNavMesh.h
+index 8ecd57e..f50f705 100644
+--- a/Detour/Include/DetourNavMesh.h
++++ b/Detour/Include/DetourNavMesh.h
+@@ -25,13 +25,25 @@
+ // Undefine (or define in a build cofnig) the following line to use 64bit polyref.
+ // Generally not needed, useful for very large worlds.
+ // Note: tiles build using 32bit refs are not compatible with 64bit refs!
+-//#define DT_POLYREF64 1
++#define DT_POLYREF64 1
+ 
+ #ifdef DT_POLYREF64
+ // TODO: figure out a multiplatform version of uint64_t
+ // - maybe: https://code.google.com/p/msinttypes/
+ // - or: http://www.azillionmonkeys.com/qed/pstdint.h
++#if defined(WIN32) && !defined(__MINGW32__)
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef unsigned __int64    uint64_d;
++#else
+ #include <stdint.h>
++#ifndef uint64_t
++#ifdef __linux__
++#include <linux/types.h>
++#endif
++#endif
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef uint64_t            uint64_d;
++#endif 
+ #endif
+ 
+ // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
+@@ -40,10 +52,10 @@
+ /// A handle to a polygon within a navigation mesh tile.
+ /// @ingroup detour
+ #ifdef DT_POLYREF64
+-static const unsigned int DT_SALT_BITS = 16;
+-static const unsigned int DT_TILE_BITS = 28;
+-static const unsigned int DT_POLY_BITS = 20;
+-typedef uint64_t dtPolyRef;
++static const unsigned int DT_SALT_BITS = 12;
++static const unsigned int DT_TILE_BITS = 21;
++static const unsigned int DT_POLY_BITS = 31;
++typedef uint64_d dtPolyRef;
+ #else
+ typedef unsigned int dtPolyRef;
+ #endif
+@@ -51,7 +63,7 @@ typedef unsigned int dtPolyRef;
+ /// A handle to a tile within a navigation mesh.
+ /// @ingroup detour
+ #ifdef DT_POLYREF64
+-typedef uint64_t dtTileRef;
++typedef uint64_d dtTileRef;
+ #else
+ typedef unsigned int dtTileRef;
+ #endif
+diff --git a/Detour/Source/DetourNavMeshQuery.cpp b/Detour/Source/DetourNavMeshQuery.cpp
+index 75af102..a263106 100644
+--- a/Detour/Source/DetourNavMeshQuery.cpp
++++ b/Detour/Source/DetourNavMeshQuery.cpp
+@@ -3623,7 +3623,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
+ 	dtVsub(hitNormal, centerPos, hitPos);
+ 	dtVnormalize(hitNormal);
+ 	
+-	*hitDist = dtMathSqrtf(radiusSqr);
++	*hitDist = sqrtf(radiusSqr);
+ 	
+ 	return status;
+ }
+diff --git a/Recast/Include/Recast.h b/Recast/Include/Recast.h
+index e85c0d2..79d77e4 100644
+--- a/Recast/Include/Recast.h
++++ b/Recast/Include/Recast.h
+@@ -263,7 +263,7 @@ struct rcConfig
+ };
+ 
+ /// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
+-static const int RC_SPAN_HEIGHT_BITS = 13;
++static const int RC_SPAN_HEIGHT_BITS = 16;
+ /// Defines the maximum value for rcSpan::smin and rcSpan::smax.
+ static const int RC_SPAN_MAX_HEIGHT = (1 << RC_SPAN_HEIGHT_BITS) - 1;
+ 
+@@ -277,7 +277,7 @@ struct rcSpan
+ {
+ 	unsigned int smin : RC_SPAN_HEIGHT_BITS; ///< The lower limit of the span. [Limit: < #smax]
+ 	unsigned int smax : RC_SPAN_HEIGHT_BITS; ///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
+-	unsigned int area : 6;                   ///< The area id assigned to the span.
++	unsigned char area;                      ///< The area id assigned to the span.
+ 	rcSpan* next;                            ///< The next span higher up in column.
+ };
+ 
+-- 
+2.9.0.windows.1
+

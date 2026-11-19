@@ -1,0 +1,17 @@
+UPDATE `smart_scripts` SET `action_param2`=77 WHERE  `entryorguid`=3019000 AND `source_type`=9 AND `id`=2;
+UPDATE `smart_scripts` SET `action_param2`=30 WHERE  `entryorguid`=2856608 AND `source_type`=9 AND `id`=1;
+UPDATE `smart_scripts` SET `action_param2`=20 WHERE  `entryorguid`=1814200 AND `source_type`=9 AND `id` IN(0,3,4,5);
+UPDATE `smart_scripts` SET `action_param2`=20 WHERE  `entryorguid`=1814300 AND `source_type`=9 AND `id` IN(0,1,2,4,5);
+UPDATE `smart_scripts` SET `action_param2`=20 WHERE  `entryorguid`=1814400 AND `source_type`=9 AND `id` IN(0,2,3,4);
+UPDATE `smart_scripts` SET `action_param2`=20 WHERE  `entryorguid`=1811000 AND `source_type`=9 AND `id` IN(0,1,2,3,4,5,6);
+UPDATE `smart_scripts` SET `action_param2`=60 WHERE  `entryorguid`=24170 AND `source_type`=0 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=60 WHERE  `entryorguid`=177490 AND `source_type`=1 AND `id` IN(0,2);
+UPDATE `smart_scripts` SET `action_param2`=42 WHERE  `entryorguid`=3327300 AND `source_type`=9 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=20 WHERE  `entryorguid`=3327300 AND `source_type`=9 AND `id`=5;
+UPDATE `smart_scripts` SET `action_param2`=30 WHERE  `entryorguid`=3249702 AND `source_type`=9 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=30 WHERE  `entryorguid` IN(3249700,3249701) AND `source_type`=9 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=120 WHERE  `entryorguid` IN(2397400,2397401,2397402,2397403) AND `source_type`=9 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=30 WHERE  `entryorguid`=21926 AND `source_type`=0 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=60 WHERE  `entryorguid`=3685607 AND `source_type`=9 AND `id`=4;
+UPDATE `smart_scripts` SET `action_param2`=4 WHERE  `entryorguid`=15951 AND `source_type`=0 AND `id`=0;
+UPDATE `smart_scripts` SET `action_param2`=60 WHERE  `entryorguid`=20226 AND `source_type`=0 AND `id`=1;

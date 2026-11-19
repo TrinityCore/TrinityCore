@@ -1,0 +1,10 @@
+DELETE FROM `character_aura` WHERE 'effect_index'>'1';
+ ALTER TABLE `character_aura` CHANGE `effect_index` `effect_mask` INT( 11 ) UNSIGNED NOT NULL DEFAULT '0';
+ ALTER TABLE `character_aura` CHANGE `amount` `amount0` INT( 11 ) NOT NULL DEFAULT '0';
+ ALTER TABLE `character_aura` ADD `amount1` INT( 11 ) NOT NULL DEFAULT '0' AFTER `amount0`;
+ ALTER TABLE `character_aura` ADD `amount2` INT( 11 ) NOT NULL DEFAULT '0' AFTER `amount1`;
+DELETE FROM `pet_aura` WHERE 'effect_index'>'1';
+ ALTER TABLE `pet_aura` CHANGE `effect_index` `effect_mask` INT( 11 ) UNSIGNED NOT NULL DEFAULT '0';
+ ALTER TABLE `pet_aura` CHANGE `amount` `amount0` INT( 11 ) NOT NULL DEFAULT '0';
+ ALTER TABLE `pet_aura` ADD `amount1` INT( 11 ) NOT NULL DEFAULT '0' AFTER `amount0`;
+ ALTER TABLE `pet_aura` ADD `amount2` INT( 11 ) NOT NULL DEFAULT '0' AFTER `amount1`;

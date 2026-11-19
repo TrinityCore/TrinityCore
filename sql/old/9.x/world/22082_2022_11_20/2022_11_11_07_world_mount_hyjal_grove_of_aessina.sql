@@ -1,0 +1,89 @@
+SET @OGUID := 246259;
+
+-- Gameobject templates
+UPDATE `gameobject_template` SET `ContentTuningId`=425, `VerifiedBuild`=46366 WHERE `entry`=208163; -- Candy Bucket
+
+UPDATE `gameobject_template_addon` SET `faction`=35 WHERE `entry`=208163; -- Candy Bucket
+
+-- Quests
+DELETE FROM `quest_offer_reward` WHERE `ID`=29000;
+INSERT INTO `quest_offer_reward` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `RewardText`, `VerifiedBuild`) VALUES
+(29000, 0, 0, 0, 0, 0, 0, 0, 0, 'Candy buckets like this are located in inns throughout the realms. Go ahead... take some!', 46366); -- Candy Bucket
+
+DELETE FROM `gameobject_queststarter` WHERE `id`=208163;
+INSERT INTO `gameobject_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(208163, 29000, 46366);
+
+UPDATE `gameobject_questender` SET `VerifiedBuild`=46366 WHERE (`id`=208163 AND `quest`=29000);
+
+DELETE FROM `game_event_gameobject_quest` WHERE `id`=208163;
+
+-- Old gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN 229058 AND 229085;
+DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN 229058 AND 229085;
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+28;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 180405, 1, 616, 4989, '0', 0, 416, 5088.126953125, -1764.01220703125, 1332.506103515625, 5.218535900115966796, 0, 0, -0.507537841796875, 0.861629426479339599, 120, 255, 1, 46366), -- G_Pumpkin_01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+1, 180405, 1, 616, 4989, '0', 0, 416, 5130.892578125, -1715.8819580078125, 1336.478515625, 6.195919513702392578, 0, 0, -0.04361915588378906, 0.999048233032226562, 120, 255, 1, 46366), -- G_Pumpkin_01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+2, 180406, 1, 616, 4989, '0', 0, 416, 5089.30908203125, -1771.220458984375, 1332.944580078125, 5.201082706451416015, 0, 0, -0.51503753662109375, 0.857167601585388183, 120, 255, 1, 46366), -- G_Pumpkin_02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+3, 180406, 1, 616, 4989, '0', 0, 416, 5162.2666015625, -1768.6197509765625, 1338.789794921875, 4.45059061050415039, 0, 0, -0.79335308074951171, 0.608761727809906005, 120, 255, 1, 46366), -- G_Pumpkin_02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+4, 180407, 1, 616, 4989, '0', 0, 416, 5105.41748046875, -1743.0035400390625, 1333.8414306640625, 1.151916384696960449, 0, 0, 0.544638633728027343, 0.838670849800109863, 120, 255, 1, 46366), -- G_Pumpkin_03 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+5, 180407, 1, 616, 4989, '0', 0, 416, 5158.05126953125, -1736.986083984375, 1337.6258544921875, 1.151916384696960449, 0, 0, 0.544638633728027343, 0.838670849800109863, 120, 255, 1, 46366), -- G_Pumpkin_03 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+6, 180408, 1, 616, 4989, '0', 0, 416, 5130.87060546875, -1715.96533203125, 1338.12548828125, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- G_WitchHat_01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+7, 180411, 1, 616, 4989, '0', 0, 416, 5103.9990234375, -1751.9427490234375, 1344.3890380859375, 1.413715124130249023, 0, 0, 0.649447441101074218, 0.760406434535980224, 120, 255, 1, 46366), -- G_Ghost_01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+8, 180411, 1, 616, 4989, '0', 0, 416, 5137.931640625, -1783.484375, 1347.112548828125, 4.764749526977539062, 0, 0, -0.6883544921875, 0.725374460220336914, 120, 255, 1, 46366), -- G_Ghost_01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+9, 180414, 1, 616, 4989, '0', 0, 416, 5131.9599609375, -1718.7066650390625, 1336.39697265625, 3.717553615570068359, 0, 0, -0.95881938934326171, 0.284016460180282592, 120, 255, 1, 46366), -- Cauldron (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+10, 180415, 1, 616, 4989, '0', 0, 416, 5132.31689453125, -1762.2117919921875, 1338.4302978515625, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- CandleBlack01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+11, 180415, 1, 616, 4989, '0', 0, 416, 5142.00341796875, -1754.12158203125, 1338.3487548828125, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- CandleBlack01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+12, 180415, 1, 616, 4989, '0', 0, 416, 5132.04248046875, -1750.407958984375, 1337.8834228515625, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- CandleBlack01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+13, 180425, 1, 616, 4989, '0', 0, 416, 5130.650390625, -1717.7396240234375, 1336.4781494140625, 2.984498262405395507, 0, 0, 0.996916770935058593, 0.078466430306434631, 120, 255, 1, 46366), -- SkullCandle01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+14, 180425, 1, 616, 4989, '0', 0, 416, 5133.375, -1719.5103759765625, 1336.2618408203125, 5.305802345275878906, 0, 0, -0.46947097778320312, 0.882947921752929687, 120, 255, 1, 46366), -- SkullCandle01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+15, 180425, 1, 616, 4989, '0', 0, 416, 5131.8974609375, -1720.170166015625, 1336.2977294921875, 4.747295856475830078, 0, 0, -0.69465827941894531, 0.719339847564697265, 120, 255, 1, 46366), -- SkullCandle01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+16, 180425, 1, 616, 4989, '0', 0, 416, 5130.421875, -1719.125, 1336.3978271484375, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 120, 255, 1, 46366), -- SkullCandle01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+17, 180426, 1, 616, 4989, '0', 0, 416, 5120.94091796875, -1765.98095703125, 1334.0386962890625, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+18, 180426, 1, 616, 4989, '0', 0, 416, 5114.3203125, -1757.251708984375, 1334.063232421875, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+19, 180426, 1, 616, 4989, '0', 0, 416, 5135.4462890625, -1753.8038330078125, 1334.4517822265625, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+20, 180426, 1, 616, 4989, '0', 0, 416, 5143.1787109375, -1746.65625, 1334.7894287109375, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+21, 180426, 1, 616, 4989, '0', 0, 416, 5145.8837890625, -1761.236083984375, 1334.77001953125, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat01 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+22, 180427, 1, 616, 4989, '0', 0, 416, 5119.21875, -1762.8211669921875, 1333.8524169921875, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+23, 180427, 1, 616, 4989, '0', 0, 416, 5143.80908203125, -1748.30908203125, 1334.6817626953125, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+24, 180427, 1, 616, 4989, '0', 0, 416, 5138.7890625, -1753.34033203125, 1334.3909912109375, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+25, 180427, 1, 616, 4989, '0', 0, 416, 5149.86474609375, -1763.154541015625, 1336.2294921875, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Bat02 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+26, 180523, 1, 616, 4989, '0', 0, 416, 5143.58349609375, -1722.04345703125, 1336.45166015625, 0, 0, 0, 0, 1, 120, 255, 1, 46366), -- Apple Bob (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+27, 185436, 1, 616, 4989, '0', 0, 416, 5132.134765625, -1718.4478759765625, 1337.0531005859375, 3.316144466400146484, 0, 0, -0.99619388580322265, 0.087165042757987976, 120, 255, 1, 46366), -- Sitting Skeleton 03 (Area: Grove of Aessina - Difficulty: 0)
+(@OGUID+28, 208163, 1, 616, 4989, '0', 0, 416, 5139.212890625, -1719.984375, 1335.9097900390625, 6.178466320037841796, 0, 0, -0.05233573913574218, 0.998629570007324218, 120, 255, 1, 46366); -- Candy Bucket (Area: Grove of Aessina - Difficulty: 0)
+
+-- Event spawns
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=12 AND `guid` BETWEEN @OGUID+0 AND @OGUID+28;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(12, @OGUID+0),
+(12, @OGUID+1),
+(12, @OGUID+2),
+(12, @OGUID+3),
+(12, @OGUID+4),
+(12, @OGUID+5),
+(12, @OGUID+6),
+(12, @OGUID+7),
+(12, @OGUID+8),
+(12, @OGUID+9),
+(12, @OGUID+10),
+(12, @OGUID+11),
+(12, @OGUID+12),
+(12, @OGUID+13),
+(12, @OGUID+14),
+(12, @OGUID+15),
+(12, @OGUID+16),
+(12, @OGUID+17),
+(12, @OGUID+18),
+(12, @OGUID+19),
+(12, @OGUID+20),
+(12, @OGUID+21),
+(12, @OGUID+22),
+(12, @OGUID+23),
+(12, @OGUID+24),
+(12, @OGUID+25),
+(12, @OGUID+26),
+(12, @OGUID+27),
+(12, @OGUID+28);

@@ -1,0 +1,100 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef PlayerTaxi_h__
+#define PlayerTaxi_h__
+
+#include "DBCEnums.h"
+#include "Define.h"
+#include <deque>
+#include <iosfwd>
+#include <string>
+
+struct FactionTemplateEntry;
+namespace WorldPackets
+{
+    namespace Taxi
+    {
+        class ShowTaxiNodes;
+    }
+}
+
+class TC_GAME_API PlayerTaxi
+{
+    public:
+        PlayerTaxi();
+        PlayerTaxi(PlayerTaxi const& other);
+        PlayerTaxi(PlayerTaxi&& other) noexcept;
+        PlayerTaxi& operator=(PlayerTaxi const& other);
+        PlayerTaxi& operator=(PlayerTaxi&& other) noexcept;
+        ~PlayerTaxi();
+
+        // Nodes
+        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
+        bool LoadTaxiMask(std::string const& data);
+
+        bool IsTaximaskNodeKnown(uint32 nodeidx) const
+        {
+            uint32 field = uint32((nodeidx - 1) / (sizeof(TaxiMask::value_type) * 8));
+            TaxiMask::value_type submask = TaxiMask::value_type(1 << ((nodeidx - 1) % (sizeof(TaxiMask::value_type) * 8)));
+            return (m_taximask[field] & submask) != 0;
+        }
+        bool SetTaximaskNode(uint32 nodeidx)
+        {
+            uint32 field = uint32((nodeidx - 1) / (sizeof(TaxiMask::value_type) * 8));
+            TaxiMask::value_type submask = TaxiMask::value_type(1 << ((nodeidx - 1) % (sizeof(TaxiMask::value_type) * 8)));
+            if ((m_taximask[field] & submask) == 0)
+            {
+                m_taximask[field] |= submask;
+                return true;
+            }
+            else
+                return false;
+        }
+        void AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool all);
+        TaxiMask const& GetTaxiMask() const { return m_taximask; }
+
+        // Destinations
+        [[nodiscard]] bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
+        std::string SaveTaxiDestinationsToString();
+
+        void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
+        void AddTaxiDestination(uint32 dest);
+        uint32 GetTaxiSource() const { return m_TaxiDestinations.empty() ? 0 : m_TaxiDestinations.front(); }
+        uint32 GetTaxiDestination() const { return m_TaxiDestinations.size() < 2 ? 0 : m_TaxiDestinations[1]; }
+        uint32 GetCurrentTaxiPath() const;
+        uint32 NextTaxiDestination()
+        {
+            m_TaxiDestinations.pop_front();
+            return GetTaxiDestination();
+        }
+        bool RequestEarlyLanding();
+        std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
+        bool empty() const { return m_TaxiDestinations.empty(); }
+        FactionTemplateEntry const* GetFlightMasterFactionTemplate() const;
+        void SetFlightMasterFactionTemplateId(uint32 factionTemplateId) { m_flightMasterFactionId = factionTemplateId; }
+
+        friend std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);
+    private:
+        TaxiMask m_taximask;
+        std::deque<uint32> m_TaxiDestinations;
+        uint32 m_flightMasterFactionId = 0;
+};
+
+std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
+
+#endif // PlayerTaxi_h__

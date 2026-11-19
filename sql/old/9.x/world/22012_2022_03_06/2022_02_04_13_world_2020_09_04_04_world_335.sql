@@ -1,0 +1,2 @@
+--
+UPDATE `achievement_reward_locale` SET `Subject` = 'Una amiga muy \"salá\"', `Body` = '¡Hola!$B$BTengo entendido que has conseguido un dulce y acogedor hogar incluso para ese travieso de Cuesqui... Tenía la esperanza de que quisieras acoger a otro huérfano inesperado.$B$BEsta Cervatilla es algo tímida, pero no tendrás ningún problema para ganarte su amistad con lo que te envío: ¡Su piedra de sal favorita!$B$B--Breanni' WHERE `ID` = 2516 AND `Locale` IN ('esES','esMX');

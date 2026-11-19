@@ -1,0 +1,117 @@
+ dep/g3dlite/Readme.txt             |  3 ++-
+ dep/g3dlite/include/G3D/Log.h      |  2 +-
+ dep/g3dlite/include/G3D/Rect2D.h   |  2 +-
+ dep/g3dlite/source/FileSystem.cpp  |  3 +++
+ dep/g3dlite/source/debugAssert.cpp |  2 ++
+ dep/g3dlite/source/fileutils.cpp   | 10 ++++++++++
+ dep/g3dlite/source/prompt.cpp      |  2 ++
+ 7 files changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/dep/g3dlite/Readme.txt b/dep/g3dlite/Readme.txt
+index 7fab7f8..7439943 100644
+--- a/dep/g3dlite/Readme.txt
++++ b/dep/g3dlite/Readme.txt
+@@ -11,4 +11,5 @@ G3D-v8.0_hotfix7.diff - 2013-08-31 - fix typo in Matrix4 == operator
+ G3D-v8.0_hotfix8.diff - 2013-09-01 - fix typo in Vector3int32 += operator
+ G3D-v8.0_hotfix9.diff - 2014-06-01 - only VS < 10 don't ship inttypes.h
+ G3D-v9.0 hotfix1.diff - 2014-08-22 - updated to G3D9, reapplied previous patches and removed unneeded changes
+-G3D-v9.0 hotfix2.diff - 2014-08-23 - fix some -Wconversion warnings
+\ No newline at end of file
++G3D-v9.0 hotfix2.diff - 2014-08-23 - fix some -Wconversion warnings
++G3D-v9.0 hotfix3.diff - 2015-06-28 - fix some warnings
+diff --git a/dep/g3dlite/include/G3D/Log.h b/dep/g3dlite/include/G3D/Log.h
+index 2aedb13..c8a5d53 100644
+--- a/dep/g3dlite/include/G3D/Log.h
++++ b/dep/g3dlite/include/G3D/Log.h
+@@ -57,9 +57,9 @@ private:
+ 
+     static Log*             commonLog;
+ 
++public:
+     int                     stripFromStackBottom;
+ 
+-public:
+ 
+     /**
+      @param stripFromStackBottom Number of call stacks to strip from the
+diff --git a/dep/g3dlite/include/G3D/Rect2D.h b/dep/g3dlite/include/G3D/Rect2D.h
+index f72dd08..93dd0e6 100644
+--- a/dep/g3dlite/include/G3D/Rect2D.h
++++ b/dep/g3dlite/include/G3D/Rect2D.h
+@@ -118,7 +118,7 @@ private:
+     }
+ 
+     /** Uninitialized constructor */
+-    Rect2D(bool b) {}
++    Rect2D(bool /*b*/) {}
+ public:
+ 
+     /** \param any Must either Rect2D::xywh(#, #, #, #) or Rect2D::xyxy(#, #, #, #)*/
+diff --git a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+index 32a84e7..06e6ff0 100644
+--- a/dep/g3dlite/source/FileSystem.cpp
++++ b/dep/g3dlite/source/FileSystem.cpp
+@@ -137,6 +137,9 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
+     
+     zip_close(z);
+     z = NULL;
++#else
++    (void)zipfile;
++    (void)_pathInsideZipfile;
+ #endif
+ }
+ 
+diff --git a/dep/g3dlite/source/debugAssert.cpp b/dep/g3dlite/source/debugAssert.cpp
+index 92ce237..cfccf9a 100644
+--- a/dep/g3dlite/source/debugAssert.cpp
++++ b/dep/g3dlite/source/debugAssert.cpp
+@@ -121,6 +121,8 @@ static void createErrorMessage(
+         const char* moduleName = strrchr(modulePath, '\\');
+         outTitle = outTitle + string(" - ") + string(moduleName ? (moduleName + 1) : modulePath);
+ 
++    #else
++        (void)outTitle;
+     #endif
+ 
+     // Build the message.
+diff --git a/dep/g3dlite/source/fileutils.cpp b/dep/g3dlite/source/fileutils.cpp
+index 966cca7..2788ada 100644
+--- a/dep/g3dlite/source/fileutils.cpp
++++ b/dep/g3dlite/source/fileutils.cpp
+@@ -396,6 +396,10 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
+         }
+         
+     }
++#else
++    (void)filename;
++    (void)outZipfile;
++    (void)outInternalFile;
+ #endif
+     // not a valid directory structure ever, 
+     // obviously no .zip was found within the path 
+@@ -756,6 +760,12 @@ static void getFileOrDirListZip(const std::string& path,
+     zip_close( z );
+     
+     fileSet.getMembers(files);
++#else
++    (void)path;
++    (void)prefix;
++    (void)files;
++    (void)wantFiles;
++    (void)includePath;
+ #endif
+ }
+ 
+diff --git a/dep/g3dlite/source/prompt.cpp b/dep/g3dlite/source/prompt.cpp
+index ee520d8..6927fd0 100644
+--- a/dep/g3dlite/source/prompt.cpp
++++ b/dep/g3dlite/source/prompt.cpp
+@@ -572,6 +572,8 @@ int prompt(
+ 		  return result;
+                 }
+         #endif
++#else
++    (void)useGui;
+ #endif /* G3DFIX: exclude GUI prompt code */
+     return textPrompt(windowTitle, prompt, choice, numChoices);
+ }
