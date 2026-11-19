@@ -76,7 +76,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_QUESTGIVER                        = 38,    // NYI // Unit(s) become a quest giver
     AI_GROUP_UNIT_TRAINER                           = 39,    // NYI // Unit(s) become a trainer
     AI_GROUP_SPLINE_PATH                            = 40,    // NYI // Follow a short path exactly (no pathing)
-    AI_GROUP_PLAYER_ACTION                          = 41,    // NYI // Player performs an action (Programmer -Internal Use Only)
+    AI_GROUP_PLAYER_ACTION                          = 41,    // Player performs an action (Programmer -Internal Use Only)
     AI_GROUP_RETURN_HOME                            = 42,    // Move everybody back to spawn positions
     AI_GROUP_UNIT_SAY_RANDOM                        = 43,    // NYI // Unit(s) say something random
     AI_GROUP_UNIT_YELL                              = 44,    // Unit(s) yell something
@@ -124,7 +124,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_CANCEL_CAST                       = 86,    // Unit(s) cancel casting a spell
     AI_GROUP_UNIT_CANCEL_AURA                       = 87,    // Unit(s) cancel an aura on themselves
     AI_GROUP_UNIT_FINISH_CAST                       = 88,    // Unit(s) wait until they finish casting
-    AI_GROUP_EMOTE_STATE                            = 89,    // NYI // Emote State with Idle (formerly continually emote)
+    AI_GROUP_EMOTE_STATE                            = 89,    // Emote State with Idle (formerly continually emote)
     AI_GROUP_UNIT_CALL_FOR_HELP                     = 90,    // NYI // Call for help (combat action only)
     AI_GROUP_FLIGHT_PATH                            = 91,    // NYI // Follow a flight spline path exactly
     AI_GROUP_UNIT_COMBAT_TRIGGER                    = 92,    // Trigger actions on units in combat

@@ -76,6 +76,8 @@ class TC_GAME_API AIGroupScript
         uint32 GetActionDuration(ActionSetActionHolder const& action) const;
         float GetStringIdSearchRadius(ActionSetActionHolder const& action) const;
 
+        void ResetEmoteState();
+
         AIGroupEventList mEvents;
         AIGroupObjectTriggerList mObjectTriggers;
         AIGroupActiveActionSetList mActionSets;

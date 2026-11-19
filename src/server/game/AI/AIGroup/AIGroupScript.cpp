@@ -237,6 +237,18 @@ uint32 AIGroupScript::GetActionDuration(ActionSetActionHolder const& action) con
     return action.TimeA;
 }
 
+void AIGroupScript::ResetEmoteState()
+{
+    if (m_group)
+    {
+        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
+            if (IsCreatureAndExists(member))
+                member->ToCreature()->SetEmoteState(static_cast<Emote>(0));
+    }
+    else if (me)
+        me->SetEmoteState(static_cast<Emote>(0));
+}
+
 float AIGroupScript::GetStringIdSearchRadius(ActionSetActionHolder const& action) const
 {
     double searchRadius = 0;
@@ -846,7 +858,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         case AI_GROUP_UNIT_FINISH_CAST:
             return false;
         case AI_GROUP_EMOTE_STATE:
-            /// @todo
+            me->SetEmoteState(static_cast<Emote>(action.Extra2));
             return false;
         case AI_GROUP_UNIT_CALL_FOR_HELP:
             /// @todo
@@ -1533,6 +1545,9 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 return;
             }
 
+            if (action.Type == AI_GROUP_EMOTE_STATE)
+                ResetEmoteState();
+
             if (ShouldStopMovementForAction(action.Type))
             {
                 auto StopMovement = [actionType = action.Type](Creature* creature)
@@ -1587,6 +1602,9 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
         if (actionFinished ||
             (activeActionSet->ActionTimer == 0 && !CanActionBeInfinite(action.Type) && !IsActionWaitable(action)))
         {
+            if (action.Type == AI_GROUP_EMOTE_STATE)
+                ResetEmoteState();
+
             activeActionSet->ActionStarted = false;
             ++activeActionSet->CurrentAction;
         }
