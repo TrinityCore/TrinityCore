@@ -706,6 +706,9 @@ To create a new action, follow these steps:
 
 `Extra2`: Trigger Param
 
+**^ Alpha Build 3368**
+---
+
 * **93 - AI_GROUP_UNIT_GOSSIP - (Unit(s) become a gossip)**
 
 `Unit`
@@ -945,6 +948,9 @@ To create a new action, follow these steps:
 `Extra0`: StringID Search Radius
 
 `Extra2`: Trigger Param
+
+**^ 1.12.1**
+---
 
 * **130 - AI_GROUP_UNIT_CAST_FAILURE - (Unit(s) cast a spell and report failure to owner)**
 
@@ -1233,6 +1239,9 @@ Reference Table for Common Behaviors:
 `Unit`
 
 `Extra2`: (Movie)
+
+**^ 2.4.3**
+---
 
 * **166 - AI_GROUP_JUMP_POINT - (Jump to a point)**
 
@@ -1604,6 +1613,9 @@ Reference Table for Common Behaviors:
 
 `Extra2`: (Loot)
 
+**^ 3.3.5a**
+---
+
 * **215 - AI_GROUP_UNIT_CAST_RANDOM_UNIT - (Unit(s) cast a spell on a random unit)**
 
 `Unit`
@@ -1902,6 +1914,9 @@ Reference Table for Common Behaviors:
 
 `Extra4`: 1 = success, 0 = unsuccessful
 
+**^ 4.3.4**
+---
+
 * **258 - AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL - (Unit(s) set Wild BattlePet Level)**
 
 `Unit`
@@ -2062,6 +2077,9 @@ Reference Table for Common Behaviors:
 
 `Extra2`: (AIActionset) ActionSetID
 
+**^ 6.0.1 Build 18125**
+---
+
 * **279 - AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT - (Move on path graph to point)**
 
 `Point`
@@ -2127,6 +2145,11 @@ Reference Table for Common Behaviors:
 `Unit`
 
 `Extra0`
+
+**^ 6.0.3 Build 19342**<br>
+**^ 6.1.2 Build 19865**<br>
+**^ 6.2.0 Build 20253**<br>
+---
 
 * **288 - AI_GROUP_UNIT_BECOME_PERSONAL_INVIS_CLONE - (Unit(s) Becomes a personal invis clone for triggering player)**
 
@@ -2239,3 +2262,6 @@ Reference Table for Common Behaviors:
 * **302 - AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT_RES - (Reset "Don't Dismiss On Flying Mount" for unit(s))**
 
 `Unit`
+
+**^ 7.3.5 Build 25717**
+---
