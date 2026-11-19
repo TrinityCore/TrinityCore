@@ -1480,15 +1480,21 @@ Reference Table for Common Behaviors:
 
 * **195 - AI_GROUP_UNIT_START_LOOPING_ANIM_KIT - (Unit(s) start a looping anim kit)**
 
+**! DO NOT USE ON 3.3.5**
+
 `Unit`
 
 `Extra2`: (Anim Kit)
 
 * **196 - AI_GROUP_UNIT_STOP_LOOPING_ANIM_KIT - (Unit(s) stop their looping anim kit)**
 
+**! DO NOT USE ON 3.3.5**
+
 `Unit`
 
 * **197 - AI_GROUP_UNIT_PLAY_ONESHOT_ANIM_KIT - (Unit(s) play a one-shot anim kit)**
+
+**! DO NOT USE ON 3.3.5**
 
 `Unit`
 
@@ -1496,11 +1502,15 @@ Reference Table for Common Behaviors:
 
 * **198 - AI_GROUP_UNIT_SET_MOVEMENT_ANIM_KIT - (Unit(s) set their movement anim kit)**
 
+**! DO NOT USE ON 3.3.5**
+
 `Unit`
 
 `Extra2`: (Anim Kit)
 
 * **199 - AI_GROUP_UNIT_SET_MELEE_ANIM_KIT - (Unit(s) set their melee anim kit)**
+
+**! DO NOT USE ON 3.3.5**
 
 `Unit`
 
@@ -1528,11 +1538,15 @@ Reference Table for Common Behaviors:
 
 * **204 - AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC - (Set "No NPC damage below 85%" flag for unit(s))**
 
+**! DO NOT USE ON 3.3.5**
+
 `Unit`
 
 `Extra2`: 1 = set, 0 = unset
 
 * **205 - AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC_RESET - (Reset "No NPC damage below 85%" flag for unit(s))**
+
+**! DO NOT USE ON 3.3.5**
 
 `Unit`
 
@@ -1544,11 +1558,15 @@ Reference Table for Common Behaviors:
 
 * **207 - AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY - (Unit(s) sets his boss unit frames priority)**
 
+**! DO NOT USE ON 3.3.5**
+
 `Unit`
 
 `Extra2`: Use number 1-255. 1 is highest
 
 * **208 - AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY_RESET - (Unit(s) resets his boss unit frames priority)**
+
+**! DO NOT USE ON 3.3.5**
 
 `Unit`
 
