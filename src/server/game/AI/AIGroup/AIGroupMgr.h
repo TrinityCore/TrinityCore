@@ -40,7 +40,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_MOVETO                                 = 2,     // NYI // Move within distance of a point
     AI_GROUP_TELEPORT                               = 3,     // Teleport to a point in the world
     AI_GROUP_WANDER                                 = 4,     // Wander
-    AI_GROUP_ATTACK_ALL                             = 5,     // NYI // Attack all players within a given radius; old AI_GROUP_WANDER_SPAWNRELATIVE_OBSOLETE
+    AI_GROUP_ATTACK_ALL                             = 5,     // Attack all players within a given radius; old AI_GROUP_WANDER_SPAWNRELATIVE_OBSOLETE
     AI_GROUP_WANDER_AREA                            = 6,     // Wander a convex poly area (not yet implemented)
     AI_GROUP_FOLLOW_GUID                            = 7,     // NYI // Follow a unit
     AI_GROUP_FOLLOW_PATH                            = 8,     // Follow a path

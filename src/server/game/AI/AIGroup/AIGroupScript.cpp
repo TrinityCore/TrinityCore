@@ -566,8 +566,26 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             me->GetMotionMaster()->MoveRandom(float(action.Extra1));
             return false;
         case AI_GROUP_ATTACK_ALL:
-            /// @todo
+        {
+            /// @todo: Move this to AttackAllPlayersWithinRadius
+            std::vector<Player*> players;
+            me->GetPlayerListInGrid(players, float(action.Extra0));
+            for (Player* player : players)
+            {
+                if (!player || !player->IsAlive() || !CombatManager::CanBeginCombat(me, player))
+                    continue;
+
+                me->EngageWithTarget(player);
+
+                for (Unit* pet : player->m_Controlled)
+                    me->EngageWithTarget(pet);
+
+                if (Unit* vehicle = player->GetVehicleBase())
+                    me->EngageWithTarget(vehicle);
+            }
+
             return true;
+        }
         case AI_GROUP_FOLLOW_GUID:
             /// @todo
             return false;
