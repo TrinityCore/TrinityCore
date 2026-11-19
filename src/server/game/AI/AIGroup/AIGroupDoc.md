@@ -114,10 +114,6 @@ To create a new action, follow these steps:
 
 `Extra0`: Attack Radius
 
-* **6 - AI_GROUP_WANDER_AREA - (Wander a convex poly area (not yet implemented))**
-
-*No parameters*
-
 * **7 - AI_GROUP_FOLLOW_GUID - (Follow a unit)**
 
 `TimeA`
@@ -182,10 +178,6 @@ To create a new action, follow these steps:
 
 `Extra3`: Angle : in degrees (0 = random)
 
-* **12 - AI_GROUP_GUARD_AREA - (Guard an area (not yet implemented))**
-
-*No parameters*
-
 * **13 - AI_GROUP_SET_FORMATION - (Set a specific formation and spread)**
 
 `Extra0`: Num Columns (Marching only)
@@ -195,10 +187,6 @@ To create a new action, follow these steps:
 `Extra2`: (Options (((#47)))) Options
 
 `Extra4`: (Formation) Formation
-
-* **14 - AI_GROUP_UNIT_CHANGE_MODE_OBSOLETE - (Change mode on unit(s) in the group (obsolete))**
-
-*No parameters*
 
 * **15 - AI_GROUP_UNIT_SAY - (Unit(s) say something)**
 
@@ -374,10 +362,6 @@ To create a new action, follow these steps:
 
 `Extra3`: Speed Multiplier
 
-* **41 - AI_GROUP_PLAYER_ACTION - (Player performs an action (Programmer -Internal Use Only))**
-
-`Extra2`
-
 * **42 - AI_GROUP_RETURN_HOME - (Move everybody back to spawn positions)**
 
 `TimeA`
@@ -447,10 +431,6 @@ To create a new action, follow these steps:
 `Unit`
 
 `Extra2`: (Event)
-
-* **51 - AI_GROUP_VENDOR_IDLE_OBSOLETE - (Vendor wander + face + idle action sequence (obsolete))**
-
-*No parameters*
 
 * **52 - AI_GROUP_QUEST_FAILED - (Escort quest actions failed)**
 
