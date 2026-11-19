@@ -1672,7 +1672,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_FOLLOW_TAXI_PATH:
-            /// @todo Extra2 field
+            if (!IsTaxiPathValid(action, action.Extra2))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             /// @todo Extra4 field
@@ -1682,7 +1683,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsStandardAngleValid(action, action.Extra1))
                 return false;
-            /// @todo Extra2 field
+            if (!IsTaxiPathValid(action, action.Extra2))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             /// @todo Extra4 field
@@ -2443,6 +2445,18 @@ bool AIGroupMgr::IsBasePointValid(ActionSetActionHolder const& action, double po
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Base Point ({}), skipped.",
             action.Id, action.Index, action.Type, point);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsTaxiPathValid(ActionSetActionHolder const& action, double path)
+{
+    if (!IsPositiveWholeNumberInRange(path) || !sTaxiPathStore.LookupEntry(uint32(path)))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Taxi Path {}, skipped.",
+            action.Id, action.Index, action.Type, path);
         return false;
     }
 

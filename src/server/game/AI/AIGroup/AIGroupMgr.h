@@ -1426,6 +1426,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsStandardAngleValid(ActionSetActionHolder const& action, double angle);
         static bool IsExtendedAngleValid(ActionSetActionHolder const& action, double angle);
         static bool IsBasePointValid(ActionSetActionHolder const& action, double point);
+        static bool IsTaxiPathValid(ActionSetActionHolder const& action, double path);
         static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
         bool IsActionSetValid(ActionSetActionHolder const& action, double actionSetId);
 
