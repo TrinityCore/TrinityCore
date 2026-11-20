@@ -1084,6 +1084,14 @@ enum class TurnInPlaceOptions : uint8
     Max
 };
 
+enum class AIActionMovetomultiGraphParam : uint8
+{
+    Loop               = 0,    // "loop (connect last point to first point)"
+    Flight             = 1,    // "flight"
+    PatrolBackAndForth = 2,    // "patrol back and forth"
+    Max
+};
+
 enum class CreatureDisplayInfoIndex : uint8
 {
     Random             = 0,

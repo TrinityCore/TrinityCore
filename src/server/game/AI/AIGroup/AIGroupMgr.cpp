@@ -1853,7 +1853,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS:
-            /// @todo Extra2 field
+            if (action.Extra2 < 0 || action.Extra2 >= static_cast<uint8>(AIActionMovetomultiGraphParam::Max) || !IsIntegerDouble(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid MovetomultiGraphParam {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             /// @todo Extra4 field
