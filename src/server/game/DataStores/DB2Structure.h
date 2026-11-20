@@ -3886,6 +3886,18 @@ struct SpellCooldownsEntry
     uint32 SpellID;
 };
 
+struct SpellDiminishEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    int32 Duration;
+    float Multiplier;
+    int32 Unknown1200;
+    int32 ImmunityStacks;
+    int32 MaxStacks;
+    int32 IconFileDataID;
+};
+
 struct SpellDurationEntry
 {
     uint32 ID;

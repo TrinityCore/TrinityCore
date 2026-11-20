@@ -5342,6 +5342,23 @@ struct SpellCooldownsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 7, &SpellCooldownsMeta::Instance, HOTFIX_SEL_SPELL_COOLDOWNS };
 };
 
+struct SpellDiminishLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Duration" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Multiplier" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1200" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ImmunityStacks" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "MaxStacks" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "IconFileDataID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &SpellDiminishMeta::Instance, HOTFIX_SEL_SPELL_DIMINISH };
+};
+
 struct SpellDurationLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =

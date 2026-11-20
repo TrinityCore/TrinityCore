@@ -415,6 +415,7 @@ class TC_GAME_API SpellInfo
         flag128 SpellFamilyFlags;
         uint32 DmgClass = 0;
         uint32 PreventionType = 0;
+        uint32 DiminishTypeMask = 0;
         int32 RequiredAreasID = -1;
         uint32 SchoolMask = 0;
         uint32 ChargeCategoryId = 0;
@@ -594,6 +595,7 @@ class TC_GAME_API SpellInfo
         DiminishingReturnsType GetDiminishingReturnsGroupType() const;
         DiminishingLevels GetDiminishingReturnsMaxLevel() const;
         int32 GetDiminishingReturnsLimitDuration() const;
+        static SpellDiminishEntry const* GetSpellDiminishEntry(DiminishingGroup group);
 
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const;

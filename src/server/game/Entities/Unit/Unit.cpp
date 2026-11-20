@@ -9384,8 +9384,12 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group) const
     if (!diminish.hitCount)
         return DIMINISHING_LEVEL_1;
 
-    // If last spell was cast more than 18 seconds ago - reset level.
-    if (!diminish.stack && GetMSTimeDiffToNow(diminish.hitTime) > 18 * IN_MILLISECONDS)
+    // If the last aura of the group was removed more than the group's reset time ago - reset level.
+    uint32 resetTime = 18 * IN_MILLISECONDS;
+    if (SpellDiminishEntry const* spellDiminish = SpellInfo::GetSpellDiminishEntry(group))
+        resetTime = spellDiminish->Duration;
+
+    if (!diminish.stack && GetMSTimeDiffToNow(diminish.hitTime) > resetTime)
         return DIMINISHING_LEVEL_1;
 
     return DiminishingLevels(diminish.hitCount);
@@ -9423,63 +9427,35 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& dur
             duration = limitDuration;
     }
 
-    float mod = 1.0f;
-    switch (group)
+    SpellDiminishEntry const* spellDiminish = SpellInfo::GetSpellDiminishEntry(group);
+    if (!spellDiminish || previousLevel == DIMINISHING_LEVEL_1)
+        return duration != 0;
+
+    bool const affectedTarget = targetOwner ? targetOwner->IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns();
+    if (group == DIMINISHING_TAUNT)
     {
-        case DIMINISHING_TAUNT:
-        {
-            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
-            {
-                DiminishingLevels diminish = previousLevel;
-                switch (diminish)
-                {
-                    case DIMINISHING_LEVEL_1: break;
-                    case DIMINISHING_LEVEL_2: mod = 0.65f; break;
-                    case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
-                    case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
-                    case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
-                    default: break;
-                }
-            }
-            break;
-        }
-        case DIMINISHING_AOE_KNOCKBACK:
-        {
-            if (auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_ALL ||
-                (auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_PLAYER &&
-                    (targetOwner ? targetOwner->IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns())))
-            {
-                DiminishingLevels diminish = previousLevel;
-                switch (diminish)
-                {
-                    case DIMINISHING_LEVEL_1: break;
-                    case DIMINISHING_LEVEL_2: mod = 0.0f; break;
-                    default: break;
-                }
-            }
-            break;
-        }
-        default:
-        {
-            if (auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_ALL ||
-                (auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_PLAYER &&
-                    (targetOwner ? targetOwner->IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns())))
-            {
-                DiminishingLevels diminish = previousLevel;
-                switch (diminish)
-                {
-                    case DIMINISHING_LEVEL_1: break;
-                    case DIMINISHING_LEVEL_2: mod = 0.5f; break;
-                    case DIMINISHING_LEVEL_3: mod = 0.25f; break;
-                    case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
-                    default: break;
-                }
-            }
-            break;
-        }
+        if (GetTypeId() != TYPEID_UNIT || !(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
+            return duration != 0;
+    }
+    else
+    {
+        DiminishingReturnsType const type = auraSpellInfo->GetDiminishingReturnsGroupType();
+        if (type != DRTYPE_ALL && (type != DRTYPE_PLAYER || !affectedTarget))
+            return duration != 0;
     }
 
-    duration = int32(duration * mod);
+    // players and units diminished like players become immune after ImmunityStacks, the others keep diminishing up to MaxStacks
+    if (affectedTarget && previousLevel >= spellDiminish->ImmunityStacks)
+        duration = 0;
+    else
+    {
+        int32 stacks = previousLevel;
+        if (spellDiminish->MaxStacks)
+            stacks = std::min(stacks, spellDiminish->MaxStacks);
+
+        duration = int32(duration * std::pow(spellDiminish->Multiplier, stacks));
+    }
+
     return (duration != 0);
 }
 
