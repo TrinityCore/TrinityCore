@@ -709,6 +709,15 @@ WorldPacket const* MoveSplineSetFlag::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* MoveAddImpulse::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << Direction;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* MoveSetFlag::Write()
 {
     _worldPacket << MoverGUID;
@@ -987,6 +996,12 @@ WorldPacket const* MoveApplyMovementForce::Write()
     _worldPacket << *Force;
 
     return &_worldPacket;
+}
+
+void MoveAddImpulseAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> Force;
 }
 
 void MoveApplyMovementForceAck::Read()

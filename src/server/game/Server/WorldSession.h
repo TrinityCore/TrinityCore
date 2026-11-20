@@ -556,6 +556,7 @@ namespace WorldPackets
         class SummonResponse;
         class MoveSplineDone;
         class SuspendTokenResponse;
+        class MoveAddImpulseAck;
         class MoveApplyMovementForceAck;
         class MoveRemoveMovementForceAck;
         class MoveApplyInertiaAck;
@@ -1308,6 +1309,7 @@ class TC_GAME_API WorldSession
         void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck);
 
         // Movement forces
+        void HandleMoveAddImpulseAck(WorldPackets::Movement::MoveAddImpulseAck& moveAddImpulseAck);
         void HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck);
         void HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck);
         void HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck);
