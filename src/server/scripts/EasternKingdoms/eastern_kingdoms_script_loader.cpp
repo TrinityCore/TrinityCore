@@ -217,6 +217,10 @@ void AddSC_boss_shade_of_medivh();
 // Twilight Highlands
 void AddSC_worldboss_julak_doom();
 
+// Uldaman: Legacy of Tyr
+void AddSC_instance_uldaman_legacy_of_tyr();
+void AddSC_boss_sentinel_talondras();
+
 // Vashjir
 void AddSC_vashjir();
 void AddSC_abyssal_depths();
@@ -427,6 +431,10 @@ void AddEasternKingdomsScripts()
 
     // Twilight Highlands
     AddSC_worldboss_julak_doom();
+
+    // Uldaman: Legacy of Tyr
+    AddSC_instance_uldaman_legacy_of_tyr();
+    AddSC_boss_sentinel_talondras();
 
     // Vashjir
     AddSC_vashjir();
