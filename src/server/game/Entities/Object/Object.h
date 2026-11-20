@@ -37,6 +37,7 @@
 #include <set>
 #include <unordered_map>
 
+class AIGroup;
 class Corpse;
 class Creature;
 class CreatureAI;
@@ -58,6 +59,7 @@ class WorldObject;
 class WorldPacket;
 class ZoneScript;
 struct FactionTemplateEntry;
+struct NamedPoint;
 struct QuaternionData;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
@@ -202,6 +204,12 @@ class TC_GAME_API Object
         static GameObject const* ToGameObject(Object const* o) { return o ? o->ToGameObject() : nullptr; }
         GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
         GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
+
+        inline bool IsAIGroup() const { return GetTypeId() == TYPEID_AIGROUP; }
+        static AIGroup* ToAIGroup(Object* o) { return o ? o->ToAIGroup() : nullptr; }
+        static AIGroup const* ToAIGroup(Object const* o) { return o ? o->ToAIGroup() : nullptr; }
+        AIGroup* ToAIGroup() { if (IsAIGroup()) return reinterpret_cast<AIGroup*>(this); else return nullptr; }
+        AIGroup const* ToAIGroup() const { if (IsAIGroup()) return reinterpret_cast<AIGroup const*>(this); else return nullptr; }
 
         inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
         static Corpse* ToCorpse(Object* o) { return o ? o->ToCorpse() : nullptr; }
@@ -472,6 +480,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
 
+        const NamedPoint* GetNamedPoint(uint32 id) const;
+        const NamedPoint* FindNearestNamedPoint(const std::string& stringId, float maxRange = 100.0f) const;
+
         virtual ObjectGuid GetOwnerGUID() const = 0;
         virtual ObjectGuid GetCharmerOrOwnerGUID() const { return GetOwnerGUID(); }
         ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
@@ -562,6 +573,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsStoredInWorldObjectGridContainer() const;
 
         uint32  LastUsedScriptID;
+
+        // AI Group related variables
+        uint32 currentTriggersId;
+        uint32 currentRunningActionSet;
 
         // Transports
         Transport* GetTransport() const { return m_transport; }

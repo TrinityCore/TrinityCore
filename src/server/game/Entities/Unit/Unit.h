@@ -65,6 +65,7 @@ struct AbstractFollower;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
+struct NamedPoint;
 struct SpellValue;
 
 class Aura;
@@ -1048,6 +1049,7 @@ class TC_GAME_API Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
         void HandleEmoteCommand(Emote emoteId);
+        void PerformEmote(Emote emote);
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
@@ -1218,6 +1220,9 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool UpdatePosition(Position const& pos, bool teleport = false);
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
+
+        void TeleportToNamedPoint(uint32 id);
+        void TeleportToNamedPoint(std::string const& stringId, float maxRange = 100.0f);
 
         void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
         void KnockbackFrom(float x, float y, float speedXY, float speedZ);

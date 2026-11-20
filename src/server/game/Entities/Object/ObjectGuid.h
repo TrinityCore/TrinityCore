@@ -39,7 +39,8 @@ enum TypeID
     TYPEID_PLAYER        = 4,
     TYPEID_GAMEOBJECT    = 5,
     TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7
+    TYPEID_CORPSE        = 7,
+    TYPEID_AIGROUP       = 8
 };
 
 #define NUM_CLIENT_OBJECT_TYPES             8
@@ -54,9 +55,10 @@ enum TypeMask
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
     TYPEMASK_CORPSE         = 0x0080,
+    TYPEMASK_AIGROUP        = 0x0100,
 
     TYPEMASK_SEER           = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_DYNAMICOBJECT,
-    TYPEMASK_WORLDOBJECT    = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE
+    TYPEMASK_WORLDOBJECT    = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AIGROUP
 };
 
 enum class HighGuid
@@ -74,6 +76,7 @@ enum class HighGuid
     Mo_Transport   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
     Instance       = 0x1F40,                      // blizz 1F40
     Group          = 0x1F50,
+    AIGroup        = 0x1F60,
 };
 
 enum class ObjectGuidSequenceSource
@@ -117,6 +120,7 @@ MAKE_GUID_TRAIT(HighGuid::Corpse, ObjectGuidSequenceSource::Map, ObjectGuidForma
 MAKE_GUID_TRAIT(HighGuid::Mo_Transport, ObjectGuidSequenceSource::Global, ObjectGuidFormatType::OnlyCounter);
 MAKE_GUID_TRAIT(HighGuid::Instance, ObjectGuidSequenceSource::Global, ObjectGuidFormatType::OnlyCounter);
 MAKE_GUID_TRAIT(HighGuid::Group, ObjectGuidSequenceSource::Global, ObjectGuidFormatType::OnlyCounter);
+MAKE_GUID_TRAIT(HighGuid::AIGroup, ObjectGuidSequenceSource::Global, ObjectGuidFormatType::OnlyCounter);
 
 class ByteBuffer;
 class ObjectGuid;
@@ -187,6 +191,7 @@ class TC_GAME_API ObjectGuid
         bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
         bool IsInstance()          const { return GetHigh() == HighGuid::Instance; }
         bool IsGroup()             const { return GetHigh() == HighGuid::Group; }
+        bool IsAIGroup()           const { return GetHigh() == HighGuid::AIGroup; }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -202,6 +207,7 @@ class TC_GAME_API ObjectGuid
                 case HighGuid::Corpse:       return TYPEID_CORPSE;
                 case HighGuid::Mo_Transport: return TYPEID_GAMEOBJECT;
                 case HighGuid::Vehicle:      return TYPEID_UNIT;
+                case HighGuid::AIGroup:      return TYPEID_AIGROUP;
                 // unknown
                 case HighGuid::Instance:
                 case HighGuid::Group:
@@ -238,6 +244,7 @@ class TC_GAME_API ObjectGuid
                 case HighGuid::Mo_Transport:
                 case HighGuid::Instance:
                 case HighGuid::Group:
+                case HighGuid::AIGroup:
                     return false;
                 case HighGuid::GameObject:
                 case HighGuid::Transport:

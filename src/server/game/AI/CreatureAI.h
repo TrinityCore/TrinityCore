@@ -163,6 +163,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when aura is removed
         virtual void OnAuraRemoved(AuraApplication const* /*aurApp*/) { }
 
+        // Called when creature changes action triggers
+        virtual void OnActionTriggersChange(uint32 /*triggersId*/) { }
+
         // Should return true if the NPC is currently being escorted
         virtual bool IsEscorted() const { return false; }
 
