@@ -259,7 +259,7 @@ enum ItemFlags2 : uint32
 
 enum ItemFlags3
 {
-    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                         = 0x00000001,
+    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                         = 0x00000001, // Implemented in Player::AddQuestAndCheckCompletion
     ITEM_FLAG3_ITEM_CAN_BE_UPGRADED                                 = 0x00000002,
     ITEM_FLAG3_UPGRADE_FROM_ITEM_OVERRIDES_DROP_UPGRADE             = 0x00000004,
     ITEM_FLAG3_ALWAYS_FFA_IN_LOOT                                   = 0x00000008,
