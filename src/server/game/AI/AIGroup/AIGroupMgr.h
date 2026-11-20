@@ -866,7 +866,7 @@ enum ActionTriggers
     OnGeneralTrigger            = 22,   // Unit receives general trigger ID {#Trigger ID}.
     OnDespawn                   = 23,   // Unit receives a despawn request. (Instantaneous)
     OnSpellFailed               = 24,   // Unit fails to cast spell {Spell}.
-    OnCharmBreak                = 25,   // NYI // Unit ceases to be charmed.
+    OnCharmBreak                = 25,   // Unit ceases to be charmed.
     OnPassengerControlEnd       = 26,   // NYI // Passenger in seat {#Seat Index} stops controlling it.
     OnVehicleReturn             = 27,   // NYI // Passenger in seat {#Seat Index} begins returning towards a vehicle.
     OnVehicleRide               = 28,   // NYI // Passenger in seat {#Seat Index} begins riding a vehicle.

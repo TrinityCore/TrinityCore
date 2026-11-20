@@ -154,6 +154,14 @@ void AIGroupCreature::OnSpellFailed(SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellFailed, nullptr, spellInfo->Id);
 }
 
+void AIGroupCreature::OnCharmed(bool isNew)
+{
+    CreatureAI::OnCharmed(isNew);
+
+    if (!isNew)
+        GetScript()->ProcessEventsFor(ActionTriggers::OnCharmBreak);
+}
+
 void AIGroupCreature::OnSpellStart(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellStart, nullptr, spellInfo->Id);

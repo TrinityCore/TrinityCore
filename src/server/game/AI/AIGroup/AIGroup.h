@@ -92,6 +92,9 @@ class TC_GAME_API AIGroupCreature : public CreatureAI
         // Unit fails to cast spell {Spell}.
         void OnSpellFailed(SpellInfo const* spellInfo) override;
 
+        // Unit ceases to be charmed.
+        void OnCharmed(bool isNew) override;
+
         // Unit starts casting spell {Spell}.
         void OnSpellStart(SpellInfo const* spellInfo) override;
 
