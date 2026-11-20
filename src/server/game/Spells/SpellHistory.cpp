@@ -398,6 +398,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (!forcedCooldown)
         {
             Duration baseCooldown = cooldown;
+            Duration baseCategoryCooldown = categoryCooldown;
 
             // Now we have cooldown data (if found any), time to apply mods
             if (Player* modOwner = _owner->GetSpellModOwner())
@@ -482,7 +483,11 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
                 SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
                 if (categoryEntry->GetFlags().HasFlag(SpellCategoryFlags::CooldownInDays))
-                    categoryCooldown = duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - GameTime::GetTime<Clock>());
+                {
+                    // category cooldown of these categories is the number of days * 1000
+                    int64 cooldownDays = std::max<int64>(baseCategoryCooldown.count() / 1000, 1);
+                    categoryCooldown = duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - GameTime::GetTime<Clock>() + std::chrono::days(cooldownDays - 1));
+                }
             }
         }
         else
