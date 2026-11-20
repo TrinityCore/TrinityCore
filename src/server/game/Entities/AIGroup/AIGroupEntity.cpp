@@ -198,8 +198,6 @@ bool AIGroup::Create(WorldObject* mainMember)
 
     ObjectGuid::LowType lowGuid = static_cast<ObjectGuid::LowType>(_mainMemberGuid);
     _guid = ObjectGuid::Create<HighGuid::AIGroup>(lowGuid);
-    if (creature)
-        _triggersId = creature->GetCurrentTriggersId();
 
     SetMap(mainMember->GetMap());
     _currentActionSet = 0;
@@ -222,11 +220,6 @@ void AIGroup::Update(uint32 diff)
 void AIGroup::SetCurrentActionSet(uint32 actionSetId)
 {
     _currentActionSet = actionSetId;
-}
-
-void AIGroup::SetTriggersId(uint32 triggersId)
-{
-    _triggersId = triggersId;
 }
 
 std::vector<WorldObject*> AIGroup::GetMembers(AIGroupUnit unit, AIGroupMemberType memberType) const

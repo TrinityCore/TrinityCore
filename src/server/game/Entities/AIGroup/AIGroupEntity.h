@@ -43,10 +43,8 @@ class TC_GAME_API AIGroup
         ObjectGuid GetGUID() const { return _guid; }
 
         ObjectGuid::LowType GetMainMemberGuid() const { return _mainMemberGuid; }
-        uint32 GetTriggersId() const { return _triggersId; }
         uint32 GetCurrentActionSet() const { return _currentActionSet; }
         AIGroupScript* GetScript() { return &_script; }
-        void SetTriggersId(uint32 triggersId);
         std::vector<WorldObject*> GetMembers(AIGroupUnit unit, AIGroupMemberType memberType) const;
 
         void SetCurrentActionSet(uint32 actionSetId);
@@ -54,7 +52,6 @@ class TC_GAME_API AIGroup
     private:
         ObjectGuid _guid;
         ObjectGuid::LowType _mainMemberGuid = 0;
-        uint32 _triggersId = 0;
         uint32 _currentActionSet = 0;
         Map* _map = nullptr;
         AIGroupScript _script;

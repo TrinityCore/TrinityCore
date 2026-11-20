@@ -103,11 +103,6 @@ void AIGroupScript::GetScript()
     }
     else if (go)
         mObjectTriggers = sAIGroupMgr->GetObjectScript(go->GetTriggersId());
-    else if (m_group)
-    {
-        eventList = sAIGroupMgr->GetScript(m_group->GetTriggersId());
-        FillScript(eventList);
-    }
 }
 
 void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user)
