@@ -1434,6 +1434,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         StartRecoveryCategory = _categories->StartRecoveryCategory;
         DmgClass = _categories->DefenseType;
         PreventionType = _categories->PreventionType;
+        DiminishTypeMask = _categories->DiminishType;
         ChargeCategoryId = _categories->ChargeCategory;
     }
 
@@ -2999,6 +3000,23 @@ void SpellInfo::_LoadSpellDiminishInfo()
     {
         if (IsPositive())
             return DIMINISHING_NONE;
+
+        // DiminishType is a mask of SpellDiminish.db2 ids, bit 0 is id 1
+        static constexpr std::array<DiminishingGroup, 8> SpellDiminishGroups =
+        {
+            DIMINISHING_ROOT,
+            DIMINISHING_TAUNT,
+            DIMINISHING_STUN,
+            DIMINISHING_AOE_KNOCKBACK,
+            DIMINISHING_INCAPACITATE,
+            DIMINISHING_DISORIENT,
+            DIMINISHING_SILENCE,
+            DIMINISHING_DISARM
+        };
+
+        for (std::size_t i = 0; i < SpellDiminishGroups.size(); ++i)
+            if (DiminishTypeMask & (1u << i))
+                return SpellDiminishGroups[i];
 
         if (HasAura(SPELL_AURA_MOD_TAUNT))
             return DIMINISHING_TAUNT;

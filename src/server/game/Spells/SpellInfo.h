@@ -415,6 +415,7 @@ class TC_GAME_API SpellInfo
         flag128 SpellFamilyFlags;
         uint32 DmgClass = 0;
         uint32 PreventionType = 0;
+        uint32 DiminishTypeMask = 0;
         int32 RequiredAreasID = -1;
         uint32 SchoolMask = 0;
         uint32 ChargeCategoryId = 0;
