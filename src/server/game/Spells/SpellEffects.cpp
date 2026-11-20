@@ -3046,6 +3046,9 @@ void Spell::EffectInterruptCast()
                 && curSpellInfo->CanBeInterrupted(m_caster, unitTarget))
             {
                 int32 duration = m_spellInfo->GetDuration();
+                if (m_spellInfo->PvPDurationEntry && unitTarget->IsAffectedByDiminishingReturns() && m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    duration = m_spellInfo->PvPDurationEntry->Duration;
+
                 duration = unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effectInfo->EffectIndex);
                 unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), Milliseconds(duration));
                 std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_INTERRUPT;

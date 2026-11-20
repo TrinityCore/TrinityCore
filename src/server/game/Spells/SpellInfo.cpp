@@ -1367,6 +1367,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         AttributesEx16 = _misc->Attributes[16];
         CastTimeEntry = sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex);
         DurationEntry = sSpellDurationStore.LookupEntry(_misc->DurationIndex);
+        PvPDurationEntry = sSpellDurationStore.LookupEntry(_misc->PvPDurationIndex);
         RangeEntry = sSpellRangeStore.LookupEntry(_misc->RangeIndex);
         Speed = _misc->Speed;
         LaunchDelay = _misc->LaunchDelay;
@@ -3401,56 +3402,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
 
     auto diminishingLimitDurationCompute = [this]() -> int32
     {
-        // Explicit diminishing duration
-        switch (SpellFamilyName)
-        {
-            case SPELLFAMILY_MAGE:
-            {
-                // Dragon's Breath - 3 seconds in PvP
-                if (SpellFamilyFlags[0] & 0x800000)
-                    return 3 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                // Cripple - 4 seconds in PvP
-                if (Id == 170995)
-                    return 4 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_HUNTER:
-            {
-                // Binding Shot - 3 seconds in PvP
-                if (Id == 117526)
-                    return 3 * IN_MILLISECONDS;
-
-                // Wyvern Sting - 6 seconds in PvP
-                if (SpellFamilyFlags[1] & 0x1000)
-                    return 6 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_MONK:
-            {
-                // Paralysis - 4 seconds in PvP regardless of if they are facing you
-                if (SpellFamilyFlags[2] & 0x800000)
-                    return 4 * IN_MILLISECONDS;
-                break;
-            }
-            case SPELLFAMILY_DEMON_HUNTER:
-            {
-                switch (Id)
-                {
-                    case 217832: // Imprison
-                    case 221527: // Imprison
-                        return 4 * IN_MILLISECONDS;
-                    default:
-                        break;
-                }
-                break;
-            }
-            default:
-                break;
-        }
+        if (PvPDurationEntry)
+            return PvPDurationEntry->MaxDuration;
 
         return 8 * IN_MILLISECONDS;
     };
