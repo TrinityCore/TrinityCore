@@ -1576,7 +1576,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr10>::ToString(SpellAttr10 value)
         case SPELL_ATTR10_UNK6: return { "SPELL_ATTR10_UNK6", "Unknown attribute 6@Attr10", "" };
         case SPELL_ATTR10_TELEPORT_PLAYER: return { "SPELL_ATTR10_TELEPORT_PLAYER", "Ignore instance lock and farm limit on teleport", "" };
         case SPELL_ATTR10_UNK8: return { "SPELL_ATTR10_UNK8", "Unknown attribute 8@Attr10", "" };
-        case SPELL_ATTR10_UNK9: return { "SPELL_ATTR10_UNK9", "Unknown attribute 9@Attr10", "" };
+        case SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED: return { "SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED", "Charge/JumpCharge - use absolute speed", "EffectAmplitude is the movement speed in yards per second instead of a multiplier of the caster's base run speed" };
         case SPELL_ATTR10_UNK10: return { "SPELL_ATTR10_UNK10", "Unknown attribute 10@Attr10", "" };
         case SPELL_ATTR10_HERB_GATHERING_MINING: return { "SPELL_ATTR10_HERB_GATHERING_MINING", "Lock chest at precast", "" };
         case SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING: return { "SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING", "Use Spell Base Level For Scaling", "" };
@@ -1620,7 +1620,7 @@ TC_API_EXPORT SpellAttr10 EnumUtils<SpellAttr10>::FromIndex(size_t index)
         case 6: return SPELL_ATTR10_UNK6;
         case 7: return SPELL_ATTR10_TELEPORT_PLAYER;
         case 8: return SPELL_ATTR10_UNK8;
-        case 9: return SPELL_ATTR10_UNK9;
+        case 9: return SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED;
         case 10: return SPELL_ATTR10_UNK10;
         case 11: return SPELL_ATTR10_HERB_GATHERING_MINING;
         case 12: return SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING;
@@ -1661,7 +1661,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr10>::ToIndex(SpellAttr10 value)
         case SPELL_ATTR10_UNK6: return 6;
         case SPELL_ATTR10_TELEPORT_PLAYER: return 7;
         case SPELL_ATTR10_UNK8: return 8;
-        case SPELL_ATTR10_UNK9: return 9;
+        case SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED: return 9;
         case SPELL_ATTR10_UNK10: return 10;
         case SPELL_ATTR10_HERB_GATHERING_MINING: return 11;
         case SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING: return 12;

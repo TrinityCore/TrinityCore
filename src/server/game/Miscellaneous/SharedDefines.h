@@ -812,7 +812,7 @@ enum SpellAttr10 : uint32
     SPELL_ATTR10_UNK6                            = 0x00000040, // TITLE Unknown attribute 6@Attr10
     SPELL_ATTR10_TELEPORT_PLAYER                 = 0x00000080, // TITLE Ignore instance lock and farm limit on teleport
     SPELL_ATTR10_UNK8                            = 0x00000100, // TITLE Unknown attribute 8@Attr10
-    SPELL_ATTR10_UNK9                            = 0x00000200, // TITLE Unknown attribute 9@Attr10
+    SPELL_ATTR10_CHARGE_JUMPCHARGE_USE_ABSOLUTE_SPEED = 0x00000200, // TITLE Charge/JumpCharge - use absolute speed DESCRIPTION EffectAmplitude is the movement speed in yards per second instead of a multiplier of the caster's base run speed
     SPELL_ATTR10_UNK10                           = 0x00000400, // TITLE Unknown attribute 10@Attr10
     SPELL_ATTR10_HERB_GATHERING_MINING           = 0x00000800, // TITLE Lock chest at precast
     SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING= 0x00001000, // TITLE Use Spell Base Level For Scaling
