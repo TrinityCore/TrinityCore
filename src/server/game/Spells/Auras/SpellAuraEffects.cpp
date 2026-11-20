@@ -6482,7 +6482,7 @@ void AuraEffect::HandleModRecoveryRateBySpellLabel(AuraApplication const* aurApp
     aurApp->GetTarget()->GetSpellHistory()->UpdateCooldownRecoveryRate([&](SpellHistory::CooldownEntry const& cooldown)
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE);
-        return spellInfo->HasLabel(GetMiscValue()) || (GetMiscValueB() && spellInfo->HasLabel(GetMiscValueB()));
+        return spellInfo->HasLabel(GetMiscValue()) && (!GetMiscValueB() || !spellInfo->HasLabel(GetMiscValueB()));
     }, rate, apply);
 }
 
