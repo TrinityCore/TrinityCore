@@ -27858,6 +27858,11 @@ void Player::SetTalentGroupCount(uint8 count)
     SendTalentsInfoData();
 }
 
+uint8 Player::GetTalentGroupCount() const
+{
+    return static_cast<uint8>(_talentGroups.size());
+}
+
 void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/, bool loading /*= false*/)
 {
     uint32 oldTalentTabId = _talentGroups[_activeTalentGroup].PrimaryTalentTabID;

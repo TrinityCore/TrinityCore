@@ -1865,6 +1865,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _activeTalentGroup; }
         bool HasTalentGroupUnlocked(uint8 group) const;
         void SetTalentGroupCount(uint8 count);
+        uint8 GetTalentGroupCount() const;
         void SetActiveTalentGroup(uint8 group, bool withUpdate = true, bool loading = false);
         void SetPrimaryTalentTree(uint32 talentTabId, bool withUpdate = false);
         uint32 GetPrimaryTalentTree() const;
