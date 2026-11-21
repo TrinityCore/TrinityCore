@@ -78,6 +78,16 @@ bool WorldSession::ValidateMovementInfo(Unit const* mover, MovementInfo* mi) con
     if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
+    // Passenger-mount vehicles report no-jump / no-strafe / drive flags. The client
+    // keeps sending them after dismount, and a relog was the only thing that cleared them.
+    MovementFlags const mountLocomotionFlags = MOVEMENTFLAG_NO_STRAFE | MOVEMENTFLAG_NO_JUMPING
+        | MOVEMENTFLAG_FULL_SPEED_TURNING | MOVEMENTFLAG_FULL_SPEED_PITCHING
+        | MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING | MOVEMENTFLAG_CAN_DRIVE
+        | MOVEMENTFLAG_DRIVING_FORWARD | MOVEMENTFLAG_DRIVING_BACKWARD;
+    if (Player const* playerMover = mover->ToPlayer())
+        if (playerMover->IsMounted() || (!playerMover->GetVehicleKit() && !playerMover->GetVehicle()))
+            REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(mountLocomotionFlags), mountLocomotionFlags);
+
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
         It will freeze clients that receive this player's movement info.
