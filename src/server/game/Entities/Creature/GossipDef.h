@@ -118,6 +118,14 @@ enum class GossipOptionFlags : int32
     HideOptionIDFromClient  = 0x2
 };
 
+enum class GossipOptionDefaultAction : uint8
+{
+    PlayerCastSpellOnThemselves = 0, // The player will cast the SpellID of the option onto himself as instant cast
+    PlayerUpdatesInteractions   = 1, // NYI
+    NpcCastsSpell               = 2, // The gossip sender npc will cast the SpellID on the player
+    GossipBeginsPetBattle       = 4  // NYI - Initiates a pet battle
+};
+
 struct GossipMenuItem
 {
     int32               GossipOptionID;
