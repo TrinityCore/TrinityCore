@@ -49,7 +49,7 @@ LootItem::LootItem(LootStoreItem const& li) : itemid(li.itemid), conditions(li.c
             randomBonusListId = GenerateItemRandomBonusListId(itemid);
             type = LootItemType::Item;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-            freeforall = proto && proto->HasFlag(ITEM_FLAG_MULTI_DROP);
+            freeforall = proto && (proto->HasFlag(ITEM_FLAG_MULTI_DROP) || proto->HasFlag(ITEM_FLAG3_ALWAYS_FFA_IN_LOOT));
             follow_loot_rules = !li.needs_quest || (proto && proto->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES));
             break;
         }
