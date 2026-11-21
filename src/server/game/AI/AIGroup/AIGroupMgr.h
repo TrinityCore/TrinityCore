@@ -37,7 +37,7 @@ enum AI_GROUP_ACTION
 {
     AI_GROUP_SPAWN                                  = 0,     // NYI // Spawn
     AI_GROUP_IDLE                                   = 1,     // Idle
-    AI_GROUP_MOVETO                                 = 2,     // NYI // Move within distance of a point
+    AI_GROUP_MOVETO                                 = 2,     // Move within distance of a point
     AI_GROUP_TELEPORT                               = 3,     // Teleport to a point in the world
     AI_GROUP_WANDER                                 = 4,     // Wander
     AI_GROUP_ATTACK_ALL                             = 5,     // Attack all players within a given radius; old AI_GROUP_WANDER_SPAWNRELATIVE_OBSOLETE

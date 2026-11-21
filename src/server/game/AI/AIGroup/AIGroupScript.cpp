@@ -164,6 +164,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
         {
             switch (action.Type)
             {
+                case AI_GROUP_MOVETO:
                 case AI_GROUP_MOVETO_GUID:
                 case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
                     break;
@@ -573,7 +574,24 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         case AI_GROUP_IDLE:
             return false;
         case AI_GROUP_MOVETO:
-            /// @todo
+            /// @todo: "MoveSpeed", "Spell Script", "Speed Multiplier" params
+            if (!namedPoint)
+                namedPoint = sNamedPointMgr->GetNamedPoint(action.Point);
+            {
+                float destinationX = namedPoint->PositionX;
+                float destinationY = namedPoint->PositionY;
+                float destinationZ = namedPoint->PositionZ;
+
+                if (action.Extra1 > 0)
+                {
+                    float angle = std::atan2(me->GetPositionY() - destinationY, me->GetPositionX() - destinationX);
+                    destinationX += float(action.Extra1) * std::cos(angle);
+                    destinationY += float(action.Extra1) * std::sin(angle);
+                    me->UpdateAllowedPositionZ(destinationX, destinationY, destinationZ);
+                }
+
+                me->GetMotionMaster()->MovePoint(action.Id, destinationX, destinationY, destinationZ);
+            }
             return false;
         case AI_GROUP_TELEPORT:
             if (namedPoint)
