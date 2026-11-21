@@ -1439,8 +1439,12 @@ class TC_GAME_API AIGroupMgr
         bool IsActionSetValid(ActionSetActionHolder const& action, double actionSetId);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
-        static bool IsNonNegativeWholeNumberInRange(double value) { return value >= 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
-        static bool IsPositiveWholeNumberInRange(double value) { return value > 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
+
+        static bool IsNonNegativeIntegerInUint8Range(double value) { return value >= 0 && value <= std::numeric_limits<uint8>::max() && std::floor(value) == value; }
+        static bool IsPositiveIntegerInUint8Range(double value) { return value > 0 && value <= std::numeric_limits<uint8>::max() && std::floor(value) == value; }
+
+        static bool IsNonNegativeIntegerInUint32Range(double value) { return value >= 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
+        static bool IsPositiveIntegerInUint32Range(double value) { return value > 0 && value <= std::numeric_limits<uint32>::max() && std::floor(value) == value; }
 
         static bool IsActionFlagsValid(ActionSetActionHolder const& action);
         static bool ActionHasPath(ActionSetActionHolder const& action);
