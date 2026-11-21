@@ -1200,12 +1200,14 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_BOSS_EMOTE:
             if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsDisplayTimeValid(action, action.Extra3))
+                return false;
             break;
         case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
             if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsDisplayTimeValid(action, action.Extra3))
+                return false;
             if (!IsZoneValid(action, action.Extra4))
                 return false;
             break;
@@ -1294,12 +1296,14 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_BOSS_WHISPER:
             if (!IsBroadcastTextValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsDisplayTimeValid(action, action.Extra3))
+                return false;
             break;
         case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
             if (!IsRandomTextValid(action, action.Extra2))
                 return false;
-            /// @todo Extra3 field
+            if (!IsDisplayTimeValid(action, action.Extra3))
+                return false;
             break;
         case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             if (!IsExtendedAngleValid(action, action.Extra0))
@@ -2462,6 +2466,18 @@ bool AIGroupMgr::IsTaxiPathValid(ActionSetActionHolder const& action, double pat
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Taxi Path {}, skipped.",
             action.Id, action.Index, action.Type, path);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsDisplayTimeValid(ActionSetActionHolder const& action, double time)
+{
+    if (time || time < 0 || time > 300)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Display Time {} (master only), skipped.",
+            action.Id, action.Index, action.Type, time);
         return false;
     }
 

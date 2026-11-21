@@ -929,6 +929,8 @@ To create a new action, follow these steps:
 
 `Extra3`: Display Time
 
+Master only
+
 * **128 - AI_GROUP_UNIT_BOSS_EMOTE_ZONE - (Unit(s) boss emote something to the zone)**
 
 `Unit`
@@ -936,6 +938,8 @@ To create a new action, follow these steps:
 `Extra2`: (Text)
 
 `Extra3`: Display Time
+
+Master only
 
 `Extra4`: (Zone)
 
@@ -1116,6 +1120,8 @@ To create a new action, follow these steps:
 
 `Extra3`: Display Time
 
+Master only
+
 * **157 - AI_GROUP_UNIT_BOSS_WHISPER_RANDOM - (Unit(s) boss whispers someone randomly)**
 
 `Unit`
@@ -1123,6 +1129,8 @@ To create a new action, follow these steps:
 `Extra2`: (Random Text)
 
 `Extra3`: Display Time
+
+Master only
 
 * **158 - AI_GROUP_MOVE_RELATIVE_CURRENT_FACING - (Move relative to current facing)**
 
