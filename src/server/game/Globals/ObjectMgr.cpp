@@ -2987,6 +2987,9 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
     if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)
         return 0;
 
+    if (itemClass == ITEM_CLASS_ARMOR && itemSubClass == ITEM_SUBCLASS_ARMOR_COSMETIC)
+        return 0;
+
     static float const qualityMultipliers[MAX_ITEM_QUALITY] =
     {
         0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
@@ -3296,7 +3299,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
 
-        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->OverallQualityID, sparse->ItemLevel);
+        itemTemplate.MaxDurability = itemTemplate.HasFlag(ITEM_FLAG2_NO_DURABILITY) ? 0 : FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->OverallQualityID, sparse->ItemLevel);
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
