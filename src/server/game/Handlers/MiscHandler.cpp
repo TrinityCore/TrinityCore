@@ -356,7 +356,7 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
         if (!it->second.Conditions.Meets(conditionSource))
             continue;
 
-        graveyardIds.push_back(it->first);
+        graveyardIds.push_back(it->second.safeLocId);
     }
 
     if (graveyardIds.empty())
