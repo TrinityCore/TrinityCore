@@ -1665,7 +1665,8 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::LeaveArea:
-            if (!miscValue1 || DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID)))
+            if (!miscValue1 || !DB2Manager::IsInArea(uint32(miscValue1), uint32(criteria->Entry->Asset.AreaID))
+                || DB2Manager::IsInArea(uint32(miscValue2), uint32(criteria->Entry->Asset.AreaID)))
                 return false;
             break;
         case CriteriaType::CurrencyGained:
