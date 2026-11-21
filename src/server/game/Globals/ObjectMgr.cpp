@@ -235,6 +235,21 @@ ObjectMgr::~ObjectMgr()
 {
 }
 
+GossipMenuItemsAddon const* ObjectMgr::GetGossipMenuItemAddon(uint32 menuId, uint32 orderIndex)
+{
+    Trinity::IteratorPair<GossipMenuItemsAddonContainer::iterator> bounds = Trinity::Containers::MapEqualRange(_gossipMenuItemsAddonStore, menuId);
+
+    auto itr = std::ranges::find(bounds, orderIndex, [](std::pair<uint32 const, GossipMenuItemsAddon> const& itemPair)
+    {
+        return itemPair.second.OrderIndex;
+    });
+
+    if (itr == bounds.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
 void ObjectMgr::AddLocaleString(std::string_view value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
     if (data.size() <= size_t(localeConstant))
@@ -9585,10 +9600,22 @@ void ObjectMgr::LoadGossipMenuItemsAddon()
         gMenuItemAddon.OrderIndex       = fields[1].GetUInt32();
         gMenuItemAddon.DefaultAction    = GossipOptionDefaultAction(fields[1].GetUInt8());
 
+        Trinity::IteratorPair<GossipMenuItemsContainer::iterator> bounds = Trinity::Containers::MapEqualRange(_gossipMenuItemsStore,  gMenuItemAddon.MenuID);
+        auto itr = std::ranges::find(bounds, gMenuItemAddon.OrderIndex, [](std::pair<uint32 const, GossipMenuItems> const& itemPair)
+        {
+            return itemPair.second.OrderIndex;
+        });
+
+        if (itr == bounds.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_addon` for menu {}, id {} contains no parent entry in table `gossip_menu_option`, ignoring.", gMenuItemAddon.MenuID, gMenuItemAddon.OrderIndex);
+            continue;
+        }
+
         if (gMenuItemAddon.DefaultAction > GossipOptionDefaultAction::GossipBeginsPetBattle)
         {
             TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_addon` for menu {}, id {} has an undefined DefaultAction ({}), ignoring.", gMenuItemAddon.MenuID, gMenuItemAddon.OrderIndex, gMenuItemAddon.DefaultAction);
-            gMenuItemAddon.DefaultAction = GossipOptionDefaultAction::PlayerCastSpellOnThemselves;
+            continue;
         }
 
         _gossipMenuItemsAddonStore.insert(GossipMenuItemsAddonContainer::value_type(gMenuItemAddon.MenuID, gMenuItemAddon));
