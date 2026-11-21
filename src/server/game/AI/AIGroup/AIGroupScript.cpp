@@ -510,7 +510,13 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         }
     }
     else if (action.TargetType != AIGROUP_TARGET_NONE)
-        GetActionTargets(targets, action);
+    {
+        WorldObject* invoker = nullptr;
+        if (WorldObject* baseObject = GetBaseObject())
+            invoker = ObjectAccessor::GetWorldObject(*baseObject, invokerGuid);
+
+        GetActionTargets(targets, action, invoker);
+    }
     else if (WorldObject* baseObject = GetBaseObject())
         if (WorldObject* invoker = ObjectAccessor::GetWorldObject(*baseObject, invokerGuid))
             targets.push_back(invoker);
