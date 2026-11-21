@@ -61,7 +61,7 @@ TEST_CASE("Environment variables", "[Config]")
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 4242);
 
         putenv(strdup("TC_INT_NESTED=8080"));
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        REQUIRE(sConfigMgr->OverrideWithEnvVariablesIfAny().empty() == false);
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 8080);
     }
 
@@ -70,7 +70,7 @@ TEST_CASE("Environment variables", "[Config]")
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "simpleString");
 
         putenv(strdup("TC_LOWER=envstring"));
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        REQUIRE(sConfigMgr->OverrideWithEnvVariablesIfAny().empty() == false);
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "envstring");
     }
 
@@ -79,7 +79,7 @@ TEST_CASE("Environment variables", "[Config]")
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "simpleString");
 
         putenv(strdup("TC_UPPER=envupperstring"));
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        REQUIRE(sConfigMgr->OverrideWithEnvVariablesIfAny().empty() == false);
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "envupperstring");
     }
 
@@ -88,7 +88,7 @@ TEST_CASE("Environment variables", "[Config]")
         REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 1.0f);
 
         putenv(strdup("TC_SOME_LONG_NESTED_NAME_WITH_NUMBER_LIKE_1=42"));
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        REQUIRE(sConfigMgr->OverrideWithEnvVariablesIfAny().empty() == false);
         REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 42.0f);
     }
 

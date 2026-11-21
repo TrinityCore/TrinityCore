@@ -150,7 +150,26 @@ namespace WorldPackets
     template <typename T, std::size_t N, bool IsLarge>
     struct ArrayAllocatorTraits
     {
-        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
+        static constexpr std::size_t Align = alignof(std::max_align_t);
+        static constexpr std::size_t Bytes = (N * sizeof(T) + (Align - 1)) & ~(Align - 1);
+        struct allocator_type : public short_alloc::short_alloc<T, Bytes, Align>
+        {
+            using short_alloc::short_alloc<T, Bytes, Align>::short_alloc;
+
+            template <typename Other>
+            struct rebind
+            {
+                // this is intended for debug mode msvc container proxy
+                struct rebound_allocator : public std::allocator<Other>
+                {
+                    using std::allocator<Other>::allocator;
+
+                    rebound_allocator(allocator_type const&) { }
+                };
+
+                using other = std::conditional_t<std::is_same_v<T, Other>, allocator_type, rebound_allocator>;
+            };
+        };
         using resource_type = typename allocator_type::arena_type;
         using reserve_max_capacity = std::true_type;
     };
