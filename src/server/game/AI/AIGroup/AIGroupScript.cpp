@@ -162,8 +162,14 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
         }
         else if (type == POINT_MOTION_TYPE)
         {
-            if (action.Type != AI_GROUP_MOVE_RELATIVE_CURRENT_FACING)
-                return;
+            switch (action.Type)
+            {
+                case AI_GROUP_MOVETO_GUID:
+                case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
+                    break;
+                default:
+                    return;
+            }
 
             if (id != action.Id)
                 return;
@@ -646,8 +652,28 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             me->PerformEmote(static_cast<Emote>(action.Extra2));
             return true;
         case AI_GROUP_MOVETO_GUID:
-            /// @todo
-            return false;
+            /// @todo: "MoveSpeed", "Speed Multiplier" params
+            /// @todo: Add "ignore target bounds" param to GetContactPoint
+            if (!targets.empty())
+            {
+                WorldObject* target = targets.front();
+                float destinationX, destinationY, destinationZ;
+
+                if (action.Extra2)
+                {
+                    float angle = target->GetAbsoluteAngle(me);
+                    destinationX = target->GetPositionX() + float(action.Extra1) * std::cos(angle);
+                    destinationY = target->GetPositionY() + float(action.Extra1) * std::sin(angle);
+                    destinationZ = target->GetPositionZ();
+                    me->UpdateAllowedPositionZ(destinationX, destinationY, destinationZ);
+                }
+                else
+                    target->GetContactPoint(me, destinationX, destinationY, destinationZ, float(action.Extra1));
+
+                me->GetMotionMaster()->MovePoint(action.Id, destinationX, destinationY, destinationZ);
+                return false;
+            }
+            return true;
         case AI_GROUP_ATTACK_GUID:
             /// @todo "require path check to target(1 or 0)" param
             if (!targets.empty())
@@ -1365,6 +1391,7 @@ bool AIGroupScript::ShouldStopMovementForAction(uint16 action)
         case AI_GROUP_PATROL_LINE:
         case AI_GROUP_PATROL_CIRCLE:
         case AI_GROUP_GUARD_GUID:
+        case AI_GROUP_MOVETO_GUID:
         case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             return true;
         default:
@@ -1382,6 +1409,7 @@ bool AIGroupScript::IsActionWaitable(ActionSetActionHolder const& action)
         case AI_GROUP_IDLE_COMBAT_STOP:
         case AI_GROUP_UNIT_FINISH_CAST:
             return true;
+        case AI_GROUP_MOVETO_GUID:
         case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             return action.TimeA == 0;
         default:
@@ -1548,10 +1576,15 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 auto StopMovement = [actionType = action.Type](Creature* creature)
                 {
                     MotionMaster* motionMaster = creature->GetMotionMaster();
-                    if (actionType == AI_GROUP_MOVE_RELATIVE_CURRENT_FACING)
+                    switch (actionType)
                     {
-                        motionMaster->Clear(MOTION_SLOT_ACTIVE);
-                        creature->StopMoving();
+                        case AI_GROUP_MOVETO_GUID:
+                        case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
+                            motionMaster->Clear(MOTION_SLOT_ACTIVE);
+                            creature->StopMoving();
+                            break;
+                        default:
+                            break;
                     }
 
                     motionMaster->MoveIdle();

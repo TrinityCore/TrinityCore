@@ -60,7 +60,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_SET_FACING                        = 22,    // Unit(s) face a particular angle
     AI_GROUP_UNIT_FACE_GUID                         = 23,    // Unit(s) face a unit or game object or point
     AI_GROUP_UNIT_EMOTE                             = 24,    // Emote State - Set and Forget (formerly perform an emote)
-    AI_GROUP_MOVETO_GUID                            = 25,    // NYI // Move within distance of a unit or game object
+    AI_GROUP_MOVETO_GUID                            = 25,    // Move within distance of a unit or game object
     AI_GROUP_ATTACK_GUID                            = 26,    // Attack unit
     AI_GROUP_UNIT_MOUNT                             = 27,    // Unit(s) mount a creature
     AI_GROUP_UNIT_DISMOUNT                          = 28,    // Unit(s) dismount
