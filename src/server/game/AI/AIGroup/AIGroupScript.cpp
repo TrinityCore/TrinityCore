@@ -1787,24 +1787,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
             break;
         case AIGROUP_TARGET_UNUSED:
             break;
-        case AIGROUP_TARGET_CREATURE_RANGE:
-        {
-            AIGroupObjectVector units;
-            GetWorldObjectsInDist(units, float(target.UnitRange.MaxDist));
-
-            for (WorldObject* unit : units)
-            {
-                if (!IsCreatureAndExists(unit))
-                    continue;
-
-                if (me && me->GetGUID() == unit->GetGUID())
-                    continue;
-
-                if ((!target.UnitRange.Creature || unit->ToCreature()->GetEntry() == target.UnitRange.Creature) && baseObject->IsInRange(unit, float(target.UnitRange.MinDist), float(target.UnitRange.MaxDist)))
-                    targets.push_back(unit);
-            }
-            break;
-        }
         case AIGROUP_TARGET_CREATURE_GUID:
         {
             if (!baseObject)
@@ -1836,27 +1818,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
         }
         case AIGROUP_TARGET_STORED:
             break;
-        case AIGROUP_TARGET_GAMEOBJECT_RANGE:
-        {
-            if (!baseObject)
-                break;
-
-            AIGroupObjectVector units;
-            GetWorldObjectsInDist(units, float(target.GameObjectRange.MaxDist));
-
-            for (WorldObject* unit : units)
-            {
-                if (!IsGameObjectAndExists(unit))
-                    continue;
-
-                if (go && go->GetGUID() == unit->GetGUID())
-                    continue;
-
-                if ((!target.GameObjectRange.Entry || unit->ToGameObject()->GetEntry() == target.GameObjectRange.Entry) && baseObject->IsInRange(unit, float(target.GameObjectRange.MinDist), float(target.GameObjectRange.MaxDist)))
-                    targets.push_back(unit);
-            }
-            break;
-        }
         case AIGROUP_TARGET_GAMEOBJECT_GUID:
         {
             if (!baseObject)
@@ -1905,17 +1866,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActi
                 }
             }
             break;
-        case AIGROUP_TARGET_PLAYER_RANGE:
-        {
-            AIGroupObjectVector units;
-            GetWorldObjectsInDist(units, float(target.PlayerRange.MaxDist));
-
-            if (!units.empty() && baseObject)
-                for (WorldObject* unit : units)
-                    if (unit->IsPlayer() && baseObject->IsInRange(unit, float(target.PlayerRange.MinDist), float(target.PlayerRange.MaxDist)))
-                        targets.push_back(unit);
-            break;
-        }
         case AIGROUP_TARGET_PLAYER_DISTANCE:
         {
             AIGroupObjectVector units;

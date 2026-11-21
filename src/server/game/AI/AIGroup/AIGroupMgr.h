@@ -1125,15 +1125,12 @@ enum AIGroupTargetType : uint8
     AIGROUP_TARGET_HOSTILE_RANDOM_NOT_TOP         = 6,    // Any random target except top threat, maxdist, playerOnly, powerType + 1
     AIGROUP_TARGET_ACTION_INVOKER                 = 7,    // Unit who caused this Event to occur
     AIGROUP_TARGET_UNUSED                         = 8,    // Unused
-    AIGROUP_TARGET_CREATURE_RANGE                 = 9,    // CreatureEntry(0any), minDist, maxDist
     AIGROUP_TARGET_CREATURE_GUID                  = 10,   // guid, entry
     AIGROUP_TARGET_CREATURE_DISTANCE              = 11,   // CreatureEntry(0any), maxDist
     AIGROUP_TARGET_STORED                         = 12,   // Unused
-    AIGROUP_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), min, max
     AIGROUP_TARGET_GAMEOBJECT_GUID                = 14,   // guid, entry
     AIGROUP_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist
     AIGROUP_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
-    AIGROUP_TARGET_PLAYER_RANGE                   = 17,   // min, max
     AIGROUP_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
     AIGROUP_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?
     AIGROUP_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist
@@ -1172,13 +1169,6 @@ struct AIGroupTarget
 
         struct
         {
-            uint32 Creature;
-            uint32 MinDist;
-            uint32 MaxDist;
-        } UnitRange;
-
-        struct
-        {
             uint32 DbGuid;
             uint32 Entry;
         } UnitGuid;
@@ -1196,13 +1186,6 @@ struct AIGroupTarget
 
         struct
         {
-            uint32 Entry;
-            uint32 MinDist;
-            uint32 MaxDist;
-        } GameObjectRange;
-
-        struct
-        {
             uint32 DbGuid;
             uint32 Entry;
         } GameObjectGuid;
@@ -1212,12 +1195,6 @@ struct AIGroupTarget
             uint32 Entry;
             uint32 Dist;
         } GameObjectDistance;
-
-        struct
-        {
-            uint32 MinDist;
-            uint32 MaxDist;
-        } PlayerRange;
 
         struct
         {
