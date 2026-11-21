@@ -6073,6 +6073,11 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         }
     }
 
+    if (m_spellInfo->MinFactionID && !IsTriggered())
+        if (Player const* playerCaster = m_caster->ToPlayer())
+            if (playerCaster->GetReputationRank(m_spellInfo->MinFactionID) < ReputationRank(m_spellInfo->MinReputation))
+                return SPELL_FAILED_REPUTATION;
+
     SpellCastResult castResult = SPELL_CAST_OK;
 
     // always (except passive spells) check items (only player related checks)

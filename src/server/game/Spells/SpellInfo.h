@@ -416,6 +416,8 @@ class TC_GAME_API SpellInfo
         uint32 DmgClass = 0;
         uint32 PreventionType = 0;
         int32 RequiredAreasID = -1;
+        uint32 MinFactionID = 0;
+        int32 MinReputation = 0;
         uint32 SchoolMask = 0;
         uint32 ChargeCategoryId = 0;
         std::unordered_set<uint32> Labels;
