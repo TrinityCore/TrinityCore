@@ -1481,6 +1481,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     if (SpellLevelsEntry const* _levels = data.Levels)
     {
         MaxLevel = _levels->MaxLevel;
+        MaxPassiveAuraLevel = _levels->MaxPassiveAuraLevel;
         BaseLevel = _levels->BaseLevel;
         SpellLevel = _levels->SpellLevel;
     }
