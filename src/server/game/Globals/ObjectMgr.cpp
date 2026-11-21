@@ -9769,6 +9769,46 @@ void ObjectMgr::LoadGossipMenuAddon()
     TC_LOG_INFO("server.loading", ">> Loaded {} gossip_menu_addon IDs in {} ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadGossipMenuItemsAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _gossipMenuItemsAddonStore.clear();
+
+    QueryResult result = WorldDatabase.Query(
+        //      0       1         2
+        "SELECT MenuID, OptionID, DefaultAction "
+        "FROM gossip_menu_option_addon ORDER BY MenuID, OptionID");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_option_addon entries. DB table `gossip_menu_option_addon` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        GossipMenuItemsAddon gMenuItemAddon;
+
+        gMenuItemAddon.MenuID           = fields[0].GetUInt32();
+        gMenuItemAddon.OrderIndex       = fields[1].GetUInt32();
+        gMenuItemAddon.DefaultAction    = GossipOptionDefaultAction(fields[1].GetUInt8());
+
+        if (gMenuItemAddon.DefaultAction > GossipOptionDefaultAction::GossipBeginsPetBattle)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_addon` for menu {}, id {} has an undefined DefaultAction ({}), ignoring.", gMenuItemAddon.MenuID, gMenuItemAddon.OrderIndex, gMenuItemAddon.DefaultAction);
+            gMenuItemAddon.DefaultAction = GossipOptionDefaultAction::PlayerCastSpellOnThemselves;
+        }
+
+        _gossipMenuItemsAddonStore.insert(GossipMenuItemsAddonContainer::value_type(gMenuItemAddon.MenuID, gMenuItemAddon));
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} gossip_menu_option_addon entries in {} ms", _gossipMenuItemsAddonStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
 {
     return Trinity::Containers::MapGetValuePtr(_trainers, trainerId);
