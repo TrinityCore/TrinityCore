@@ -1669,6 +1669,7 @@ enum class MapFlags2 : uint32
     DisableSharedWeatherSystems                 = 0x00040000,
     HonorSpellAttribute11LosHitsNocamcollide    = 0x00080000,
     BelongsToLayer                              = 0x00100000,
+    UseHybridMinimap                            = 0x10000000,
 };
 
 DEFINE_ENUM_FLAG(MapFlags2);
