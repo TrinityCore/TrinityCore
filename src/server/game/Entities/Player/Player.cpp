@@ -23152,6 +23152,10 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         // not let cheating with start flight mounted
         RemoveAurasByType(SPELL_AURA_MOUNTED);
 
+        if (SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm()))
+            if (shapeshift->GetFlags().HasFlag(SpellShapeshiftFormFlags::StanceCancelsAtFlightmaster))
+                RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+
         if (GetDisplayId() != GetNativeDisplayId())
             RestoreDisplayId(true);
 
