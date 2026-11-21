@@ -1996,6 +1996,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
+        void CallMasteryHealingDoneScripts(Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod) const;
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();

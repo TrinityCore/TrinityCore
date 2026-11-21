@@ -81,6 +81,7 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
     SPELL_PRIEST_DEVOURING_PLAGUE                   = 335467,
+    SPELL_PRIEST_DISCIPLINE_PRIEST                  = 137032,
     SPELL_PRIEST_DISPERSING_LIGHT                   = 1215265,
     SPELL_PRIEST_DISPERSING_LIGHT_HEAL              = 1215266,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
@@ -165,7 +166,6 @@ enum PriestSpells
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTER_THE_DARKNESS                = 1253590,
     SPELL_PRIEST_MASTER_THE_DARKNESS_AURA           = 1253591,
-    SPELL_PRIEST_MASTERY_GRACE                      = 271534,
     SPELL_PRIEST_MIND_BLAST                         = 8092,
     SPELL_PRIEST_MIND_DEVOURER                      = 373202,
     SPELL_PRIEST_MIND_DEVOURER_AURA                 = 373204,
@@ -2840,6 +2840,41 @@ class spell_pri_master_the_darkness : public AuraScript
     }
 };
 
+// 271534 - Mastery: Grace
+class spell_pri_mastery_grace : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_EFFECT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_DISCIPLINE_PRIEST, EFFECT_2 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DISCIPLINE_PRIEST, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_ADD_PCT_MODIFIER)
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DISCIPLINE_PRIEST, DIFFICULTY_NONE)->GetEffect(EFFECT_2).IsAura(SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+
+    void CalcHealingDone(AuraEffect const* aurEff, Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& /*spellEffectInfo*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (!IsAffectedSpell(spellInfo) || !victim->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetUnitOwner()->GetGUID()))
+            return;
+
+        AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcHealingDone += AuraEffectCalcHealingDoneFn(spell_pri_mastery_grace::CalcHealingDone, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    static constexpr flag128 AtonementHealClassMask = { 0x0, 0x0, 0x400, 0x0 };
+
+    static bool IsAffectedSpell(SpellInfo const* spellInfo)
+    {
+        SpellInfo const* disciplinePriest = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DISCIPLINE_PRIEST, DIFFICULTY_NONE);
+        return spellInfo->IsAffected(SPELLFAMILY_PRIEST, disciplinePriest->GetEffect(EFFECT_0).SpellClassMask)
+            || spellInfo->IsAffected(SPELLFAMILY_PRIEST, disciplinePriest->GetEffect(EFFECT_2).SpellClassMask)
+            || spellInfo->IsAffected(SPELLFAMILY_PRIEST, AtonementHealClassMask);
+    }
+};
+
 // 375994 - Mental Decay
 class spell_pri_mental_decay : public AuraScript
 {
@@ -3453,23 +3488,15 @@ class spell_pri_power_word_shield : public AuraScript
         ({
             SPELL_PRIEST_STRENGTH_OF_SOUL,
             SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT,
-            SPELL_PRIEST_ATONEMENT_EFFECT,
             SPELL_PRIEST_SHIELD_DISCIPLINE,
             SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT,
             SPELL_PVP_RULES_ENABLED_HARDCODED
-        }) && ValidateSpellEffect({
-            { SPELL_PRIEST_MASTERY_GRACE, EFFECT_0 }
         });
     }
 
     void CalculateAbsorb(AuraEffect const* aurEff, Unit* /*victim*/, int32& /*absorb*/, int32& /*flatMod*/, float& pctMod)
     {
         Unit* caster = GetCaster();
-
-        // Mastery: Grace (TBD: move into DoEffectCalcDamageAndHealing hook with a new SpellScript and AuraScript).
-        if (AuraEffect const* masteryGraceEffect = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
-            if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT))
-                AddPct(pctMod, masteryGraceEffect->GetAmount());
 
         float critChanceDone = caster->SpellCritChanceDone(nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
         float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
@@ -5525,6 +5552,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
     RegisterSpellScript(spell_pri_master_the_darkness);
+    RegisterSpellScript(spell_pri_mastery_grace);
     RegisterSpellScript(spell_pri_mental_decay);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_mind_devourer);

@@ -7463,6 +7463,10 @@ int32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int
     else if (aurEff)
         aurEff->GetBase()->CallScriptCalcDamageAndHealingHandlers(aurEff, aurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID()), victim, healamount, DoneTotal, DoneTotalMod);
 
+    if (!spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
+        if (Player const* healer = ToPlayer())
+            healer->CallMasteryHealingDoneScripts(victim, spellProto, spellEffectInfo, healamount, DoneTotal, DoneTotalMod);
+
     float heal = float(healamount + DoneTotal) * DoneTotalMod;
 
     // apply spellmod to Done amount
@@ -7722,6 +7726,9 @@ int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int3
 
     if (aurEff)
         aurEff->GetBase()->CallScriptCalcDamageAndHealingHandlers(aurEff, aurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID()), victim, absorbamount, doneTotal, doneTotalMod);
+
+    if (Player const* healer = ToPlayer())
+        healer->CallMasteryHealingDoneScripts(victim, spellProto, spellEffectInfo, absorbamount, doneTotal, doneTotalMod);
 
     float absorbAmount = float(absorbamount + doneTotal) * doneTotalMod;
 
