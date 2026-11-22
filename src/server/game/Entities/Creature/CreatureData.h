@@ -597,7 +597,7 @@ struct TC_GAME_API CreatureBaseStats
 
     uint32 GenerateArmor(CreatureDifficulty const* difficulty) const { return uint32(ceil(BaseArmor * difficulty->ArmorModifier)); }
 
-    float GenerateBaseDamage(CreatureDifficulty const* difficulty) const { return BaseDamage[difficulty->GetHealthScalingExpansion()]; }
+    float GenerateBaseDamage(CreatureDifficulty const* difficulty) const { return BaseDamage[difficulty->ContentExpansion]; }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
