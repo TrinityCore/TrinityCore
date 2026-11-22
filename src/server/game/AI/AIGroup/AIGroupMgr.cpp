@@ -912,7 +912,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_TRAINER:
-            /// @todo Extra2 field
+            if (!IsNonNegativeIntegerInUint32Range(action.Extra2) || (action.Extra2 != 0 && !sObjectMgr->GetTrainerById(uint32(action.Extra2))))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent trainer ID {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
             break;
         case AI_GROUP_SPLINE_PATH:
             if (!IsSpeedMultiplierValid(action, action.Extra3))

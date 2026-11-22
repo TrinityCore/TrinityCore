@@ -9562,6 +9562,15 @@ Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 creatureId) const
     return nullptr;
 }
 
+Trainer::Trainer const* ObjectMgr::GetTrainerById(uint32 trainerId) const
+{
+    auto itr = _trainers.find(trainerId);
+    if (itr != _trainers.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
