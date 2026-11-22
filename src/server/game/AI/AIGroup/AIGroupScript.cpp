@@ -798,7 +798,12 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             return true;
         case AI_GROUP_UNIT_LEAVE_COMBAT:
             if (me->IsInCombat())
+            {
+                if (action.Extra2 == static_cast<uint8>(AIActionLeavecombatParam::DontReturn))
+                    me->SetHomePosition(me->GetPosition());
+
                 me->AI()->EnterEvadeMode();
+            }
             return action.Extra2 != static_cast<uint8>(AIActionLeavecombatParam::ActionWaits);
         case AI_GROUP_IDLE_COMBAT_START:
             return false;
