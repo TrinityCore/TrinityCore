@@ -1194,7 +1194,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_RANDOM_ACTION_SET:
-            /// @todo Extra2 field
+            // Final validation is done during action execution
+            if (!IsPositiveIntegerInUint32Range(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references non-existent RandomActionSetId {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
             break;
         case AI_GROUP_RESTART_ACTIONS_WSE:
             /// @todo Extra2 field

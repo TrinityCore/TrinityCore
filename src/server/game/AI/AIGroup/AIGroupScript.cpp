@@ -1075,6 +1075,12 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return true;
         case AI_GROUP_RANDOM_ACTION_SET:
+            if (sAIGroupMgr->GetRandomActionSet(uint32(action.Extra2)).empty())
+            {
+                TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: action set {} index {} references non-existent RandomActionSetId {}, skipped.",
+                    action.Id, action.Index, action.Extra2);
+                return true;
+            }
             PerformRandomActionSet(uint32(action.Extra2), invokerGuid);
             return true;
         case AI_GROUP_RESTART_ACTIONS_WSE:
