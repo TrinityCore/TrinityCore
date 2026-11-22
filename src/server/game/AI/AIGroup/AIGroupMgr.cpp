@@ -506,9 +506,9 @@ void AIGroupMgr::LoadActionTriggersFromDB()
                 }
                 break;
             case OnEmote:
-                if (!sEmotesStore.LookupEntry(triggers.TriggerParam1))
+                if (!sEmotesTextStore.LookupEntry(triggers.TriggerParam1))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} uses non-existent emote {}, skipped.",
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} uses non-existent text emote {}, skipped.",
                         triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
                     continue;
                 }
