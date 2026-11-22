@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
+
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
@@ -35,7 +36,7 @@ class GameObject;
 // EnumeratedString's EnumID 1158 and g_groupActionsList
 enum AI_GROUP_ACTION
 {
-    AI_GROUP_SPAWN                                  = 0,     // NYI // Spawn
+    AI_GROUP_SPAWN                                  = 0,     // Spawn
     AI_GROUP_IDLE                                   = 1,     // Idle
     AI_GROUP_MOVETO                                 = 2,     // Move within distance of a point
     AI_GROUP_TELEPORT                               = 3,     // Teleport to a point in the world
