@@ -192,7 +192,7 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->GetLevel(), u->GetLevelForTarget(player), creature ? creature->GetCreatureDifficulty()->GetHealthScalingExpansion() : GetExpansionForLevel(u->GetLevelForTarget(player)));
+                gain = BaseGain(player->GetLevel(), u->GetLevelForTarget(player), creature ? creature->GetCreatureDifficulty()->ContentExpansion : GetExpansionForLevel(u->GetLevelForTarget(player)));
 
                 if (gain && creature)
                 {

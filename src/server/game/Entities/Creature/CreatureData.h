@@ -462,6 +462,8 @@ struct CreatureDifficulty
 
     CreatureStaticFlagsHolder StaticFlags;
 
+    uint8 ContentExpansion;
+
     // Helpers
     int32 GetHealthScalingExpansion() const
     {

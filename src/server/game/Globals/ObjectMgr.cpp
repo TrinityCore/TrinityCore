@@ -936,9 +936,9 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
     QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, MinLevel, MaxLevel, HealthScalingExpansion, "
     //   5               6             7              8               9                     10         11
         "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, "
-    //   12      13                14          15       16
-        "LootID, PickPocketLootID, SkinLootID, GoldMin, GoldMax,"
-    //   17            18            19            20            21            22            23            24
+    //   12      13                14          15       16       17
+        "LootID, PickPocketLootID, SkinLootID, GoldMin, GoldMax, ContentExpansion, "
+    //   18            19            20            21            22            23            24            25
         "StaticFlags1, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, StaticFlags6, StaticFlags7, StaticFlags8 "
         "FROM creature_template_difficulty ORDER BY Entry");
 
@@ -979,9 +979,10 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
         creatureDifficulty.SkinLootID             = fields[14].GetUInt32();
         creatureDifficulty.GoldMin                = fields[15].GetUInt32();
         creatureDifficulty.GoldMax                = fields[16].GetUInt32();
-        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[17].GetUInt32()), CreatureStaticFlags2(fields[18].GetUInt32()),
-            CreatureStaticFlags3(fields[19].GetUInt32()), CreatureStaticFlags4(fields[20].GetUInt32()), CreatureStaticFlags5(fields[21].GetUInt32()),
-            CreatureStaticFlags6(fields[22].GetUInt32()), CreatureStaticFlags7(fields[23].GetUInt32()),  CreatureStaticFlags8(fields[24].GetUInt32()));
+        creatureDifficulty.ContentExpansion       = fields[17].GetUInt8();
+        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[18].GetUInt32()), CreatureStaticFlags2(fields[19].GetUInt32()),
+            CreatureStaticFlags3(fields[20].GetUInt32()), CreatureStaticFlags4(fields[21].GetUInt32()), CreatureStaticFlags5(fields[22].GetUInt32()),
+            CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
 
         // TODO: Check if this still applies
         creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
@@ -1020,6 +1021,13 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with `GoldMin` {} greater than `GoldMax` {}, setting `GoldMax` to {}.",
                 entry, creatureDifficulty.GoldMin, creatureDifficulty.GoldMax, creatureDifficulty.GoldMin);
             creatureDifficulty.GoldMax = creatureDifficulty.GoldMin;
+        }
+
+        if (creatureDifficulty.ContentExpansion > CURRENT_EXPANSION)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with invalid `ContentExpansion` {}. Ignored and set to 0.",
+                entry, creatureDifficulty.ContentExpansion);
+            creatureDifficulty.ContentExpansion = 0;
         }
 
         itr->second.difficultyStore[difficulty] = creatureDifficulty;
