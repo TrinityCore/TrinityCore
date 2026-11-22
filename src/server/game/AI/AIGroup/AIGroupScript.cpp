@@ -1469,6 +1469,13 @@ bool AIGroupScript::IsActionGroupWide(uint16 action)
     switch (action)
     {
         case AI_GROUP_DESPAWN:
+        case AI_GROUP_RETURN_HOME:
+        case AI_GROUP_UNIT_LEAVE_COMBAT:
+        case AI_GROUP_ATTACK_ALL_INSTANCE:
+        case AI_GROUP_UNIT_RETREAT:
+        case AI_GROUP_FALL_TO_THE_GROUND:
+        case AI_GROUP_RETURN_HOME_INSTANTLY:
+        case AI_GROUP_STOP_FORCE_COMBAT:
             return true;
         default:
             return false;
