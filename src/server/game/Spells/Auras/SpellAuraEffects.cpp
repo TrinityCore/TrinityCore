@@ -226,7 +226,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModStealthLevel,                           //154 SPELL_AURA_MOD_STEALTH_LEVEL
     &AuraEffect::HandleModWaterBreathing,                         //155 SPELL_AURA_MOD_WATER_BREATHING
     &AuraEffect::HandleNoImmediateEffect,                         //156 SPELL_AURA_MOD_REPUTATION_GAIN
-    &AuraEffect::HandleNULL,                                      //157 SPELL_AURA_PET_DAMAGE_MULTI
+    &AuraEffect::HandleNoImmediateEffect,                         //157 SPELL_AURA_MOD_HEALING_PCT_DONE_PET implemented in Unit::SpellHealingPctDone
     &AuraEffect::HandleAuraAllowTalentSwapping,                   //158 SPELL_AURA_ALLOW_TALENT_SWAPPING
     &AuraEffect::HandleNoImmediateEffect,                         //159 SPELL_AURA_NO_PVP_CREDIT      only for Honorless Target spell
     &AuraEffect::HandleUnused,                                    //160 Unused (4.3.4) old SPELL_AURA_MOD_AOE_AVOIDANCE
@@ -498,7 +498,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //426
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_SCALE_PLAYER_LEVEL
     &AuraEffect::HandleLinkedSummon,                              //428 SPELL_AURA_LINKED_SUMMON
-    &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_MOD_SUMMON_DAMAGE
+    &AuraEffect::HandleNoImmediateEffect,                         //429 SPELL_AURA_MOD_DAMAGE_PCT_DONE_PET implemented in Unit::MeleeDamageBonusDone and Unit::SpellDamagePctDone
     &AuraEffect::HandlePlayScene,                                 //430 SPELL_AURA_PLAY_SCENE
     &AuraEffect::HandleModOverrideZonePVPType,                    //431 SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE
     &AuraEffect::HandleNULL,                                      //432
@@ -600,7 +600,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //528 SPELL_AURA_ALLOW_BLOCKING_SPELLS
     &AuraEffect::HandleNULL,                                      //529 SPELL_AURA_MOD_SPELL_BLOCK_CHANCE
     &AuraEffect::HandleNULL,                                      //530
-    &AuraEffect::HandleNULL,                                      //531
+    &AuraEffect::HandleNoImmediateEffect,                         //531 SPELL_AURA_MOD_DAMAGE_PCT_DONE_SUMMON implemented in Unit::MeleeDamageBonusDone and Unit::SpellDamagePctDone
     &AuraEffect::HandleNULL,                                      //532
     &AuraEffect::HandleNULL,                                      //533 SPELL_AURA_DISABLE_NAVIGATION
     &AuraEffect::HandleNULL,                                      //534

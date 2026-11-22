@@ -1833,6 +1833,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Gossip menu addon...");
     sObjectMgr->LoadGossipMenuAddon();
 
+    TC_LOG_INFO("server.loading", "Loading Gossip menu options addon...");
+    sObjectMgr->LoadGossipMenuItemsAddon();
+
     TC_LOG_INFO("server.loading", "Loading Creature Template Gossip...");
     sObjectMgr->LoadCreatureTemplateGossip();
 

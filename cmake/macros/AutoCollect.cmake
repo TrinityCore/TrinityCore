@@ -14,13 +14,14 @@
 # CollectAndAddSourceFiles(
 #   common
 #   ${CMAKE_CURRENT_SOURCE_DIR}
+#   NO_INCLUDE_DIRECTORIES # if present, subdirectories will not be added to target include directories
 #   EXCLUDE
 #   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
 #   ${CMAKE_CURRENT_SOURCE_DIR}/Platform
 #   HEADER_VISIBILITY PRIVATE) # default is PUBLIC, this controls whether other targets that have this target as dependency will be able to access its headers
 #
 function(CollectAndAddSourceFiles target_name current_dir)
-  cmake_parse_arguments(PARSE_ARGV 2 arg "" "BASE_DIR;HEADER_VISIBILITY" "EXCLUDE")
+  cmake_parse_arguments(PARSE_ARGV 2 arg "NO_INCLUDE_SUBDIRECTORIES" "BASE_DIR;HEADER_VISIBILITY" "EXCLUDE")
   if(NOT arg_BASE_DIR)
     set(arg_BASE_DIR "${current_dir}")
   endif()
@@ -44,8 +45,13 @@ function(CollectAndAddSourceFiles target_name current_dir)
       ${current_dir}/*.hh
       ${current_dir}/*.hpp)
 
+    set(fileset_include_directory "${current_dir}")
+    if(arg_NO_INCLUDE_SUBDIRECTORIES)
+      set(fileset_include_directory "${CMAKE_CURRENT_SOURCE_DIR}")
+    endif()
+
     target_sources(${target_name} PRIVATE ${private_source_files})
-    target_sources(${target_name} ${arg_HEADER_VISIBILITY} FILE_SET "headers_${fileset_name}" TYPE HEADERS BASE_DIRS ${current_dir} FILES ${public_header_files})
+    target_sources(${target_name} ${arg_HEADER_VISIBILITY} FILE_SET "headers_${fileset_name}" TYPE HEADERS BASE_DIRS ${fileset_include_directory} FILES ${public_header_files})
 
     file(GLOB SUB_DIRECTORIES ${current_dir}/*)
     foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})

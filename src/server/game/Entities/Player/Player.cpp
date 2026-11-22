@@ -14056,6 +14056,24 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
     switch (gossipOptionNpc)
     {
         case GossipOptionNpc::None:
+            if (GossipMenuItemsAddon const* addon = sObjectMgr->GetGossipMenuItemAddon(menuId, item->OrderIndex))
+            {
+                switch (addon->DefaultAction)
+                {
+                    case GossipOptionDefaultAction::PlayerCastSpellOnThemselves:
+                        if (item->SpellID)
+                            CastSpell(this, *item->SpellID, TRIGGERED_IGNORE_CAST_TIME);
+                        break;
+                    case GossipOptionDefaultAction::NpcCastsSpell:
+                        if (item->SpellID)
+                            if (Creature* creature = Object::ToCreature(source))
+                                creature->CastSpell(this, *item->SpellID, TRIGGERED_IGNORE_CAST_TIME);
+                        break;
+                    default:
+                        break;
+                }
+                PlayerTalkClass->SendCloseGossip();
+            }
             break;
         case GossipOptionNpc::Vendor:
             GetSession()->SendListInventory(guid);

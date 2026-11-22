@@ -1217,7 +1217,7 @@ void AreaTrigger::UpdatePolygonVertices()
     UF::AreaTriggerPolygon const* shape = m_areaTriggerData->ShapeData.Get<UF::AreaTriggerPolygon>();
 
     // No need to recalculate, orientation didn't change
-    if (_verticesUpdatePreviousRotation == _rotation && shape->VerticesTarget.empty())
+    if (!_polygonVertices.empty() && _verticesUpdatePreviousRotation == _rotation && shape->VerticesTarget.empty())
         return;
 
     _polygonVertices.assign(shape->Vertices.begin(), shape->Vertices.end());

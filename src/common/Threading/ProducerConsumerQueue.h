@@ -81,18 +81,20 @@ public:
         return true;
     }
 
-    void WaitAndPop(T& value)
+    bool WaitAndPop(T& value)
     {
         std::unique_lock lock(_queueLock);
 
         _condition.wait(lock, [&] { return !_queue.empty() || _shutdown; });
 
         if (_queue.empty() || _shutdown)
-            return;
+            return false;
 
-        value = _queue.front();
+        value = std::move(_queue.front());
 
         _queue.pop();
+
+        return true;
     }
 
     void Cancel()
@@ -100,14 +102,7 @@ public:
         std::scoped_lock lock(_queueLock);
 
         while (!_queue.empty())
-        {
-            T& value = _queue.front();
-
-            if constexpr (std::is_pointer_v<T>)
-                delete value;
-
             _queue.pop();
-        }
 
         _shutdown = true;
 

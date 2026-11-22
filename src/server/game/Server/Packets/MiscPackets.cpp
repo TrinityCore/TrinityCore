@@ -798,6 +798,12 @@ WorldPacket const* SplashScreenShowLatest::Write()
     return &_worldPacket;
 }
 
+// Placed here to suppress false positive GCC warning
+// warning: 'void operator delete(void*)' called on unallocated object 'displayToast' [-Wfree-nonheap-object]
+DisplayToast::DisplayToast(): ServerPacket(SMSG_DISPLAY_TOAST)
+{
+}
+
 WorldPacket const* DisplayToast::Write()
 {
     _worldPacket << uint64(Quantity);
