@@ -317,7 +317,16 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetActionHolder const& action
 bool AIGroupScript::ExecuteAction(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid)
 {
     if (!m_group)
+    {
+        if (!me && !go)
+        {
+            TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteAction: action type {} has no actor, action set {} index {}, skipped.",
+                action.Type, action.Id, action.Index);
+            return true;
+        }
+
         return ExecuteActionForActor(action, invokerGuid);
+    }
 
     bool actionFinished = true;
 
@@ -346,6 +355,13 @@ bool AIGroupScript::ExecuteAction(ActionSetActionHolder const& action, ObjectGui
 
 bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid)
 {
+    if (!me && !go)
+    {
+        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: action type {} has no actor, action set {} index {}, skipped.",
+            action.Type, action.Id, action.Index);
+        return true;
+    }
+
     AIGroupMgr::ActionSetTypeInfo const& typeInfo = AIGroupMgr::StaticActionSetTypeData[action.Type];
 
     AIGroupMgr::ObjectTypeMask mask = AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type));
