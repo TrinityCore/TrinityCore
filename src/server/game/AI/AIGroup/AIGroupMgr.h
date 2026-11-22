@@ -1092,6 +1092,13 @@ enum class AIActionMovetomultiGraphParam : uint8
     Max
 };
 
+enum class AIActionLeavecombatParam : uint8
+{
+    ActionWaits        = 1,    // "action waits until return is complete"
+    DontReturn         = 2,    // "don't return, just leave combat"
+    Max
+};
+
 enum class CreatureDisplayInfoIndex : uint8
 {
     Random             = 0,

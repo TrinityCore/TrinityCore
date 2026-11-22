@@ -799,7 +799,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
         case AI_GROUP_UNIT_LEAVE_COMBAT:
             if (me->IsInCombat())
                 me->AI()->EnterEvadeMode();
-            return true;
+            return action.Extra2 != static_cast<uint8>(AIActionLeavecombatParam::ActionWaits);
         case AI_GROUP_IDLE_COMBAT_START:
             return false;
         case AI_GROUP_IDLE_COMBAT_STOP:
@@ -1433,6 +1433,8 @@ bool AIGroupScript::IsActionWaitable(ActionSetActionHolder const& action)
         case AI_GROUP_IDLE_COMBAT_STOP:
         case AI_GROUP_UNIT_FINISH_CAST:
             return true;
+        case AI_GROUP_UNIT_LEAVE_COMBAT:
+            return action.Extra2 == static_cast<uint8>(AIActionLeavecombatParam::ActionWaits);
         case AI_GROUP_MOVETO_GUID:
         case AI_GROUP_MOVE_RELATIVE_CURRENT_FACING:
             return action.TimeA == 0;
@@ -1512,6 +1514,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
     enum class PauseReason
     {
         None,
+        LeaveCombat,
         CombatStart,
         CombatStop,
         FinishCast
@@ -1526,6 +1529,10 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
             PauseReason pauseReason = PauseReason::None;
             switch (action.Type)
             {
+                case AI_GROUP_UNIT_LEAVE_COMBAT:
+                    if (action.Extra2 == static_cast<uint8>(AIActionLeavecombatParam::ActionWaits))
+                        pauseReason = PauseReason::LeaveCombat;
+                    break;
                 case AI_GROUP_IDLE_COMBAT_START:
                     pauseReason = PauseReason::CombatStart;
                     break;
@@ -1547,6 +1554,8 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                     {
                         switch (pauseReason)
                         {
+                            case PauseReason::LeaveCombat:
+                                return creature->IsReturningHome();
                             case PauseReason::CombatStart:
                                 return !creature->IsInCombat();
                             case PauseReason::CombatStop:

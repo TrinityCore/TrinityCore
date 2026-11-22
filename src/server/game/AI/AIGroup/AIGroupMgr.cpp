@@ -963,7 +963,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_UNIT_LEAVE_COMBAT:
-            /// @todo Extra2 field
+            if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(AIActionLeavecombatParam::Max))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid AIActionLeavecombatParam {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
             break;
         case AI_GROUP_UNIT_IMMUNEPC:
             if (!IsBooleanValid(action, action.Extra2))
