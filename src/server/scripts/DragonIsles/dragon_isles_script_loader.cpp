@@ -27,6 +27,10 @@ void AddSC_instance_azure_vault();
 void AddSC_boss_leymor();
 void AddSC_boss_telash_greywing();
 
+// Halls of Infusion
+void AddSC_boss_watcher_irideus();
+void AddSC_instance_halls_of_infusion();
+
 // Aberrus the Shadowed Crucible
 void AddSC_instance_aberrus_the_shadowed_crucible();
 void AddSC_aberrus_the_shadowed_crucible();
@@ -46,6 +50,10 @@ void AddDragonIslesScripts()
     AddSC_instance_azure_vault();
     AddSC_boss_leymor();
     AddSC_boss_telash_greywing();
+
+    // Halls of Infusion
+    AddSC_boss_watcher_irideus();
+    AddSC_instance_halls_of_infusion();
 
     // Aberrus the Shadowed Crucible
     AddSC_instance_aberrus_the_shadowed_crucible();
