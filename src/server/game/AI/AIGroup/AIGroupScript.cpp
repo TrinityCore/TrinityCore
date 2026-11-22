@@ -56,9 +56,6 @@ void AIGroupScript::OnInitialize(WorldObject* object)
             case TYPEID_GAMEOBJECT:
                 go = object->ToGameObject();
                 break;
-            case TYPEID_AIGROUP:
-                m_group = object->ToAIGroup();
-                break;
             default:
                 return;
         }

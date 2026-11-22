@@ -196,11 +196,9 @@ bool AIGroup::Create(WorldObject* mainMember)
     if (!_mainMemberGuid)
         return false;
 
-    ObjectGuid::LowType lowGuid = static_cast<ObjectGuid::LowType>(_mainMemberGuid);
-    _guid = ObjectGuid::Create<HighGuid::AIGroup>(lowGuid);
-
     SetMap(mainMember->GetMap());
     _currentActionSet = 0;
+    _script.SetActor(mainMember);
     _script.OnInitialize(this);
     return true;
 }

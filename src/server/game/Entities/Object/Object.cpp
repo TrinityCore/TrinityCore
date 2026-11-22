@@ -383,7 +383,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             case TYPEID_GAMEOBJECT:
             case TYPEID_DYNAMICOBJECT:
             case TYPEID_CORPSE:
-            case TYPEID_AIGROUP:
                 *data << uint32(GetGUID().GetCounter());              // GetGUID().GetCounter()
                 break;
             //! Unit, Player and default here are sending wrong values.
@@ -544,7 +543,6 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
                 visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_OBJECT:
-        case TYPEID_AIGROUP:
             break;
     }
 

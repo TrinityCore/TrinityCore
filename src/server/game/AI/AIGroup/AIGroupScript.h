@@ -23,6 +23,7 @@
 #include "Object.h"
 
 class Creature;
+class AIGroup;
 
 class TC_GAME_API AIGroupScript
 {

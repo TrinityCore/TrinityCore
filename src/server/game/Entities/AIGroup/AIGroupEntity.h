@@ -40,7 +40,6 @@ class TC_GAME_API AIGroup
         void Update(uint32 diff);
         void SetMap(Map* map) { _map = map; }
         Map* GetMap() const { return _map; }
-        ObjectGuid GetGUID() const { return _guid; }
 
         ObjectGuid::LowType GetMainMemberGuid() const { return _mainMemberGuid; }
         uint32 GetCurrentActionSet() const { return _currentActionSet; }
@@ -50,7 +49,6 @@ class TC_GAME_API AIGroup
         void SetCurrentActionSet(uint32 actionSetId);
 
     private:
-        ObjectGuid _guid;
         ObjectGuid::LowType _mainMemberGuid = 0;
         uint32 _currentActionSet = 0;
         Map* _map = nullptr;
