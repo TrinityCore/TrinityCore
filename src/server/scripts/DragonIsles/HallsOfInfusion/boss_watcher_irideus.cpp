@@ -475,7 +475,7 @@ struct at_watcher_irideus_power_field : AreaTriggerAI
         } };
 
         at->SetTimeToTargetScale(defaultTimeToTargetScale);
-        at->SetOverrideScaleCurve(points, 2);
+        at->SetOverrideScaleCurve(points, 0);
     }
 
     void OnUpdate(uint32 diff) override
@@ -507,7 +507,7 @@ struct at_watcher_irideus_power_field : AreaTriggerAI
         } };
 
         at->SetTimeToTargetScale(resizeTime);
-        at->SetOverrideScaleCurve(points, 2);
+        at->SetOverrideScaleCurve(points, at->GetTimeSinceCreated());
 
         _currentScale = targetScale;
     }
