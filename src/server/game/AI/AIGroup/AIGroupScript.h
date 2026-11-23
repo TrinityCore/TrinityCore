@@ -35,7 +35,7 @@ class TC_GAME_API AIGroupScript
         void OnInitialize(AIGroup* group);
         void SetActor(WorldObject* object);
         void GetScript();
-        void FillScript(AIGroupEventList eventList);
+        void FillScript(AIGroupTriggerList triggerList);
         static void RecalcTimer(ActionTriggersHolder& holder);
         void UpdateTimer(ActionTriggersHolder& holder, uint32 const diff);
         void OnUpdate(const uint32 diff);
@@ -79,7 +79,7 @@ class TC_GAME_API AIGroupScript
 
         void ResetEmoteState();
 
-        AIGroupEventList mEvents;
+        AIGroupTriggerList mTriggers;
         AIGroupObjectTriggerList mObjectTriggers;
         AIGroupActiveActionSetList mActionSets;
 

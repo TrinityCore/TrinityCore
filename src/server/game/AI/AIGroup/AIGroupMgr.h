@@ -1343,8 +1343,8 @@ struct ObjectTriggersHolder
     uint32 ActionSetId;
 };
 
-typedef std::vector<ActionTriggersHolder> AIGroupEventList;
-typedef std::unordered_map<uint32, AIGroupEventList> AIGroupEventMap;
+typedef std::vector<ActionTriggersHolder> AIGroupTriggerList;
+typedef std::unordered_map<uint32, AIGroupTriggerList> AIGroupTriggersMap;
 typedef std::vector<ObjectTriggersHolder> AIGroupObjectTriggerList;
 typedef std::unordered_map<uint32, AIGroupObjectTriggerList> AIGroupObjectTriggersMap;
 typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
@@ -1383,7 +1383,7 @@ class TC_GAME_API AIGroupMgr
         AIGroupSpawnEventMap _spawnEventList;
         std::unordered_map<uint32, std::string> _actionTriggerNames;
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
-        AIGroupEventMap _eventMap;
+        AIGroupTriggersMap _triggersMap;
         AIGroupActionSetMap _actionSetMap;
         AIGroupActionSetLookup _actionSetLookup;
         AIGroupRandomActionSetMap _randomActionSetMap;
@@ -1559,7 +1559,7 @@ class TC_GAME_API AIGroupMgr
 
         uint8 GetPriorityPercentForPriorityType(ActionSetPriorityType type);
 
-        AIGroupEventList GetScript(uint32 triggersId);
+        AIGroupTriggerList GetScript(uint32 triggersId);
         AIGroupObjectTriggerList GetObjectScript(uint32 triggersId);
         AIGroupActionSet GetActionSet(uint32 actionSetId);
         AIGroupRandomActionSet GetRandomActionSet(uint32 randomActionSetId);

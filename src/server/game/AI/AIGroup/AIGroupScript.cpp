@@ -92,11 +92,11 @@ void AIGroupScript::SetActor(WorldObject* object)
 
 void AIGroupScript::GetScript()
 {
-    AIGroupEventList eventList;
+    AIGroupTriggerList triggerList;
     if (me)
     {
-        eventList = sAIGroupMgr->GetScript(me->GetCurrentTriggersId());
-        FillScript(eventList);
+        triggerList = sAIGroupMgr->GetScript(me->GetCurrentTriggersId());
+        FillScript(triggerList);
     }
     else if (go)
         mObjectTriggers = sAIGroupMgr->GetObjectScript(go->GetTriggersId());
@@ -109,15 +109,15 @@ void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user)
             PerformActionSet(trigger.ActionSetId, user ? user->GetGUID() : ObjectGuid::Empty);
 }
 
-void AIGroupScript::FillScript(AIGroupEventList eventList)
+void AIGroupScript::FillScript(AIGroupTriggerList triggerList)
 {
-    for (AIGroupEventList::const_iterator it = eventList.begin(); it != eventList.end(); ++it)
+    for (AIGroupTriggerList::const_iterator it = triggerList.begin(); it != triggerList.end(); ++it)
     {
-        mEvents.push_back(*it);
-        if (mEvents.back().TriggerId == OnHealthRangeRandom)
-            RandomizeHealthRange(mEvents.back());
-        else if (mEvents.back().TriggerId == OnEnergyRangeRandom)
-            RandomizeEnergyRange(mEvents.back());
+        mTriggers.push_back(*it);
+        if (mTriggers.back().TriggerId == OnHealthRangeRandom)
+            RandomizeHealthRange(mTriggers.back());
+        else if (mTriggers.back().TriggerId == OnEnergyRangeRandom)
+            RandomizeEnergyRange(mTriggers.back());
     }
 }
 
@@ -1738,15 +1738,15 @@ void AIGroupScript::AbortActionSet(uint32 actionSetId)
 
 void AIGroupScript::ReplaceActionTriggers()
 {
-    AIGroupEventList preservedEvents;
+    AIGroupTriggerList preservedTriggers;
 
-    for (ActionTriggersHolder const& event : mEvents)
+    for (ActionTriggersHolder const& trigger : mTriggers)
     {
-        if (event.Flags & Unremovable)
-            preservedEvents.push_back(event);
+        if (trigger.Flags & Unremovable)
+            preservedTriggers.push_back(trigger);
     }
 
-    mEvents = std::move(preservedEvents);
+    mTriggers = std::move(preservedTriggers);
     GetScript();
 }
 
@@ -2080,7 +2080,7 @@ Creature* AIGroupScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid:
 
 void AIGroupScript::ProcessEventsFor(ActionTriggers trigger, WorldObject* object, uint32 triggerParam1, uint32 triggerParam2)
 {
-    for (ActionTriggersHolder& holder : mEvents)
+    for (ActionTriggersHolder& holder : mTriggers)
     {
         ActionTriggers triggerType = ActionTriggers(holder.TriggerId);
         if (triggerType == trigger)
@@ -2230,7 +2230,7 @@ void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
 
 void AIGroupScript::OnUpdate(uint32 const diff)
 {
-    for (ActionTriggersHolder& holder : mEvents)
+    for (ActionTriggersHolder& holder : mTriggers)
         UpdateTimer(holder, diff);
 
     UpdateActionSets(diff);

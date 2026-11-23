@@ -412,7 +412,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    _eventMap.clear();
+    _triggersMap.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACTION_TRIGGERS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -572,7 +572,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
             continue;
         }
 
-        _eventMap[triggers.Id].push_back(triggers);
+        _triggersMap[triggers.Id].push_back(triggers);
         ++count;
     }
     while (result->NextRow());
@@ -602,7 +602,7 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
         uint32 Id = fields[0].GetUInt32();
         std::string Name = fields[1].GetString();
 
-        if (_eventMap.find(Id) == _eventMap.end())
+        if (_triggersMap.find(Id) == _triggersMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `action_triggers_name` (Id: {}) has no corresponding entry in `action_triggers`, skipped.", Id);
             continue;
@@ -3492,13 +3492,13 @@ std::string AIGroupMgr::GetTriggersName(uint32 triggersId) const
     return itr != _actionTriggerNames.end() ? itr->second : std::string();
 }
 
-AIGroupEventList AIGroupMgr::GetScript(uint32 triggersId)
+AIGroupTriggerList AIGroupMgr::GetScript(uint32 triggersId)
 {
-    auto itr = _eventMap.find(triggersId);
-    if (itr != _eventMap.end())
+    auto itr = _triggersMap.find(triggersId);
+    if (itr != _triggersMap.end())
         return itr->second;
 
-    return AIGroupEventList();
+    return AIGroupTriggerList();
 }
 
 AIGroupObjectTriggerList AIGroupMgr::GetObjectScript(uint32 triggersId)
