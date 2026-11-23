@@ -125,7 +125,18 @@ struct PseudoRandomDistributionChanceTable : std::array<float, 10000>
             return result;
         }, chance * chance, 0.0f, chance, 6, iterationLimit);
     }
-} const ChanceCache;
+
+    static std::array<float, 10000> const& Instance()
+    {
+        static PseudoRandomDistributionChanceTable const Cache;
+        return Cache;
+    }
+};
+}
+
+void PreloadPseudoRandomDistributionChances()
+{
+    (void)PseudoRandomDistributionChanceTable::Instance();
 }
 
 bool roll_chance(float chance, PseudoRandomDistributionState& state)
@@ -134,7 +145,8 @@ bool roll_chance(float chance, PseudoRandomDistributionState& state)
     if (chanceIndex < 0)
         return false;
 
-    if (chanceIndex >= std::ssize(ChanceCache) || state.AccumulateChance(ChanceCache[chanceIndex]) > rand_norm())
+    std::array<float, 10000> const& chances = PseudoRandomDistributionChanceTable::Instance();
+    if (chanceIndex >= std::ssize(chances) || state.AccumulateChance(chances[chanceIndex]) > rand_norm())
     {
         state.Reset();
         return true;

@@ -1678,6 +1678,7 @@ bool World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime());
+    PreloadPseudoRandomDistributionChances();
 
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
