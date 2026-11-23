@@ -130,8 +130,9 @@ CREATE TABLE `object_triggers` (
   PRIMARY KEY (`Id`,`Index`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE FROM `trinity_string` WHERE `entry` IN (5081,5082);
+DELETE FROM `trinity_string` WHERE `entry` IN (5081,5082,5090);
 INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (5081,'Current Active Action Triggers: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(5082,'Current Active Action Set: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+(5082,'Current Active Action Set: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(5090,'AIGroup Unit: %u',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 */
