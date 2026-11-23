@@ -93,6 +93,8 @@ private:
     float _progress = 0.0f;
 };
 
+TC_COMMON_API void PreloadPseudoRandomDistributionChances();
+
 /* Return true if a random roll fits in the specified chance (range 0-100) using pseudo random distribution that minimizes long good/bad luck streaks. */
 TC_COMMON_API bool roll_chance(float chance, PseudoRandomDistributionState& state);
 

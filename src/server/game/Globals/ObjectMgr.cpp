@@ -239,6 +239,21 @@ ObjectMgr::~ObjectMgr()
 {
 }
 
+GossipMenuItemsAddon const* ObjectMgr::GetGossipMenuItemAddon(uint32 menuId, uint32 orderIndex)
+{
+    Trinity::IteratorPair<GossipMenuItemsAddonContainer::iterator> bounds = Trinity::Containers::MapEqualRange(_gossipMenuItemsAddonStore, menuId);
+
+    auto itr = std::ranges::find(bounds, orderIndex, [](std::pair<uint32 const, GossipMenuItemsAddon> const& itemPair)
+    {
+        return itemPair.second.OrderIndex;
+    });
+
+    if (itr == bounds.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
 void ObjectMgr::AddLocaleString(std::string_view value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
     if (data.size() <= size_t(localeConstant))
@@ -9767,6 +9782,58 @@ void ObjectMgr::LoadGossipMenuAddon()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} gossip_menu_addon IDs in {} ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGossipMenuItemsAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _gossipMenuItemsAddonStore.clear();
+
+    QueryResult result = WorldDatabase.Query(
+        //      0       1         2
+        "SELECT MenuID, OptionID, DefaultAction "
+        "FROM gossip_menu_option_addon ORDER BY MenuID, OptionID");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_option_addon entries. DB table `gossip_menu_option_addon` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        GossipMenuItemsAddon gMenuItemAddon;
+
+        gMenuItemAddon.MenuID           = fields[0].GetUInt32();
+        gMenuItemAddon.OrderIndex       = fields[1].GetUInt32();
+        gMenuItemAddon.DefaultAction    = GossipOptionDefaultAction(fields[1].GetUInt8());
+
+        Trinity::IteratorPair<GossipMenuItemsContainer::iterator> bounds = Trinity::Containers::MapEqualRange(_gossipMenuItemsStore,  gMenuItemAddon.MenuID);
+        auto itr = std::ranges::find(bounds, gMenuItemAddon.OrderIndex, [](std::pair<uint32 const, GossipMenuItems> const& itemPair)
+        {
+            return itemPair.second.OrderIndex;
+        });
+
+        if (itr == bounds.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_addon` for menu {}, id {} contains no parent entry in table `gossip_menu_option`, ignoring.", gMenuItemAddon.MenuID, gMenuItemAddon.OrderIndex);
+            continue;
+        }
+
+        if (gMenuItemAddon.DefaultAction > GossipOptionDefaultAction::GossipBeginsPetBattle)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_addon` for menu {}, id {} has an undefined DefaultAction ({}), ignoring.", gMenuItemAddon.MenuID, gMenuItemAddon.OrderIndex, gMenuItemAddon.DefaultAction);
+            continue;
+        }
+
+        _gossipMenuItemsAddonStore.insert(GossipMenuItemsAddonContainer::value_type(gMenuItemAddon.MenuID, gMenuItemAddon));
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} gossip_menu_option_addon entries in {} ms", _gossipMenuItemsAddonStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
