@@ -101,12 +101,12 @@ INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`,
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (196717, 196712) AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (196712, 0, 0, 1, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 389219, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - On Just Created - Cast Self \'Containment Apparatus\''),
-(196712, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 69, 1, 0, 0, 0, 0, 0, 0, NULL, 5, 100, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - On Linked Event - Move To Hostile Random'),
-(196712, 0, 2, 3, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 42, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - On Just Created - Set Invincibility HP 1'),
+(196712, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 69, 1, 0, 0, 0, 0, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, 0.598958, -208.403, -35.54027, 0, 'Nullification Device - On Linked Event - Move To Position'),
+(196712, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 42, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - On Just Created - Set Invincibility HP 1'),
 (196712, 0, 3, 0, '', 0, 0, 100, 0, 6000, 6000, 6000, 8000, 0, '', 11, 389443, 0, 0, 0, 0, 0, 0, NULL, 5, 100, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - In Combat - Cast \'Purifying Blast\' to Hostile Random'),
 (196712, 0, 4, 5, '', 2, 0, 100, 1, 0, 1, 0, 0, 0, '', 85, 389446, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - At 1% HP - Cast \'Nullifying Pulse\''),
 (196712, 0, 5, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 3500, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Nullification Device - On Linked Event - Despawn'),
-(196717, 0, 0, 0, '', 8, 0, 100, 1, 389056, 0, 0, 0, 0, '', 85, 389092, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Power Device - On Spell hit - Cast Self Siphon Power');
+(196717, 0, 0, 0, '', 8, 0, 100, 0, 389056, 0, 0, 0, 0, '', 85, 389092, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Power Device - On Spell hit - Cast Self Siphon Power');
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_watcher_irideus_spark_volley', 'spell_watcher_irideus_nullifying_pulse', 'spell_watcher_irideus_siphon_power', 'spell_watcher_irideus_reactive_spark_random', 'spell_watcher_irideus_power_overload', 'spell_watcher_irideus_reactive_spark_players');

@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "halls_of_infusion.h"
 
@@ -151,7 +152,7 @@ struct boss_watcher_irideus : public BossAI
         if (aurApp->GetBase()->GetId() != Spells::AblativeBarrier)
             return;
 
-        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT && aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
         if (IsMythic() || IsMythicPlus())
@@ -162,6 +163,7 @@ struct boss_watcher_irideus : public BossAI
 
         Talk(Texts::BarrierRemoved);
         me->SetReactState(REACT_AGGRESSIVE);
+        me->InterruptNonMeleeSpells(true);
 
         events.Reset();
         events.ScheduleEvent(Events::TitanicFist, 6100ms, Phases::PhaseCombat);
@@ -203,10 +205,13 @@ struct boss_watcher_irideus : public BossAI
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == Spells::PowerOverload)
-        {
-            Talk(Texts::PowerOverload);
             Talk(Texts::PowerOverloadWarning, target);
-        }
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == Spells::PowerOverload)
+            Talk(Texts::PowerOverload);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -238,7 +243,7 @@ struct boss_watcher_irideus : public BossAI
                 case Events::PowerOverload:
                 {
                     DoCastSelf(Spells::PowerOverload);
-                    events.Repeat(27700s);
+                    events.Repeat(27700ms);
                     break;
                 }
                 case Events::TitanicFist:
@@ -261,7 +266,7 @@ struct boss_watcher_irideus : public BossAI
                 }
                 case Events::Barrier:
                 {
-                    DoCastSelf(Spells::AblativeBarrier, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, 3));
+                    DoCastSelf(Spells::AblativeBarrier, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR).AddSpellMod(SPELLVALUE_AURA_STACK, 3));
                     events.ScheduleEvent(Events::SiphonPower, 1100ms);
                     break;
                 }
@@ -292,11 +297,11 @@ class spell_watcher_irideus_power_overload : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
             return;
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget()->GetPosition(), Spells::PowerFieldAreaTrigger, CastSpellExtraArgsInit{
+            caster->CastSpell(GetTarget(), Spells::PowerFieldAreaTrigger, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
@@ -316,9 +321,9 @@ class spell_watcher_irideus_reactive_spark_players : public SpellScript
         return ValidateSpellInfo({ Spells::SparkVolleyMissile });
     }
 
-    void HandleOnHit() const
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), Spells::SparkVolleyMissile, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), Spells::SparkVolleyMissile, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -326,7 +331,7 @@ class spell_watcher_irideus_reactive_spark_players : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_watcher_irideus_reactive_spark_players::HandleOnHit);
+        OnEffectHit += SpellEffectFn(spell_watcher_irideus_reactive_spark_players::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -338,7 +343,7 @@ class spell_watcher_irideus_reactive_spark_random : public SpellScript
         return ValidateSpellInfo({ Spells::SparkVolleyMissile });
     }
 
-    void HandleOnHit() const
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(*GetHitDest(), Spells::SparkVolleyMissile, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -348,7 +353,7 @@ class spell_watcher_irideus_reactive_spark_random : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_watcher_irideus_reactive_spark_random::HandleOnHit);
+        OnEffectHit += SpellEffectFn(spell_watcher_irideus_reactive_spark_random::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -373,7 +378,7 @@ class spell_watcher_irideus_siphon_power : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_watcher_irideus_siphon_power::PeriodicTick, EFFECT_0, SPELL_AURA_OBS_MOD_POWER);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_watcher_irideus_siphon_power::PeriodicTick, EFFECT_1, SPELL_AURA_OBS_MOD_POWER);
     }
 };
 
