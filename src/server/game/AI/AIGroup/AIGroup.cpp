@@ -85,30 +85,30 @@ void AIGroupCreature::UpdateAI(uint32 diff)
 
 void AIGroupCreature::JustEngagedWith(Unit* enemy)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnEnterCombat, enemy);
+    GetScript()->NotifyTriggers(ActionTriggers::OnEnterCombat, enemy);
 }
 
 void AIGroupCreature::EnterEvadeMode(EvadeReason why)
 {
     CreatureAI::EnterEvadeMode(why);
 
-    GetScript()->ProcessEventsFor(ActionTriggers::OnLeaveCombat);
+    GetScript()->NotifyTriggers(ActionTriggers::OnLeaveCombat);
 }
 
 void AIGroupCreature::JustDied(Unit* killer)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnDeath, killer);
+    GetScript()->NotifyTriggers(ActionTriggers::OnDeath, killer);
     GetScript()->TerminateActionSets();
 }
 
 void AIGroupCreature::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster, spellInfo->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnSpell, caster, spellInfo->Id);
 }
 
 void AIGroupCreature::KilledUnit(Unit* victim)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnKill, victim);
+    GetScript()->NotifyTriggers(ActionTriggers::OnKill, victim);
 }
 
 void AIGroupCreature::JustAppeared()
@@ -116,42 +116,42 @@ void AIGroupCreature::JustAppeared()
     CreatureAI::JustAppeared();
 
     if (!GetGroup())
-        GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
+        GetScript()->NotifyTriggers(ActionTriggers::OnSpawn);
 }
 
 void AIGroupCreature::ReceiveEmote(Player* player, uint32 textEmote)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnEmote, player, textEmote);
+    GetScript()->NotifyTriggers(ActionTriggers::OnEmote, player, textEmote);
 }
 
 void AIGroupCreature::OnCombatTrigger(Unit* sender, uint32 triggerId)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnCombatTrigger, sender, triggerId);
+    GetScript()->NotifyTriggers(ActionTriggers::OnCombatTrigger, sender, triggerId);
 }
 
 void AIGroupCreature::OnSpellCast(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
 }
 
 void AIGroupCreature::JustReachedHome()
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnCombatReturn);
+    GetScript()->NotifyTriggers(ActionTriggers::OnCombatReturn);
 }
 
 void AIGroupCreature::OnGeneralTrigger(Unit* sender, uint32 triggerId)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnGeneralTrigger, sender, triggerId);
+    GetScript()->NotifyTriggers(ActionTriggers::OnGeneralTrigger, sender, triggerId);
 }
 
 void AIGroupCreature::OnDespawn()
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnDespawn);
+    GetScript()->NotifyTriggers(ActionTriggers::OnDespawn);
 }
 
 void AIGroupCreature::OnSpellFailed(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellFailed, nullptr, spellInfo->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnSpellFailed, nullptr, spellInfo->Id);
 }
 
 void AIGroupCreature::OnCharmed(bool isNew)
@@ -159,22 +159,22 @@ void AIGroupCreature::OnCharmed(bool isNew)
     CreatureAI::OnCharmed(isNew);
 
     if (!isNew)
-        GetScript()->ProcessEventsFor(ActionTriggers::OnCharmBreak);
+        GetScript()->NotifyTriggers(ActionTriggers::OnCharmBreak);
 }
 
 void AIGroupCreature::OnSpellStart(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellStart, nullptr, spellInfo->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnSpellStart, nullptr, spellInfo->Id);
 }
 
 void AIGroupCreature::OnAuraApplied(AuraApplication const* aurApp)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnAuraApplied, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnAuraApplied, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }
 
 void AIGroupCreature::OnAuraRemoved(AuraApplication const* aurApp)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
+    GetScript()->NotifyTriggers(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }
 
 /// GameObject section

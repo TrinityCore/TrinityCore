@@ -2078,17 +2078,17 @@ Creature* AIGroupScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid:
     return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
 }
 
-void AIGroupScript::ProcessEventsFor(ActionTriggers trigger, WorldObject* object, uint32 triggerParam1, uint32 triggerParam2)
+void AIGroupScript::NotifyTriggers(ActionTriggers trigger, WorldObject* object, uint32 triggerParam1, uint32 triggerParam2)
 {
     for (ActionTriggersHolder& holder : mTriggers)
     {
         ActionTriggers triggerType = ActionTriggers(holder.TriggerId);
         if (triggerType == trigger)
-            ProcessEvent(holder, object, triggerParam1, triggerParam2);
+            TryPerformActionSet(holder, object, triggerParam1, triggerParam2);
     }
 }
 
-void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, WorldObject* object, uint32 triggerParam1, uint32 /*triggerParam2*/)
+void AIGroupScript::TryPerformActionSet(ActionTriggersHolder& holder, WorldObject* object, uint32 triggerParam1, uint32 /*triggerParam2*/)
 {
     if (!holder.IsTriggerActive || ((holder.Flags & NotRepeatable) && holder.IsTriggerUsed))
         return;
@@ -2221,7 +2221,7 @@ void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
         case OnEnergyRange:
         case OnHealthRangeRandom:
         case OnEnergyRangeRandom:
-            ProcessEvent(holder);
+            TryPerformActionSet(holder);
             break;
         default:
             break;

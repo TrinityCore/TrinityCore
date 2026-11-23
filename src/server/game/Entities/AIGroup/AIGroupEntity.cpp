@@ -120,7 +120,6 @@ void AIGroup::AddUnitToAIGroup(WorldObject* unit)
         return;
 
     group->GetScript()->SetActor(unit);
-    group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
     TriggerSpawnEvents(unit, group->GetScript());
     AddAIGroup(std::move(group));
 }

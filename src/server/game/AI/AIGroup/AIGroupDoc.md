@@ -28,8 +28,8 @@ To create a new action trigger, follow these steps:
 2. If your trigger is not repeatable, add it to `IsTriggerNotRepeatable`.
 3. Add your trigger to `IsTriggerAllowed`.
 4. Add your trigger to `AIGroupMgr::ActionTriggerTypeInfo`. The first parameter is the name of your trigger. If your trigger uses TriggerParam1, set the second parameter to 'true', otherwise 'false'. If your trigger uses TriggerParam2, set the third parameter to 'true', otherwise 'false'.
-5. Add the appropriate callback in `AIGroup.cpp` and call `GetScript()->ProcessEventsFor(...)`.
-6. Implement trigger behavior in `AIGroupScript::ProcessEvent`.
+5. Add the appropriate callback in `AIGroup.cpp` and call `GetScript()->NotifyTriggers(...)`.
+6. Implement trigger behavior in `AIGroupScript::TryPerformActionSet`.
 7. If parameters need validation, add the checks to the `AIGroupMgr::LoadActionTriggersFromDB`.
 
 ## Creating a New Action

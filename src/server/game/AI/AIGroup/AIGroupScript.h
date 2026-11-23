@@ -45,8 +45,8 @@ class TC_GAME_API AIGroupScript
         void TerminateActionSets();
         AIGroupActiveActionSetList const& GetActiveActionSets() const { return mActionSets; }
         void ReplaceActionTriggers();
-        void ProcessEvent(ActionTriggersHolder& holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
-        void ProcessEventsFor(ActionTriggers holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
+        void TryPerformActionSet(ActionTriggersHolder& holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
+        void NotifyTriggers(ActionTriggers holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
         void OnActionTriggered(uint32 action, WorldObject const* user);
 
         void GetActionTargets(AIGroupObjectVector& targets, ActionSetActionHolder const& action, WorldObject* invoker = nullptr) const;
