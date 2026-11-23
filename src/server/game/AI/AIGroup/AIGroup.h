@@ -104,6 +104,14 @@ class TC_GAME_API AIGroupCreature : public CreatureAI
         // Unit has aura {Spell} removed.
         void OnAuraRemoved(AuraApplication const* aurApp) override;
 
+        // Custom Action Triggers, ordered by id
+
+        // Unit gives quest {Quest}.
+        void OnQuestAccept(Player* player, Quest const* quest) override;
+
+        // Unit rewards quest {Quest}.
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override;
+
     private:
         AIGroup* GetGroup() const;
         AIGroupScript _script;

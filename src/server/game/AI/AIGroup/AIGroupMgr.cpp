@@ -546,6 +546,15 @@ void AIGroupMgr::LoadActionTriggersFromDB()
             case OnLootLockReleased:
                 // Loot Window
                 break;
+            case OnQuestAccept:
+            case OnQuestReward:
+                if (!sObjectMgr->GetQuestTemplate(triggers.TriggerParam1))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} uses non-existent quest {}, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
+                    continue;
+                }
+                break;
             default:
                 break;
         }
@@ -3401,7 +3410,9 @@ AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[
     { "OnReserved17",               false, false },
     { "OnReserved18",               false, false },
     { "OnReserved19",               false, false },
-    { "OnReserved20",               false, false }
+    { "OnReserved20",               false, false },
+    { "OnQuestAccept",              true,  false },
+    { "OnQuestReward",              true,  false }
 };
 
 bool AIGroupMgr::IsTriggerNotRepeatable(ActionTriggers trigger)
@@ -3462,6 +3473,8 @@ bool AIGroupMgr::IsTriggerAllowed(ActionTriggers trigger)
         case OnPassengerRide:
         case OnPassengerAbandon:
         case OnPassengerSpawn:
+        case OnQuestAccept:
+        case OnQuestReward:
             return true;
         default:
             return false;

@@ -337,7 +337,8 @@ bool AIGroupScript::ExecuteAction(ActionSetActionHolder const& action, ObjectGui
 
     WorldObject* const previousActor = me ? static_cast<WorldObject*>(me) : static_cast<WorldObject*>(go);
 
-    if (members.empty() && me && action.Unit == uint8(AIGroupUnit::RandomUnit) && !sAIGroupMgr->GetGroupMembers(m_group->GetMainMemberGuid()))
+    if (members.empty() && me && (action.Unit == uint8(AIGroupUnit::RandomUnit) || action.Unit == uint8(AIGroupUnit::AllUnits)) &&
+        !sAIGroupMgr->GetGroupMembers(m_group->GetMainMemberGuid()))
         members.push_back(me);
 
     for (WorldObject* member : members)
@@ -2159,6 +2160,8 @@ void AIGroupScript::TryPerformActionSet(ActionTriggersHolder& holder, WorldObjec
         case OnSpellStart:
         case OnAuraApplied:
         case OnAuraRemoved:
+        case OnQuestAccept:
+        case OnQuestReward:
             if (triggerParam1 == holder.TriggerParam1)
             {
                 shouldPerformActionSet = true;

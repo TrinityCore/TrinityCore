@@ -177,6 +177,16 @@ void AIGroupCreature::OnAuraRemoved(AuraApplication const* aurApp)
     GetScript()->NotifyTriggers(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }
 
+void AIGroupCreature::OnQuestAccept(Player* player, Quest const* quest)
+{
+    GetScript()->NotifyTriggers(ActionTriggers::OnQuestAccept, player, quest->GetQuestId());
+}
+
+void AIGroupCreature::OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)
+{
+    GetScript()->NotifyTriggers(ActionTriggers::OnQuestReward, player, quest->GetQuestId());
+}
+
 /// GameObject section
 
 AIGroupGameObject::AIGroupGameObject(GameObject* go) : GameObjectAI(go) { }

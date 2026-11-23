@@ -908,6 +908,9 @@ enum ActionTriggers
     OnReserved19                = 59,
     OnReserved20                = 60,
     // ^ Reserved for official triggers
+    OnQuestAccept               = 61,   // Unit gives quest {Quest}.
+    OnQuestReward               = 62,   // Unit rewards quest {Quest}.
+    // ^ Custom
     Max
 };
 
