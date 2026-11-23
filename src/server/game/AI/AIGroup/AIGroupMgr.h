@@ -1383,11 +1383,11 @@ class TC_GAME_API AIGroupMgr
         AIGroupSpawnEventMap _spawnEventList;
         std::unordered_map<uint32, std::string> _actionTriggerNames;
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
-        AIGroupEventMap mEventMap;
-        AIGroupActionSetMap mActionSetMap;
+        AIGroupEventMap _eventMap;
+        AIGroupActionSetMap _actionSetMap;
         AIGroupActionSetLookup _actionSetLookup;
-        AIGroupRandomActionSetMap mRandomActionSetMap;
-        AIGroupObjectTriggersMap objectTriggersMap;
+        AIGroupRandomActionSetMap _randomActionSetMap;
+        AIGroupObjectTriggersMap _objectTriggersMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
 
         bool IsActionValid(ActionSetActionHolder const& action);

@@ -187,7 +187,7 @@ void AIGroupMgr::LoadSpawnEventListsFromDB()
         }
         event.EventType = EventTypes(eventType);
 
-        if (!event.ActionSetId || mActionSetMap.find(event.ActionSetId) == mActionSetMap.end())
+        if (!event.ActionSetId || _actionSetMap.find(event.ActionSetId) == _actionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `spawn_event_list` (MainMemberGUID: {}, Index: {}) references an invalid ActionSetId ({}). Row skipped.",
                 event.MainMemberGuid, event.Index, event.ActionSetId);
@@ -206,7 +206,7 @@ void AIGroupMgr::LoadActionSetsFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    mActionSetMap.clear();
+    _actionSetMap.clear();
     _actionSetLookup.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACTION_SET);
@@ -295,7 +295,7 @@ void AIGroupMgr::LoadActionSetsFromDB()
         if (!IsActionFlagsValid(actionHolder))
             continue;
 
-        AIGroupActionSet& actionSet = mActionSetMap[actionHolder.Id];
+        AIGroupActionSet& actionSet = _actionSetMap[actionHolder.Id];
         if (actionSet.empty())
             ++count;
         actionSet.push_back(actionHolder);
@@ -335,7 +335,7 @@ void AIGroupMgr::LoadActionSetsNamesFromDB()
         set.Priority = fields[2].GetUInt8();
         set.Name = fields[3].GetString();
 
-        if (mActionSetMap.find(set.Id) == mActionSetMap.end())
+        if (_actionSetMap.find(set.Id) == _actionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set_name` (Id: {}) has no corresponding entry in `action_set`, skipped.", set.Id);
             continue;
@@ -367,7 +367,7 @@ void AIGroupMgr::LoadRandomActionSetsFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    mRandomActionSetMap.clear();
+    _randomActionSetMap.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RANDOM_ACTION_SET);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -391,14 +391,14 @@ void AIGroupMgr::LoadRandomActionSetsFromDB()
         randomActionSetHolder.Probability = fields[2].GetFloat();
         randomActionSetHolder.ActionSetId = fields[3].GetUInt32();
 
-        if (!randomActionSetHolder.ActionSetId || mActionSetMap.find(randomActionSetHolder.ActionSetId) == mActionSetMap.end())
+        if (!randomActionSetHolder.ActionSetId || _actionSetMap.find(randomActionSetHolder.ActionSetId) == _actionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `random_action_set` (Id: {}, Index: {}) references an invalid ActionSetId ({}), skipped.",
                 randomActionSetHolder.Id, randomActionSetHolder.Index, randomActionSetHolder.ActionSetId);
             continue;
         }
 
-        AIGroupRandomActionSet& randomActionSet = mRandomActionSetMap[randomActionSetHolder.Id];
+        AIGroupRandomActionSet& randomActionSet = _randomActionSetMap[randomActionSetHolder.Id];
         if (randomActionSet.empty())
             ++count;
         randomActionSet.push_back(randomActionSetHolder);
@@ -412,7 +412,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    mEventMap.clear();
+    _eventMap.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACTION_TRIGGERS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -558,7 +558,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
             TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has useless data in TriggerParam2 ({}).",
                 triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam2);
 
-        if (!triggers.ActionSetId || mActionSetMap.find(triggers.ActionSetId) == mActionSetMap.end())
+        if (!triggers.ActionSetId || _actionSetMap.find(triggers.ActionSetId) == _actionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} references an invalid ActionSetId ({}), skipped.",
                 triggers.Id, triggers.Index, triggerType.Name, triggers.ActionSetId);
@@ -572,7 +572,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
             continue;
         }
 
-        mEventMap[triggers.Id].push_back(triggers);
+        _eventMap[triggers.Id].push_back(triggers);
         ++count;
     }
     while (result->NextRow());
@@ -602,7 +602,7 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
         uint32 Id = fields[0].GetUInt32();
         std::string Name = fields[1].GetString();
 
-        if (mEventMap.find(Id) == mEventMap.end())
+        if (_eventMap.find(Id) == _eventMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `action_triggers_name` (Id: {}) has no corresponding entry in `action_triggers`, skipped.", Id);
             continue;
@@ -620,7 +620,7 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    objectTriggersMap.clear();
+    _objectTriggersMap.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_OBJECT_TRIGGERS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -659,8 +659,8 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
             continue;
         }
 
-        auto actionSetItr = mActionSetMap.find(triggers.ActionSetId);
-        if (!triggers.ActionSetId || actionSetItr == mActionSetMap.end())
+        auto actionSetItr = _actionSetMap.find(triggers.ActionSetId);
+        if (!triggers.ActionSetId || actionSetItr == _actionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) references an invalid ActionSetId ({}), skipped.",
                 triggers.Id, triggers.Index, triggers.ActionSetId);
@@ -677,7 +677,7 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
             continue;
         }
 
-        objectTriggersMap[triggers.Id].push_back(triggers);
+        _objectTriggersMap[triggers.Id].push_back(triggers);
         ++count;
     }
     while (result->NextRow());
@@ -3494,8 +3494,8 @@ std::string AIGroupMgr::GetTriggersName(uint32 triggersId) const
 
 AIGroupEventList AIGroupMgr::GetScript(uint32 triggersId)
 {
-    auto itr = mEventMap.find(triggersId);
-    if (itr != mEventMap.end())
+    auto itr = _eventMap.find(triggersId);
+    if (itr != _eventMap.end())
         return itr->second;
 
     return AIGroupEventList();
@@ -3503,8 +3503,8 @@ AIGroupEventList AIGroupMgr::GetScript(uint32 triggersId)
 
 AIGroupObjectTriggerList AIGroupMgr::GetObjectScript(uint32 triggersId)
 {
-    auto itr = objectTriggersMap.find(triggersId);
-    if (itr != objectTriggersMap.end())
+    auto itr = _objectTriggersMap.find(triggersId);
+    if (itr != _objectTriggersMap.end())
         return itr->second;
 
     return AIGroupObjectTriggerList();
@@ -3512,8 +3512,8 @@ AIGroupObjectTriggerList AIGroupMgr::GetObjectScript(uint32 triggersId)
 
 AIGroupActionSet AIGroupMgr::GetActionSet(uint32 actionSetId)
 {
-    auto itr = mActionSetMap.find(actionSetId);
-    if (itr != mActionSetMap.end())
+    auto itr = _actionSetMap.find(actionSetId);
+    if (itr != _actionSetMap.end())
         return itr->second;
 
     return AIGroupActionSet();
@@ -3521,8 +3521,8 @@ AIGroupActionSet AIGroupMgr::GetActionSet(uint32 actionSetId)
 
 AIGroupRandomActionSet AIGroupMgr::GetRandomActionSet(uint32 randomActionSetId)
 {
-    auto itr = mRandomActionSetMap.find(randomActionSetId);
-    if (itr != mRandomActionSetMap.end())
+    auto itr = _randomActionSetMap.find(randomActionSetId);
+    if (itr != _randomActionSetMap.end())
         return itr->second;
 
     return AIGroupRandomActionSet();
