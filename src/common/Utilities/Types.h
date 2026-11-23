@@ -73,25 +73,22 @@ namespace Trinity
     template <typename T>
     constexpr bool dependant_false_v = dependant_false<T>::value;
 
-    template <std::size_t... I>
-    constexpr std::index_sequence<I...> concat_index_sequences(std::index_sequence<I...>)
-    {
-        return { };
-    }
-
     template <std::size_t... I, std::size_t... J, typename... Rest>
     constexpr auto concat_index_sequences(std::index_sequence<I...>, std::index_sequence<J...>, Rest...)
     {
-        return Trinity::concat_index_sequences(std::index_sequence<I..., J...>(), Rest()...);
+        if constexpr (sizeof...(Rest) > 0)
+            return Trinity::concat_index_sequences(std::index_sequence<I..., J...>(), Rest()...);
+        else
+            return std::index_sequence<I..., J...>();
     }
 
     namespace Impl
     {
         template <std::size_t I, typename Predicate>
-        constexpr auto apply_index_sequence_filter(std::index_sequence<I> seq, Predicate predicate)
+        constexpr auto apply_index_sequence_filter(std::index_sequence<I>, Predicate predicate)
         {
-            if constexpr (predicate(seq))
-                return seq;
+            if constexpr (predicate(std::index_sequence<I>()))
+                return std::index_sequence<I>();
             else
                 return std::index_sequence<>();
         }
