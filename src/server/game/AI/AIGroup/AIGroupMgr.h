@@ -1548,6 +1548,7 @@ class TC_GAME_API AIGroupMgr
             }
         };
         static ActionSetTypeInfo const StaticActionSetTypeData[AI_GROUP_MAX];
+        static char const* GetActionName(uint16 actionType);
 
         struct ActionTriggerTypeInfo
         {

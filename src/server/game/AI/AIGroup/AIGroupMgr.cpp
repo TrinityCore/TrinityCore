@@ -736,7 +736,7 @@ void AIGroupMgr::LogUselessActionParams(ActionSetActionHolder const& action)
     {
         if (hasValue && !isUsed)
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has useless data in {} ({}).",
-                action.Id, action.Index, action.Type, typeInfo.Name, name, value);
+                action.Id, action.Index, GetActionName(action.Type), action.Type, name, value);
     };
 
     LogIfUseless(typeInfo.HasUnit, action.Unit != 0, "Unit", action.Unit);
@@ -760,8 +760,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
 {
     if (action.Type >= AI_GROUP_MAX)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {} ({}), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
@@ -794,8 +794,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (action.Extra1 < 1 || action.Extra1 > 50)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid wander radius {} (must be between 1 and 50), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra1);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid wander radius {} (must be between 1 and 50), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra1);
                 return false;
             }
             /// @todo Extra2 field
@@ -803,8 +803,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_ATTACK_ALL:
             if (action.Extra0 < 10 || action.Extra0 > 500)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Attack Radius {} (must be between 10 and 500), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra0);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Attack Radius {} (must be between 10 and 500), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra0);
                 return false;
             }
             break;
@@ -813,8 +813,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (action.Extra1 < 1 || action.Extra1 > 50)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Close Enough Dist {} (must be between 1 and 50), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra1);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Close Enough Dist {} (must be between 1 and 50), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra1);
                 return false;
             }
             break;
@@ -825,8 +825,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_PATROL_LINE:
             if (action.Extra0 > action.Extra1)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Min Time at Ends (secs) {} (bigger than Max Time at Ends (secs)), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra0);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Min Time at Ends (secs) {} (bigger than Max Time at Ends (secs)), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra0);
                 return false;
             }
             /// @todo Extra2 field
@@ -834,8 +834,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (action.Extra4 < 1 || action.Extra4 > 50)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Wander at end Radius {} (must be between 1 and 50), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra4);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Wander at end Radius {} (must be between 1 and 50), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra4);
                 return false;
             }
             break;
@@ -848,8 +848,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (action.Extra1 < 1 || action.Extra1 > 50)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Guard Dist {} (must be between 1 and 50), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra1);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Guard Dist {} (must be between 1 and 50), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra1);
                 return false;
             }
             if (!IsStandardAngleValid(action, action.Extra3))
@@ -922,8 +922,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsNonNegativeIntegerInUint8Range(action.Extra4) || (static_cast<uint8>(action.Extra4) & ~static_cast<uint8>(AIActionUnitModeFlag::AIActionUnitModeFlagAll)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid AIActionUnitModeFlag {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra4);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has invalid AIActionUnitModeFlag {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra4);
                 return false;
             }
             break;
@@ -940,8 +940,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_TRAINER:
             if (!IsNonNegativeIntegerInUint32Range(action.Extra2) || (action.Extra2 != 0 && !sObjectMgr->GetTrainerById(uint32(action.Extra2))))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent trainer ID {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent trainer ID {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -988,16 +988,16 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             // Final validation is done during action execution
             if (!IsPositiveIntegerInUint32Range(action.Extra2))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references non-existent TriggersId {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references non-existent TriggersId {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
         case AI_GROUP_UNIT_LEAVE_COMBAT:
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(AIActionLeavecombatParam::Max))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid AIActionLeavecombatParam {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid AIActionLeavecombatParam {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1228,8 +1228,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             // Final validation is done during action execution
             if (!IsPositiveIntegerInUint32Range(action.Extra2))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references non-existent RandomActionSetId {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references non-existent RandomActionSetId {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1388,8 +1388,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_PLAY_MOVIE:
             if (!IsPositiveIntegerInUint32Range(action.Extra2) || !sMovieStore.LookupEntry(uint32(action.Extra2)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent movie {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent movie {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1448,8 +1448,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_HOVER_HEIGHT:
             if (action.Extra1 < 0 || action.Extra1 > 50)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Height {} (must be between 0 and 50), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra1);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Height {} (must be between 0 and 50), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra1);
                 return false;
             }
             break;
@@ -1462,8 +1462,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_TIER_TRANSITION_TAKE_OFF:
             if (action.Extra1 < 1 || action.Extra1 > 100)
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Vertical Distance {} (must be between 1 and 100), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra1);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Vertical Distance {} (must be between 1 and 100), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra1);
                 return false;
             }
             if (!IsAnimTierValid(action, action.Extra2))
@@ -1504,8 +1504,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_VEHICLE_RECORD:
             if (!IsPositiveIntegerInUint32Range(action.Extra2) || !sVehicleStore.LookupEntry(uint32(action.Extra2)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent VehicleId {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent VehicleId {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1570,8 +1570,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY:
             if (action.Extra2 < 1 || action.Extra2 > 255 || !IsIntegerDouble(action.Extra2))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid value {} (must be between 1 and 255), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid value {} (must be between 1 and 255), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1621,8 +1621,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             if (!IsNonNegativeIntegerInUint8Range(action.Extra4) || (static_cast<uint8>(action.Extra4) & ~static_cast<uint8>(MoveCircleOptions::MoveCircleOptionsAll)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Move Circle Options {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra4);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has invalid Move Circle Options {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra4);
                 return false;
             }
             break;
@@ -1638,8 +1638,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra3 field
             if (!IsNonNegativeIntegerInUint8Range(action.Extra4) || (static_cast<uint8>(action.Extra4) & ~static_cast<uint8>(SparringOptions::SparringOptionsAll)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Sparring Options {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra4);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has invalid Sparring Options {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra4);
                 return false;
             }
             break;
@@ -1748,8 +1748,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL:
             if (action.Extra2 < 1 || action.Extra2 > 25 || !IsIntegerDouble(action.Extra2))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Level value {} (must be between 1 and 25), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Level value {} (must be between 1 and 25), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             break;
@@ -1794,8 +1794,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra1 field
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || (static_cast<uint8>(action.Extra2) & ~static_cast<uint8>(CircleUnitOptions::CircleUnitOptionsAll)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Circle Unit Options {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has invalid Circle Unit Options {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             if (!IsSpeedMultiplierValid(action, action.Extra3))
@@ -1810,8 +1810,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_TURN_IN_PLACE_DEGREES:
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(TurnInPlaceOptions::Max))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Turn In Place Option {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Turn In Place Option {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             if (!IsPercentValid(action, action.Extra3))
@@ -1822,8 +1822,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_TURN_IN_PLACE_TIMED:
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(TurnInPlaceOptions::Max))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Turn In Place Option {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Turn In Place Option {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             if (!IsPercentValid(action, action.Extra3))
@@ -1864,8 +1864,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_EJECT_PASSENGER:
             if (action.Extra2 < 0 || action.Extra2 > MAX_VEHICLE_SEATS || !IsIntegerDouble(action.Extra2))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Passenger Index {} (must be 0 for all passengers or between 1 and {}), skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2, MAX_VEHICLE_SEATS);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Passenger Index {} (must be 0 for all passengers or between 1 and {}), skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2, MAX_VEHICLE_SEATS);
                 return false;
             }
             break;
@@ -1877,8 +1877,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
             if (!IsPositiveIntegerInUint32Range(action.Extra2) || !sSpellCategoryStore.LookupEntry(uint32(action.Extra2)))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Spell Category {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent Spell Category {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             /// @todo Extra3 field
@@ -1901,8 +1901,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS:
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(AIActionMovetomultiGraphParam::Max))
             {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid MovetomultiGraphParam {}, skipped.",
-                    action.Id, action.Index, action.Type, action.Extra2);
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid MovetomultiGraphParam {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
             }
             if (!IsSpeedMultiplierValid(action, action.Extra3))
@@ -2180,8 +2180,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_CU_9:
         case AI_GROUP_CU_10:
             // ^ Custom
-            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
-                action.Id, action.Index, action.Type);
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {} ({}), skipped.",
+                action.Id, action.Index, GetActionName(action.Type), action.Type);
             return false;
         default:
             return true;
@@ -2192,8 +2192,8 @@ bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sSpellMgr->GetSpellInfo(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent spell {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2204,8 +2204,8 @@ bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, doubl
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sObjectMgr->GetBroadcastText(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent broadcast text {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent broadcast text {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2216,8 +2216,8 @@ bool AIGroupMgr::IsRandomTextValid(ActionSetActionHolder const& action, double e
 {
     if (!IsPositiveIntegerInUint32Range(entry) || entry)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Random Text {} (currently not supported), skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses Random Text {} (currently not supported), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2228,8 +2228,8 @@ bool AIGroupMgr::IsCreatureValid(ActionSetActionHolder const& action, double ent
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sObjectMgr->GetCreatureTemplate(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent creature entry {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2240,8 +2240,8 @@ bool AIGroupMgr::IsAnimTierValid(ActionSetActionHolder const& action, double val
 {
     if (!IsNonNegativeIntegerInUint8Range(value) || value >= static_cast<uint8>(AnimTier::Max))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Anim Tier {}, skipped.",
-            action.Id, action.Index, action.Type, value);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Anim Tier {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, value);
         return false;
     }
 
@@ -2252,8 +2252,8 @@ bool AIGroupMgr::IsEmoteValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsNonNegativeIntegerInUint32Range(entry) || !sEmotesStore.LookupEntry(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent emote {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent emote {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2264,8 +2264,8 @@ bool AIGroupMgr::IsSoundValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sSoundEntriesStore.LookupEntry(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent sound {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent sound {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2276,8 +2276,8 @@ bool AIGroupMgr::IsQuestValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sObjectMgr->GetQuestTemplate(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent quest {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2288,8 +2288,8 @@ bool AIGroupMgr::IsZoneValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsNonNegativeIntegerInUint32Range(entry) || (entry != 0 && !sAreaTableStore.LookupEntry(uint32(entry))))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent zone {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2300,8 +2300,8 @@ bool AIGroupMgr::IsItemValid(ActionSetActionHolder const& action, double entry)
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sItemStore.LookupEntry(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent item {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent item {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2312,8 +2312,8 @@ bool AIGroupMgr::IsFactionValid(ActionSetActionHolder const& action, double entr
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sFactionStore.LookupEntry(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent faction {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent faction {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2324,8 +2324,8 @@ bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, double entr
 {
     if (!IsPositiveIntegerInUint32Range(entry) || entry)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses AnimKitId {} (master only), skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses AnimKitId {} (master only), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2336,8 +2336,8 @@ bool AIGroupMgr::IsDungeonEncounterValid(ActionSetActionHolder const& action, do
 {
     if (!IsPositiveIntegerInUint32Range(entry) || !sDungeonEncounterStore.LookupEntry(uint32(entry)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Dungeon Encounter {}, skipped.",
-            action.Id, action.Index, action.Type, entry);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent Dungeon Encounter {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, entry);
         return false;
     }
 
@@ -2348,8 +2348,8 @@ bool AIGroupMgr::IsBooleanValid(ActionSetActionHolder const& action, double valu
 {
     if (value != 0 && value != 1)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid boolean value {}, skipped.",
-            action.Id, action.Index, action.Type, value);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid boolean value {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, value);
         return false;
     }
 
@@ -2360,8 +2360,8 @@ bool AIGroupMgr::IsPercentValid(ActionSetActionHolder const& action, double perc
 {
     if (percent < 1 || percent > 100)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid percent value {}, skipped.",
-            action.Id, action.Index, action.Type, percent);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid percent value {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, percent);
         return false;
     }
 
@@ -2372,8 +2372,8 @@ bool AIGroupMgr::IsSearchRadiusValid(ActionSetActionHolder const& action, double
 {
     if (radius < 0 || radius > 500)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid search radius {} (must be between 0 and 500), skipped.",
-            action.Id, action.Index, action.Type, radius);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid search radius {} (must be between 0 and 500), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, radius);
         return false;
     }
 
@@ -2384,8 +2384,8 @@ bool AIGroupMgr::IsApproachDistValid(ActionSetActionHolder const& action, double
 {
     if (distance < 0 || distance > 50)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Approach Dist {} (must be between 0 and 50), skipped.",
-            action.Id, action.Index, action.Type, distance);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Approach Dist {} (must be between 0 and 50), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, distance);
         return false;
     }
 
@@ -2396,8 +2396,8 @@ bool AIGroupMgr::IsSpellScriptValid(ActionSetActionHolder const& action, double 
 {
     if (script)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Spell Script {} (currently not supported), skipped.",
-            action.Id, action.Index, action.Type, script);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses Spell Script {} (currently not supported), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, script);
         return false;
     }
 
@@ -2408,8 +2408,8 @@ bool AIGroupMgr::IsSpeedMultiplierValid(ActionSetActionHolder const& action, dou
 {
     if (multiplier < 0 || multiplier > 10)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Speed Multiplier {} (must be between 0 and 10), skipped.",
-            action.Id, action.Index, action.Type, multiplier);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Speed Multiplier {} (must be between 0 and 10), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, multiplier);
         return false;
     }
 
@@ -2422,8 +2422,8 @@ bool AIGroupMgr::IsGameObjectActionValid(ActionSetActionHolder const& action, do
 
     if (!GameObject::IsGameObjectActionAllowed(parsedAction))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Game Object Action {}, skipped.",
-            action.Id, action.Index, action.Type, static_cast<uint32>(parsedAction));
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Game Object Action {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, static_cast<uint32>(parsedAction));
         return false;
     }
 
@@ -2434,8 +2434,8 @@ bool AIGroupMgr::IsDisplayIndexValid(ActionSetActionHolder const& action, double
 {
     if (!IsNonNegativeIntegerInUint8Range(index) || index >= static_cast<uint8>(CreatureDisplayInfoIndex::Max))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Display Index {} (must be between 0 and 4), skipped.",
-            action.Id, action.Index, action.Type, index);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses incorrect Display Index {} (must be between 0 and 4), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, index);
         return false;
     }
 
@@ -2446,8 +2446,8 @@ bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double in
 {
     if (index < 0 || index >= MAX_VEHICLE_SEATS || !IsIntegerDouble(index))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
-            action.Id, action.Index, action.Type, index, MAX_VEHICLE_SEATS);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, index, MAX_VEHICLE_SEATS);
         return false;
     }
 
@@ -2458,8 +2458,8 @@ bool AIGroupMgr::IsTriggerValid(ActionSetActionHolder const& action, double trig
 {
     if (trigger < 1 || trigger > 500 || !IsIntegerDouble(trigger))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Trigger Param {} (must be between 1 and 500), skipped.",
-            action.Id, action.Index, action.Type, trigger);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Trigger Param {} (must be between 1 and 500), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, trigger);
         return false;
     }
 
@@ -2470,8 +2470,8 @@ bool AIGroupMgr::IsStandardAngleValid(ActionSetActionHolder const& action, doubl
 {
     if (angle < 0 || angle > 360)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid angle {}, skipped.",
-            action.Id, action.Index, action.Type, angle);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid angle {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, angle);
         return false;
     }
 
@@ -2482,8 +2482,8 @@ bool AIGroupMgr::IsExtendedAngleValid(ActionSetActionHolder const& action, doubl
 {
     if (angle < -360 || angle > 360)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid angle {} (must be between -360 and 360), skipped.",
-            action.Id, action.Index, action.Type, angle);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid angle {} (must be between -360 and 360), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, angle);
         return false;
     }
 
@@ -2494,8 +2494,8 @@ bool AIGroupMgr::IsBasePointValid(ActionSetActionHolder const& action, double po
 {
     if (!IsIntegerDouble(point) || point < std::numeric_limits<int32>::min() || point > std::numeric_limits<int32>::max())
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Base Point ({}), skipped.",
-            action.Id, action.Index, action.Type, point);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Base Point ({}), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, point);
         return false;
     }
 
@@ -2506,8 +2506,8 @@ bool AIGroupMgr::IsTaxiPathValid(ActionSetActionHolder const& action, double pat
 {
     if (!IsPositiveIntegerInUint32Range(path) || !sTaxiPathStore.LookupEntry(uint32(path)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Taxi Path {}, skipped.",
-            action.Id, action.Index, action.Type, path);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses non-existent Taxi Path {}, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, path);
         return false;
     }
 
@@ -2518,8 +2518,8 @@ bool AIGroupMgr::IsDisplayTimeValid(ActionSetActionHolder const& action, double 
 {
     if (time || time < 0 || time > 300)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Display Time {} (master only), skipped.",
-            action.Id, action.Index, action.Type, time);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses Display Time {} (master only), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, time);
         return false;
     }
 
@@ -2530,8 +2530,8 @@ bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
 {
     if (!action.Point && action.StringId.empty())
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} requires either Point or StringId, skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires either Point or StringId, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
@@ -2542,8 +2542,8 @@ bool AIGroupMgr::IsActionSetValid(ActionSetActionHolder const& action, double ac
 {
     if (!IsPositiveIntegerInUint32Range(actionSetId) || !_actionSetLookup.contains(uint32(actionSetId)))
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} references an invalid ActionSetId ({}), skipped.",
-            action.Id, action.Index, action.Type, actionSetId);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references an invalid ActionSetId ({}), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type, actionSetId);
         return false;
     }
 
@@ -2555,29 +2555,29 @@ bool AIGroupMgr::IsActionFlagsValid(ActionSetActionHolder const& action)
     /// @todo: Not sure if this is handled correctly, maybe we should go with an list of actions instead of path-only actions
     if (!ActionHasPath(action) && (action.Flags & static_cast<uint32>(ActionFlags::PathFlagsMask)) != 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a movement flag on non-movement action type ({}), skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a movement flag on non-movement action type {} ({}), skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
     if (!ActionHasStringId(action) && (action.Flags & static_cast<uint32>(ActionFlags::StringIdFlagsMask)) != 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a flag requiring a StringId, but action type ({}) has no StringId field, skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a flag requiring a StringId, but action type {} ({}) has no StringId field, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
     if (!ActionHasNamedPoint(action) && (action.Flags & static_cast<uint32>(ActionFlags::PauseIfCantFindNamedPoint)) != 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses PauseIfCantFindNamedPoint flag on action type ({}) which has no named point, skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses PauseIfCantFindNamedPoint flag on action type {} ({}) which has no named point, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
     if (!ActionHasChatOutput(action) && (action.Flags & static_cast<uint32>(ActionFlags::HideChatOutput)) != 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses HideChatOutput flag on action type ({}) which is not a chat action, skipped.",
-            action.Id, action.Index, action.Type);
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses HideChatOutput flag on action type {} ({}) which is not a chat action, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
 
@@ -3364,6 +3364,14 @@ AIGroupMgr::ActionSetTypeInfo const AIGroupMgr::StaticActionSetTypeData[AI_GROUP
     { "AI_GROUP_CU_9", {  } },
     { "AI_GROUP_CU_10", {  } },
 };
+
+char const* AIGroupMgr::GetActionName(uint16 actionType)
+{
+    if (actionType >= AI_GROUP_MAX)
+        return "UNKNOWN";
+
+    return StaticActionSetTypeData[actionType].Name;
+}
 
 AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[ActionTriggers::Max] =
 {
