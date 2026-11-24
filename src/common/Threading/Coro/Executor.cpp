@@ -147,8 +147,7 @@ void SingleThreadedExecutor::QueueCompletion(CoroutineExecutionContext* context)
 
 void SingleThreadedExecutor::ResumeReadyCoroutines()
 {
-    CoroutineExecutionContext* context = nullptr;
-    while (_resumeQueue.Dequeue(context))
+    while (CoroutineExecutionContext* context = _resumeQueue.Dequeue())
         context->Resume();
 }
 }
