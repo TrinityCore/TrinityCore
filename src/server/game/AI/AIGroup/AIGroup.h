@@ -134,7 +134,7 @@ class TC_GAME_API AIGroupGameObject : public GameObjectAI
         void UpdateAI(uint32 diff) override;
 
         // The only real hook
-        void OnActionTriggered(GameObjectActions action, WorldObject* user) override;
+        void OnActionTriggered(GameObjectActions action, WorldObject* user, uint32 actionParam1, uint32 actionParam2) override;
 
     private:
         AIGroupScript _script;

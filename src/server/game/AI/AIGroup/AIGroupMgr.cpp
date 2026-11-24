@@ -651,8 +651,10 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
         triggers.Id = fields[0].GetUInt32();
         triggers.Index = fields[1].GetUInt16();
         triggers.Chance = fields[2].GetUInt8();
-        triggers.ActionId = fields[3].GetUInt8();
-        triggers.ActionSetId = fields[4].GetUInt32();
+        triggers.ActionId = fields[3].GetUInt32();
+        triggers.ActionParam1 = fields[4].GetUInt32();
+        triggers.ActionParam2 = fields[5].GetUInt32();
+        triggers.ActionSetId = fields[6].GetUInt32();
 
         if (!triggers.Chance || triggers.Chance > 100)
         {
@@ -666,6 +668,21 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
             TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) has invalid ActionId ({}), skipped.",
                 triggers.Id, triggers.Index, triggers.ActionId);
             continue;
+        }
+
+        switch (static_cast<GameObjectActions>(triggers.ActionId))
+        {
+            case GameObjectActions::QuestAccept:
+            case GameObjectActions::QuestReward:
+                if (triggers.ActionParam1 && !sObjectMgr->GetQuestTemplate(triggers.ActionParam1))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) has invalid quest ({}), skipped.",
+                        triggers.Id, triggers.Index, triggers.ActionParam1);
+                    continue;
+                }
+                break;
+            default:
+                break;
         }
 
         auto actionSetItr = _actionSetMap.find(triggers.ActionSetId);

@@ -100,7 +100,7 @@ class TC_GAME_API GameObjectAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 
         // Called when the gameobject is activated using gameobject actions
-        virtual void OnActionTriggered(GameObjectActions /*action*/, WorldObject* /*user*/) { }
+        virtual void OnActionTriggered(GameObjectActions /*action*/, WorldObject* /*user*/, uint32 /*actionParam1*/ = 0, uint32 /*actionParam2*/ = 0) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

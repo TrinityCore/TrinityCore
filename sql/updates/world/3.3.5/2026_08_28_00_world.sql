@@ -124,7 +124,9 @@ CREATE TABLE `object_triggers` (
   `Id` int unsigned NOT NULL,
   `Index` smallint unsigned NOT NULL DEFAULT '0',
   `Chance` tinyint unsigned NOT NULL DEFAULT '100',
-  `ActionId` tinyint unsigned NOT NULL DEFAULT '0',
+  `ActionId` int unsigned NOT NULL DEFAULT '0',
+  `ActionParam1` int unsigned NOT NULL DEFAULT '0',
+  `ActionParam2` int unsigned NOT NULL DEFAULT '0',
   `ActionSetId` int unsigned NOT NULL,
   `Comment` char(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`,`Index`)

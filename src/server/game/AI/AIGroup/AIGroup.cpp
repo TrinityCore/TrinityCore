@@ -206,7 +206,7 @@ void AIGroupGameObject::UpdateAI(uint32 diff)
     GetScript()->OnUpdate(diff);
 }
 
-void AIGroupGameObject::OnActionTriggered(GameObjectActions action, WorldObject* user)
+void AIGroupGameObject::OnActionTriggered(GameObjectActions action, WorldObject* user, uint32 actionParam1, uint32 actionParam2)
 {
-    GetScript()->OnActionTriggered(uint32(action), user);
+    GetScript()->OnActionTriggered(uint32(action), user, actionParam1, actionParam2);
 }

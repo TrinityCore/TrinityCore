@@ -1484,7 +1484,7 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
     m_cooldownTime = time_to_restore ? (GameTime::GetGameTimeMS() + time_to_restore) : 0;
 }
 
-void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCaster, uint32 spellId, int32 effectIndex)
+void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCaster, uint32 spellId, int32 effectIndex, uint32 actionParam1, uint32 actionParam2)
 {
     Unit* unitCaster = spellCaster ? spellCaster->ToUnit() : nullptr;
 
@@ -1572,6 +1572,9 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
         case GameObjectActions::SetTapList:
             // No use cases, implementation unknown
             break;
+        case GameObjectActions::QuestAccept:
+        case GameObjectActions::QuestReward:
+            break;
         default:
             TC_LOG_ERROR("spell", "Spell {} has unhandled action {} in effect {}", spellId, int32(action), effectIndex);
             break;
@@ -1579,7 +1582,7 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
 
     if (AI())
         if (IsGameObjectActionTriggered(action))
-            AI()->OnActionTriggered(action, spellCaster);
+            AI()->OnActionTriggered(action, spellCaster, actionParam1, actionParam2);
 }
 
 bool GameObject::IsGameObjectActionAllowed(GameObjectActions action)
@@ -1643,6 +1646,9 @@ bool GameObject::IsGameObjectActionTriggered(GameObjectActions action)
         case GameObjectActions::UseArtKit2:
         case GameObjectActions::UseArtKit3:
         case GameObjectActions::SetTapList:
+        // Below custom
+        case GameObjectActions::QuestAccept:
+        case GameObjectActions::QuestReward:
             return true;
         default:
             return false;

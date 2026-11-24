@@ -1337,12 +1337,14 @@ struct RandomActionSetHolder
 
 struct ObjectTriggersHolder
 {
-    ObjectTriggersHolder() : Id(0), Index(0), Chance(0), ActionId(0), ActionSetId(0) { }
+    ObjectTriggersHolder() : Id(0), Index(0), Chance(0), ActionId(0), ActionParam1(0), ActionParam2(0), ActionSetId(0) { }
 
     uint32 Id;
     uint16 Index;
     uint8 Chance;
-    uint8 ActionId;
+    uint32 ActionId;
+    uint32 ActionParam1;
+    uint32 ActionParam2;
     uint32 ActionSetId;
 };
 

@@ -14678,6 +14678,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
             questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
+            questGiver->ToGameObject()->ActivateObject(GameObjectActions::QuestAccept, this, 0, -1, quest->GetQuestId());
             break;
         default:
             break;

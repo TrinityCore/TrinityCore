@@ -102,10 +102,11 @@ void AIGroupScript::GetScript()
         mObjectTriggers = sAIGroupMgr->GetObjectScript(go->GetTriggersId());
 }
 
-void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user)
+void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user, uint32 actionParam1, uint32 actionParam2)
 {
     for (ObjectTriggersHolder const& trigger : mObjectTriggers)
-        if (trigger.ActionId == action && roll_chance_i(trigger.Chance))
+        if (trigger.ActionId == action && (!trigger.ActionParam1 || trigger.ActionParam1 == actionParam1) &&
+            (!trigger.ActionParam2 || trigger.ActionParam2 == actionParam2) && roll_chance_i(trigger.Chance))
             PerformActionSet(trigger.ActionSetId, user ? user->GetGUID() : ObjectGuid::Empty);
 }
 
