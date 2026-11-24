@@ -1446,18 +1446,6 @@ class TC_GAME_API AIGroupMgr
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
         static bool IsTriggerAllowed(ActionTriggers trigger);
 
-    public:
-        static AIGroupMgr* Instance();
-
-        void LoadAIGroupMembersFromDB();
-        void LoadSpawnEventListsFromDB();
-        void LoadActionSetsFromDB();
-        void LoadActionSetsNamesFromDB();
-        void LoadRandomActionSetsFromDB();
-        void LoadActionTriggersFromDB();
-        void LoadActionTriggersNamesFromDB();
-        void LoadObjectTriggersFromDB();
-
         enum ActionTypeField : uint32
         {
             FieldUnit          = 0x00000001,
@@ -1479,26 +1467,6 @@ class TC_GAME_API AIGroupMgr
             // Unk14           = 0x00004000,
             // INVALID         = 0x7FFFFFFF
         };
-
-        enum TargetTypeMask : uint8
-        {
-            TargetTypeMaskUnit          = 0x01,
-            TargetTypeMaskObject        = 0x02,
-            TargetTypeMaskNamedPoint    = 0x04,
-            TargetTypeMaskUnitRandom    = 0x08,
-            TargetTypeMaskPlayerRandom  = 0x10,
-            TargetTypeMaskEntity        = TargetTypeMaskUnit | TargetTypeMaskObject
-        };
-
-        enum ObjectTypeMask : uint8
-        {
-            ObjectTypeMaskUnit          = 0x01,
-            ObjectTypeMaskObject        = 0x02,
-            ObjectTypeMaskVehicle       = 0x04,
-            ObjectTypeMaskAll           = ObjectTypeMaskUnit | ObjectTypeMaskObject | ObjectTypeMaskVehicle
-        };
-
-        static ObjectTypeMask GetObjectTypeMask(AI_GROUP_ACTION action);
 
         struct ActionSetTypeInfo
         {
@@ -1548,7 +1516,6 @@ class TC_GAME_API AIGroupMgr
             }
         };
         static ActionSetTypeInfo const StaticActionSetTypeData[AI_GROUP_MAX];
-        static char const* GetActionName(uint16 actionType);
 
         struct ActionTriggerTypeInfo
         {
@@ -1557,6 +1524,40 @@ class TC_GAME_API AIGroupMgr
             bool HasTriggerParam2;
         };
         static ActionTriggerTypeInfo const StaticActionTriggerTypeData[ActionTriggers::Max];
+
+    public:
+        static AIGroupMgr* Instance();
+
+        void LoadAIGroupMembersFromDB();
+        void LoadSpawnEventListsFromDB();
+        void LoadActionSetsFromDB();
+        void LoadActionSetsNamesFromDB();
+        void LoadRandomActionSetsFromDB();
+        void LoadActionTriggersFromDB();
+        void LoadActionTriggersNamesFromDB();
+        void LoadObjectTriggersFromDB();
+
+        enum TargetTypeMask : uint8
+        {
+            TargetTypeMaskUnit          = 0x01,
+            TargetTypeMaskObject        = 0x02,
+            TargetTypeMaskNamedPoint    = 0x04,
+            TargetTypeMaskUnitRandom    = 0x08,
+            TargetTypeMaskPlayerRandom  = 0x10,
+            TargetTypeMaskEntity        = TargetTypeMaskUnit | TargetTypeMaskObject
+        };
+
+        enum ObjectTypeMask : uint8
+        {
+            ObjectTypeMaskUnit          = 0x01,
+            ObjectTypeMaskObject        = 0x02,
+            ObjectTypeMaskVehicle       = 0x04,
+            ObjectTypeMaskAll           = ObjectTypeMaskUnit | ObjectTypeMaskObject | ObjectTypeMaskVehicle
+        };
+
+        static ObjectTypeMask GetObjectTypeMask(AI_GROUP_ACTION action);
+
+        static char const* GetActionName(uint16 actionType);
 
         std::string GetTriggersName(uint32 triggersId) const;
         std::string GetActionSetName(uint32 actionSetId) const;
