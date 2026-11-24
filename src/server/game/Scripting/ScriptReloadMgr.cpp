@@ -631,8 +631,7 @@ public:
     void Update() final override
     {
         // Consume all messages
-        ScriptReloaderMessage* message;
-        while (_messages.Dequeue(message))
+        while (ScriptReloaderMessage* message = _messages.Dequeue())
         {
             (*message)(this);
             delete message;
@@ -1385,8 +1384,7 @@ private:
     void RemoveAllQueuedMessages()
     {
         // Delete all messages
-        ScriptReloaderMessage* message;
-        while (_messages.Dequeue(message))
+        while (ScriptReloaderMessage* message = _messages.Dequeue())
             delete message;
     }
 

@@ -69,6 +69,9 @@ WorldSocket::WorldSocket(Trinity::Net::IoContextTcpSocket&& socket) : BaseSocket
 
 WorldSocket::~WorldSocket()
 {
+    while (EncryptablePacket* queuedPacket = _bufferQueue.Dequeue())
+        delete queuedPacket;
+
     if (_compressionStream)
     {
         deflateEnd(_compressionStream);
@@ -200,8 +203,7 @@ bool WorldSocket::InitializeCompression()
 
 bool WorldSocket::Update()
 {
-    EncryptablePacket* queued;
-    if (_bufferQueue.Dequeue(queued))
+    if (EncryptablePacket* queued = _bufferQueue.Dequeue())
     {
         // Allocate buffer only when it's needed but not on every Update() call.
         MessageBuffer buffer(_sendBufferSize);
@@ -228,7 +230,7 @@ bool WorldSocket::Update()
             }
 
             delete queued;
-        } while (_bufferQueue.Dequeue(queued));
+        } while ((queued = _bufferQueue.Dequeue()));
 
         if (buffer.GetActiveSize() > 0)
             QueuePacket(std::move(buffer));
