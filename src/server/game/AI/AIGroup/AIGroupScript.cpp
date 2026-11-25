@@ -1243,7 +1243,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             if (!targets.empty())
                 me->CastSpell(targets.front(), uint32(action.Extra2), CastSpellExtraArgs()
                     .SetTriggerFlags(TRIGGERED_FULL_MASK)
-                    .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(action.Extra3)));
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(action.Extra3) + 1));
             return true;
         case AI_GROUP_UNIT_ABANDON_VEHICLE:
             me->ExitVehicle();
