@@ -153,14 +153,8 @@ struct boss_watcher_irideus : public BossAI
         if (aurApp->GetBase()->GetId() != Spells::AblativeBarrier)
             return;
 
-        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT && aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL && aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
-
-        if (IsMythic() || IsMythicPlus())
-        {
-            for (uint8 i = 0; i < 60; ++i)
-                DoCast(Spells::ReactiveSparkRandom);
-        }
 
         Talk(Texts::BarrierRemoved);
         me->SetReactState(REACT_AGGRESSIVE);
@@ -243,26 +237,34 @@ struct boss_watcher_irideus : public BossAI
             {
                 case Events::PowerOverload:
                 {
-                    DoCastSelf(Spells::PowerOverload);
-                    events.Repeat(27700ms);
+                    if (DoCastSelf(Spells::PowerOverload) == SPELL_CAST_OK)
+                        events.Repeat(27700ms);
+                    else
+                        events.Repeat(500ms);
                     break;
                 }
                 case Events::TitanicFist:
                 {
-                    DoCastVictim(Spells::TitanicFist);
-                    events.Repeat(17s);
+                    if (DoCastSelf(Spells::TitanicFist) == SPELL_CAST_OK)
+                        events.Repeat(17s);
+                    else
+                        events.Repeat(500ms);
                     break;
                 }
                 case Events::StaticSurge:
                 {
-                    DoCastSelf(Spells::StaticSurge);
-                    events.Repeat(27900ms);
+                    if (DoCastSelf(Spells::StaticSurge) == SPELL_CAST_OK)
+                        events.Repeat(27900ms);
+                    else
+                        events.Repeat(500ms);
                     break;
                 }
                 case Events::SparkVolley:
                 {
-                    DoCastSelf(Spells::SparkVolley);
-                    events.Repeat(31500ms);
+                    if (DoCastSelf(Spells::SparkVolley) == SPELL_CAST_OK)
+                        events.Repeat(31500ms);
+                    else
+                        events.Repeat(500ms);
                     break;
                 }
                 case Events::Barrier:
@@ -332,7 +334,7 @@ class spell_watcher_irideus_reactive_spark_players : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_watcher_irideus_reactive_spark_players::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_watcher_irideus_reactive_spark_players::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -388,13 +390,21 @@ class spell_watcher_irideus_nullifying_pulse : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ Spells::AblativeBarrier });
+        return ValidateSpellInfo({ Spells::AblativeBarrier, Spells::ReactiveSparkRandom });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/) const
     {
-        if (Aura* barrier = GetHitUnit()->GetAura(Spells::AblativeBarrier))
-            barrier->ModStackAmount(-1);
+        Unit* irideus = GetHitUnit();
+        Aura* barrier = irideus->GetAura(Spells::AblativeBarrier);
+        if (!barrier)
+            return;
+
+        if (irideus->GetMap()->IsMythic() || irideus->GetMap()->IsMythicPlus())
+            for (uint8 i = 0; i < 15; ++i)
+                irideus->CastSpell(irideus, Spells::ReactiveSparkRandom, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        barrier->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 
     void Register() override
