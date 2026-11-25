@@ -28,7 +28,6 @@
 #include <limits>
 #include <string_view>
 #include <unordered_map>
-#include <unordered_set>
 
 class WorldObject;
 class GameObject;
@@ -1354,7 +1353,6 @@ typedef std::vector<ObjectTriggersHolder> AIGroupObjectTriggerList;
 typedef std::unordered_map<uint32, AIGroupObjectTriggerList> AIGroupObjectTriggersMap;
 typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
-typedef std::unordered_set<uint32> AIGroupActionSetLookup;
 typedef std::vector<SpawnEventListHolder> AIGroupSpawnEventList;
 typedef std::unordered_map<ObjectGuid::LowType, std::unordered_map<AIGroupMemberType, AIGroupSpawnEventList>> AIGroupSpawnEventMap;
 typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
@@ -1390,7 +1388,6 @@ class TC_GAME_API AIGroupMgr
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
         AIGroupTriggersMap _triggersMap;
         AIGroupActionSetMap _actionSetMap;
-        AIGroupActionSetLookup _actionSetLookup;
         AIGroupRandomActionSetMap _randomActionSetMap;
         AIGroupObjectTriggersMap _objectTriggersMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
@@ -1427,7 +1424,6 @@ class TC_GAME_API AIGroupMgr
         static bool IsTaxiPathValid(ActionSetActionHolder const& action, double path);
         static bool IsDisplayTimeValid(ActionSetActionHolder const& action, double time);
         static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
-        bool IsActionSetValid(ActionSetActionHolder const& action, double actionSetId);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
 

@@ -207,7 +207,6 @@ void AIGroupMgr::LoadActionSetsFromDB()
     uint32 oldMSTime = getMSTime();
 
     _actionSetMap.clear();
-    _actionSetLookup.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACTION_SET);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -286,9 +285,6 @@ void AIGroupMgr::LoadActionSetsFromDB()
             continue;
         }
 
-        if (actionHolder.Id)
-            _actionSetLookup.insert(actionHolder.Id);
-
         if (!IsActionValid(actionHolder))
             continue;
 
@@ -301,8 +297,6 @@ void AIGroupMgr::LoadActionSetsFromDB()
         actionSet.push_back(actionHolder);
     }
     while (result->NextRow());
-
-    _actionSetLookup.clear();
 
     TC_LOG_INFO("server.loading", ">> Loaded {} action sets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -1841,8 +1835,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_PUSH_ACTIONSET:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            if (!IsActionSetValid(action, action.Extra2))
+            // Final validation should be done during action execution (master only)
+            if (!IsPositiveIntegerInUint32Range(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references non-existent ActionSetId {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
+            }
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
             if (!IsPointOrStringIdFilled(action))
@@ -1870,8 +1869,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_PERFORM_ACTIONSET:
-            if (!IsActionSetValid(action, action.Extra2))
+            // Final validation should be done during action execution (master only)
+            if (!IsPositiveIntegerInUint32Range(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references non-existent ActionSetId {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
+            }
             /// @todo Extra4 field
             break;
         case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
@@ -2532,18 +2536,6 @@ bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires either Point or StringId, skipped.",
             action.Id, action.Index, GetActionName(action.Type), action.Type);
-        return false;
-    }
-
-    return true;
-}
-
-bool AIGroupMgr::IsActionSetValid(ActionSetActionHolder const& action, double actionSetId)
-{
-    if (!IsPositiveIntegerInUint32Range(actionSetId) || !_actionSetLookup.contains(uint32(actionSetId)))
-    {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) references an invalid ActionSetId ({}), skipped.",
-            action.Id, action.Index, GetActionName(action.Type), action.Type, actionSetId);
         return false;
     }
 
