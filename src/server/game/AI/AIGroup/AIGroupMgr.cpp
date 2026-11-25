@@ -2919,7 +2919,7 @@ AIGroupMgr::ObjectTypeMask AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION action)
         case AI_GROUP_COMBAT_CHASE:
         case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT:
         case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT_RES:
-            return ObjectTypeMaskUnit | ObjectTypeMaskVehicle;
+            return static_cast<ObjectTypeMask>(ObjectTypeMaskUnit | ObjectTypeMaskVehicle);
         case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
         case AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS:
         case AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS:

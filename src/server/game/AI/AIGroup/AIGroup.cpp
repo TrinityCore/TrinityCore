@@ -157,7 +157,7 @@ void AIGroupCreature::OnCharmed(bool isNew)
 {
     CreatureAI::OnCharmed(isNew);
 
-    if (!isNew)
+    if (!me->IsCharmed())
         GetScript()->NotifyTriggers(ActionTriggers::OnCharmBreak);
 }
 

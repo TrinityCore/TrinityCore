@@ -2156,6 +2156,7 @@ void AIGroupScript::TryPerformActionSet(ActionTriggersHolder& holder, WorldObjec
         case OnCombatTrigger:
         case OnSpellCast:
         case OnGeneralTrigger:
+        case OnSpellFailed:
         case OnSpellStart:
         case OnAuraApplied:
         case OnAuraRemoved:
@@ -2168,6 +2169,7 @@ void AIGroupScript::TryPerformActionSet(ActionTriggersHolder& holder, WorldObjec
             }
             break;
         case OnKill:
+        case OnCharmBreak:
             shouldPerformActionSet = true;
             RecalcTimer(holder);
             break;
