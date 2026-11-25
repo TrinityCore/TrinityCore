@@ -732,7 +732,7 @@ void AIGroupMgr::LogUselessActionParams(ActionSetActionHolder const& action)
 {
     ActionSetTypeInfo const& typeInfo = StaticActionSetTypeData[action.Type];
 
-    auto LogIfUseless = [&action, &typeInfo](bool isUsed, bool hasValue, char const* name, auto const& value)
+    auto LogIfUseless = [&action](bool isUsed, bool hasValue, char const* name, auto const& value)
     {
         if (hasValue && !isUsed)
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) has useless data in {} ({}).",
