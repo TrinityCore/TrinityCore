@@ -115,8 +115,7 @@ void AIGroupCreature::JustAppeared()
 {
     CreatureAI::JustAppeared();
 
-    if (!GetGroup())
-        GetScript()->NotifyTriggers(ActionTriggers::OnSpawn);
+    GetScript()->NotifyTriggers(ActionTriggers::OnSpawn);
 }
 
 void AIGroupCreature::ReceiveEmote(Player* player, uint32 textEmote)
