@@ -19,6 +19,7 @@
 #define TRINITYCORE_CORO_RESULT_VALUE_H
 
 #include "./CoroutineFwd.h"
+#include "./Exception.h"
 #include "Define.h"
 #include <exception>
 #include <type_traits>
@@ -26,11 +27,6 @@
 
 namespace Trinity::Coro
 {
-namespace Impl
-{
-[[noreturn]] TC_COMMON_API void ThrowNoValueException(std::exception_ptr exception);
-}
-
 template <typename T>
 class ResultValue
 {
@@ -42,14 +38,14 @@ public:
     template <std::convertible_to<value_holder> V>
     void set_value(V&& value) { _result.template emplace<value_holder>(std::forward<V>(value)); }
 
-    void set_exception(std::exception_ptr exception) { _result.template emplace<std::exception_ptr>(std::move(exception)); }
+    void set_exception(std::exception_ptr const& exception) { _result.template emplace<std::exception_ptr>(exception); }
 
     T& get() &
     {
         if (std::holds_alternative<value_holder>(_result))
             return std::get<value_holder>(_result);
 
-        Impl::ThrowNoValueException(std::holds_alternative<std::exception_ptr>(_result)
+        Impl::throw_no_value_exception(std::holds_alternative<std::exception_ptr>(_result)
             ? std::get<std::exception_ptr>(std::move(_result)) : nullptr);
     }
 
@@ -58,7 +54,7 @@ public:
         if (std::holds_alternative<value_holder>(_result))
             return std::get<value_holder>(std::move(_result));
 
-        Impl::ThrowNoValueException(std::holds_alternative<std::exception_ptr>(_result)
+        Impl::throw_no_value_exception(std::holds_alternative<std::exception_ptr>(_result)
             ? std::get<std::exception_ptr>(std::move(_result)) : nullptr);
     }
 
@@ -76,14 +72,14 @@ public:
 
     void set_value() { _result.emplace<bool>(true); }
 
-    void set_exception(std::exception_ptr exception) { _result.emplace<std::exception_ptr>(std::move(exception)); }
+    void set_exception(std::exception_ptr const& exception) { _result.emplace<std::exception_ptr>(exception); }
 
     void get()
     {
         if (std::holds_alternative<bool>(_result))
             return;
 
-        Impl::ThrowNoValueException(std::holds_alternative<std::exception_ptr>(_result)
+        Impl::throw_no_value_exception(std::holds_alternative<std::exception_ptr>(_result)
             ? std::get<std::exception_ptr>(std::move(_result)) : nullptr);
     }
 

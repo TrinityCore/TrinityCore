@@ -16,6 +16,7 @@
  */
 
 #include "./AwaitableValue.h"
+#include "./CancellableAwaiter.h"
 #include "./CoroutineExecutionContext.h"
 
 namespace Trinity::Coro::Impl
@@ -44,6 +45,12 @@ bool AwaitableValueAwaiterBase::handle_suspend(CoroutineExecutionContext* corout
     } while (!Value._waitQueue.compare_exchange_weak(old, this, std::memory_order::release, std::memory_order::acquire));
 
     return true;
+}
+
+void AwaitableValueAwaiterBase::handle_resume()
+{
+    if (Coroutine && Coroutine->CancelToken.stop_requested())
+        throw_cancelled_exception();
 }
 
 void AwaitableValueBase::notify_waiters()

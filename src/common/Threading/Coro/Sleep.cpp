@@ -30,6 +30,8 @@ Asio::IoContext* TimerExecutor;
 
 void SleepAwaiter::handle_suspend(CoroutineExecutionContext* coroutine) noexcept
 {
+    CancellableAwaiter::handle_suspend(coroutine);
+
     Asio::DeadlineTimer* timer = new Asio::DeadlineTimer(*TimerExecutor, Expiry);
     timer->async_wait([coroutine, timer = std::unique_ptr<Asio::DeadlineTimer>(timer)](boost::system::error_code const& error)
     {

@@ -15,13 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./ResultValue.h"
-#include <stdexcept>
+#ifndef TRINITYCORE_CORO_EXCEPTION_H
+#define TRINITYCORE_CORO_EXCEPTION_H
 
-void Trinity::Coro::Impl::ThrowNoValueException(std::exception_ptr exception)
+#include "Define.h"
+#include <exception>
+
+namespace Trinity::Coro
 {
-    if (exception)
-        std::rethrow_exception(exception);
-    else
-        throw std::logic_error("No value or exception result for coroutine");
+class CancelledException : public std::exception
+{
+public:
+    char const* what() const noexcept override { return "Coroutine cancellation requested"; }
+};
+
+namespace Impl
+{
+[[noreturn]] TC_COMMON_API void throw_no_value_exception(std::exception_ptr const& exception);
+[[noreturn]] TC_COMMON_API void throw_cancelled_exception();
 }
+}
+
+#endif // TRINITYCORE_CORO_EXCEPTION_H

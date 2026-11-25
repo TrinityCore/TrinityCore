@@ -19,6 +19,7 @@
 #define TRINITYCORE_CORO_AWAITABLE_H
 
 #include "./Allocator.h"
+#include "./CancellableAwaiter.h"
 #include "./CoroutineExecutionContext.h"
 #include "./CoroutineFwd.h"
 #include "./ResultValue.h"
@@ -44,21 +45,21 @@ public:
         std::coroutine_handle<> await_suspend(std::coroutine_handle<promise_type> coroutine) noexcept
         {
             promise_type& promise = coroutine.promise();
-            return promise.Next ? promise.Next : std::noop_coroutine();
+            return promise.Next ? promise.Next->Handle : std::noop_coroutine();
         }
 
         void await_resume() noexcept { }
     };
 
-    template <std::derived_from<CoroutineExecutionContext> promise_type>
-    void set_next(std::coroutine_handle<promise_type> next)
+    void SetNext(CoroutineExecutionContext* next)
     {
         Next = next;
-        CurrentExecutor = next.promise().CurrentExecutor;
+        CurrentExecutor = next->CurrentExecutor;
+        CancelToken = next->CancelToken;
     }
 
 protected:
-    std::coroutine_handle<> Next;
+    CoroutineExecutionContext* Next = nullptr;
 };
 
 template <typename T>
@@ -133,7 +134,7 @@ private:
 };
 
 template <std::derived_from<PromiseBase> Promise>
-class AwaiterBase
+class AwaiterBase : public CancellableAwaiter
 {
 public:
     explicit AwaiterBase(std::coroutine_handle<Promise> coroutine) noexcept : _coroutine(coroutine) { }
@@ -143,8 +144,9 @@ public:
     template <std::derived_from<CoroutineExecutionContext> promise_type>
     std::coroutine_handle<> await_suspend(std::coroutine_handle<promise_type> next) noexcept
     {
-        Promise& promise = _coroutine.promise();
-        promise.set_next(next);
+        CoroutineExecutionContext* nextContext = &next.promise();
+        CancellableAwaiter::handle_suspend(nextContext);
+        _coroutine.promise().SetNext(nextContext);
         return _coroutine;
     }
 
@@ -160,6 +162,7 @@ public:
 
     decltype(auto) await_resume()
     {
+        CancellableAwaiter::handle_resume();
         if constexpr (RValue)
             return std::move(this->_coroutine.promise()).get_result();
         else

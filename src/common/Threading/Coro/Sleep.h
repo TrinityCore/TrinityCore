@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_CORO_SLEEP_H
 #define TRINITYCORE_CORO_SLEEP_H
 
+#include "./CancellableAwaiter.h"
 #include "./CoroutineExecutionContext.h"
 #include "./CoroutineFwd.h"
 #include "AsioHacksFwd.h"
@@ -28,7 +29,7 @@ namespace Trinity::Coro
 {
 namespace Impl
 {
-struct SleepAwaiter
+struct SleepAwaiter : CancellableAwaiter
 {
     bool await_ready() const noexcept { return Now >= Expiry; }
 
@@ -38,7 +39,7 @@ struct SleepAwaiter
         this->handle_suspend(&coroutine.promise());
     }
 
-    void await_resume() const noexcept { }
+    void await_resume() const { CancellableAwaiter::handle_resume(); }
 
     TC_COMMON_API void handle_suspend(CoroutineExecutionContext* coroutine) noexcept;
 

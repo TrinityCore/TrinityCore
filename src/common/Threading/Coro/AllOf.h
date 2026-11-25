@@ -52,6 +52,7 @@ public:
         {
             auto& promise = awaitable.promise();
             promise.CurrentExecutor = context->CurrentExecutor;
+            promise.CancelToken = context->CancelToken;
             promise.QueueCompletion();
         };
         std::apply([&](auto&&... awaitables) { (startCoro(_context, awaitables), ...); }, _awaitables);
