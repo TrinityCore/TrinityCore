@@ -39,11 +39,21 @@ struct CurrentCoroutineBaseAwaiter
     CoroutineExecutionContext* Context = nullptr;
 };
 
+struct CurrentContextAwaiter : CurrentCoroutineBaseAwaiter
+{
+    CoroutineExecutionContext* await_resume() const noexcept { return Context; }
+};
+
 struct CurrentExecutorAwaiter : CurrentCoroutineBaseAwaiter
 {
     unique_weak_ptr<Executor> await_resume() const noexcept { return Context->CurrentExecutor; }
 };
 }
+
+struct CurrentContextAwaitable
+{
+    Impl::CurrentContextAwaiter operator co_await() const noexcept { return { }; }
+} inline constexpr CurrentContext;
 
 struct CurrentExecutorAwaitable
 {

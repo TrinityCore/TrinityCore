@@ -39,6 +39,7 @@ public:
     Trinity::Asio::IoContext timerContext;
     boost::asio::executor_work_guard<Trinity::Asio::IoContextExecutor> timerWorkGuard = boost::asio::make_work_guard(timerContext);
     std::thread timerThread;
+    advstd::stop_source cancelSource;
 
     CoroutineFixture()
     {
@@ -80,6 +81,7 @@ struct std::coroutine_traits<void, TestFixture&>
         {
             CurrentExecutor = fixture.executor->weak_from_this();
             CurrentAllocator = &_allocator;
+            CancelToken = fixture.cancelSource.get_token();
             Trinity::Coro::Impl::CurrentAllocator::Set(CurrentAllocator);
         }
 
@@ -176,6 +178,38 @@ TEST_CASE("Coro::Start starts a new coroutine", "[Coroutine][Start]")
 
     REQUIRE(executor->WaitForReadyCoroutinesAndResume(30s));
     REQUIRE(executed);
+}
+
+TEST_CASE("Coro::Start allows cancelling coroutines on initial suspend", "[Coroutine][Start]")
+{
+    Trinity::unique_trackable_ptr<Trinity::Coro::MultiThreadedExecutor> executor = Trinity::make_unique_trackable<Trinity::Coro::MultiThreadedExecutor>();
+    advstd::stop_source cancelSource;
+
+    Trinity::Coro::Start(*executor, [&executor]() -> Trinity::Coro::Awaitable<void>
+    {
+        executor->StopWaiting();
+        co_return;
+    }, cancelSource.get_token());
+
+    cancelSource.request_stop();
+
+    REQUIRE(executor->WaitForReadyCoroutinesAndResume(3s) == false);
+}
+
+TEST_CASE("Coro::Start allows cancelling coroutines in progress", "[Coroutine][Start]")
+{
+    Trinity::unique_trackable_ptr<Trinity::Coro::MultiThreadedExecutor> executor = Trinity::make_unique_trackable<Trinity::Coro::MultiThreadedExecutor>();
+    advstd::stop_source cancelSource;
+
+    Trinity::Coro::Start(*executor, [&executor, &cancelSource]() -> Trinity::Coro::Awaitable<void>
+    {
+        cancelSource.request_stop();
+        co_await TestCoro1();
+        executor->StopWaiting();
+        co_return;
+    }, cancelSource.get_token());
+
+    REQUIRE(executor->WaitForReadyCoroutinesAndResume(3s) == false);
 }
 
 TEST_CASE_METHOD(CoroutineFixture, "Coro::SwitchToExecutor changes executor associated with coroutine", "[Coroutine][SwitchToExecutor]")
@@ -279,4 +313,26 @@ TEST_CASE_METHOD(CoroutineFixture, "Coro::AllOf rethrows exception from one of i
     Trinity::Coro::Awaitable<void> coro3 = testCoro(2, std::type_identity<void>(), true);
 
     REQUIRE_THROWS_WITH(co_await Trinity::Coro::AllOf(coro1, std::move(coro2), coro3), Catch::Matchers::ContainsSubstring("Controlled failure"));
+}
+
+TEST_CASE_METHOD(CoroutineFixture, "Coro::AllOf propagates cancellation from/to nested awaitables", "[Coroutine][AllOf]")
+{
+    auto testCoro = [&](bool cancels = false) -> Trinity::Coro::Awaitable<int32>
+    {
+        if (cancels)
+            cancelSource.request_stop();
+
+        co_await Trinity::Coro::SleepFor(100ms);
+
+        co_return 1;
+    };
+
+    REQUIRE_THROWS_WITH(co_await Trinity::Coro::AllOf(testCoro(), testCoro(true)), Catch::Matchers::ContainsSubstring("Coroutine cancellation requested"));
+}
+
+TEST_CASE_METHOD(CoroutineFixture, "Coro:: cancellation works inside entry point function", "[Coroutine][AllOf]")
+{
+    cancelSource.request_stop();
+
+    REQUIRE_THROWS_WITH(co_await Trinity::Coro::SleepFor(100ms), Catch::Matchers::ContainsSubstring("Coroutine cancellation requested"));
 }

@@ -53,6 +53,8 @@ private:
     bool handle_suspend(CoroutineExecutionContext* coroutine) noexcept;
 
 protected:
+    void handle_resume();
+
     AwaitableValueBase& Value;
 };
 
@@ -79,6 +81,7 @@ public:
 
         decltype(auto) await_resume()
         {
+            handle_resume();
             if constexpr (RValue)
                 return std::move(static_cast<AwaitableValue&>(Value)._resultValue).get();
             else

@@ -18,10 +18,10 @@
 #include "./Start.h"
 #include "./Allocator.h"
 #include "./AllocatorImpl.h"
+#include "./CurrentCoroutine.h"
 #include "./Executor.h"
 #include "Errors.h"
 #include "Memory.h"
-#include <array>
 
 namespace Trinity::Coro::Impl
 {
@@ -29,6 +29,10 @@ void CoroutineEntryPoint::promise_type::unhandled_exception() noexcept
 try
 {
     std::rethrow_exception(std::current_exception());
+}
+catch (CancelledException const&)
+{
+    // ignored, exception is used to trigger full cleanup of coroutine state
 }
 catch (std::exception const& e)
 {
@@ -39,9 +43,10 @@ catch (...)
     ABORT_MSG("Unhandled coroutine exception: UNKNOWN");
 }
 
-void CoroutineEntryPoint::Start(Executor& executor)
+void CoroutineEntryPoint::Start(Executor& executor, advstd::stop_token&& cancelToken)
 {
     Context->CurrentExecutor = executor.weak_from_this();
+    Context->CancelToken = std::move(cancelToken);
     Context->QueueCompletion();
 }
 
@@ -50,6 +55,8 @@ CoroutineEntryPoint Start(std::function<Awaitable<void>()> awaitableSource) noex
     Allocator allocator;
     CurrentAllocator::Set(&allocator);
     auto allocatorGuard = Trinity::make_unique_ptr_with_deleter<[](void*){ CurrentAllocator::Set(nullptr); }>(&allocator);
+
+    (co_await CurrentContext)->CurrentAllocator = &allocator;
 
     Awaitable<void> awaitable = awaitableSource();
 

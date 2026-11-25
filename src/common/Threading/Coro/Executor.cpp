@@ -21,6 +21,7 @@
 #include "./MultiThreadedExecutor.h"
 #include "./SingleThreadedExecutor.h"
 #include "IoContext.h"
+#include "Memory.h"
 
 namespace Trinity::Coro
 {
@@ -35,7 +36,11 @@ void CoroutineExecutionContext::QueueCompletion() noexcept
     if (unique_strong_ref_ptr<Executor> executor = CurrentExecutor.lock())
         executor->QueueCompletion(this);
     else
+    {
+        auto originalAllocator = Trinity::make_unique_ptr_with_deleter<Impl::CurrentAllocator::Set>(Impl::CurrentAllocator::Get());
+        Impl::CurrentAllocator::Set(CurrentAllocator);
         Handle.destroy();
+    }
 }
 
 void Executor::QueueCompletion(CoroutineExecutionContext* context)

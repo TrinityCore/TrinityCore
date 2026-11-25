@@ -31,22 +31,35 @@ namespace Impl
 {
 struct CoroutineEntryPoint
 {
-    struct promise_type : CoroutineExecutionContext
+    struct InitialAwaiter
+    {
+        constexpr bool await_ready() const noexcept { return false; }
+        constexpr void await_suspend(std::coroutine_handle<>) const noexcept { }
+        void await_resume() const
+        {
+            if (CancelToken.stop_requested())
+                throw_cancelled_exception();
+        }
+
+        advstd::stop_token& CancelToken;
+    };
+
+    struct promise_type final : CoroutineExecutionContext
     {
         promise_type() : CoroutineExecutionContext(std::coroutine_handle<promise_type>::from_promise(*this)) { }
 
         CoroutineEntryPoint get_return_object() noexcept;
 
-        std::suspend_always initial_suspend() noexcept { return { }; }
+        InitialAwaiter initial_suspend() noexcept { return { .CancelToken = CancelToken }; }
 
         std::suspend_never final_suspend() noexcept { return { }; }
 
         void return_void() noexcept { }
 
-        [[noreturn]] TC_COMMON_API void unhandled_exception() noexcept;
+        TC_COMMON_API void unhandled_exception() noexcept;
     };
 
-    TC_COMMON_API void Start(Executor& executor);
+    TC_COMMON_API void Start(Executor& executor, advstd::stop_token&& cancelToken);
 
     CoroutineExecutionContext* Context = nullptr;
 };
@@ -63,10 +76,10 @@ template <typename CoroutineInitFunc>
 requires (invocable_r<CoroutineInitFunc, Awaitable<void>>
             && std::is_rvalue_reference_v<CoroutineInitFunc&&>
             && !std::is_const_v<std::remove_reference_t<CoroutineInitFunc>>)
-void Start(Executor& executor, CoroutineInitFunc&& coroutineInit)
+void Start(Executor& executor, CoroutineInitFunc&& coroutineInit, advstd::stop_token cancelToken = {})
 {
     Impl::CoroutineEntryPoint entryPoint = Impl::Start(std::forward<CoroutineInitFunc>(coroutineInit));
-    entryPoint.Start(executor);
+    entryPoint.Start(executor, std::move(cancelToken));
 }
 }
 

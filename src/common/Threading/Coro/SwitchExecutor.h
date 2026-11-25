@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_CORO_SWITCH_EXECUTOR_H
 #define TRINITYCORE_CORO_SWITCH_EXECUTOR_H
 
+#include "./CancellableAwaiter.h"
 #include "./CoroutineFwd.h"
 #include "Define.h"
 #include "UniqueTrackablePtr.h"
@@ -27,7 +28,7 @@ namespace Trinity::Coro
 {
 namespace Impl
 {
-struct TC_COMMON_API SwitchToExecutorAwaiter
+struct SwitchToExecutorAwaiter : CancellableAwaiter
 {
     bool await_ready() const noexcept { return false; }
 
@@ -37,9 +38,13 @@ struct TC_COMMON_API SwitchToExecutorAwaiter
         this->handle_suspend(&coroutine.promise());
     }
 
-    void handle_suspend(CoroutineExecutionContext* coroutine);
+    TC_COMMON_API void handle_suspend(CoroutineExecutionContext* coroutine);
 
-    unique_weak_ptr<Coro::Executor>&& await_resume() noexcept { return std::move(OldExecutor); }
+    unique_weak_ptr<Coro::Executor>&& await_resume() noexcept
+    {
+        CancellableAwaiter::handle_resume();
+        return std::move(OldExecutor);
+    }
 
     Coro::Executor& NewExecutor;
     unique_weak_ptr<Coro::Executor> OldExecutor;

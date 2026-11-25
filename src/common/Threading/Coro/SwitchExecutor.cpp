@@ -26,6 +26,8 @@ namespace Impl
 {
 void SwitchToExecutorAwaiter::handle_suspend(CoroutineExecutionContext* coroutine)
 {
+    CancellableAwaiter::handle_suspend(coroutine);
+
     OldExecutor = coroutine->CurrentExecutor;
     NewExecutor.QueueCompletion(coroutine);
 }

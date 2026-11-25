@@ -21,6 +21,7 @@
 #include "./Allocator.h"
 #include "./CoroutineFwd.h"
 #include "UniqueTrackablePtr.h"
+#include "advstd_stop_token.h"
 #include <atomic>
 #include <coroutine>
 
@@ -37,6 +38,7 @@ struct CoroutineExecutionContext
     std::coroutine_handle<> Handle;
     unique_weak_ptr<Executor> CurrentExecutor;
     Impl::Allocator* CurrentAllocator = Impl::CurrentAllocator::Get();
+    advstd::stop_token CancelToken;
 };
 }
 
