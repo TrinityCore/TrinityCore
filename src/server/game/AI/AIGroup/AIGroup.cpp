@@ -93,6 +93,7 @@ void AIGroupCreature::EnterEvadeMode(EvadeReason why)
     CreatureAI::EnterEvadeMode(why);
 
     GetScript()->NotifyTriggers(ActionTriggers::OnLeaveCombat);
+    GetScript()->ResetActionTriggers();
 }
 
 void AIGroupCreature::JustDied(Unit* killer)

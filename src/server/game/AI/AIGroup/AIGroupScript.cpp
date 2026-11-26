@@ -1759,6 +1759,12 @@ void AIGroupScript::ReplaceActionTriggers()
     GetScript();
 }
 
+void AIGroupScript::ResetActionTriggers()
+{
+    for (ActionTriggersHolder& holder : mTriggers)
+        holder.IsTriggerUsed = false;
+}
+
 WorldObject* AIGroupScript::GetBaseObject() const
 {
     WorldObject* object = nullptr;
