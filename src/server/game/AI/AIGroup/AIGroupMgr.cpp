@@ -876,8 +876,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_SET_FACING:
-            if (!IsStandardAngleValid(action, action.Extra2))
+            if (action.Extra2 < 0 || action.Extra2 > 2.0f * M_PI)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid angle {}, skipped.",
+                    action.Id, action.Index, GetActionName(action.Type), action.Type, action.Extra2);
                 return false;
+            }
             break;
         case AI_GROUP_UNIT_FACE_GUID:
             if (!IsSearchRadiusValid(action, action.Extra0))
