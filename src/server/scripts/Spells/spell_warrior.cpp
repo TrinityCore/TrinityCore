@@ -41,10 +41,33 @@ namespace Scripts::Spells::Warrior
             CalcDamage += SpellCalcDamageFn(spell_warr_heroic_strike::CalculateDamage);
         }
     };
+
+    // 6544 - Heroic Leap
+    class spell_warr_heroic_leap : public SpellScript
+    {
+        SpellCastResult CheckCast()
+        {
+            Position const* dest = GetExplTargetDest();
+            if (!dest)
+                return SPELL_FAILED_NOPATH;
+
+            // The client shows an area as unreachable once the target destination is 4 yards above your position
+            if (dest->GetPositionZ() - GetCaster()->GetPositionZ() > 4.f)
+                return SPELL_FAILED_NOPATH;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap::CheckCast);
+        }
+    };
 }
 
 void AddSC_warrior_spell_scripts()
 {
     using namespace Scripts::Spells::Warrior;
+    RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_strike);
 }
