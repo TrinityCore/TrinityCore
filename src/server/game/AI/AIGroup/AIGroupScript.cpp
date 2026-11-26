@@ -114,6 +114,13 @@ void AIGroupScript::FillScript(AIGroupTriggerList triggerList)
 {
     for (AIGroupTriggerList::const_iterator it = triggerList.begin(); it != triggerList.end(); ++it)
     {
+        auto existingTrigger = std::find_if(mTriggers.begin(), mTriggers.end(), [it](ActionTriggersHolder const& trigger)
+        {
+            return trigger.Id == it->Id && trigger.Index == it->Index;
+        });
+        if (existingTrigger != mTriggers.end())
+            continue;
+
         mTriggers.push_back(*it);
         if (mTriggers.back().TriggerId == OnHealthRangeRandom)
             RandomizeHealthRange(mTriggers.back());
