@@ -813,10 +813,14 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_FOLLOW_PATH:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
         case AI_GROUP_PATROL_LINE:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (action.Extra0 > action.Extra1)
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Min Time at Ends (secs) {} (bigger than Max Time at Ends (secs)), skipped.",
@@ -834,6 +838,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_PATROL_CIRCLE:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
@@ -944,6 +950,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_SPLINE_PATH:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
@@ -1099,6 +1107,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_FLIGHT_PATH:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
@@ -1268,6 +1278,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_SPLINE_PATH_LOOP:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
@@ -1410,6 +1422,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_MOVETO_THEN_JUMP:
+            if (!IsPathFieldFilled(action))
+                return false;
             /// @todo Extra0 field
             /// @todo Extra1 field
             if (!IsSpeedMultiplierValid(action, action.Extra3))
@@ -1490,6 +1504,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_TIER_TRANSITION_FOLLOW_PATH:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsAnimTierValid(action, action.Extra2))
                 return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
@@ -1907,6 +1923,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS:
+            if (!IsPathFieldFilled(action))
+                return false;
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(AIActionMovetomultiGraphParam::Max))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid MovetomultiGraphParam {}, skipped.",
@@ -2539,6 +2557,18 @@ bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
     if (!action.Point && action.StringId.empty())
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires either Point or StringId, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsPathFieldFilled(ActionSetActionHolder const& action)
+{
+    if (!action.Path)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires Path, skipped.",
             action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
