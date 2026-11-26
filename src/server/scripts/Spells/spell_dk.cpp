@@ -341,7 +341,8 @@ class spell_dk_death_grip_triggered : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).CalcValueAsInt() });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) &&
+            ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
