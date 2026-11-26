@@ -63,6 +63,30 @@ namespace Scripts::Spells::Warrior
             OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap::CheckCast);
         }
     };
+
+    // 94009 - Rend
+    class spell_warr_rend : public AuraScript
+    {
+        void CalculateDamage(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            float apBonus = caster->GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f;
+            float apMultiplier = caster->GetAPMultiplier(BASE_ATTACK, false);
+            float mwbMin = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+            float mwbMax = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+            float bonus = ((mwbMin + mwbMax) / 2 + apBonus * apMultiplier) * 0.25f;
+
+            damage += bonus;
+        }
+
+        void Register() override
+        {
+            DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_warr_rend::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
 }
 
 void AddSC_warrior_spell_scripts()
@@ -70,4 +94,5 @@ void AddSC_warrior_spell_scripts()
     using namespace Scripts::Spells::Warrior;
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_strike);
+    RegisterSpellScript(spell_warr_rend);
 }
