@@ -42,7 +42,8 @@ enum DeathKnightSpells
     SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
     SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
-    SPELL_DK_DEATH_COIL_HEAL                    = 47633
+    SPELL_DK_DEATH_COIL_HEAL                    = 47633,
+    SPELL_DK_DEATH_GRIP_TRIGGERED               = 49560
 };
 
 // 77606 - Dark Simulacrum
@@ -298,6 +299,62 @@ class spell_dk_howling_blast : public SpellScript
         CalcDamage += SpellCalcDamageFn(spell_dk_howling_blast::CalculateDamage);
     }
 };
+
+// 49576 - Death Grip
+class spell_dk_death_grip : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_DEATH_GRIP_TRIGGERED});
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        // Death Grip should not be castable while jumping/falling
+        if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+            return SPELL_FAILED_MOVING;
+
+        // Patch 3.3.3 (2010-03-23): Minimum range has been changed to 8 yards in PvP.
+        Unit* target = GetExplTargetUnit();
+        if (target && target->GetTypeId() == TYPEID_PLAYER)
+            if (caster->GetExactDist(target) < 8.f)
+                return SPELL_FAILED_TOO_CLOSE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP_TRIGGERED);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dk_death_grip::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 49560 - Death Grip
+class spell_dk_death_grip_triggered : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).CalcValueAsInt() });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitUnit()->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+            GetHitUnit()->CastSpell(*GetExplTargetDest(), GetEffectValueAsInt(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_triggered::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
 }
 
 void AddSC_deathknight_spell_scripts()
@@ -307,6 +364,8 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
     RegisterSpellScript(spell_dk_death_coil);
+    RegisterSpellScript(spell_dk_death_grip);
+    RegisterSpellScript(spell_dk_death_grip_triggered);
     RegisterSpellScript(spell_dk_frost_fever);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_icy_touch);
