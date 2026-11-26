@@ -597,6 +597,8 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo: "MoveSpeed", "Spell Script", "Speed Multiplier" params
             if (!namedPoint)
                 namedPoint = sNamedPointMgr->GetNamedPoint(action.Point);
+            if (!namedPoint)
+                return true;
             {
                 float destinationX = namedPoint->PositionX;
                 float destinationY = namedPoint->PositionY;
