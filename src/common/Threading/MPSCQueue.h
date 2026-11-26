@@ -40,9 +40,8 @@ public:
 
     ~MPSCQueueNonIntrusive()
     {
-        T* output;
-        while (Dequeue(output))
-            delete output;
+        while (Dequeue())
+            ; // delete only all Node objects, not their contents
 
         Node* front = _head.load(std::memory_order_relaxed);
         delete front;
@@ -55,17 +54,17 @@ public:
         prevHead->Next.store(node, std::memory_order_release);
     }
 
-    bool Dequeue(T*& result)
+    T* Dequeue()
     {
         Node* tail = _tail.load(std::memory_order_relaxed);
         Node* next = tail->Next.load(std::memory_order_acquire);
         if (!next)
             return false;
 
-        result = next->Data;
+        T* result = next->Data;
         _tail.store(next, std::memory_order_release);
         delete tail;
-        return true;
+        return result;
     }
 
 private:
@@ -106,10 +105,6 @@ public:
 
     ~MPSCQueueIntrusive()
     {
-        T* output;
-        while (Dequeue(output))
-            delete output;
-
         // destruct our dummy atomic
         (_dummyPtr->*IntrusiveLink).~Atomic();
     }
@@ -121,14 +116,14 @@ public:
         (prevHead->*IntrusiveLink).store(input, std::memory_order_release);
     }
 
-    bool Dequeue(T*& result) noexcept
+    T* Dequeue() noexcept
     {
         T* tail = _tail.load(std::memory_order_relaxed);
         T* next = (tail->*IntrusiveLink).load(std::memory_order_acquire);
         if (tail == _dummyPtr)
         {
             if (!next)
-                return false;
+                return nullptr;
 
             _tail.store(next, std::memory_order_release);
             tail = next;
@@ -138,23 +133,21 @@ public:
         if (next)
         {
             _tail.store(next, std::memory_order_release);
-            result = tail;
-            return true;
+            return tail;
         }
 
         T* head = _head.load(std::memory_order_acquire);
         if (tail != head)
-            return false;
+            return nullptr;
 
-        Enqueue(_dummyPtr);
+        this->Enqueue(_dummyPtr);
         next = (tail->*IntrusiveLink).load(std::memory_order_acquire);
         if (next)
         {
             _tail.store(next, std::memory_order_release);
-            result = tail;
-            return true;
+            return tail;
         }
-        return false;
+        return nullptr;
     }
 
 private:

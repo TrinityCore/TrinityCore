@@ -77,10 +77,7 @@ arena<N, alignment>::allocate(std::size_t n)
         return r;
     }
 
-    static_assert(alignment <= alignof(std::max_align_t), "you've chosen an "
-                  "alignment that is larger than alignof(std::max_align_t), and "
-                  "cannot be guaranteed by normal operator new");
-    return static_cast<char*>(::operator new(n));
+    return static_cast<char*>(::operator new(n, std::align_val_t(alignment)));
 }
 
 template <std::size_t N, std::size_t alignment>
@@ -95,7 +92,7 @@ arena<N, alignment>::deallocate(char* p, std::size_t n) noexcept
             ptr_ = p;
     }
     else
-        ::operator delete(p);
+        ::operator delete(p, std::align_val_t(alignment));
 }
 
 template <class T, std::size_t N, std::size_t Align = alignof(std::max_align_t)>

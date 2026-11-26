@@ -1016,7 +1016,7 @@ namespace WorldPackets
         class DisplayToast final : public ServerPacket
         {
         public:
-            explicit DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+            explicit DisplayToast();
 
             WorldPacket const* Write() override;
 

@@ -16,11 +16,18 @@ CollectAndAddSourceFiles(
   common
   ${CMAKE_CURRENT_SOURCE_DIR}
   EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/Threading/Coro
   ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
   ${CMAKE_CURRENT_SOURCE_DIR}/Platform
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${CMAKE_CURRENT_SOURCE_DIR}/mmaps_common
   ${CMAKE_CURRENT_SOURCE_DIR}/network)
+
+CollectAndAddSourceFiles(
+  common
+  ${CMAKE_CURRENT_SOURCE_DIR}/Threading/Coro
+  BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+  NO_INCLUDE_SUBDIRECTORIES)
 
 if(WIN32)
   CollectAndAddSourceFiles(

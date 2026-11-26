@@ -93,6 +93,9 @@ struct RespawnInfoWithHandle : RespawnInfo
 
 Map::~Map()
 {
+    while (FarSpellCallback* callback = _farSpellCallbacks.Dequeue())
+        delete callback;
+
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
     UnloadAllRespawnInfos();
@@ -2552,20 +2555,17 @@ ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
     return _guidGenerators.try_emplace(high, high).first->second;
 }
 
-void Map::AddFarSpellCallback(FarSpellCallback&& callback)
+void Map::AddFarSpellCallback(std::function<void(Map*)>&& callback)
 {
-    _farSpellCallbacks.Enqueue(new FarSpellCallback(std::move(callback)));
+    _farSpellCallbacks.Enqueue(new FarSpellCallback{ .Func = std::move(callback) });
 }
 
 void Map::DelayedUpdate(uint32 t_diff)
 {
+    while (FarSpellCallback* callback = _farSpellCallbacks.Dequeue())
     {
-        FarSpellCallback* callback;
-        while (_farSpellCallbacks.Dequeue(callback))
-        {
-            (*callback)(this);
-            delete callback;
-        }
+        callback->Func(this);
+        delete callback;
     }
 
     RemoveAllObjectsInRemoveList();

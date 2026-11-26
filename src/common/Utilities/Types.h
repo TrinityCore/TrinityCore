@@ -19,6 +19,7 @@
 #define TRINITYCORE_TYPES_H
 
 #include <type_traits>
+#include <utility>
 
 namespace Trinity
 {
@@ -71,6 +72,42 @@ namespace Trinity
 
     template <typename T>
     constexpr bool dependant_false_v = dependant_false<T>::value;
+
+    template <std::size_t... I, std::size_t... J, typename... Rest>
+    constexpr auto concat_index_sequences(std::index_sequence<I...>, std::index_sequence<J...>, Rest...)
+    {
+        if constexpr (sizeof...(Rest) > 0)
+            return Trinity::concat_index_sequences(std::index_sequence<I..., J...>(), Rest()...);
+        else
+            return std::index_sequence<I..., J...>();
+    }
+
+    namespace Impl
+    {
+        template <std::size_t I, typename Predicate>
+        constexpr auto apply_index_sequence_filter(std::index_sequence<I>, Predicate predicate)
+        {
+            if constexpr (predicate(std::index_sequence<I>()))
+                return std::index_sequence<I>();
+            else
+                return std::index_sequence<>();
+        }
+    }
+
+    /*
+     * Utility to filter std::index_sequence
+     * Predicate must be callable in constexpr context with single element std::index_sequence<I>
+     *
+     * Example:
+     * std::index_sequence<0, 1, 2, 3, 4> source;
+     * // type of result is std::index_sequence<1, 3>
+     * auto result = Trinity::filter_index_sequence(source, []<std::size_t I>(std::index_sequence<I>) constexpr { return I % 2 != 0; });
+     */
+    template <std::size_t... I, typename Predicate>
+    constexpr auto filter_index_sequence(std::index_sequence<I...>, Predicate predicate)
+    {
+        return Trinity::concat_index_sequences(Impl::apply_index_sequence_filter(std::index_sequence<I>(), predicate)...);
+    }
 }
 
 #endif // TRINITYCORE_TYPES_H
