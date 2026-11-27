@@ -994,9 +994,6 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
 
     recoveryTime *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryId);
 
-    if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
-        recoveryTime *= _owner->m_unitData->ModSpellHaste;
-
     if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN, chargeCategoryId))
         recoveryTime *= _owner->m_unitData->ModHasteRegen;
 

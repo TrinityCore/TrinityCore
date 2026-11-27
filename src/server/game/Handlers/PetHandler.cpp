@@ -436,10 +436,10 @@ void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
 
 bool WorldSession::CheckStableMaster(ObjectGuid guid)
 {
-    // spell case or GM
+    // GM case
     if (guid == GetPlayer()->GetGUID())
     {
-        if (!GetPlayer()->IsGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
+        if (!GetPlayer()->IsGameMaster())
         {
             TC_LOG_DEBUG("entities.player.cheat", "{} attempt open stable in cheating way.", guid.ToString());
             return false;
