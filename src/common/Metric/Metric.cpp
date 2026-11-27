@@ -139,9 +139,8 @@ void Metric::SendBatch()
     using namespace std::chrono;
 
     std::stringstream batchedData;
-    MetricData* data;
     bool firstLoop = true;
-    while (_queuedData.Dequeue(data))
+    while (MetricData* data = _queuedData.Dequeue())
     {
         if (!firstLoop)
             batchedData << "\n";
@@ -237,9 +236,8 @@ void Metric::ScheduleSend()
     else
     {
         GetDataStream().close();
-        MetricData* data;
         // Clear the queue
-        while (_queuedData.Dequeue(data))
+        while (MetricData* data = _queuedData.Dequeue())
             delete data;
     }
 }

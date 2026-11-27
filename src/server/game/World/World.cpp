@@ -130,7 +130,7 @@ PersistentWorldVariable const World::NextOldCalendarEventDeletionTimeVarId{ "Nex
 PersistentWorldVariable const World::NextGuildWeeklyResetTimeVarId{ "NextGuildWeeklyResetTime" };
 
 /// World constructor
-World::World()
+World::World() : _coroutineExecutor(Trinity::make_unique_trackable<Trinity::Coro::SingleThreadedExecutor>())
 {
     m_playerLimit = 0;
     m_allowedSecurityLevel = SEC_PLAYER;
@@ -1242,6 +1242,7 @@ bool World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime());
+    PreloadPseudoRandomDistributionChances();
 
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
@@ -1833,6 +1834,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Gossip menu addon...");
     sObjectMgr->LoadGossipMenuAddon();
 
+    TC_LOG_INFO("server.loading", "Loading Gossip menu options addon...");
+    sObjectMgr->LoadGossipMenuItemsAddon();
+
     TC_LOG_INFO("server.loading", "Loading Creature Template Gossip...");
     sObjectMgr->LoadCreatureTemplateGossip();
 
@@ -2365,7 +2369,7 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Process query callbacks"));
         // execute callbacks from sql queries that were queued recently
-        ProcessQueryCallbacks();
+        ProcessAsyncCallbacks();
     }
 
     ///- Erase corpses once every 20 minutes
@@ -3426,9 +3430,10 @@ void World::LoadPersistentWorldVariables()
     TC_LOG_INFO("server.loading", ">> Loaded {} world variables in {} ms", m_worldVariables.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void World::ProcessQueryCallbacks()
+void World::ProcessAsyncCallbacks()
 {
     _queryProcessor.ProcessReadyCallbacks();
+    _coroutineExecutor->ResumeReadyCoroutines();
 }
 
 void World::ReloadRBAC()

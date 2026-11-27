@@ -27,6 +27,7 @@
 #include "Banner.h"
 #include "BigNumber.h"
 #include "Config.h"
+#include "Coro/Sleep.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
@@ -212,6 +213,8 @@ int main(int argc, char** argv)
     auto threadJoinHandle = Trinity::make_unique_ptr_with_deleter<[](std::thread* t) { t->join(); }>(&ioContextThread);
 
     auto ioContextWorkGuardHandle = Trinity::make_unique_ptr_with_deleter<[](auto* wg) { wg->reset(); }>(&ioContextWork);
+
+    auto coroTimerExecutorHandle = Trinity::make_unique_ptr_with_deleter<&Trinity::Coro::ShutdownTimerExecutor>(Trinity::Coro::InitializeTimerExecutor(ioContext.get()));
 
     Trinity::Net::ScanLocalNetworks();
 

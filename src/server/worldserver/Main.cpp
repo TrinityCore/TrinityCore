@@ -24,6 +24,7 @@
 #include "BigNumber.h"
 #include "CliRunnable.h"
 #include "Configuration/Config.h"
+#include "Coro/Sleep.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
@@ -297,6 +298,8 @@ int main(int argc, char** argv)
 
     if (vm.count("update-databases-only"))
         return 0;
+
+    auto coroTimerExecutorHandle = Trinity::make_unique_ptr_with_deleter<&Trinity::Coro::ShutdownTimerExecutor>(Trinity::Coro::InitializeTimerExecutor(ioContext.get()));
 
     Trinity::Net::ScanLocalNetworks();
 

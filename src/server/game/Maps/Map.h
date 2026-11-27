@@ -758,8 +758,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         SpawnedPoolData& GetPoolData() { return *_poolData; }
         SpawnedPoolData const& GetPoolData() const { return *_poolData; }
 
-        typedef std::function<void(Map*)> FarSpellCallback;
-        void AddFarSpellCallback(FarSpellCallback&& callback);
+        struct FarSpellCallback
+        {
+            std::function<void(Map*)> Func;
+            std::atomic<FarSpellCallback*> QueueLink;
+        };
+        void AddFarSpellCallback(std::function<void(Map*)>&& callback);
 
         void InitSpawnGroupState();
         void UpdateSpawnGroupConditions();
@@ -829,7 +833,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         std::unordered_set<BaseEntity*> _updateObjects;
 
-        MPSCQueue<FarSpellCallback> _farSpellCallbacks;
+        MPSCQueue<FarSpellCallback, &FarSpellCallback::QueueLink> _farSpellCallbacks;
 
         /*********************************************************/
         /***                   Phasing                         ***/
