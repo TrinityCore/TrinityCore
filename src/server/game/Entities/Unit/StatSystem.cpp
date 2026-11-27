@@ -686,14 +686,10 @@ void Player::UpdateMastery()
     {
         if (Aura* aura = GetAura(masterySpellId))
         {
-            for (AuraEffect* auraEff : aura->GetAuraEffects())
-            {
-                float mult = auraEff->GetSpellEffectInfo().BonusCoefficient;
-                if (G3D::fuzzyEq(mult, 0.0f))
-                    continue;
+            if (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
+                continue;
 
-                auraEff->ChangeAmount(int32(value * mult));
-            }
+            aura->RecalculateAmountOfEffects();
         }
     }
 }
