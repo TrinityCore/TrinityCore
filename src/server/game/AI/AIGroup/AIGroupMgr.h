@@ -1426,6 +1426,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsDisplayTimeValid(ActionSetActionHolder const& action, double time);
         static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
         static bool IsPathFieldFilled(ActionSetActionHolder const& action);
+        static bool IsNonOptionalTimeAFilled(ActionSetActionHolder const& action);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
 

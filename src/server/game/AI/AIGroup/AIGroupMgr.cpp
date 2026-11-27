@@ -775,6 +775,10 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsDisplayIndexValid(action, action.Extra2))
                 return false;
             break;
+        case AI_GROUP_IDLE:
+            if (!IsNonOptionalTimeAFilled(action))
+                return false;
+            break;
         case AI_GROUP_MOVETO:
             if (!IsPointOrStringIdFilled(action))
                 return false;
@@ -1109,6 +1113,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_EMOTE_STATE:
+            if (!IsNonOptionalTimeAFilled(action))
+                return false;
             if (!IsEmoteValid(action, action.Extra2))
                 return false;
             break;
@@ -1525,6 +1531,10 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsCreatureValid(action, action.Extra2))
                 return false;
             break;
+        case AI_GROUP_SUSPEND_TRIGGER_ACTION:
+            if (!IsNonOptionalTimeAFilled(action))
+                return false;
+            break;
         case AI_GROUP_UNIT_VEHICLE_RECORD:
             if (!IsPositiveIntegerInUint32Range(action.Extra2) || !sVehicleStore.LookupEntry(uint32(action.Extra2)))
             {
@@ -1844,6 +1854,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_TURN_IN_PLACE_TIMED:
+            if (!IsNonOptionalTimeAFilled(action))
+                return false;
             if (!IsNonNegativeIntegerInUint8Range(action.Extra2) || action.Extra2 >= static_cast<uint8>(TurnInPlaceOptions::Max))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) uses invalid Turn In Place Option {}, skipped.",
@@ -2579,6 +2591,18 @@ bool AIGroupMgr::IsPathFieldFilled(ActionSetActionHolder const& action)
     if (!action.Path)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires Path, skipped.",
+            action.Id, action.Index, GetActionName(action.Type), action.Type);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsNonOptionalTimeAFilled(ActionSetActionHolder const& action)
+{
+    if (!action.TimeA)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} ({}) requires TimeA, skipped.",
             action.Id, action.Index, GetActionName(action.Type), action.Type);
         return false;
     }
