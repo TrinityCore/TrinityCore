@@ -17405,11 +17405,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     //uint32 lootSpecId = fields.lootSpecId;
 
     UpdateDisplayPower();
+
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENT_GROUPS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
-    SetActiveTalentGroup(HasTalentGroupUnlocked(fields.activeTalentGroup) ? fields.activeTalentGroup : 0, false, true);
-
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
+    SetActiveTalentGroup(HasTalentGroupUnlocked(fields.activeTalentGroup) ? fields.activeTalentGroup : 0, false, true);
     GetSession()->GetCollectionMgr()->LoadToys();
     GetSession()->GetCollectionMgr()->LoadHeirlooms();
     GetSession()->GetCollectionMgr()->LoadMounts();
