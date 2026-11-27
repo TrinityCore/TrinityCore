@@ -204,6 +204,15 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetScriptStringId(std::string id);
         std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
+        // Action Triggers
+        uint32 GetNativeTriggersId() const { return GetCreatureTemplate()->TriggersId; }
+        void SetTriggersId(uint32 triggersId);
+        uint32 GetCurrentTriggersId() const { return currentTriggersId; }
+        void ResetTriggersId();
+
+        // Action Sets
+        uint32 GetCurrentRunningActionSet() const { return currentRunningActionSet; }
+
         // override WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
 

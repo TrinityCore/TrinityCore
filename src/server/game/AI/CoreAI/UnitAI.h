@@ -156,6 +156,10 @@ class TC_GAME_API UnitAI
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
         virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) { }
         virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
+        virtual void OnCombatTrigger(Unit* /*sender*/, uint32 /*triggerId*/) { }
+        virtual void OnGeneralTrigger(Unit* /*sender*/, uint32 /*triggerId*/) { }
+        virtual void SendCombatTrigger(Unit* sender, uint32 triggerId);
+        virtual void SendGeneralTrigger(Unit* sender, uint32 triggerId);
 
         // Select the best target (in <targetType> order) from the threat list that fulfill the following:
         // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,

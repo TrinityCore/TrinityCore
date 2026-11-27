@@ -328,6 +328,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                     _player->PlayerTalkClass->ClearMenus();
                     questGiver->AI()->OnQuestReward(_player, quest, reward);
+                    questGiver->ActivateObject(GameObjectActions::QuestReward, _player, 0, -1, quest->GetQuestId());
                     break;
                 }
                 default:

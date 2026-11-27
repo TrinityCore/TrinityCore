@@ -1145,8 +1145,8 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_ZONE               = 5078,
     LANG_LIST_RESPAWNS_LISTHEADER         = 5079,
     LANG_LIST_RESPAWNS_OVERDUE            = 5080,
-    // unused 5081
-    // unused 5082
+    LANG_ACTION_TRIGGERS_NAME             = 5081,
+    LANG_ACTION_SET_NAME                  = 5082,
     LANG_OBJECTINFO_AITYPE                = 5083,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084, // master branch ONLY
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085, // master branch ONLY
@@ -1154,8 +1154,9 @@ enum TrinityStrings
     LANG_NPCINFO_PHASE_IDS                = 5087, // master branch ONLY
     LANG_SCENARIO                         = 5088, // master branch ONLY
     LANG_OBJECTINFO_STRINGIDS             = 5089,
+    LANG_AIGROUP_UNIT                     = 5090,
 
-    // Room for more Trinity strings        5090-6603
+    // Room for more Trinity strings        5091-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,

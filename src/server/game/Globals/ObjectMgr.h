@@ -1470,6 +1470,7 @@ class TC_GAME_API ObjectMgr
         bool DeleteGameTele(std::string_view name);
 
         Trainer::Trainer const* GetTrainer(uint32 creatureId) const;
+        Trainer::Trainer const* GetTrainerById(uint32 trainerId) const;
         std::vector<Trainer::Trainer const*> const& GetClassTrainers(uint8 classId) const { return _classTrainers.at(classId); }
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const

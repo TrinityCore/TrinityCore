@@ -31,6 +31,7 @@
 #include "MiscPackets.h"
 #include "MovementInfo.h"
 #include "MovementPackets.h"
+#include "NamedPointMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -934,7 +935,7 @@ void MovementInfo::OutDebug()
         TC_LOG_DEBUG("misc", "splineElevation: {}", splineElevation);
 }
 
-WorldObject::WorldObject(bool isWorldObject) : Object(), WorldLocation(), LastUsedScriptID(0),
+WorldObject::WorldObject(bool isWorldObject) : Object(), WorldLocation(), LastUsedScriptID(0), currentTriggersId(0), currentRunningActionSet(0),
 m_movementInfo(), m_name(), m_isActive(false), m_isFarVisible(false), m_isStoredInWorldObjectGridContainer(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_outdoors(false), m_liquidStatus(LIQUID_MAP_NO_WATER),
 m_currMap(nullptr), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), _heartbeatTimer(HEARTBEAT_INTERVAL)
@@ -2168,6 +2169,16 @@ Player* WorldObject::SelectNearestPlayer(float distance) const
     Cell::VisitWorldObjects(this, searcher, distance);
 
     return target;
+}
+
+const NamedPoint* WorldObject::GetNamedPoint(uint32 id) const
+{
+    return sNamedPointMgr->GetNamedPoint(id);
+}
+
+const NamedPoint* WorldObject::FindNearestNamedPoint(const std::string& stringId, float maxRange) const
+{
+    return sNamedPointMgr->FindNearestNamedPoint(this, stringId, maxRange);
 }
 
 ObjectGuid WorldObject::GetCharmerOrOwnerOrOwnGUID() const
