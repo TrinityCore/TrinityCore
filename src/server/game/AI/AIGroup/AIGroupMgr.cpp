@@ -664,20 +664,30 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
             continue;
         }
 
+        ActionTriggerTypeInfo const& actionType = StaticObjectActionTriggerTypeData[triggers.ActionId];
+
         switch (static_cast<GameObjectActions>(triggers.ActionId))
         {
             case GameObjectActions::QuestAccept:
             case GameObjectActions::QuestReward:
                 if (triggers.ActionParam1 && !sObjectMgr->GetQuestTemplate(triggers.ActionParam1))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) has invalid quest ({}), skipped.",
-                        triggers.Id, triggers.Index, triggers.ActionParam1);
+                    TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) with action {} has invalid quest ({}), skipped.",
+                        triggers.Id, triggers.Index, actionType.Name, triggers.ActionParam1);
                     continue;
                 }
                 break;
             default:
                 break;
         }
+
+        if (triggers.ActionParam1 && !actionType.HasTriggerParam1)
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) with action {} has useless data in ActionParam1 ({}).",
+                triggers.Id, triggers.Index, actionType.Name, triggers.ActionParam1);
+
+        if (triggers.ActionParam2 && !actionType.HasTriggerParam2)
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) with action {} has useless data in ActionParam2 ({}).",
+                triggers.Id, triggers.Index, actionType.Name, triggers.ActionParam2);
 
         auto actionSetItr = _actionSetMap.find(triggers.ActionSetId);
         if (!triggers.ActionSetId || actionSetItr == _actionSetMap.end())
@@ -3464,6 +3474,77 @@ AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[
     { "OnReserved20",               false, false },
     { "OnQuestAccept",              true,  false },
     { "OnQuestReward",              true,  false }
+};
+
+AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticObjectActionTriggerTypeData[static_cast<uint32>(GameObjectActions::Max)] =
+{
+    { "None",                        false, false },
+    { "AnimateCustom0",              false, false },
+    { "AnimateCustom1",              false, false },
+    { "AnimateCustom2",              false, false },
+    { "AnimateCustom3",              false, false },
+    { "Disturb",                     false, false },
+    { "Unlock",                      false, false },
+    { "Lock",                        false, false },
+    { "Open",                        false, false },
+    { "OpenAndUnlock",               false, false },
+    { "Close",                       false, false },
+    { "ToggleOpen",                  false, false },
+    { "Destroy",                     false, false },
+    { "Rebuild",                     false, false },
+    { "Creation",                    false, false },
+    { "Despawn",                     false, false },
+    { "MakeInert",                   false, false },
+    { "MakeActive",                  false, false },
+    { "CloseAndLock",                false, false },
+    { "UseArtKit0",                  false, false },
+    { "UseArtKit1",                  false, false },
+    { "UseArtKit2",                  false, false },
+    { "UseArtKit3",                  false, false },
+    { "SetTapList",                  false, false },
+    { "GoTo1stFloor",                false, false },
+    { "GoTo2ndFloor",                false, false },
+    { "GoTo3rdFloor",                false, false },
+    { "GoTo4thFloor",                false, false },
+    { "GoTo5thFloor",                false, false },
+    { "GoTo6thFloor",                false, false },
+    { "GoTo7thFloor",                false, false },
+    { "GoTo8thFloor",                false, false },
+    { "GoTo9thFloor",                false, false },
+    { "GoTo10thFloor",               false, false },
+    { "UseArtKit4",                  false, false },
+    { "PlayAnimKit",                 false, false },
+    { "OpenAndPlayAnimKit",          false, false },
+    { "CloseAndPlayAnimKit",         false, false },
+    { "PlayOneShotAnimKit",          false, false },
+    { "StopAnimKit",                 false, false },
+    { "OpenAndStopAnimKit",          false, false },
+    { "CloseAndStopAnimKit",         false, false },
+    { "PlaySpellVisual",             false, false },
+    { "StopSpellVisual",             false, false },
+    { "SetTappedToChallengePlayers", false, false },
+    { "Reserved1",                   false, false },
+    { "Reserved2",                   false, false },
+    { "Reserved3",                   false, false },
+    { "Reserved4",                   false, false },
+    { "Reserved5",                   false, false },
+    { "Reserved6",                   false, false },
+    { "Reserved7",                   false, false },
+    { "Reserved8",                   false, false },
+    { "Reserved9",                   false, false },
+    { "Reserved10",                  false, false },
+    { "Reserved11",                  false, false },
+    { "Reserved12",                  false, false },
+    { "Reserved13",                  false, false },
+    { "Reserved14",                  false, false },
+    { "Reserved15",                  false, false },
+    { "Reserved16",                  false, false },
+    { "Reserved17",                  false, false },
+    { "Reserved18",                  false, false },
+    { "Reserved19",                  false, false },
+    { "Reserved20",                  false, false },
+    { "QuestAccept",                 true,  false },
+    { "QuestReward",                 true,  false }
 };
 
 bool AIGroupMgr::IsTriggerNotRepeatable(ActionTriggers trigger)

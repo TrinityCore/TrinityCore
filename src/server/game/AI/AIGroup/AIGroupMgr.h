@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "GameObjectData.h"
 #include "ObjectGuid.h"
 
 #include <algorithm>
@@ -1521,6 +1522,7 @@ class TC_GAME_API AIGroupMgr
             bool HasTriggerParam2;
         };
         static ActionTriggerTypeInfo const StaticActionTriggerTypeData[ActionTriggers::Max];
+        static ActionTriggerTypeInfo const StaticObjectActionTriggerTypeData[static_cast<uint32>(GameObjectActions::Max)];
 
     public:
         static AIGroupMgr* Instance();
