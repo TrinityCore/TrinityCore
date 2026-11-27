@@ -39,6 +39,7 @@ void AIGroupMgr::LoadAIGroupMembersFromDB()
     uint32 oldMSTime = getMSTime();
 
     _groupMembers.clear();
+    _mainMemberGuidByMember.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AI_GROUP_MEMBERS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -113,6 +114,7 @@ void AIGroupMgr::LoadAIGroupMembersFromDB()
         }
 
         _groupMembers[mainMemberGuid].push_back({ memberGuid, type, AIGroupUnit(unit) });
+        _mainMemberGuidByMember[memberGuid].try_emplace(type, mainMemberGuid);
         ++count;
     } while (result->NextRow());
 

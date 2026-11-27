@@ -1392,6 +1392,7 @@ class TC_GAME_API AIGroupMgr
         AIGroupRandomActionSetMap _randomActionSetMap;
         AIGroupObjectTriggersMap _objectTriggersMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
+        std::unordered_map<ObjectGuid::LowType, std::unordered_map<AIGroupMemberType, ObjectGuid::LowType>> _mainMemberGuidByMember;
 
         bool IsActionValid(ActionSetActionHolder const& action);
         bool IsActionTypeValid(ActionSetActionHolder const& action);
@@ -1589,12 +1590,12 @@ class TC_GAME_API AIGroupMgr
 
         ObjectGuid::LowType GetMainMemberGuid(ObjectGuid::LowType memberGuid, AIGroupMemberType memberType) const
         {
-            for (auto const& [mainMemberGuid, members] : _groupMembers)
-                if (std::ranges::any_of(members, [memberGuid, memberType](AIGroupMemberData const& member)
-                    { return member.MemberGuid == memberGuid && member.MemberType == memberType; }))
-                    return mainMemberGuid;
+            auto memberItr = _mainMemberGuidByMember.find(memberGuid);
+            if (memberItr == _mainMemberGuidByMember.end())
+                return 0;
 
-            return 0;
+            auto typeItr = memberItr->second.find(memberType);
+            return typeItr != memberItr->second.end() ? typeItr->second : 0;
         }
 
         AIGroupUnit GetAIGroupUnit(ObjectGuid::LowType memberGuid, AIGroupMemberType memberType) const
