@@ -63,8 +63,8 @@ private:
 
 // Initializes the global asio executor that handles all timers
 // This function must be called before using Coro::SleepFor and Coro::SleepUntil
-TC_COMMON_API void InitializeTimerExecutor(Asio::IoContext* executor);
-TC_COMMON_API void ShutdownTimerExecutor();
+TC_COMMON_API void* InitializeTimerExecutor(Asio::IoContext* executor);
+TC_COMMON_API void ShutdownTimerExecutor(void* /*unique_ptr_with_deleter convenience arg*/ = nullptr);
 
 inline Impl::SleepAwaitable SleepFor(TimePoint::duration duration) { return Impl::SleepAwaitable(duration); }
 inline Impl::SleepAwaitable SleepUntil(TimePoint expiry) { return Impl::SleepAwaitable(expiry); }

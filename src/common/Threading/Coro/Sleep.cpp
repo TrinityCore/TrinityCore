@@ -41,12 +41,13 @@ void SleepAwaiter::handle_suspend(CoroutineExecutionContext* coroutine) noexcept
 }
 }
 
-void InitializeTimerExecutor(Asio::IoContext* executor)
+void* InitializeTimerExecutor(Asio::IoContext* executor)
 {
     Impl::TimerExecutor = executor;
+    return executor;
 }
 
-void ShutdownTimerExecutor()
+void ShutdownTimerExecutor(void*)
 {
     Impl::TimerExecutor = nullptr;
 }

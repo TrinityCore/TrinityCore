@@ -24,16 +24,17 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "Coro/SingleThreadedExecutor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "Timer.h"
+#include "UniqueTrackablePtr.h"
 
 #include <atomic>
 #include <list>
-#include <map>
 #include <memory>
 #include <unordered_map>
 #include <variant>
@@ -774,6 +775,7 @@ class TC_GAME_API World
         void ReloadRBAC();
 
         void RemoveOldCorpses();
+        Trinity::Coro::Executor& GetCoroutineExecutor() const { return *_coroutineExecutor; }
         void TriggerGuidWarning();
         void TriggerGuidAlert();
         bool IsGuidWarning() { return _guidWarn; }
@@ -889,12 +891,13 @@ class TC_GAME_API World
         typedef std::unordered_map<uint8, Autobroadcast> AutobroadcastContainer;
         AutobroadcastContainer m_Autobroadcasts;
 
-        void ProcessQueryCallbacks();
+        void ProcessAsyncCallbacks();
 
         void SendGuidWarning();
         void DoGuidWarningRestart();
         void DoGuidAlertRestart();
         QueryCallbackProcessor _queryProcessor;
+        Trinity::unique_trackable_ptr<Trinity::Coro::SingleThreadedExecutor> _coroutineExecutor;
 
         std::string _guidWarningMsg;
         std::string _alertRestartReason;
