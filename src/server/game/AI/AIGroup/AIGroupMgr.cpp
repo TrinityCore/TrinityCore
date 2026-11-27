@@ -720,6 +720,13 @@ bool AIGroupMgr::IsActionValid(ActionSetActionHolder const& action)
     if (!IsActionTypeValid(action))
         return false;
 
+    if ((action.LinearPath && action.CircularPath) || (action.LinearPath && action.FlightPath) || (action.CircularPath && action.FlightPath))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has multiple path marks set (LinearPath: {}, CircularPath: {}, FlightPath: {}), skipped.",
+            action.Id, action.Index, action.LinearPath, action.CircularPath, action.FlightPath);
+        return false;
+    }
+
     LogUselessActionParams(action);
 
     if (action.TargetType >= AIGROUP_TARGET_END)
