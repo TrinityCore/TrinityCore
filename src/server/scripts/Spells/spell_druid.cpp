@@ -108,6 +108,7 @@ enum DruidSpells
     SPELL_DRUID_GUARDIAN_OF_ELUNE_AURA         = 213680,
     SPELL_DRUID_HALF_MOON                      = 274282,
     SPELL_DRUID_HALF_MOON_OVERRIDE             = 274297,
+    SPELL_DRUID_HARMONIOUS_BLOOMING            = 392256,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION                    = 117679,
@@ -1688,6 +1689,48 @@ class spell_dru_mangle : public SpellScript
     }
 };
 
+// 77495 - Mastery: Harmony
+class spell_dru_mastery_harmony : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_HARMONIOUS_BLOOMING, EFFECT_0 } });
+    }
+
+    void CalcHealingDone(AuraEffect const* aurEff, Unit* victim, SpellInfo const* /*spellInfo*/, SpellEffectInfo const& spellEffectInfo, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (spellEffectInfo.IsAura(SPELL_AURA_SCHOOL_ABSORB))
+            return;
+
+        Unit const* druid = GetUnitOwner();
+        int32 lifebloomCount = 1;
+        if (AuraEffect const* harmoniousBlooming = druid->GetAuraEffect(SPELL_DRUID_HARMONIOUS_BLOOMING, EFFECT_0))
+            lifebloomCount += harmoniousBlooming->GetAmountAsInt();
+
+        int32 healOverTimeCount = 0;
+        for (auto const& [_, aurApp] : victim->GetAppliedAuras())
+        {
+            Aura const* aura = aurApp->GetBase();
+            if (aura->GetCasterGUID() != druid->GetGUID()
+                || aura->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_DRUID
+                || !aura->HasEffectType(SPELL_AURA_PERIODIC_HEAL))
+                continue;
+
+            healOverTimeCount += aura->GetSpellInfo()->IsAffected(SPELLFAMILY_DRUID, LifebloomClassMask) ? lifebloomCount : 1;
+        }
+
+        AddPct(pctMod, aurEff->GetAmount() * MasteryMultiplierByHealOverTimeCount[std::min<std::size_t>(healOverTimeCount, MasteryMultiplierByHealOverTimeCount.size() - 1)]);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcHealingDone += AuraEffectCalcHealingDoneFn(spell_dru_mastery_harmony::CalcHealingDone, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    static constexpr std::array<float, 6> MasteryMultiplierByHealOverTimeCount = { 0.0f, 1.0f, 1.7f, 2.3f, 2.8f, 3.2f };
+    static constexpr flag128 LifebloomClassMask = { 0x0, 0x1000, 0x0, 0x0 };
+};
+
 // 385787 - Matted Fur (Absorb)
 class spell_dru_matted_fur_absorb : public AuraScript
 {
@@ -3262,6 +3305,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_maim);
     RegisterSpellScript(spell_dru_mangle);
+    RegisterSpellScript(spell_dru_mastery_harmony);
     RegisterSpellScript(spell_dru_matted_fur_absorb);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_moonless_night);

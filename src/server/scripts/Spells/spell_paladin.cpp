@@ -24,9 +24,11 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CellImpl.h"
 #include "CommonPredicates.h"
 #include "Containers.h"
 #include "DB2Stores.h"
+#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "ListUtils.h"
 #include "ObjectAccessor.h"
@@ -47,6 +49,7 @@ enum PaladinSpells
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
+    SPELL_PALADIN_BEACON_OF_THE_LIGHTBRINGER     = 197446,
     SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575,
     SPELL_PALADIN_BLADE_OF_VENGEANCE             = 403826,
     SPELL_PALADIN_BLESSING_OF_FREEDOM            = 1044,
@@ -1611,6 +1614,57 @@ class spell_pal_light_hammer_periodic : public AuraScript
     }
 };
 
+// 183997 - Mastery: Lightbringer
+class spell_pal_mastery_lightbringer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_BEACON_OF_THE_LIGHTBRINGER });
+    }
+
+    void CalcHealingDone(AuraEffect const* aurEff, Unit* victim, SpellInfo const* /*spellInfo*/, SpellEffectInfo const& spellEffectInfo, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (spellEffectInfo.IsAura(SPELL_AURA_SCHOOL_ABSORB))
+            return;
+
+        float distance = GetDistanceToClosestSource(GetUnitOwner(), victim);
+        float effectiveness = 1.0f - std::clamp((distance - FullEffectDistance) / (NoEffectDistance - FullEffectDistance), 0.0f, 1.0f);
+        AddPct(pctMod, aurEff->GetAmount() * effectiveness);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcHealingDone += AuraEffectCalcHealingDoneFn(spell_pal_mastery_lightbringer::CalcHealingDone, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    static constexpr float FullEffectDistance = 10.0f;
+    static constexpr float NoEffectDistance = 40.0f;
+    static constexpr flag128 BeaconClassMask = { 0x0, 0x01000000, 0x0, 0x0 };
+
+    static float GetDistanceToClosestSource(Unit const* paladin, Unit const* target)
+    {
+        float distance = paladin->GetDistance(target);
+        if (distance <= FullEffectDistance || !paladin->HasAura(SPELL_PALADIN_BEACON_OF_THE_LIGHTBRINGER))
+            return distance;
+
+        // Beacon of Virtue auras are not tracked by the paladin, look for beacons around the target
+        float searchRange = std::min(distance, NoEffectDistance);
+        Unit* closestBeacon = nullptr;
+        auto isCloserBeacon = [&](Unit const* unit)
+        {
+            if (!target->IsWithinDist(unit, searchRange) || !unit->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PALADIN, BeaconClassMask, paladin->GetGUID()))
+                return false;
+
+            searchRange = target->GetDistance(unit);
+            return true;
+        };
+
+        Trinity::UnitLastSearcher searcher(target, closestBeacon, isCloserBeacon);
+        Cell::VisitAllObjects(target, searcher, searchRange);
+        return closestBeacon ? searchRange : distance;
+    }
+};
+
 // 204074 - Righteous Protector
 class spell_pal_righteous_protector : public AuraScript
 {
@@ -2020,6 +2074,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_light_s_beacon);
     RegisterSpellScript(spell_pal_light_hammer_init_summon);
     RegisterSpellScript(spell_pal_light_hammer_periodic);
+    RegisterSpellScript(spell_pal_mastery_lightbringer);
     RegisterSpellScript(spell_pal_righteous_protector);
     RegisterSpellScript(spell_pal_righteous_verdict);
     RegisterSpellScript(spell_pal_selfless_healer);

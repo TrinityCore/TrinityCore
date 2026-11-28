@@ -620,6 +620,23 @@ class spell_evo_living_flame : public SpellScript
     }
 };
 
+// 363510 - Mastery: Life-Binder
+class spell_evo_mastery_life_binder : public AuraScript
+{
+    void CalcHealingDone(AuraEffect const* aurEff, Unit* victim, SpellInfo const* /*spellInfo*/, SpellEffectInfo const& spellEffectInfo, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (spellEffectInfo.IsAura(SPELL_AURA_SCHOOL_ABSORB) || victim->GetHealthPct() >= GetUnitOwner()->GetHealthPct())
+            return;
+
+        AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcHealingDone += AuraEffectCalcHealingDoneFn(spell_evo_mastery_life_binder::CalcHealingDone, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 387761 Panacea (Green) (attached to 355913 - Emerald Blossom (Green) and 360995 - Verdant Embrace (Green))
 class spell_evo_panacea : public SpellScript
 {
@@ -864,6 +881,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_landslide);
     RegisterAreaTriggerAI(at_evo_landslide);
     RegisterSpellScript(spell_evo_living_flame);
+    RegisterSpellScript(spell_evo_mastery_life_binder);
     RegisterSpellScript(spell_evo_panacea);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);

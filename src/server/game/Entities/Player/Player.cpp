@@ -30764,6 +30764,23 @@ ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const
     return sChrSpecializationStore.LookupEntry(AsUnderlyingType(GetPrimarySpecialization()));
 }
 
+void Player::CallMasteryHealingDoneScripts(Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod) const
+{
+    ChrSpecializationEntry const* chrSpec = GetPrimarySpecializationEntry();
+    if (!chrSpec)
+        return;
+
+    for (int32 masterySpellId : chrSpec->MasterySpellID)
+    {
+        Aura* mastery = masterySpellId ? GetAura(masterySpellId, GetGUID()) : nullptr;
+        if (!mastery)
+            continue;
+
+        for (AuraEffect const* masteryEffect : mastery->GetAuraEffects())
+            mastery->CallScriptCalcHealingDoneHandlers(masteryEffect, mastery->GetApplicationOfTarget(GetGUID()), victim, spellInfo, spellEffectInfo, healing, flatMod, pctMod);
+    }
+}
+
 void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
 {
     WorldPackets::Instance::RaidGroupOnly raidGroupOnly;

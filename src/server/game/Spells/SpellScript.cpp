@@ -816,6 +816,7 @@ template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectCalcPeriodicHan
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectCalcSpellModHandler>& SpellScriptBase::HookList<AuraScript::EffectCalcSpellModHandler>::operator+=(AuraScript::EffectCalcSpellModHandler&& hook) noexcept;
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectCalcCritChanceHandler>& SpellScriptBase::HookList<AuraScript::EffectCalcCritChanceHandler>::operator+=(AuraScript::EffectCalcCritChanceHandler&& hook) noexcept;
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectCalcDamageAndHealingHandler>& SpellScriptBase::HookList<AuraScript::EffectCalcDamageAndHealingHandler>::operator+=(AuraScript::EffectCalcDamageAndHealingHandler&& hook) noexcept;
+template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectCalcHealingDoneHandler>& SpellScriptBase::HookList<AuraScript::EffectCalcHealingDoneHandler>::operator+=(AuraScript::EffectCalcHealingDoneHandler&& hook) noexcept;
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectAbsorbHandler>& SpellScriptBase::HookList<AuraScript::EffectAbsorbHandler>::operator+=(AuraScript::EffectAbsorbHandler&& hook) noexcept;
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::EffectAbsorbHealHandler>& SpellScriptBase::HookList<AuraScript::EffectAbsorbHealHandler>::operator+=(AuraScript::EffectAbsorbHealHandler&& hook) noexcept;
 template TC_GAME_API SpellScriptBase::HookList<AuraScript::CheckProcHandler>& SpellScriptBase::HookList<AuraScript::CheckProcHandler>::operator+=(AuraScript::CheckProcHandler&& hook) noexcept;
@@ -881,6 +882,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
     for (EffectCalcDamageAndHealingHandler const& hook : DoEffectCalcDamageAndHealing)
         if (!hook.GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcDamageAndHealing` of AuraScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
+
+    for (EffectCalcHealingDoneHandler const& hook : DoEffectCalcHealingDone)
+        if (!hook.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `{}` Effect `{}` of script `{}` did not match dbc effect data - handler bound to hook `DoEffectCalcHealingDone` of AuraScript won't be executed", entry->Id, hook.ToString(), m_scriptName);
 
     for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
@@ -1219,6 +1224,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
         case AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE:
         case AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING:
+        case AURA_SCRIPT_HOOK_EFFECT_CALC_HEALING_DONE:
         case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB:
         case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:

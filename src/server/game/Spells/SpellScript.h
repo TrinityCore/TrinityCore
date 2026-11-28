@@ -983,6 +983,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD,
     AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE,
     AURA_SCRIPT_HOOK_EFFECT_CALC_DAMAGE_AND_HEALING,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_HEALING_DONE,
     AURA_SCRIPT_HOOK_EFFECT_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     AURA_SCRIPT_HOOK_EFFECT_MANASHIELD,
@@ -1354,6 +1355,39 @@ public:
         void Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod) const
         {
             return _invoker.Thunk(*auraScript, aurEff, victim, damageOrHealing, flatMod, pctMod, _invoker.ImplStorage);
+        }
+    private:
+        ScriptFuncInvoker _invoker;
+    };
+
+    class EffectCalcHealingDoneHandler final : public EffectBase
+    {
+    public:
+        using ScriptFuncInvoker = AuraScript::ScriptFuncInvoker<void, AuraEffect const*, Unit*, SpellInfo const*, SpellEffectInfo const&, int32&, int32&, float&>;
+
+        template<typename ScriptFunc>
+        explicit EffectCalcHealingDoneHandler(ScriptFunc handler, uint8 effIndex, uint16 auraType)
+            : EffectBase(effIndex, auraType)
+        {
+            using ScriptClass = GetScriptClass_t<ScriptFunc>;
+
+            static_assert(ScriptFuncInvoker::Size >= sizeof(ScriptFunc));
+            static_assert(ScriptFuncInvoker::Alignment >= alignof(ScriptFunc));
+
+            if constexpr (std::is_member_function_pointer_v<ScriptFunc>)
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, Unit*, SpellInfo const*, SpellEffectInfo const&, int32&, int32&, float&>,
+                    R""(EffectCalcHealingDoneHandler signature must be "void CalcHealingDone(AuraEffect const* aurEff, Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod)")"");
+            else
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, Unit*, SpellInfo const*, SpellEffectInfo const&, int32&, int32&, float&>,
+                    R""(EffectCalcHealingDoneHandler signature must be "static void CalcHealingDone(your_script_class& script, AuraEffect const* aurEff, Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod)")"");
+
+            new (_invoker.ImplStorage.data()) ScriptFuncInvoker::Impl<ScriptFunc>{ .Func = handler };
+            _invoker.Thunk = &ScriptFuncInvoker::Impl<ScriptFunc>::Invoke;
+        }
+
+        void Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32& healing, int32& flatMod, float& pctMod) const
+        {
+            return _invoker.Thunk(*auraScript, aurEff, victim, spellInfo, spellEffectInfo, healing, flatMod, pctMod, _invoker.ImplStorage);
         }
     private:
         ScriptFuncInvoker _invoker;
@@ -1742,6 +1776,12 @@ public:
     #define AuraEffectCalcDamageFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
     #define AuraEffectCalcHealingFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
     #define AuraEffectCalcAbsorbFn(F, I) EffectCalcDamageAndHealingHandler(&F, I, SPELL_AURA_SCHOOL_ABSORB)
+
+    // executed for the mastery auras of a player's primary specialization when the player calculates the healing or absorb amount of any of its spells
+    // example: DoEffectCalcHealingDone += AuraEffectCalcHealingDoneFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+    // where function is: void function(AuraEffect const* aurEff, Unit* victim, SpellInfo const* spellInfo, int32& healing, int32& flatMod, float& pctMod);
+    HookList<EffectCalcHealingDoneHandler> DoEffectCalcHealingDone;
+    #define AuraEffectCalcHealingDoneFn(F, I, N) EffectCalcHealingDoneHandler(&F, I, N)
 
     // executed when absorb aura effect is going to reduce damage
     // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
