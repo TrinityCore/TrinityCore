@@ -3568,7 +3568,7 @@ enum TextEmotes
     TEXT_EMOTE_LEAN                 = 633,
 };
 
-// Emotes.db2 (12.0.7.68453)
+// Emotes.db2 (12.1.5.70961)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -3792,7 +3792,6 @@ enum Emote : uint32
     EMOTE_ONESHOT_FLYCOMBATWOUND                 = 552,
     EMOTE_ONESHOT_MOUNTSELFSPECIAL               = 553,
     EMOTE_ONESHOT_ATTACKUNARMED_NOSOUND          = 554,
-    EMOTE_STATE_WOUNDCRITICAL_DOESNT_WORK        = 555,
     EMOTE_ONESHOT_ATTACK1H_NO_SOUND              = 556,
     EMOTE_STATE_MOUNT_SELF_IDLE                  = 557,
     EMOTE_ONESHOT_WALK                           = 558,
@@ -3815,7 +3814,6 @@ enum Emote : uint32
     EMOTE_ONESHOT_SPECIALATTACK2H                = 587,
     EMOTE_STATE_READ_AND_TALK                    = 588,
     EMOTE_ONESHOT_STAND_VAR1                     = 589,
-    EMOTE_REXXAR_STRANGLES_GOBLIN                = 590,
     EMOTE_ONESHOT_STAND_VAR2                     = 591,
     EMOTE_ONESHOT_DEATH                          = 592,
     EMOTE_STATE_TALKONCE                         = 595,
@@ -4058,7 +4056,14 @@ enum Emote : uint32
     EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING       = 1129,
     EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND     = 1131,
     EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND    = 1132,
+    EMOTE_STATE_WASTIRRING_UNSHEATH              = 1133,
+    EMOTE_STATE_FLYATTACKUNARMED                 = 1140,
     EMOTE_ONESHOT_OFFER_LOOP                     = 1141,
+    EMOTE_ONESHOT_EXCLAMATION_NOSHEATHE          = 1145,
+    EMOTE_ONESHOT_QUESTION_NOSHEATHE             = 1146,
+    EMOTE_STATE_MOUNTSPECIAL                     = 1149,
+    EMOTE_STATE_WORK_CHOPMEAT_NOSHEATHE_HOUSING  = 1151,
+    EMOTE_STATE_WORK_CHOP                        = 1152,
 };
 
 // AnimationData.db2 (6.0.2.18988)
