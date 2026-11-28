@@ -4736,6 +4736,9 @@ bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, Area
     if (channel->GetFlags().HasFlag(ChatChannelFlags::ZoneBased) && zone->GetFlags().HasFlag(AreaFlags::NoChatChannels))
         return false;
 
+    if (channel->GetFlags().HasFlag(ChatChannelFlags::ZoneAttackAlerts) && zone->GetFlags().HasFlag(AreaFlags::NoLocalDefenseChannel))
+        return false;
+
     if (channel->GetFlags().HasFlag(ChatChannelFlags::OnlyInCities) && !zone->GetFlags().HasFlag(AreaFlags::AllowTradeChannel))
         return false;
 
