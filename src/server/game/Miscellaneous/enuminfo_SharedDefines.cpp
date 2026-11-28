@@ -2342,7 +2342,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr16>::ToString(SpellAttr16 value)
     switch (value)
     {
         case SPELL_ATTR16_UNK0: return { "SPELL_ATTR16_UNK0", "Unknown attribute 0@Attr16", "" };
-        case SPELL_ATTR16_UNK1: return { "SPELL_ATTR16_UNK1", "Unknown attribute 1@Attr16", "" };
+        case SPELL_ATTR16_DEADLY: return { "SPELL_ATTR16_DEADLY", "Deadly (client only)", "Damage is marked deadly in client damage events" };
         case SPELL_ATTR16_UNK2: return { "SPELL_ATTR16_UNK2", "Unknown attribute 2@Attr16", "" };
         case SPELL_ATTR16_UNK3: return { "SPELL_ATTR16_UNK3", "Unknown attribute 3@Attr16", "" };
         case SPELL_ATTR16_UNK4: return { "SPELL_ATTR16_UNK4", "Unknown attribute 4@Attr16", "" };
@@ -2386,7 +2386,7 @@ TC_API_EXPORT SpellAttr16 EnumUtils<SpellAttr16>::FromIndex(size_t index)
     switch (index)
     {
         case 0: return SPELL_ATTR16_UNK0;
-        case 1: return SPELL_ATTR16_UNK1;
+        case 1: return SPELL_ATTR16_DEADLY;
         case 2: return SPELL_ATTR16_UNK2;
         case 3: return SPELL_ATTR16_UNK3;
         case 4: return SPELL_ATTR16_UNK4;
@@ -2427,7 +2427,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr16>::ToIndex(SpellAttr16 value)
     switch (value)
     {
         case SPELL_ATTR16_UNK0: return 0;
-        case SPELL_ATTR16_UNK1: return 1;
+        case SPELL_ATTR16_DEADLY: return 1;
         case SPELL_ATTR16_UNK2: return 2;
         case SPELL_ATTR16_UNK3: return 3;
         case SPELL_ATTR16_UNK4: return 4;
