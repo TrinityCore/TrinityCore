@@ -1584,8 +1584,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr10>::ToString(SpellAttr10 value)
         case SPELL_ATTR10_ROLLING_PERIODIC: return { "SPELL_ATTR10_ROLLING_PERIODIC", "Rolling Periodic", "Add remaining periodic damage to new aura when refreshed" };
         case SPELL_ATTR10_UNK15: return { "SPELL_ATTR10_UNK15", "Unknown attribute 15@Attr10", "" };
         case SPELL_ATTR10_UNK16: return { "SPELL_ATTR10_UNK16", "Unknown attribute 16@Attr10", "" };
-        case SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING: return { "SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING", "Allow Defense While Casting", "" };
-        case SPELL_ATTR10_UNK18: return { "SPELL_ATTR10_UNK18", "Unknown attribute 18@Attr10", "" };
+        case SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING: return { "SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING", "Allow Defense While Casting", "" };
+        case SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING: return { "SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING", "Allow Defense While Channeling", "" };
         case SPELL_ATTR10_UNK19: return { "SPELL_ATTR10_UNK19", "Unknown attribute 19@Attr10", "" };
         case SPELL_ATTR10_UNK20: return { "SPELL_ATTR10_UNK20", "Unknown attribute 20@Attr10", "" };
         case SPELL_ATTR10_UNK21: return { "SPELL_ATTR10_UNK21", "Unknown attribute 21@Attr10", "" };
@@ -1628,8 +1628,8 @@ TC_API_EXPORT SpellAttr10 EnumUtils<SpellAttr10>::FromIndex(size_t index)
         case 14: return SPELL_ATTR10_ROLLING_PERIODIC;
         case 15: return SPELL_ATTR10_UNK15;
         case 16: return SPELL_ATTR10_UNK16;
-        case 17: return SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING;
-        case 18: return SPELL_ATTR10_UNK18;
+        case 17: return SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING;
+        case 18: return SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING;
         case 19: return SPELL_ATTR10_UNK19;
         case 20: return SPELL_ATTR10_UNK20;
         case 21: return SPELL_ATTR10_UNK21;
@@ -1669,8 +1669,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr10>::ToIndex(SpellAttr10 value)
         case SPELL_ATTR10_ROLLING_PERIODIC: return 14;
         case SPELL_ATTR10_UNK15: return 15;
         case SPELL_ATTR10_UNK16: return 16;
-        case SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING: return 17;
-        case SPELL_ATTR10_UNK18: return 18;
+        case SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING: return 17;
+        case SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING: return 18;
         case SPELL_ATTR10_UNK19: return 19;
         case SPELL_ATTR10_UNK20: return 20;
         case SPELL_ATTR10_UNK21: return 21;
