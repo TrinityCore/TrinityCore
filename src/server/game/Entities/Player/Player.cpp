@@ -17331,7 +17331,7 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
             if (Quest const* rewardQuest = GetNextQuest(questGiver, quest))
                 packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
 
-        if (questGiver->IsQuestGiver())
+        if (questGiver->IsQuestGiver() && !quest->HasFlagEx(QUEST_FLAGS_EX_SUPPRESS_GOSSIP_COMPLETE))
             packet.LaunchQuest = !packet.UseQuestReward && (GetQuestDialogStatus(questGiver) & ~QuestGiverStatusFutureMask) != QuestGiverStatus::None;
     }
 
