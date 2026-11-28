@@ -1423,6 +1423,8 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         RequiresSpellFocus = _castreq->RequiresSpellFocus;
         FacingCasterFlags = _castreq->FacingCasterFlags;
         RequiredAreasID = _castreq->RequiredAreasID;
+        MinFactionID = _castreq->MinFactionID;
+        MinReputation = _castreq->MinReputation;
     }
 
     // SpellCategoriesEntry
