@@ -1434,6 +1434,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         StartRecoveryCategory = _categories->StartRecoveryCategory;
         DmgClass = _categories->DefenseType;
         PreventionType = _categories->PreventionType;
+        DiminishTypeMask = _categories->DiminishType;
         ChargeCategoryId = _categories->ChargeCategory;
     }
 
@@ -2993,12 +2994,39 @@ void SpellInfo::_LoadSpellSpecific()
     }();
 }
 
+// SpellDiminish.db2 ids, index 0 is id 1
+static constexpr std::array<DiminishingGroup, 8> SpellDiminishGroups =
+{
+    DIMINISHING_ROOT,
+    DIMINISHING_TAUNT,
+    DIMINISHING_STUN,
+    DIMINISHING_AOE_KNOCKBACK,
+    DIMINISHING_INCAPACITATE,
+    DIMINISHING_DISORIENT,
+    DIMINISHING_SILENCE,
+    DIMINISHING_DISARM
+};
+
+SpellDiminishEntry const* SpellInfo::GetSpellDiminishEntry(DiminishingGroup group)
+{
+    auto itr = std::ranges::find(SpellDiminishGroups, group);
+    if (itr == SpellDiminishGroups.end())
+        return nullptr;
+
+    return sSpellDiminishStore.LookupEntry(uint32(std::distance(SpellDiminishGroups.begin(), itr)) + 1);
+}
+
 void SpellInfo::_LoadSpellDiminishInfo()
 {
     auto diminishingGroupCompute = [this]() -> DiminishingGroup
     {
         if (IsPositive())
             return DIMINISHING_NONE;
+
+        // DiminishType is a mask of SpellDiminish.db2 ids, bit 0 is id 1
+        for (std::size_t i = 0; i < SpellDiminishGroups.size(); ++i)
+            if (DiminishTypeMask & (1u << i))
+                return SpellDiminishGroups[i];
 
         if (HasAura(SPELL_AURA_MOD_TAUNT))
             return DIMINISHING_TAUNT;
@@ -3388,15 +3416,10 @@ void SpellInfo::_LoadSpellDiminishInfo()
 
     auto diminishingMaxLevelCompute = [](DiminishingGroup group) -> DiminishingLevels
     {
-        switch (group)
-        {
-            case DIMINISHING_TAUNT:
-                return DIMINISHING_LEVEL_TAUNT_IMMUNE;
-            case DIMINISHING_AOE_KNOCKBACK:
-                return DIMINISHING_LEVEL_2;
-            default:
-                return DIMINISHING_LEVEL_IMMUNE;
-        }
+        if (SpellDiminishEntry const* spellDiminish = GetSpellDiminishEntry(group))
+            return DiminishingLevels(std::max(spellDiminish->ImmunityStacks, spellDiminish->MaxStacks));
+
+        return DIMINISHING_LEVEL_IMMUNE;
     };
 
     auto diminishingLimitDurationCompute = [this]() -> int32

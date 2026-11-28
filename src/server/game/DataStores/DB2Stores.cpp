@@ -313,6 +313,7 @@ DB2Storage<SpellCategoriesEntry>                sSpellCategoriesStore("SpellCate
 DB2Storage<SpellCategoryEntry>                  sSpellCategoryStore("SpellCategory.db2", &SpellCategoryLoadInfo::Instance);
 DB2Storage<SpellClassOptionsEntry>              sSpellClassOptionsStore("SpellClassOptions.db2", &SpellClassOptionsLoadInfo::Instance);
 DB2Storage<SpellCooldownsEntry>                 sSpellCooldownsStore("SpellCooldowns.db2", &SpellCooldownsLoadInfo::Instance);
+DB2Storage<SpellDiminishEntry>                  sSpellDiminishStore("SpellDiminish.db2", &SpellDiminishLoadInfo::Instance);
 DB2Storage<SpellDurationEntry>                  sSpellDurationStore("SpellDuration.db2", &SpellDurationLoadInfo::Instance);
 DB2Storage<SpellEffectEntry>                    sSpellEffectStore("SpellEffect.db2", &SpellEffectLoadInfo::Instance);
 DB2Storage<SpellEquippedItemsEntry>             sSpellEquippedItemsStore("SpellEquippedItems.db2", &SpellEquippedItemsLoadInfo::Instance);
@@ -956,6 +957,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellCategoryStore);
     LOAD_DB2(sSpellClassOptionsStore);
     LOAD_DB2(sSpellCooldownsStore);
+    LOAD_DB2(sSpellDiminishStore);
     LOAD_DB2(sSpellDurationStore);
     LOAD_DB2(sSpellEffectStore);
     LOAD_DB2(sSpellEquippedItemsStore);
