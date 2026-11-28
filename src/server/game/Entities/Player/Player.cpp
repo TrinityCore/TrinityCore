@@ -8339,6 +8339,10 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
         if (spellInfo->CheckShapeshift(GetShapeshiftForm()) != SPELL_CAST_OK)
             return;
 
+        // Cannot be used above this level
+        if (spellInfo->MaxPassiveAuraLevel && GetLevel() > spellInfo->MaxPassiveAuraLevel)
+            return;
+
         if (formChange)                                    // check aura active state from other form
         {
             AuraApplicationMapBounds range = GetAppliedAuras().equal_range(spellInfo->Id);

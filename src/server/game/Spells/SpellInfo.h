@@ -385,6 +385,7 @@ class TC_GAME_API SpellInfo
         float ProcBasePPM = 0.0f;
         std::vector<SpellProcsPerMinuteModEntry const*> ProcPPMMods;
         uint32 MaxLevel = 0;
+        uint32 MaxPassiveAuraLevel = 0;
         uint32 BaseLevel = 0;
         uint32 SpellLevel = 0;
         SpellDurationEntry const* DurationEntry = nullptr;
