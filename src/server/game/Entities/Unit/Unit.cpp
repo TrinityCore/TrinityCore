@@ -595,6 +595,10 @@ void Unit::AtEndOfEncounter(EncounterType type)
 
         return false;
     }, true);
+
+    for (SpellCategoryEntry const* category : sSpellCategoryStore)
+        if (category->GetFlags().HasFlag(SpellCategoryFlags::ResetChargesUponEndingEncounter))
+            GetSpellHistory()->ResetCharges(category->ID);
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
