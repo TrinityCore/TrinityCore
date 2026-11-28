@@ -589,12 +589,18 @@ public:
 
         {
             auto const library_directory = GetLibraryDirectory();
-            if (!fs::exists(library_directory) || !fs::is_directory(library_directory))
+            if (!fs::exists(library_directory) || !fs::is_directory(library_directory) || fs::is_empty(library_directory))
             {
-                TC_LOG_ERROR("scripts.hotswap", "Library directory \"{}\" doesn't exist!.",
+                // This error is fatal because if there's no scripts, the server will otherwise
+                // start fine but will fail when running any commands.
+                TC_LOG_FATAL("scripts.hotswap", "Library directory \"{}\" doesn't exist or is empty!.",
+                            "Make sure HotSwap.ScriptDir is set correctly in your configuration file and that you have built the scripts.",
                     library_directory.generic_string());
+
+                ABORT();
                 return;
             }
+
         }
 
         temporary_cache_path_ = CalculateTemporaryCachePath();
