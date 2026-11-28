@@ -874,6 +874,11 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
 
+        if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_MAY_SHAPESHIFT))
+            if (SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(player->GetShapeshiftForm()))
+                if (!form->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance | SpellShapeshiftFormFlags::DontAutoUnshift))
+                    player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+
         // This is not perfectly mirroring official behavior (aura removal is delayed, most likely on heartbeat)
         player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Standing);
     }
