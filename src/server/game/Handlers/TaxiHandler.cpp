@@ -187,7 +187,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     uint32 preferredMountDisplay = 0;
     if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
     {
-        if (GetPlayer()->HasSpell(mount->SourceSpellID))
+        if (GetPlayer()->HasSpell(mount->SourceSpellID) && !mount->GetFlags().HasFlag(MountFlags::NotForUseAsATaxi))
         {
             if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mount->ID))
             {
