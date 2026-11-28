@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointManager.h"
 
@@ -624,6 +625,38 @@ void SmartAI::OnAuraApplied(AuraApplication const* aurApp)
 
 void SmartAI::OnAuraRemoved(AuraApplication const* aurApp)
 {
+    // Traveler's Tundra Mammoth vendors play their goodbye when the ride spell drops.
+    // Boarding removes and reapplies that aura before they are in the seat, while the
+    // summoner is still mounted. A real dismount clears the mount flag first.
+    enum TravelerMammoth
+    {
+        SPELL_TRAVELER_MAMMOTH_RIDE = 61424,
+        NPC_HAKMUD_OF_ARGUS         = 32638,
+        NPC_GNIMO                   = 32639,
+        NPC_DRIX_BLACKWRENCH        = 32641,
+        NPC_MOJODISHU               = 32642
+    };
+
+    if (aurApp->GetBase()->GetId() == SPELL_TRAVELER_MAMMOTH_RIDE)
+    {
+        switch (me->GetEntry())
+        {
+            case NPC_HAKMUD_OF_ARGUS:
+            case NPC_GNIMO:
+            case NPC_DRIX_BLACKWRENCH:
+            case NPC_MOJODISHU:
+                if (me->GetVehicle())
+                    return;
+                if (TempSummon* summon = me->ToTempSummon())
+                    if (Unit* summoner = summon->GetSummonerUnit())
+                        if (summoner->IsMounted())
+                            return;
+                break;
+            default:
+                break;
+        }
+    }
+
     GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_REMOVED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
 }
 

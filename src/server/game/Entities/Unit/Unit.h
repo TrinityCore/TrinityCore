@@ -1178,6 +1178,9 @@ class TC_GAME_API Unit : public WorldObject
         bool SetEnableFullSpeedTurning(bool enable);
         bool SetEnableFullSpeedPitching(bool enable);
         bool SetAlwaysAllowPitching(bool enable);
+        // Player mounts keep a vehicle only so passengers have seats. The vehicle
+        // record's locomotion flags must not stay on the player after dismount.
+        void ClearVehicleLocomotionFlags();
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);
