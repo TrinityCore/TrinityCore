@@ -7475,6 +7475,8 @@ void Player::UpdateArea(uint32 newArea)
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 
+    UpdateCityRestFlag();
+
     PushQuests();
 
     UpdateMountCapability();
@@ -7488,6 +7490,17 @@ void Player::UpdateArea(uint32 newArea)
         UpdateCriteria(CriteriaType::EnterArea, newArea);
         UpdateCriteria(CriteriaType::LeaveArea, oldArea);
     }
+}
+
+void Player::UpdateCityRestFlag()
+{
+    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(m_zoneUpdateId);
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaUpdateId);
+    if (zone && zone->GetFlags().HasFlag(AreaFlags::LinkedChat) && (!pvpInfo.IsHostile || zone->IsSanctuary())
+        && !(area && area->GetFlags2().HasFlag(AreaFlags2::ForceNoResting)))
+        _restMgr->SetRestFlag(REST_FLAG_IN_CITY);
+    else
+        _restMgr->RemoveRestFlag(REST_FLAG_IN_CITY);
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -7532,13 +7545,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateHostileAreaState(zone);
 
     if (zone->GetFlags().HasFlag(AreaFlags::LinkedChat)) // Is in a capital city
-    {
-        if (!pvpInfo.IsHostile || zone->IsSanctuary())
-            _restMgr->SetRestFlag(REST_FLAG_IN_CITY);
         pvpInfo.IsInNoPvPArea = true;
-    }
-    else
-        _restMgr->RemoveRestFlag(REST_FLAG_IN_CITY);
+
+    UpdateCityRestFlag();
 
     UpdatePvPState();
 
