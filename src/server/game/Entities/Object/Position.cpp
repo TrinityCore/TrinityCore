@@ -39,6 +39,27 @@ void Position::RelocateOffset(Position const& offset)
     SetOrientation(GetOrientation() + offset.GetOrientation());
 }
 
+void Position::RelocatePositionByAngle(Position& pos, float dist, float angle, bool relative /*= false*/) const
+{
+    if (!relative)
+        angle += GetOrientation();
+
+    pos.m_positionX = m_positionX + dist * std::cos(angle);
+    pos.m_positionY = m_positionY + dist * std::sin(angle);
+    pos.m_positionZ = m_positionZ;
+
+    // Note: if invalid coordinates, prevent relocation.
+    if (!Trinity::IsValidMapCoord(pos.m_positionX, pos.m_positionY))
+    {
+        pos.Relocate(this);
+        return;
+    }
+
+    Trinity::NormalizeMapCoord(pos.m_positionX);
+    Trinity::NormalizeMapCoord(pos.m_positionY);
+    pos.SetOrientation(GetOrientation());
+}
+
 bool Position::IsPositionValid() const
 {
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
